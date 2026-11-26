@@ -1,0 +1,99 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+__ test_service_owned_source_strings_are_charged_separately_from_dense_state ___
+
+    def test_service_owned_source_strings_are_charged_separately_from_dense_state():
+        def service(name):
+            return NativeServiceCore([], [], [(name, 0., 1.)], [(name, 0., 1.)])
+        short = service("a").storage_accounting()
+        long = service("a" * 513).storage_accounting()
+        # Freight and car labels are separate owned Strings, unlike journey laws.
+        assert long[0] - short[0] == 2 * 512
+        assert long[1:] == short[1:]
+>       assert short[1] > 0 and short[2] == 0
+E       assert (394 > 0 and 264 == 0)
+
+tests/v1/test_native_retained_accounting.py:69: AssertionError
+_ test_checkpoint_decode_rejects_oversized_reserve_before_reading_payload[packet_registry] _
+
+tmp_path = PosixPath('/tmp/pytest-of-cosmosapjw/pytest-623/test_checkpoint_decode_rejects0')
+allocation = 'packet_registry'
+
+    @pytest.mark.parametrize("allocation", ["packet_registry", "packet_parts"])
+    def test_checkpoint_decode_rejects_oversized_reserve_before_reading_payload(tmp_path, allocation):
+        city, legs, corridors = small_fixture()
+        _, calendar, payload = make_native(city, legs, corridors)
+        native = NativeWholeEngine(calendar, payload, 256 * 1024**2,
+                                  storage_policy="bounded_bytes_v1")
+        valid = tmp_path / "valid.bin"
+        native.save(str(valid), native.initial())
+        original = valid.read_bytes()
+        allowance = native.storage_config()["road_dynamic_allowance_bytes"]
+        probe = one_group(count=1)
+        probe.configure_storage_budget(allowance)
+        record_ceiling = probe.storage_limits()[1]
+
+        # Walk the fixed whole-engine / road identity frames, then the first cell's
+        # eight scalar fields. Payload counts remain within the raw row ceiling but
+        # exceed the simultaneous-owner byte envelope. A truncated body proves that
+        # the guard runs before the allocation/read, not after complete decoding.
+        offset = 8
+        for _ in range(2):
+            length = struct.unpack_from("<Q", original, offset)[0]
+            offset += 8 + length
+        offset += 8 + 8 + 8 * 8  # road time, cell count, first cell scalar fields
+        if allocation == "packet_registry":
+            tail = struct.pack("<Q", record_ceiling)
+        else:
+            tail = struct.pack("<QdQ", 1, 0., record_ceiling)
+        corrupt = tmp_path / "oversized.bin"
+        corrupt.write_bytes(original[:offset] + tail)
+        with pytest.raises(MemoryError, match="phase=checkpoint decode preflight"):
+>           native.load(str(corrupt))
+E           ValueError: native checkpoint length exceeds configuration/budget
+
+tests/v1/test_native_byte_budget.py:140: ValueError
+_ test_checkpoint_decode_rejects_oversized_reserve_before_reading_payload[packet_parts] _
+
+tmp_path = PosixPath('/tmp/pytest-of-cosmosapjw/pytest-623/test_checkpoint_decode_rejects1')
+allocation = 'packet_parts'
+
+    @pytest.mark.parametrize("allocation", ["packet_registry", "packet_parts"])
+    def test_checkpoint_decode_rejects_oversized_reserve_before_reading_payload(tmp_path, allocation):
+        city, legs, corridors = small_fixture()
+        _, calendar, payload = make_native(city, legs, corridors)
+        native = NativeWholeEngine(calendar, payload, 256 * 1024**2,
+                                  storage_policy="bounded_bytes_v1")
+        valid = tmp_path / "valid.bin"
+        native.save(str(valid), native.initial())
+        original = valid.read_bytes()
+        allowance = native.storage_config()["road_dynamic_allowance_bytes"]
+        probe = one_group(count=1)
+        probe.configure_storage_budget(allowance)
+        record_ceiling = probe.storage_limits()[1]
+
+        # Walk the fixed whole-engine / road identity frames, then the first cell's
+        # eight scalar fields. Payload counts remain within the raw row ceiling but
+        # exceed the simultaneous-owner byte envelope. A truncated body proves that
+        # the guard runs before the allocation/read, not after complete decoding.
+        offset = 8
+        for _ in range(2):
+            length = struct.unpack_from("<Q", original, offset)[0]
+            offset += 8 + length
+        offset += 8 + 8 + 8 * 8  # road time, cell count, first cell scalar fields
+        if allocation == "packet_registry":
+            tail = struct.pack("<Q", record_ceiling)
+        else:
+            tail = struct.pack("<QdQ", 1, 0., record_ceiling)
+        corrupt = tmp_path / "oversized.bin"
+        corrupt.write_bytes(original[:offset] + tail)
+        with pytest.raises(MemoryError, match="phase=checkpoint decode preflight"):
+>           native.load(str(corrupt))
+E           ValueError: native checkpoint length exceeds configuration/budget
+
+tests/v1/test_native_byte_budget.py:140: ValueError
+=========================== short test summary info ============================
+FAILED tests/v1/test_native_retained_accounting.py::test_service_owned_source_strings_are_charged_separately_from_dense_state
+FAILED tests/v1/test_native_byte_budget.py::test_checkpoint_decode_rejects_oversized_reserve_before_reading_payload[packet_registry]
+FAILED tests/v1/test_native_byte_budget.py::test_checkpoint_decode_rejects_oversized_reserve_before_reading_payload[packet_parts]
+3 failed in 0.20s

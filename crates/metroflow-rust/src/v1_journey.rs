@@ -5,7 +5,7 @@ use crate::v1_history::ReceiptHistory;
 use crate::v1_parallel::ordered_map;
 use crate::v1_road::{
     checkpoint_vec, read_exact_len, read_f64, read_len, read_u64, write_f64, write_len, write_u64,
-    ChunkedEvents, EventRow, V1Road,
+    ChunkedEvents, EventRow, RoadState, V1Road,
 };
 use crate::v1_stage::{Access, StageQueue};
 use pyo3::exceptions::{PyMemoryError, PyValueError};
@@ -1435,7 +1435,7 @@ pub fn advance_native_joint(
     let service = &mut *service;
     let journey = &mut *journey;
     py.allow_threads(move || {
-        advance_owned_joint(road, service, journey, &tags, count, step_s, None, 0)
+        advance_owned_joint(road, service, journey, &tags, count, step_s, None, 0, None)
     })
 }
 
@@ -1448,6 +1448,7 @@ pub(crate) fn advance_owned_joint(
     step_s: f64,
     dynamic_budget: Option<usize>,
     call_binding_reserve: usize,
+    call_input: Option<&RoadState>,
 ) -> PyResult<usize> {
     journey.phase_metrics = JourneyPhaseMetrics::default();
     // The Python input snapshot remains live throughout this call, even when
@@ -1588,7 +1589,7 @@ pub(crate) fn advance_owned_joint(
                     "road step",
                 )?)?;
             }
-            let result = road.propose_owned_step(step_s, physical);
+            let result = road.propose_owned_step(step_s, physical, call_input);
             journey.phase_metrics.road_step_s += phase_started.elapsed().as_secs_f64();
             let (road_candidate, events) = result?;
             let candidate_road_bytes = if dynamic_budget.is_some() {

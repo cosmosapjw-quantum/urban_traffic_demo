@@ -1264,55 +1264,43 @@ impl RoadState {
         }
         out
     }
-    /// Allocation-free conservative credit for Arc payloads guaranteed to be
-    /// live in BOTH owners at corresponding packet slots.
-    ///
-    /// Matching pairs never reuse the same owner slot, so each Arc pair
-    /// witnesses one duplicated payload even when several slots share an
-    /// allocation internally.  It is a lower bound on redundant payload and
-    /// never counts coincidentally equal Part values in distinct allocations.
-    /// Exactly shared, IMMUTABLE packet payload allocations across two
-    /// simultaneous original road states. Each ArcInner pointer of each
-    /// distinct concrete layout is counted AT MOST ONCE, even when a given
-    /// immutable keyset is referenced by thousands of independent packets.
-    /// No equality of contents, tags, age or scalar moments creates credit.
-    /// Only data payload Vec::capacity() bytes get credited, never metadata.
-    pub(crate) fn paired_shared_payload_lower_bound(&self,other:&RoadState)->usize {
-        fn each_backing(parts:&PacketParts,mut visit:impl FnMut(u8,usize,usize)){
-            match parts {
-                PacketParts::Uniform{rows,..}=>visit(
-                    0,Arc::as_ptr(rows) as usize,
-                    rows.capacity().saturating_mul(std::mem::size_of::<CorePart>())),
-                PacketParts::Mixed(rows)=>visit(
-                    1,Arc::as_ptr(rows) as usize,
-                    rows.capacity().saturating_mul(std::mem::size_of::<Part>())),
-                PacketParts::SharedKeys{keys,moments,..}=>{
-                    visit(2,Arc::as_ptr(keys) as usize,
-                          keys.capacity().saturating_mul(std::mem::size_of::<(u32,u32)>()));
-                    visit(3,Arc::as_ptr(moments) as usize,
-                          moments.capacity().saturating_mul(std::mem::size_of::<(f64,f64)>()));
-                },
+    /// Count guaranteed redundant payload across distinct, live input and
+    /// committed packet shells, without allocating before the guard.
+    pub(crate) fn paired_shared_payload_lower_bound(&self, other: &RoadState) -> usize {
+        if std::ptr::eq(self, other) {
+            return 0;
+        }
+        fn matched_bytes<T>(a: &Arc<Vec<T>>, b: &Arc<Vec<T>>) -> usize {
+            if !Arc::ptr_eq(a, b) {
+                return 0;
             }
+            // For k disjoint matching pairs of slots, both live states
+            // together own at least 2k references throughout this traversal.
+            // Dividing each contribution by floor(strong_count/2) credits at
+            // most one payload, even for a key dictionary shared by many rows.
+            let pairs = Arc::strong_count(a) / 2;
+            a.capacity().saturating_mul(std::mem::size_of::<T>()) / pairs
         }
-        let mut first=HashMap::<(u8,usize),usize>::new();
-        for packet in self.cells.iter().flat_map(|c|&c.packets)
-            .chain(self.pending.iter().flatten())
-        {
-            each_backing(&packet.parts,|kind,ptr,bytes|{
-                first.entry((kind,ptr)).or_insert(bytes);
-            });
+        fn packets_credit(a: &[Packet], b: &[Packet]) -> usize {
+            a.iter().zip(b).fold(0usize, |sum, (a, b)| {
+                let bytes = match (&a.parts, &b.parts) {
+                    (PacketParts::Uniform { rows: x, .. }, PacketParts::Uniform { rows: y, .. }) =>
+                        matched_bytes(x, y),
+                    (PacketParts::Mixed(x), PacketParts::Mixed(y)) => matched_bytes(x, y),
+                    (PacketParts::SharedKeys { keys: k, moments: m, .. },
+                     PacketParts::SharedKeys { keys: l, moments: n, .. }) =>
+                        matched_bytes(k, l).saturating_add(matched_bytes(m, n)),
+                    _ => 0,
+                };
+                sum.saturating_add(bytes)
+            })
         }
-        let mut credited=0usize;
-        for packet in other.cells.iter().flat_map(|c|&c.packets)
-            .chain(other.pending.iter().flatten())
-        {
-            each_backing(&packet.parts,|kind,ptr,_|{
-                if let Some(bytes)=first.remove(&(kind,ptr)){
-                    credited=credited.saturating_add(bytes);
-                }
-            });
-        }
-        credited
+        let cells = self.cells.iter().zip(&other.cells).fold(0usize, |sum, (a, b)| {
+            sum.saturating_add(packets_credit(&a.packets, &b.packets))
+        });
+        self.pending.iter().zip(&other.pending).fold(cells, |sum, (a, b)| {
+            sum.saturating_add(packets_credit(a, b))
+        })
     }
 
     /// Diagnostic-only exact Vec *payload capacity* identity census.
@@ -3100,7 +3088,12 @@ impl V1Road {
             && self.routes.len() < u32::MAX as usize
             && self.groups.len() < u32::MAX as usize
     }
-    fn work_budget(&self, state: &RoadState, offers: &[Offer]) -> PyResult<RoadWorkBudget> {
+    fn work_budget(
+        &self,
+        state: &RoadState,
+        offers: &[Offer],
+        call_input: Option<&RoadState>,
+    ) -> PyResult<RoadWorkBudget> {
         if self.storage_budget.is_none() {
             return Ok(RoadWorkBudget {
                 limit: None,
@@ -3123,35 +3116,16 @@ impl V1Road {
         let groups = self.groups.len();
         let supplied_retained = state.retained_storage_bytes();
         let maximum_retained = supplied_retained.max(self.retained_input_bytes);
-        // The actual native call restored the caller's immutable RoadState
-        // using Arc cloning. At this exact road_step source seam, state and
-        // self.state are the same committed owner (std::ptr::eq), and the
-        // caller's held input snapshot has pointer-identical immutable Arc
-        // payload backings. The original 3*max conservative owner allowance
-        // double-charges those physically unique payloads.
-        //
-        // In a capped call with known retained call input, deduct AT MOST
-        // ONE independently confirmed, unique physically shared payload
-        // allocation across original source+committed owners. Never credit
-        // cloned shell Vecs, metadata, or a hypothetical candidate. The
-        // 8GiB policy and every numerical/physical rule stay unchanged.
-        let exact_shared = if self.retained_input_bytes>0
-            && std::ptr::eq(state,&self.state)
-            && self.state.t == state.t
-        {
-            state.paired_shared_payload_lower_bound(&self.state)
-                .min(maximum_retained)
-        } else {0};
-        // Preserve the older experimental opt-in trace for historical
-        // comparisons, without requiring it or double-crediting the same
-        // physical bytes in current original-source code.
+        // The Python caller retains the same immutable input until the whole
+        // advance ends. Later ticks may replace every originally shared Arc.
+        let exact_shared = call_input.map_or(0, |input| {
+            state.paired_shared_payload_lower_bound(input)
+                .min(supplied_retained.min(self.retained_input_bytes))
+        });
         let optin = std::env::var("METROFLOW_EXPERIMENTAL_ARC_PAIR_BUDGET")
-            .ok().as_deref()==Some("source_pair_only");
-        let experimental_credit = if optin && self.state.t==state.t {
-            state.paired_shared_payload_lower_bound(&self.state)
-                .min(maximum_retained)
-        } else {0};
-        let paired_credit=exact_shared.max(experimental_credit);
+            .ok().as_deref() == Some("source_pair_only");
+        let experimental_credit = if optin { exact_shared } else { 0 };
+        let paired_credit = exact_shared;
         crate::v1_trace::add("arc.default_pointer_verified_credit",exact_shared as u64);
         crate::v1_trace::add("arc.experimental_paired_credit",experimental_credit as u64);
         let combine_scratch=stats.max_cell_parts
@@ -3298,7 +3272,7 @@ impl V1Road {
 
     pub(crate) fn owned_step(&mut self, dt: f64, offers: Vec<Offer>) -> PyResult<Vec<EventRow>> {
         self.begin_call_storage_accounting();
-        let (mut s, pages) = self.step_state(&self.state, dt, offers)?;
+        let (mut s, pages) = self.step_state(&self.state, dt, offers, None)?;
         let e=self.materialize_event_after_road(&mut s,pages)?;
         self.state = s;
         Ok(e)
@@ -3310,8 +3284,9 @@ impl V1Road {
         &self,
         dt: f64,
         offers: Vec<Offer>,
+        call_input: Option<&RoadState>,
     ) -> PyResult<(RoadState, ChunkedEvents)> {
-        let (mut state, pages) = self.step_state(&self.state, dt, offers)?;
+        let (mut state, pages) = self.step_state(&self.state, dt, offers, call_input)?;
         self.intern_candidate_keysets(&mut state, pages.retained_storage_bytes())?;
         crate::v1_trace::add("event_history.retained_rows", pages.len() as u64);
         crate::v1_trace::add("event_history.retained_storage_bytes", pages.retained_storage_bytes() as u64);
@@ -3784,6 +3759,7 @@ impl V1Road {
         s: &RoadState,
         dt: f64,
         offers: Vec<Offer>,
+        call_input: Option<&RoadState>,
     ) -> PyResult<(RoadState, ChunkedEvents)> {
         self.check_state(s)?;
         if !dt.is_finite() || dt <= 0. {
@@ -3796,7 +3772,7 @@ impl V1Road {
         }
         // Reserve the working allowance before copying large state/source
         // vectors. Large Vec allocations below use fallible reservations.
-        let mut work = self.work_budget(s, &offers)?;
+        let mut work = self.work_budget(s, &offers, call_input)?;
         if crate::v1_trace::enabled() {
             let stats = s.debug_stats();
             crate::v1_trace::add("tick.offers", offers.len() as u64);
@@ -3952,7 +3928,7 @@ impl V1Road {
         let mut incoming: Vec<ChunkedParts> = (0..n)
             .map(|_| ChunkedParts::new(compact_incoming)).collect();
         // Diagnostic only: source (cell, head position, rate bits) per incoming row.
-        let mut incoming_src: Vec<Vec<(usize, usize, u64)>> = if crate::v1_trace::enabled() {
+        let mut incoming_src: Vec<Vec<(usize, usize, u64)>> = if crate::v1_trace::source_attribution_enabled() {
             vec![vec![]; n]
         } else {
             Vec::new()
@@ -5007,7 +4983,7 @@ impl V1Road {
     }
     fn step(&mut self, py: Python<'_>, dt: f64, offers: Vec<Offer>) -> PyResult<Vec<EventRow>> {
         self.begin_call_storage_accounting();
-        let (mut s, pages) = py.allow_threads(|| self.step_state(&self.state, dt, offers))?;
+        let (mut s, pages) = py.allow_threads(|| self.step_state(&self.state, dt, offers, None))?;
         let e=self.materialize_event_after_road(&mut s,pages)?;
         self.state = s;
         Ok(e)
@@ -5021,7 +4997,7 @@ impl V1Road {
         self.begin_call_storage_accounting();
         let mut events = vec![];
         for (dt, offers) in steps {
-            let (mut s, pages) = py.allow_threads(|| self.step_state(&self.state, dt, offers))?;
+            let (mut s, pages) = py.allow_threads(|| self.step_state(&self.state, dt, offers, None))?;
             let e=self.materialize_event_after_road(&mut s,pages)?;
             self.state = s;
             events.push(e);
@@ -5561,6 +5537,16 @@ mod conservative_arc_pair_credit_tests {
         assert_eq!(source.arc_backing_census().duplicate_payload_bytes,0);
         let unrelated=one();
         assert_eq!(source.paired_shared_payload_lower_bound(&unrelated),0);
+    }
+
+    #[test]
+    fn unshared_original_input_earns_zero_after_the_committed_state_changes() {
+        let original = one();
+        let first_tick = original.clone();
+        assert!(first_tick.paired_shared_payload_lower_bound(&original) > 0);
+        let later_tick = one();
+        assert_eq!(later_tick.paired_shared_payload_lower_bound(&original), 0);
+        assert_eq!(later_tick.paired_shared_payload_lower_bound(&later_tick), 0);
     }
 
     #[test]

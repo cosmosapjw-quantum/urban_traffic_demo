@@ -1432,6 +1432,7 @@ impl NativeWholeEngine {
                     step,
                     dynamic_budget,
                     call_binding_reserve,
+                    Some(&state.value.road),
                 )
             })
         });

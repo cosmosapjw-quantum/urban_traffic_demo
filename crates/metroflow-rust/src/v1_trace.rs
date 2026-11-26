@@ -9,7 +9,7 @@ use pyo3::prelude::*;
 use pyo3::types::PyDict;
 use std::collections::BTreeMap;
 use std::sync::atomic::{AtomicU8, Ordering};
-use std::sync::Mutex;
+use std::sync::{Mutex, OnceLock};
 
 #[cfg(feature = "budget_trace")]
 mod counting {
@@ -116,6 +116,14 @@ pub(crate) fn enabled() -> bool {
     mode() >= 2
 }
 
+/// Historical record/observe traces include source-row attribution by default.
+pub(crate) fn source_attribution_enabled() -> bool {
+    static SOURCE: OnceLock<bool> = OnceLock::new();
+    enabled() && *SOURCE.get_or_init(|| {
+        std::env::var("METROFLOW_TRACE_SOURCE_ATTRIBUTION").as_deref() != Ok("off")
+    })
+}
+
 /// Record one guard evaluation. Returns true only when a diagnostic
 /// `budget_trace` build runs in observe mode and the guard was exceeded, in
 /// which case the caller continues instead of raising.
@@ -163,6 +171,7 @@ pub(crate) fn budget_trace_snapshot(py: Python<'_>, reset: bool) -> PyResult<PyO
             _ => "off",
         },
     )?;
+    out.set_item("source_attribution", source_attribution_enabled())?;
     out.set_item("alloc_counting", cfg!(feature = "budget_trace"))?;
     #[cfg(feature = "budget_trace")]
     {
