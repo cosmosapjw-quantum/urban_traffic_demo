@@ -12,6 +12,7 @@ mod reroute;
 mod routing;
 mod v1_routing;
 mod v1_calendar;
+mod v1_area;
 mod v1_road;
 mod v1_kcmb;
 mod v1_kcmb_node;
