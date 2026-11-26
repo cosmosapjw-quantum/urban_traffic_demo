@@ -1,0 +1,2 @@
+e061ec0759673c778bd759a572a49fb2658f7341fdfa58e0a15117c031bfe7ca  /tmp/metroflow_pure_rust_20261127/metroflow-v03-campaign
+de81493baa22f2f28e5a57e627afe14394fbe600c9967b49ae250427dceda923  /tmp/metroflow_pure_rust_20261127/C09_campaign/valley_weekday_s7/dt10-r0.bin
