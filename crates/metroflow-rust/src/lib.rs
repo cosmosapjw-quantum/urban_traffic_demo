@@ -1339,3 +1339,7 @@ mod atlas_seed;
 mod atlas_roads;
 #[cfg(feature="native-cli")]
 mod atlas_zoning;
+#[cfg(feature="native-cli")]
+mod atlas_portals;
+#[cfg(feature="native-cli")]
+pub mod atlas_generate;

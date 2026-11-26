@@ -74,7 +74,7 @@ pub(crate) fn crossing(a: Point, b: Point, c: Point, d: Point) -> Option<f64> {
         None
     }
 }
-fn segment_inside(a: Point, b: Point, p: &[Point]) -> bool {
+pub(crate) fn segment_inside(a: Point, b: Point, p: &[Point]) -> bool {
     if !inside(a, p) || !inside(b, p) {
         return false;
     }
@@ -105,7 +105,7 @@ fn segment_inside(a: Point, b: Point, p: &[Point]) -> bool {
 fn point_cmp(a: &Point, b: &Point) -> std::cmp::Ordering {
     a[0].total_cmp(&b[0]).then(a[1].total_cmp(&b[1]))
 }
-fn canonical(mut p: Vec<Point>) -> CoreResult<Vec<Point>> {
+pub(crate) fn canonical(mut p: Vec<Point>) -> CoreResult<Vec<Point>> {
     if p.len() > 1 && p.first() == p.last() {
         p.pop();
     }
@@ -160,7 +160,7 @@ fn canonical(mut p: Vec<Point>) -> CoreResult<Vec<Point>> {
     p.rotate_left(k);
     Ok(p)
 }
-fn triangulate(mut p: Vec<Point>) -> CoreResult<Vec<[Point; 3]>> {
+pub(crate) fn triangulate(mut p: Vec<Point>) -> CoreResult<Vec<[Point; 3]>> {
     let mut result = Vec::with_capacity(p.len() - 2);
     while p.len() > 3 {
         let n = p.len();

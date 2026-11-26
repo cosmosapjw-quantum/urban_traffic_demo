@@ -52,3 +52,8 @@ required-features = ["native-cli"]
 name = "metroflow-geometry-bench"
 path = "src/bin/metroflow-geometry-bench.rs"
 required-features = ["native-cli"]
+
+[[bin]]
+name = "metroflow-atlas-generate"
+path = "src/bin/metroflow-atlas-generate.rs"
+required-features = ["native-cli"]

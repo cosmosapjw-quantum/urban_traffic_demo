@@ -142,6 +142,7 @@ pub(crate) struct City {
     pub source_sha256: String,
     pub patch_sha256: String,
     pub population: u64,
+    pub unplaced_residents: u64,
     pub geometry_audit: crate::terrain_validation::Report,
     pub nodes: BTreeMap<String, Node>,
     pub blocks: Vec<Block>,
@@ -400,7 +401,7 @@ pub(crate) fn load(root: &Path, case: &Case, population: u64) -> CoreResult<City
     if source_sha != patch.base_sha256 || source_sha != audit.source_sha256 {
         return Err(bad("source map SHA differs"));
     }
-    let raw: RawCity = from_xz(&bytes)?;
+    let mut raw: RawCity = from_xz(&bytes)?;
     if raw.schema != "metroflow_city_v1"
         || raw.identity != patch.parent_identity
         || patch.identity != audit.identity
@@ -410,6 +411,34 @@ pub(crate) fn load(root: &Path, case: &Case, population: u64) -> CoreResult<City
     {
         return Err(bad("frozen city binding differs"));
     }
+    raw.portals = patch.portals;
+    raw.identity = audit.identity;
+    compile_raw(raw, source_sha, audit.patch_sha256)
+}
+
+/// New native identity is a SHA of the exact typed snapshot payload with the
+/// identity slot blank. Never pretend to be the Python JSON/repr digest.
+pub(crate) fn bind_snapshot(mut value: Value) -> CoreResult<(Value, City)> {
+    if value["schema"] != "metroflow_city_v1"
+        || value["identity_scheme"] != "metroflow_native_city_v1"
+    {
+        return Err(bad("native snapshot schema"));
+    }
+    let old = value["identity"].as_str().unwrap_or("").to_owned();
+    value["identity"] = json!("");
+    let bytes = serde_json::to_vec(&value).map_err(|e| bad(e.to_string()))?;
+    let id = hash(&bytes);
+    if !old.is_empty() && old != id {
+        return Err(bad("native snapshot digest differs"));
+    }
+    value["identity"] = json!(id);
+    let raw: RawCity = serde_json::from_value(value.clone()).map_err(|e| bad(e.to_string()))?;
+    let city = compile_raw(raw, id.clone(), id)?;
+    Ok((value, city))
+}
+
+fn compile_raw(raw: RawCity, source_sha: String, patch_sha: String) -> CoreResult<City> {
+    let population = raw.requested_population;
     let count = raw.roadmap.nodes.len();
     let nodes: BTreeMap<_, _> = raw
         .roadmap
@@ -425,7 +454,7 @@ pub(crate) fn load(root: &Path, case: &Case, population: u64) -> CoreResult<City
     {
         return Err(bad("node registry"));
     }
-    let (mut blocks, mut portals) = (raw.blocks, patch.portals);
+    let (mut blocks, mut portals) = (raw.blocks, raw.portals);
     blocks.sort_by(|a, b| a.id.cmp(&b.id));
     portals.sort_by(|a, b| a.id.cmp(&b.id));
     let block_lookup: BTreeMap<_, _> = blocks.iter().map(|b| (b.id.as_str(), b)).collect();
@@ -547,10 +576,11 @@ pub(crate) fn load(root: &Path, case: &Case, population: u64) -> CoreResult<City
         developed.len(),
     )?;
     Ok(City {
-        identity: audit.identity,
+        identity: raw.identity,
         source_sha256: source_sha,
-        patch_sha256: audit.patch_sha256,
+        patch_sha256: patch_sha,
         population,
+        unplaced_residents: raw.unplaced_residents,
         geometry_audit,
         nodes,
         blocks,
