@@ -1,0 +1,86 @@
+{
+  "failed": {
+    "road_work:transfer candidates": {
+      "calls": 142377,
+      "exceeded": 1,
+      "limit_at_max": 4881896463,
+      "live_at_max": 3600479515,
+      "max_ratio": 1.0000000706692578,
+      "max_required": 4881896808,
+      "terms_at_max": {
+        "base": 3378307376,
+        "event_bytes": 1074464312,
+        "event_candidate_live_bound": 421563696,
+        "extra": 0,
+        "full_source_base": 3565321424,
+        "incoming_actual_descriptor_bytes": 0,
+        "incoming_actual_page_charge": 429125120,
+        "incoming_descriptors_frozen": 0,
+        "incoming_live_pages": 101200,
+        "incoming_rows": 12942619,
+        "interval_retained": 0,
+        "interval_transient": 0,
+        "timed_incoming_control_bytes": 4034240,
+        "transfer_exclusive_cell_scratch": 187014048
+      }
+    }
+  },
+  "transfer": {
+    "xfer.head_rows": [
+      142376,
+      13108667,
+      627
+    ],
+    "xfer.new_head_rows": [
+      116124,
+      8654597,
+      627
+    ],
+    "xfer.partial_rows": [
+      26262,
+      4455488,
+      454
+    ],
+    "xfer.partial_serve": [
+      142376,
+      26262,
+      1
+    ],
+    "xfer.rate_change_contiguous_rows": [
+      4,
+      250,
+      113
+    ],
+    "xfer.same_head_gap_rows": [
+      2490,
+      345969,
+      273
+    ],
+    "xfer.same_rate_contiguous_rows": [
+      23758,
+      4107851,
+      454
+    ],
+    "xfer.serve_incoming_rows": [
+      142376,
+      12942489,
+      621
+    ],
+    "xfer.serve_rows": [
+      142376,
+      13108667,
+      627
+    ],
+    "xfer.sink_rows": [
+      142376,
+      166178,
+      12
+    ],
+    "xfer.substep_heads": [
+      116139,
+      142375,
+      2
+    ]
+  },
+  "rust_heap_peak_bytes": 3600479851
+}

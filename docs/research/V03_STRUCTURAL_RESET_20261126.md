@@ -51,3 +51,7 @@ For the coding cycle retain the original 6 GiB native binding and 8 GiB address 
 ## C01. Bind the reference checkpoint and comparison endpoints
 
 Verified the baseline Git and native identities, compressed recovery checksum, raw size and original release-matrix identity. Use the same original resume receipt for a 25,720 s start, 10 s steps, report/ledger checks and an independent wire digest at the first successful subsequent tick. The legacy record-mode run was rejected at 25,730 s. The original observed-mode probe uses its own receipt schema and monitors the child from a parent that survives allocation failure.
+
+## C02. Identify repeated owners at both sides of the road step
+
+Detailed transfer source: V1Road::work_budget, transfer_indexed, ChunkedEvents::push_checked and its service/checkpoint consumers. Events are pushed in physical service order; consecutive source/time repeats permit exact run indexing even if destinations change. The receiving timed-row pages still materialize destination/birth/mark payloads; their future interval-combination cost must be measured after carrier replacement. Full guard recording also triggers per-incoming-row diagnostic provenance and its census. A separate defect in the original multi-tick calculation compares a road owner with itself to infer sharing with a different caller. Identify both effects before drawing resource conclusions. The 11/24 trace below records the actual winning site and its counters.
