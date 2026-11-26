@@ -1,0 +1,8 @@
+{
+ "schema":"metroflow_access_declarations_v1","dwell_s":0,"max_expanded_groups":100,
+ "roads":[{"length_m":100,"cap_mps":10,"entry_veh_s":2,"exit_veh_s":2,"storage_m":120},{"length_m":100,"cap_mps":10,"entry_veh_s":2,"exit_veh_s":2,"storage_m":120}],
+ "allowed_turns":[],"paths":[[0],[1]],"windows":[[0,60,300,360],[0,0,0,0]],
+ "laws":[[{"delay_s":0,"weight":0.5},{"delay_s":10,"weight":0.5}],[{"delay_s":0,"weight":0.25},{"delay_s":20,"weight":0.75}],[{"delay_s":0,"weight":1}]],
+ "cohorts":[{"forward":0,"backward":1,"purpose":0,"mass":1,"origin_law":0,"destination_law":1,"class":0,"phase_group":0},{"forward":0,"backward":null,"purpose":1,"mass":1,"origin_law":2,"destination_law":2,"class":2,"phase_group":1},{"forward":1,"backward":null,"purpose":1,"mass":0.1,"origin_law":2,"destination_law":2,"class":1,"phase_group":2}],
+ "kinetics":{"preferred_mps":10,"response_s":2,"accel_mps2":2,"brake_mps2":4,"entry_mps":0}
+}

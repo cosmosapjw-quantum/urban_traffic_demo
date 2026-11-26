@@ -2,5 +2,6 @@
 pub mod access;
 pub mod input;
 pub mod kinetics;
+pub mod prepare;
 pub mod queue;
 pub mod receipt;

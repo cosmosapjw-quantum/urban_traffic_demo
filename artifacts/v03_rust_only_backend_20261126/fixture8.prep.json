@@ -1,0 +1,15 @@
+{
+  "input_sha256": "cffacb55ab9d073bd5f25acebba0097c61abee35cc9e7bd250dbcf90145f01a9",
+  "network_sha256": "026eb47da36189edc87650177adbc898e22e524a036fb1dd6e151ff7c8af4903",
+  "passages_sha256": "4fdd98ab7e4126f96d9f2055132130773f9e22f06173422305ea6267175cc98a",
+  "peak_rss_bytes": 4513792,
+  "report": {
+    "distinct_law_pairs": 2,
+    "expanded_groups": 5,
+    "input_cohorts": 3,
+    "max_group_mass_error": 0.0
+  },
+  "schema": "metroflow_access_preparation_receipt_v1",
+  "threads": 8,
+  "wall_s": 0.001095727
+}
