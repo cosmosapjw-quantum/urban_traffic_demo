@@ -1,0 +1,15 @@
+{
+  "owners_bytes": 5301435192,
+  "road_bytes": 2756039504,
+  "journey_bytes": 958486984,
+  "event_bytes": 1586908704,
+  "charged_decoder_scratch_bytes": 936563136,
+  "nondecoder_validation_bytes": 376822636,
+  "allowed_bytes": 5789366871,
+  "required_bytes": 6237998328,
+  "excess_bytes": 448631457,
+  "maximum_scratch_if_owner_terms_unchanged_bytes": 487931679,
+  "conditional_required_if_only_validation_scratch_remained_bytes": 5678257828,
+  "conditional_headroom_if_only_validation_scratch_remained_bytes": 111109043,
+  "interpretation": "conditional arithmetic only: must bound actual uninterned decoder and restore; no cap or admission changed"
+}
