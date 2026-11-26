@@ -1,0 +1,83 @@
+{
+  "frozen_sha256": "7ff4d01b8dcd596723a56efa00cba5a9def0c8557fc636e93fc6900c2cd4625d",
+  "scope": "native diagnostic internal-policy arm, not original release acceptance",
+  "scored": {
+    "25730": {
+      "metrics": {
+        "car_admitted_veh": {
+          "predicted": 996.9118548401216,
+          "observed": 996.9118548401027,
+          "delta": 1.887201506178826e-11,
+          "relative_error": 1.887379141862766e-14
+        },
+        "car_exited_veh": {
+          "predicted": 172.52452799936196,
+          "observed": 165.67414414841522,
+          "delta": 6.850383850946741,
+          "relative_error": 0.04134853924345605
+        },
+        "car_subsystem_stock_veh": {
+          "predicted": 824.3873268407597,
+          "observed": 831.2377106916874,
+          "delta": -6.850383850927756,
+          "relative_error": -0.008241185118066152
+        }
+      },
+      "receipts": [
+        {
+          "file": "arm75.jsonl",
+          "native_phase": "validated",
+          "completed_single_segment_buses": 4,
+          "physical_row_sha256": "dedc57ffc544270fea9149768372ccc10a7770fd6c9bd6e267154e0244316312",
+          "native_wall_s": 36.80374200909864
+        },
+        {
+          "file": "combined75.jsonl",
+          "native_phase": "validated",
+          "completed_single_segment_buses": 4,
+          "physical_row_sha256": "c9b9adb9862980be71b0d4497688d8d81d94b4bb90235739fe0606c79ab430c8",
+          "native_wall_s": 35.25989501795266
+        },
+        {
+          "file": "indexed-wide.jsonl",
+          "native_phase": "validated",
+          "completed_single_segment_buses": 4,
+          "physical_row_sha256": "11b4fec437b04ed86c330f29d78457d543688d75d193f9893135fcbf53e33793",
+          "native_wall_s": 39.11783218907658
+        }
+      ]
+    },
+    "25740": {
+      "metrics": {
+        "car_admitted_veh": {
+          "predicted": 1023.2192398052497,
+          "observed": 1023.21923980523,
+          "delta": 1.9667822925839573e-11,
+          "relative_error": 1.9317880628477724e-14
+        },
+        "car_exited_veh": {
+          "predicted": 182.4670864015847,
+          "observed": 174.9468274748809,
+          "delta": 7.520258926703804,
+          "relative_error": 0.042985969138443325
+        },
+        "car_subsystem_stock_veh": {
+          "predicted": 840.752153403665,
+          "observed": 848.2724123303491,
+          "delta": -7.5202589266840505,
+          "relative_error": -0.008865381942605666
+        }
+      },
+      "receipts": [
+        {
+          "file": "indexed-wide.jsonl",
+          "native_phase": "validated",
+          "completed_single_segment_buses": 4,
+          "physical_row_sha256": "a210f0c44e9f548bae416286830d27576f4658905e39ebf8833320e401b956fb",
+          "native_wall_s": 47.71568801207468
+        }
+      ]
+    }
+  },
+  "prediction_only": []
+}

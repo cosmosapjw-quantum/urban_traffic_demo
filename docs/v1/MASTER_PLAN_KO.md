@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.31**, 2026-11-24. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.32**, 2026-11-26. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -2118,7 +2118,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-Measure ordered candidate event and incoming row/control allocations at the new Valley live frontier. Evaluate an exact contiguous (source,start_bits,end_bits) event-run representation with a sequential consumer: preserve row order, tag, destination, mass/birth bits, legacy checkpoint expansion and legal route support. Verify page-rounded run/payload break-even, projection overflow, all singleton and mixed runs, and actual complete original ticks under unchanged budgets. Use the fixed-support progressive junction gradient certificate for a separate marked-rank model only where head support, eligibility and branch guards match. Then progress Valley to the same fresh and resumed horizons, check refined dt, and run the unchanged three-city x3 86400-s release matrix. No changes to demand, finite-response law or acceptance. Retain V03 BLOCKED and 0/9 until execution evidence.
+Keep the release RSS and wall contract. In an isolated V03 research branch, replace the row-materializing sink/interval consumer with ordered streaming reductions and a per-cell timed sweep. Compare the full native retained-state wire, mass and journey moments through a sustained loaded window; measure transfer rows per unit physical service and wall per physical second. For city-model revision, carry original entry/transfer clocks and finite receiving/queue storage across a congested bottleneck, comparing matched native arrivals, exits and occupancy. Expand to a second city and full release runs once the same coupled physics clears the peak. A guard-only change or a single new tick is insufficient evidence for scaling.
 
 **예산·종료조건**
 
@@ -2302,11 +2302,11 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "V03"
   ],
   "native_subagent": "COMPLETED_SCOPED",
-  "scope": "Ten coupled theory/code stages. Exact Valley restore closed; measured full-demand fresh and resumed evidence retained, three full-calendar preparations; original full days 0/9.",
+  "scope": "Ten theory stages and ten implementation/experimental stages. Three preparations; class- and clock-matched onset, full-day Valley projection, matched internal-budget comparison. Original full days 0/9.",
   "full_repository_ci": "DEFERRED_BY_USER",
   "full_day_100k": "BLOCKED_RESOURCE_0_OF_9",
   "main_modified": false,
-  "evidence": "artifacts/v03_remainder_rebuild_20261124/L10_RESEARCH_RECEIPT.json",
+  "evidence": "artifacts/v03_structural_reset_20261126/C10_RESEARCH_RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
@@ -2315,17 +2315,21 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "status": "success"
   },
   "parallel_agents": [
-    "early: exact-real progressive junction stability and rational oracle"
+    "marked transfer theory",
+    "Valley city replay and closure",
+    "event codec and ordered consumer",
+    "retained owner accounting",
+    "matched budget intervention"
   ],
-  "active_branch": "research/v03-remainder-rebuild-20261124",
-  "production_commit": "f66adf1742d594de44f91646a46a2cd882e6eefc",
-  "research_stages_completed": 10,
-  "research_stages_total": 10,
-  "source_commit": "2971071e5a57c9828fd7bfc5d3c3c5c8e1df5759",
-  "native_source_sha256": "87b29e13abd67b9cbf851dcc93bce4b1778fe8d4e99574b463a0ddb2cbad49d6",
-  "native_binary_sha256": "26b6b79ca0922c6defb2ec2fabbcaeac98b0b269922e313b18d3c4c52895273f",
-  "current_loop_stages_completed": 10,
-  "current_loop_stages_total": 10,
+  "active_branch": "research/v03-structural-reset-20261126",
+  "production_commit": "563c9d606eb7f9e091034190b1e2ffcdf519cca5",
+  "research_stages_completed": 20,
+  "research_stages_total": 20,
+  "source_commit": "563c9d606eb7f9e091034190b1e2ffcdf519cca5",
+  "native_source_sha256": "a2ebf6b3a3da140115fd1d3af26f7fed3e16315bece82d551c0c58e3495285cc",
+  "native_binary_sha256": "a18ce56ad30c58e7510bbe27c064f5e04ff40943e8e5f30617428c4254b98a7f",
+  "current_loop_stages_completed": 20,
+  "current_loop_stages_total": 20,
   "current_loop_native_subagent": "COMPLETED_SCOPED"
 }
 ```

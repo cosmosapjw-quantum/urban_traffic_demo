@@ -1,0 +1,28 @@
+{
+  "mode": "record",
+  "child_exit": 3,
+  "wall_limit_hit": false,
+  "wall_s": 68.87716691498645,
+  "validated_times_s": [],
+  "sampled_process_high_water_bytes": {
+    "VmPeak": 3285553152,
+    "VmHWM": 3210952704
+  },
+  "last_event": "rejected",
+  "original_release_eligible": false,
+  "events": "indexed-six-trace.jsonl",
+  "argv": [
+    "--mode",
+    "record",
+    "--raw",
+    "/tmp/metroflow_v03_base_20261126/valley.bin",
+    "--reference",
+    "artifacts/v03_measure_lift_20261123/S06_fresh0.json",
+    "--steps",
+    "1",
+    "--hash-steps",
+    "1",
+    "--out",
+    "../indexed-six-trace.json"
+  ]
+}

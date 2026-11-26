@@ -1,0 +1,24 @@
+--- compare_internal_budget.py
++++ indexed_wire_replay.py
+@@ -29,2 +29,2 @@
+-def emit(path, phase, **data):
+-    with path.open("a") as handle:
++def emit(receipt_path, phase, **data):
++    with receipt_path.open("a") as handle:
+@@ -121,0 +122 @@
++    parser.add_argument("--reference-wide-receipt", type=Path, required=True)
+@@ -170,0 +172,6 @@
++    from tools.research.run_v03_prefix import wire_evidence
++    c05=json.loads(args.reference_wide_receipt.read_text())
++    def retain_max():
++        if state.time_s>25730:
++            wire=wire_evidence(driver,state,args.result.parent,args.result.with_suffix(".final.bin.gz"))
++            emit(args.result,"terminal_wire",time_s=state.time_s,**wire)
+@@ -180,0 +188 @@
++            retain_max()
+@@ -189,0 +198,5 @@
++        if state.time_s==25730:
++            wire=wire_evidence(driver,state,args.result.parent)
++            assert wire["raw_bytes"]==c05["wire"]["raw_bytes"] and wire["raw_sha256"]==c05["wire"]["raw_sha256"]
++            emit(args.result,"matched_c05_wire",time_s=state.time_s,**wire)
++    retain_max()

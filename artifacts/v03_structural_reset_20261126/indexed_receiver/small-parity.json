@@ -1,0 +1,18 @@
+{
+  "bounded_bytes_v1": {
+    "states": 8,
+    "full_wire_and_ledger_exact": true,
+    "nonempty": 10,
+    "reference_count": [
+      345,
+      0,
+      0
+    ]
+  },
+  "legacy_records": {
+    "states": 8,
+    "full_wire_and_ledger_exact": true,
+    "nonempty": 10,
+    "reference_count": null
+  }
+}

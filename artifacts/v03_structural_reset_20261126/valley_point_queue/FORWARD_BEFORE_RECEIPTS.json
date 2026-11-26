@@ -1,0 +1,23 @@
+{
+  "city": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+  "schedule": "d9b3345d26e7b9beea2bd9012a2d58f088b64662cfa82de6b66758cb176da4f9",
+  "network_sha256": "4422f446e0e9c7b3db9f361c88cfa1aa3c974e656c6ef813b2d01e22e7db5ced",
+  "observation_step_s": 10,
+  "code_sha256": {
+    "forward_onset.py": "c5ad8adaa189002becd45eaa8e557fb861429330068e99e896144f2b04458bf5",
+    "native_phase_boundary.py": "e71dc704e8e49bc8c68da7917609a90d7d9789dfb0661fa42958e1f29cd02aa6",
+    "physical_onset.py": "46f5b8874e474480ad83dfd612e7a0734fc036fbd9bf8d6f3949f8e2f602782c"
+  },
+  "predictions": {
+    "25730": {
+      "car_admitted_veh": 996.9118548401216,
+      "car_exited_veh": 172.52452799936196,
+      "car_subsystem_stock_veh": 824.3873268407597
+    },
+    "25740": {
+      "car_admitted_veh": 1023.2192398052497,
+      "car_exited_veh": 182.4670864015847,
+      "car_subsystem_stock_veh": 840.752153403665
+    }
+  }
+}

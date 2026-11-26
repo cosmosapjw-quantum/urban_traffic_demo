@@ -1,0 +1,107 @@
+{
+  "schema": "original_valley_car_surgical_onset_v1",
+  "city": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+  "schedule": "d9b3345d26e7b9beea2bd9012a2d58f088b64662cfa82de6b66758cb176da4f9",
+  "network_sha256": "4422f446e0e9c7b3db9f361c88cfa1aa3c974e656c6ef813b2d01e22e7db5ced",
+  "step_s": 10,
+  "vehicle": {
+    "preferred_m_s": 10,
+    "entry_m_s": 0.0,
+    "response_s": 2.0,
+    "accel_m_s2": 2.0,
+    "brake_m_s2": 4.0,
+    "scalar_passage_max_abs_discrepancy": 1.0185630117121036e-11
+  },
+  "matched_car_calendar_legs": 304368,
+  "distinct_paths": 38916,
+  "clocks": {
+    "25700": {
+      "ref": "artifacts/v03_causal_rank_20261123/S04_original_continuation.json",
+      "sha256": "b8e818d9fe7fa638b633e72cfeca2a58a32b748001cbf32caf7b3ae52fecd698",
+      "native_admitted_veh": 918.1750575039921,
+      "source_phase_admitted_veh": 918.175057504009,
+      "native_exited_veh": 139.59831861060766,
+      "arms": {
+        "prior_point_queue": {
+          "exited_veh": 208.1669320533333,
+          "error_veh": 68.56861344272565,
+          "relative_error": 0.49118509538778454
+        },
+        "free_flow": {
+          "exited_veh": 210.5489042150716,
+          "error_veh": 70.95058560446392,
+          "relative_error": 0.5082481387356237
+        },
+        "free_kinetic": {
+          "exited_veh": 207.14173511419153,
+          "error_veh": 67.54341650358387,
+          "relative_error": 0.4838411893196788
+        },
+        "native_link_phase": {
+          "exited_veh": 144.72505693475796,
+          "error_veh": 5.1267383241502955,
+          "relative_error": 0.03672492889008705
+        }
+      }
+    },
+    "25710": {
+      "ref": "artifacts/v03_coding_reconstruction_20261123/C7_original_continuation.json",
+      "sha256": "5b81e13ed41d0e98fa7434bb269d1d9ba98ad0c853a4e57f1897e2579c9323de",
+      "native_admitted_veh": 944.4198466711207,
+      "source_phase_admitted_veh": 944.4198466711383,
+      "native_exited_veh": 147.9676850680397,
+      "arms": {
+        "prior_point_queue": {
+          "exited_veh": 221.16045615999997,
+          "error_veh": 73.19277109196025,
+          "relative_error": 0.49465375536762735
+        },
+        "free_flow": {
+          "exited_veh": 223.4800739661721,
+          "error_veh": 75.5123888981324,
+          "relative_error": 0.5103302715279332
+        },
+        "free_kinetic": {
+          "exited_veh": 219.93972234238174,
+          "error_veh": 71.97203727434203,
+          "relative_error": 0.4864037525575078
+        },
+        "native_link_phase": {
+          "exited_veh": 153.63461893038357,
+          "error_veh": 5.666933862343853,
+          "relative_error": 0.03829845590770731
+        }
+      }
+    },
+    "25720": {
+      "ref": "artifacts/v03_measure_lift_20261123/S06_fresh0.json",
+      "sha256": "903b93b3e8aad6e8ec2e53a5281f8de2dc355c393b16eeee0e2135a84f98549e",
+      "native_admitted_veh": 970.6658507556117,
+      "source_phase_admitted_veh": 970.6658507556299,
+      "native_exited_veh": 156.66177945804435,
+      "arms": {
+        "prior_point_queue": {
+          "exited_veh": 234.62206946666666,
+          "error_veh": 77.96029000862231,
+          "relative_error": 0.497634396074895
+        },
+        "free_flow": {
+          "exited_veh": 236.8980126892803,
+          "error_veh": 80.23623323123596,
+          "relative_error": 0.5121621464329407
+        },
+        "free_kinetic": {
+          "exited_veh": 233.23550667469127,
+          "error_veh": 76.57372721664692,
+          "relative_error": 0.48878371917864083
+        },
+        "native_link_phase": {
+          "exited_veh": 162.89848060924567,
+          "error_veh": 6.236701151201316,
+          "relative_error": 0.0398099726224006
+        }
+      }
+    }
+  },
+  "wall_s": 59.01481221197173
+}

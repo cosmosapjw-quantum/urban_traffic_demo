@@ -1,0 +1,38 @@
+{
+  "schema": "metroflow.research.indexed_receiving_frontier_archive.v1",
+  "case": "valley_weekday_s7",
+  "native_sha256": "c76bee7258ef9b042c582c21bd35d93f9a7839f1f909dc3f9a2a529b1463948b",
+  "source_commit": "338ef2a542aeb27a2c9cf096c97acc1a700d7159",
+  "trace_mode": "record",
+  "internal_bytes": 8053063680,
+  "outer_bytes": 8589934592,
+  "validated_s": [
+    25730.0,
+    25740.0
+  ],
+  "rejected_target_s": 25750.0,
+  "last_error": "native road storage budget exceeded: phase=transfer candidates, required_bytes=6279735415, budget_bytes=6279647199",
+  "release_eligible": false,
+  "trace_sha256": "a14b2f68b18b2298c222d5c4224d617145fabcb58baa6a90cb182cebaaf61d92",
+  "archive_writer_metadata": "JSON emitter duplicate path after CRC-complete gzip creation; independently recovered from the closed file",
+  "gzip_path": "/tmp/metroflow-index-incoming-FwjBNm/indexed-wide.final.bin.gz",
+  "compressed_bytes": 1412841263,
+  "compressed_sha256": "70d962bf2510db36b6cf3069617d95e825c247a540ff033a70210ebf69333331",
+  "raw_sha256": "7122ca4ccb400ff1c5b336d026dd801f68e6ff29e0a5bb494c10e95ff319765d",
+  "raw_bytes": 6575906346,
+  "gzip_crc_checked": true,
+  "restored_time_s": 25740.0,
+  "matched_fields": [
+    "time_s",
+    "city_identity",
+    "schedule_identity",
+    "assignment",
+    "ledger",
+    "released_intent_first_moments",
+    "service"
+  ],
+  "complete_ledger_match": true,
+  "full_reserialization_exact": true,
+  "verification_wall_s": 263.38159107998945,
+  "peak_rss": 2810118144
+}

@@ -1,0 +1,50 @@
+{
+  "research_branch": "research/v03-indexed-receive-experiment-20261126",
+  "commit": "338ef2a542aeb27a2c9cf096c97acc1a700d7159",
+  "parent_release_implementation": "563c9d606eb7f9e091034190b1e2ffcdf519cca5",
+  "native_sha256": "2fafcd43ee7ffe6d7e3af85d03f08863a4ae9ee40e7b8df77179af2097d8a8c9",
+  "experimental_environment": {
+    "METROFLOW_EXPERIMENTAL_EVENT_INDEX_INCOMING": "1",
+    "METROFLOW_BUDGET_TRACE": "record",
+    "METROFLOW_TRACE_SOURCE_ATTRIBUTION": "off"
+  },
+  "contract": "12-byte event reference, path offset and control for eligible emitted non-sink transfers. Source admissions without a prior event remain owned; original event lifetime extends through combination.",
+  "strict_6g_frontier": {
+    "restored_time_s": 25720,
+    "validated_through_s": 25720,
+    "attempt_s": 25730,
+    "eligible_rows_referenced": 23932417,
+    "transfer_required_bytes": 4797447101,
+    "phase_budget_bytes": 4881896463,
+    "next_combine_required_bytes": 4977552461,
+    "native_counting_allocator_feature": false
+  },
+  "promotion_status": "Experimental sibling. This prototype adds 32 bytes of empty reference-page descriptors per eligible cell even with the opt-in disabled. Total for 1586 Valley cells is 50752 B. Scope descriptor tables to the enabled lane before a default merge.",
+  "tests": {
+    "rust_passed": 199,
+    "rust_ignored": 2,
+    "unchanged_finite_fixture_wires": 16,
+    "nonzero_index_coverage": "Dedicated Rust tests and measured real-city counter. Replayed small fixture had zero referenced rows.",
+    "dedicated_multiclass_replay": "100 states including events; flags off/on identical, 75 actual event references, 122 exits"
+  },
+  "instrumented_wide_native_sha256": "c76bee7258ef9b042c582c21bd35d93f9a7839f1f909dc3f9a2a529b1463948b",
+  "measured_same_tick_payloads": {
+    "logical_rows": 23983145,
+    "controls": 298570,
+    "default_bytes": 779603968,
+    "indexed_bytes": 300583936,
+    "saved_bytes": 479020032
+  },
+  "instrumented_policy_comparison": {
+    "sibling_checked_six_gib_s": 25720,
+    "combined_checked_seven_point_five_gib_s": 25730,
+    "sibling_checked_seven_point_five_gib_s": 25740,
+    "next_rejected_s": 25750,
+    "next_required_bytes": 6279735415,
+    "phase_budget_bytes_at_rejection": 6279647199,
+    "validated_second_tick_s": 47.71568801207468,
+    "validated_second_tick_hwm_bytes": 4613996544,
+    "receiving_rows_at_25740": 28976061,
+    "timed_receiving_payload_at_25740_bytes": 362884608
+  }
+}

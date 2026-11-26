@@ -41,7 +41,7 @@ def run_child(args):
     assert source["source_dirty"] is False and native["status"] == "MEASURED"
     trace = budget_trace_snapshot(reset=True)
     assert trace["mode"] == args.mode and trace["alloc_counting"]
-    emit(args.events, phase="binding", mode=args.mode, source=source["source_sha256"],
+    emit(args.events, phase="binding", mode=args.mode, source_attribution=trace.get("source_attribution"), source=source["source_sha256"],
          binary=native["sha256"], commit=source["git_commit"], reference_sha=file_sha256(args.reference),
          raw_sha=reference["final_checkpoint_sha256"], address_cap=actual_cap,
          matrix_sha=reference["original_matrix_sha256"], selected_case=case["id"])
@@ -117,7 +117,7 @@ def supervise(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--mode", choices=["observe","record"], required=True)
+    parser.add_argument("--mode", choices=["off","record","observe"], required=True)
     parser.add_argument("--raw", type=Path, required=True)
     parser.add_argument("--reference", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)

@@ -1,0 +1,31 @@
+{
+  "time_s": 25730,
+  "wire_bytes": 5523765378,
+  "differing_header_offsets": [
+    97,
+    98,
+    99,
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    234,
+    235,
+    236,
+    237,
+    238,
+    239,
+    240,
+    241,
+    242,
+    243
+  ],
+  "experimental_raw_sha256": "c2ff8adc483a240ff35815b4358a025467a159ae8e4bdb52c135f54c43b07ebc",
+  "physical_suffix_sha256": "0a16039baa3ea73f61f3c834c712efa0c4eea007b0f2855ba040ff6b2c32faf0",
+  "normalized_sha256": "c8335535408e13266bb4b5f15b10d0854701e644421ae3e8183d7c468d9183c9",
+  "control_raw_sha256": "c8335535408e13266bb4b5f15b10d0854701e644421ae3e8183d7c468d9183c9",
+  "exact_except_two_budget_bindings": true
+}

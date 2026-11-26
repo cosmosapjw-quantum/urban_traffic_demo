@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.31",
-  "date": "2026-11-24",
+  "version": "1.1.32",
+  "date": "2026-11-26",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
   "base_research_sha": "0a7c980d3934146a978280fe76045443ad12640e",
@@ -371,11 +371,11 @@
       "V03"
     ],
     "native_subagent": "COMPLETED_SCOPED",
-    "scope": "Ten coupled theory/code stages. Exact Valley restore closed; measured full-demand fresh and resumed evidence retained, three full-calendar preparations; original full days 0/9.",
+    "scope": "Ten theory stages and ten implementation/experimental stages. Three preparations; class- and clock-matched onset, full-day Valley projection, matched internal-budget comparison. Original full days 0/9.",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "BLOCKED_RESOURCE_0_OF_9",
     "main_modified": false,
-    "evidence": "artifacts/v03_remainder_rebuild_20261124/L10_RESEARCH_RECEIPT.json",
+    "evidence": "artifacts/v03_structural_reset_20261126/C10_RESEARCH_RECEIPT.json",
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
@@ -384,17 +384,21 @@
       "status": "success"
     },
     "parallel_agents": [
-      "early: exact-real progressive junction stability and rational oracle"
+      "marked transfer theory",
+      "Valley city replay and closure",
+      "event codec and ordered consumer",
+      "retained owner accounting",
+      "matched budget intervention"
     ],
-    "active_branch": "research/v03-remainder-rebuild-20261124",
-    "production_commit": "f66adf1742d594de44f91646a46a2cd882e6eefc",
-    "research_stages_completed": 10,
-    "research_stages_total": 10,
-    "source_commit": "2971071e5a57c9828fd7bfc5d3c3c5c8e1df5759",
-    "native_source_sha256": "87b29e13abd67b9cbf851dcc93bce4b1778fe8d4e99574b463a0ddb2cbad49d6",
-    "native_binary_sha256": "26b6b79ca0922c6defb2ec2fabbcaeac98b0b269922e313b18d3c4c52895273f",
-    "current_loop_stages_completed": 10,
-    "current_loop_stages_total": 10,
+    "active_branch": "research/v03-structural-reset-20261126",
+    "production_commit": "563c9d606eb7f9e091034190b1e2ffcdf519cca5",
+    "research_stages_completed": 20,
+    "research_stages_total": 20,
+    "source_commit": "563c9d606eb7f9e091034190b1e2ffcdf519cca5",
+    "native_source_sha256": "a2ebf6b3a3da140115fd1d3af26f7fed3e16315bece82d551c0c58e3495285cc",
+    "native_binary_sha256": "a18ce56ad30c58e7510bbe27c064f5e04ff40943e8e5f30617428c4254b98a7f",
+    "current_loop_stages_completed": 20,
+    "current_loop_stages_total": 20,
     "current_loop_native_subagent": "COMPLETED_SCOPED"
   },
   "nodes": [
@@ -1896,7 +1900,7 @@
       "failure_classification": [
         "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
       ],
-      "positive_next_action": "Measure ordered candidate event and incoming row/control allocations at the new Valley live frontier. Evaluate an exact contiguous (source,start_bits,end_bits) event-run representation with a sequential consumer: preserve row order, tag, destination, mass/birth bits, legacy checkpoint expansion and legal route support. Verify page-rounded run/payload break-even, projection overflow, all singleton and mixed runs, and actual complete original ticks under unchanged budgets. Use the fixed-support progressive junction gradient certificate for a separate marked-rank model only where head support, eligibility and branch guards match. Then progress Valley to the same fresh and resumed horizons, check refined dt, and run the unchanged three-city x3 86400-s release matrix. No changes to demand, finite-response law or acceptance. Retain V03 BLOCKED and 0/9 until execution evidence.",
+      "positive_next_action": "Keep the release RSS and wall contract. In an isolated V03 research branch, replace the row-materializing sink/interval consumer with ordered streaming reductions and a per-cell timed sweep. Compare the full native retained-state wire, mass and journey moments through a sustained loaded window; measure transfer rows per unit physical service and wall per physical second. For city-model revision, carry original entry/transfer clocks and finite receiving/queue storage across a congested bottleneck, comparing matched native arrivals, exits and occupancy. Expand to a second city and full release runs once the same coupled physics clears the peak. A guard-only change or a single new tick is insufficient evidence for scaling.",
       "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
       "contracts": [
         "C_RUNTIME",
@@ -1916,8 +1920,8 @@
         "sha": "97b09576f5fe96f8e08d07a4bed80a841ffb2679"
       },
       "blocked_evidence": {
-        "path": "artifacts/v03_remainder_rebuild_20261124/L09_resume25720.json",
-        "sha256": "631cd47920a5daa10a719d616c3da6396325bc8452fbfea5b4660f751a92c5be"
+        "path": "artifacts/v03_structural_reset_20261126/strict_lean_fresh.json",
+        "sha256": "7e897c80f22513c3923c512a9d517877b777c4711b6e241e09585b05cfa205aa"
       },
       "resource_optimization_evidence": [
         {
@@ -2004,15 +2008,24 @@
         {
           "path": "artifacts/v03_measure_lift_20261123/S06_resume25710.json",
           "sha256": "f928e477f152d4f15f4d17fdde700a23a132896d73c59184721ad0241b17a3b2"
+        },
+        {
+          "path": "artifacts/v03_remainder_rebuild_20261124/L09_resume25720.json",
+          "sha256": "631cd47920a5daa10a719d616c3da6396325bc8452fbfea5b4660f751a92c5be"
+        },
+        {
+          "path": "artifacts/v03_remainder_rebuild_20261124/L10_fresh0.json",
+          "sha256": "e5c5d166b132843d220322cef88536534b9b50f33e9164224b125770af5c679e"
         }
       ],
       "current_research_evidence": {
-        "path": "artifacts/v03_remainder_rebuild_20261124/L10_RESEARCH_RECEIPT.json",
-        "status": "10/10; original Valley exact restore blocker closed; V03 still BLOCKED, 0/9 full days",
-        "source_sha256": "87b29e13abd67b9cbf851dcc93bce4b1778fe8d4e99574b463a0ddb2cbad49d6",
-        "native_sha256": "26b6b79ca0922c6defb2ec2fabbcaeac98b0b269922e313b18d3c4c52895273f",
-        "baseline_commit": "aae52d2b4cfb0f32e6f91b1cf9f7d40d33a37236",
-        "theory_path": "docs/research/V03_PROGRESSIVE_NODE_STABILITY_20261124.md"
+        "path": "artifacts/v03_structural_reset_20261126/C10_RESEARCH_RECEIPT.json",
+        "sha256": "a16db159f85d7ef3712dce4ef89454a6d38fb79f330447d3574e39c1c02df9e0",
+        "status": "Theory 10/10, code 10/10; strict and diagnostic results recorded separately, 0/9 full release days.",
+        "source_sha256": "a2ebf6b3a3da140115fd1d3af26f7fed3e16315bece82d551c0c58e3495285cc",
+        "native_sha256": "a18ce56ad30c58e7510bbe27c064f5e04ff40943e8e5f30617428c4254b98a7f",
+        "baseline_commit": "5c8486cc7d8ba090b7883bff5c0f1fb3ed1448c3",
+        "theory_path": "docs/research/V03_WINDOWED_TAG_TRANSPORT_20261126.md"
       },
       "historical_research_evidence": [
         {
@@ -2036,11 +2049,19 @@
           "native_sha256": "378619a766b352f4f524addd4f06797541c8460fa45385d6e0cab6bc661d20d5",
           "baseline_commit": "e81bdda0e5d3735b7141985cd749a169d1222033",
           "theory_path": "docs/research/V03_MARKED_CUMULATIVE_TRANSPORT_20261123.md"
+        },
+        {
+          "path": "artifacts/v03_remainder_rebuild_20261124/L10_RESEARCH_RECEIPT.json",
+          "status": "10/10; original Valley exact restore blocker closed; V03 still BLOCKED, 0/9 full days",
+          "source_sha256": "87b29e13abd67b9cbf851dcc93bce4b1778fe8d4e99574b463a0ddb2cbad49d6",
+          "native_sha256": "26b6b79ca0922c6defb2ec2fabbcaeac98b0b269922e313b18d3c4c52895273f",
+          "baseline_commit": "aae52d2b4cfb0f32e6f91b1cf9f7d40d33a37236",
+          "theory_path": "docs/research/V03_PROGRESSIVE_NODE_STABILITY_20261124.md"
         }
       ],
       "secondary_blocked_evidence": {
-        "path": "artifacts/v03_remainder_rebuild_20261124/L10_fresh0.json",
-        "sha256": "e5c5d166b132843d220322cef88536534b9b50f33e9164224b125770af5c679e"
+        "path": "artifacts/v03_structural_reset_20261126/strict_lean_resume.json",
+        "sha256": "0b2c1acefc55588002977fdb33da875af013e7247f625a4e5c93fb3816d5c59a"
       }
     },
     {
@@ -2219,6 +2240,13 @@
       "reason": "Original Valley checkpoint load was blocked by a future install clone charged concurrently with validation scratch.",
       "change": "Use separate lifetime accounting for load validation, retaining decoder, install and process limits, exact checkpoint validation and existing physics. Keep scoped junction stability separate from whole-city release acceptance.",
       "evidence": "artifacts/v03_remainder_rebuild_20261124/L10_RESEARCH_RECEIPT.json"
+    },
+    {
+      "date": "2026-11-26",
+      "authority": "Requested budget critique, restart from original scientific motivation, and verified theory and implementation loops.",
+      "reason": "Guard rejection, resident memory, virtual memory and repeated marked work have different causes. Per-owner accounting and a new causal model exposed gaps.",
+      "change": "Keep all original V03 gates. Separate hypothetical internal budgets and reduced-physics city runs in research evidence; use the original claims for release.",
+      "evidence": "artifacts/v03_structural_reset_20261126/C10_RESEARCH_RECEIPT.json"
     }
   ],
   "implementation_progress": {
@@ -2282,10 +2310,10 @@
     "dag_policy": "V03 internal migration work; no new DAG nodes, 19/21 unchanged until acceptance",
     "historical_local_patch_sha256": "7d89e8be20339709a9c0dc894a26dc7db75bdc0d857637ffb30f7bc7fe4a1326",
     "last_completed_work": {
-      "date": "2026-11-23",
-      "scope": "Exact event carrier and source remainder fixes, constructive FIFO/rank/error/stability proofs, actual464-row adapter scaling, current-source Valley0-to25700s with full old-wire equality, current3/3 full calendars, bounded independent review; original25710indexed sweep remainsblocked.",
-      "evidence": "artifacts/v03_causal_rank_20261123/S10_FINAL_RECEIPT.json"
+      "date": "2026-11-26",
+      "scope": "Ten theory stages and ten implementation/experimental stages. Three preparations; class- and clock-matched onset, full-day Valley projection, matched internal-budget comparison. Original full days 0/9.",
+      "evidence": "artifacts/v03_structural_reset_20261126/C10_RESEARCH_RECEIPT.json"
     },
-    "active_work": "No task-owned experiment remains running. Current-source0-to25700prefix and compressed-wire identity verified; full three-city preparations3/3; indexed sweep blocker retained. Next production work is the rank/span-to-ordered-interval consumer path with original complete-tick evidence. V03BLOCKED and RLS01PLANNED; original full days0/9."
+    "active_work": "Keep the release RSS and wall contract. In an isolated V03 research branch, replace the row-materializing sink/interval consumer with ordered streaming reductions and a per-cell timed sweep. Compare the full native retained-state wire, mass and journey moments through a sustained loaded window; measure transfer rows per unit physical service and wall per physical second. For city-model revision, carry original entry/transfer clocks and finite receiving/queue storage across a congested bottleneck, comparing matched native arrivals, exits and occupancy. Expand to a second city and full release runs once the same coupled physics clears the peak. A guard-only change or a single new tick is insufficient evidence for scaling."
   }
 }

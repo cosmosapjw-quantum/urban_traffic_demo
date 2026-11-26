@@ -1,0 +1,74 @@
+--- point_queue.cpp
++++ point_queue_phase.cpp
+@@ -28,6 +28,11 @@
+     Phase phase;
+     bool returning;
+ };
++// Only observation/release is staged. The capacity server retains its continuous busy clock.
++static double next_road_tick(double t) {
++    return 10.0 * std::ceil(t / 10.0 - 1e-12);
++}
++
+ struct Later {
+     bool operator()(const Event& a,const Event& b) const {
+         return std::tie(a.t,a.key)>std::tie(b.t,b.key);
+@@ -38,8 +43,8 @@
+     long double released=0, admitted=0, exited=0, completed=0, vehicle_trip_seconds=0;
+ };
+ int main(int argc,char** argv) {
+-    if (argc!=5 && argc!=6) throw std::runtime_error("input bin_width_s shocked_link factor [prefix_s]");
+-    const double horizon_limit=argc==6 ? std::stod(argv[5]) : 86400.;
++    if (argc!=6 && argc!=7) throw std::runtime_error("input bin_width_s shocked_link factor passages [prefix_s]");
++    const double horizon_limit=argc==7 ? std::stod(argv[6]) : 86400.;
+     std::ifstream f(argv[1]);
+     int link_count, path_count, group_count, profiles;
+     double dwell;
+@@ -61,6 +66,25 @@
+     }
+     std::vector<std::array<double,4>> windows(profiles);
+     for(auto& w:windows) for(double& time:w) f>>time;
++    // Route-history-dependent characteristic times. No per-tick ODE or tag decomposition.
++    std::ifstream kinematics(argv[5]);
++    int expected_routes;
++    if (!(kinematics >> expected_routes) || expected_routes != path_count)
++        throw std::runtime_error("kinetic route count mismatch");
++    std::vector<std::vector<double>> passage(path_count);
++    for (int r = 0; r < path_count; ++r) {
++        int edges;
++        if (!(kinematics >> edges) || edges != static_cast<int>(paths[r].size()))
++            throw std::runtime_error("kinetic route layout mismatch");
++        passage[r].resize(edges);
++        for (double& dt : passage[r]) {
++            if (!(kinematics >> dt) || !(dt > 0.0) || !std::isfinite(dt))
++                throw std::runtime_error("invalid kinetic passage time");
++        }
++    }
++    std::string extra;
++    if (kinematics >> extra) throw std::runtime_error("trailing kinetic route data");
++
+     std::vector<Group> groups(group_count);
+     for(auto& g:groups) {
+         f>>g.forward>>g.backward>>g.purpose>>g.mass>>g.origin_access>>g.destination_access;
+@@ -113,17 +137,19 @@
+                     if (j+1<cohort_bins[e.group]) first_departure(e.group,j+1);
+                 }
+                 l.released+=e.mass; e.began=e.t; e.edge=0;
+-                push(e,e.t+(e.returning ? g.destination_access:g.origin_access),Enter);break;
++                push(e,10.0+next_road_tick(e.t+(e.returning ? g.destination_access:g.origin_access)),Enter);
++                break;
+             case Enter: {
+                 if(!e.edge) l.admitted+=e.mass;
+                 auto& link=links[path.at(e.edge)];
+-                double ready=e.t+link.travel;
++                const int route_number=e.returning ? g.backward : g.forward;
++                double ready=e.t+passage[route_number][e.edge];
+                 double wait=std::max(0.,link.free_at-ready);
+                 double finish=ready+wait+e.mass/link.capacity;
+                 link.free_at=finish; link.delay_veh_s+=e.mass*wait;
+                 link.traversed_mass+=e.mass; link.max_wait_s=std::max(link.max_wait_s,wait);
+                 ++e.edge;
+-                push(e, finish, e.edge==static_cast<int>(path.size()) ? Exit : Enter);
++                push(e, next_road_tick(finish), e.edge==static_cast<int>(path.size()) ? Exit : Enter);
+                 break;
+             }
+             case Exit:

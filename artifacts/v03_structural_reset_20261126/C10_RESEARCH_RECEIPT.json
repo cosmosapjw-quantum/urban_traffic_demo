@@ -1,0 +1,784 @@
+{
+  "schema": "METROFLOW_V03_STRUCTURAL_RESET_V1",
+  "base": "5c8486cc7d8ba090b7883bff5c0f1fb3ed1448c3",
+  "branch": "research/v03-structural-reset-20261126",
+  "production_commit": "563c9d606eb7f9e091034190b1e2ffcdf519cca5",
+  "native_source_sha256": "a2ebf6b3a3da140115fd1d3af26f7fed3e16315bece82d551c0c58e3495285cc",
+  "native_binary_sha256": "a18ce56ad30c58e7510bbe27c064f5e04ff40943e8e5f30617428c4254b98a7f",
+  "stages": {
+    "theory": 10,
+    "coding": 10,
+    "earlier_stage_commits": [
+      "1ebe3c8 theory(R01): fix scientific endpoints and original Valley baseline",
+      "48aa98a R02 Trace the historical plateau and cumulative-flow alternatives",
+      "5abf729 R03 Distinguish policy refusal from physical exhaustion",
+      "1162f2a R04 Compare three mechanisms for escaping the plateau",
+      "c67de43 R05 Derive an observer-preserving transport reduction",
+      "e3e528e R06 Falsify unsafe reductions and qualify the memory contract",
+      "49d809a R07 Check transposed transport and delay cutoffs in exact arithmetic",
+      "4637824 R08 Choose the physical and computational interventions",
+      "ac92116 R09 Map physical assumptions to code and observables",
+      "241331c R10 Freeze testable alternatives and criteria for reducing work",
+      "c012b0b C01 Bind the reference checkpoint and comparison endpoints",
+      "c5eb090 C02 Identify repeated owners at both sides of the road step",
+      "ee629f9 C03 Verify the indexed event codec cost and design a lossless fallback domain",
+      "ad12acb C04 Add externally monitored matched checkpoint trials",
+      "c612f58 C05 Implement the exact ordered event run carrier in Rust",
+      "8f8077a C06 Verify retained event codec through engine and checkpoint APIs",
+      "dacfb57 C07 Run a full day on the 100k Valley routed-car model",
+      "a4c3bcd C08 Bound temporary keyset grouping by a physical road cell",
+      "563c9d6 C09 Bind memory credits to the actual caller and decouple trace attribution"
+    ],
+    "closing_stage": "C10 (containing commit)"
+  },
+  "release": {
+    "direct_dependencies": [
+      {
+        "id": "P01",
+        "status": "VERIFIED_SCOPED"
+      },
+      {
+        "id": "V01",
+        "status": "VERIFIED_SCOPED"
+      },
+      {
+        "id": "V02",
+        "status": "VERIFIED_SCOPED"
+      }
+    ],
+    "scoped_nodes": [
+      19,
+      21
+    ],
+    "accepted_nodes": [
+      5,
+      21
+    ],
+    "calendar_preparations": [
+      3,
+      3
+    ],
+    "original_full_days": [
+      0,
+      9
+    ],
+    "V03": "BLOCKED",
+    "last_known_experiment_sibling_commit": "338ef2a542aeb27a2c9cf096c97acc1a700d7159"
+  },
+  "calendar_preparations": {
+    "coastal_weekend_s41": {
+      "legs": 2449750,
+      "wall_s": 37.81527906493284,
+      "peak_rss_bytes": 1120116736
+    },
+    "river_weekday_s17": {
+      "legs": 5093765,
+      "wall_s": 64.717011973029,
+      "peak_rss_bytes": 2178007040
+    },
+    "valley_weekday_s7": {
+      "legs": 918450,
+      "wall_s": 19.91684492304921,
+      "peak_rss_bytes": 449945600
+    }
+  },
+  "current_strict": {
+    "fresh_valid_s": 25720.0,
+    "fresh_reason": {
+      "class_name": "BudgetExceeded",
+      "message": "native road storage budget exceeded: phase=transfer candidates, required_bytes=4882885721, budget_bytes=4882885311",
+      "phase": "ADVANCE_TO_25730.0"
+    },
+    "matched_reference": [
+      {
+        "full_wire_and_ledger_exact": true,
+        "path": "artifacts/v03_measure_lift_20261123/S06_fresh0.json",
+        "raw_bytes": 4677350066,
+        "raw_sha256": "447570b8721b17fa19edf159bc4c474cfd6ad41dc936ab0b0114d902e36f0bf9",
+        "receipt_sha256": "903b93b3e8aad6e8ec2e53a5281f8de2dc355c393b16eeee0e2135a84f98549e"
+      }
+    ],
+    "resume_valid_s": 25720.0,
+    "restore_full_wire_exact": true,
+    "resume_reason": {
+      "class_name": "BudgetExceeded",
+      "message": "native road storage budget exceeded: phase=transfer candidates, required_bytes=4881919649, budget_bytes=4881896463",
+      "phase": "ADVANCE_TO_25730.0"
+    },
+    "without_trace": {
+      "mode": "off",
+      "child_exit": 3,
+      "wall_limit_hit": false,
+      "wall_s": 121.13819004700053,
+      "validated_times_s": [],
+      "sampled_process_high_water_bytes": {
+        "VmPeak": 3308941312,
+        "VmHWM": 3259625472
+      },
+      "last_event": "rejected",
+      "original_release_eligible": false,
+      "events": "default_no_trace.jsonl",
+      "argv": [
+        "--mode",
+        "off",
+        "--raw",
+        "/tmp/metroflow_v03_base_20261126/valley.bin",
+        "--reference",
+        "artifacts/v03_measure_lift_20261123/S06_fresh0.json",
+        "--steps",
+        "2",
+        "--hash-steps",
+        "1",
+        "--out",
+        "artifacts/v03_structural_reset_20261126/default_no_trace.json"
+      ]
+    },
+    "combined_lean_observation": {
+      "mode": "observe",
+      "child_exit": 3,
+      "wall_limit_hit": false,
+      "wall_s": 118.53649632201996,
+      "validated_times_s": [
+        25730.0
+      ],
+      "sampled_process_high_water_bytes": {
+        "VmPeak": 4542926848,
+        "VmHWM": 4477702144
+      },
+      "last_event": "rejected",
+      "original_release_eligible": false,
+      "events": "combined_observe_lean.jsonl",
+      "argv": [
+        "--mode",
+        "observe",
+        "--raw",
+        "/tmp/metroflow_v03_base_20261126/valley.bin",
+        "--reference",
+        "artifacts/v03_measure_lift_20261123/S06_fresh0.json",
+        "--steps",
+        "8",
+        "--hash-steps",
+        "1",
+        "--out",
+        "artifacts/v03_structural_reset_20261126/combined_observe_lean.json"
+      ]
+    }
+  },
+  "paired_policy": {
+    "schema": "metroflow.research.conditional-budget-comparison.v1",
+    "same_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+    "common_native_sha256": "d3c27a681cbda620cdb06c19fe71fa6ae306489651eb9cd0c41c310d3aa11787",
+    "reference_sha256": "903b93b3e8aad6e8ec2e53a5281f8de2dc355c393b16eeee0e2135a84f98549e",
+    "starting_time_s": 25720.0,
+    "restoration_physics": [
+      "time_s",
+      "city_identity",
+      "schedule_identity",
+      "assignment",
+      "ledger",
+      "released_intent_first_moments",
+      "service"
+    ],
+    "identity_rebind": {
+      "phase": "rebound",
+      "original_sha256": "447570b8721b17fa19edf159bc4c474cfd6ad41dc936ab0b0114d902e36f0bf9",
+      "rebound_sha256": "8f1338503f00dc339e6dfa166569e83f47f31cbbe05f026f604b15ab055073a8",
+      "suffix_sha256": "3ca9cad85eca4ced86d436b6de698acc259708de59611bfbe5f5a5a5c06c8540",
+      "suffix_bytes": 4677349784,
+      "header_bytes": 282,
+      "differing_byte_offsets": [
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        234,
+        235,
+        236,
+        237,
+        238,
+        239,
+        240,
+        241,
+        242,
+        243
+      ],
+      "old_native_identity": "native-whole-v1:2dff5dfcb8c29e7a1174847606db8f774fb31eac14d9c922c13eddc32610a235:6442450944:bounded_bytes_v1:retained_capacity_v3",
+      "new_native_identity": "native-whole-v1:2dff5dfcb8c29e7a1174847606db8f774fb31eac14d9c922c13eddc32610a235:8053063680:bounded_bytes_v1:retained_capacity_v3"
+    },
+    "control": {
+      "internal_bytes": 6442450944,
+      "outer_bytes": 8589934592,
+      "child_exit": 3,
+      "max_validated_time_s": 25720.0,
+      "validated_s": [],
+      "tick_wall_s": [],
+      "last_attempt_s": 25730.0,
+      "rejection": "native road storage budget exceeded: phase=transfer candidates, required_bytes=4881979008, budget_bytes=4881896463",
+      "high_water_bytes": {
+        "VmPeak": 3907653632,
+        "VmHWM": 3683061760
+      }
+    },
+    "experimental": {
+      "internal_bytes": 8053063680,
+      "outer_bytes": 8589934592,
+      "child_exit": 3,
+      "max_validated_time_s": 25730.0,
+      "validated_s": [
+        25730.0
+      ],
+      "tick_wall_s": [
+        36.80374200909864
+      ],
+      "last_attempt_s": 25740.0,
+      "rejection": "native road storage budget exceeded: phase=timed incoming direct combine, required_bytes=6471489792, budget_bytes=6393208311",
+      "high_water_bytes": {
+        "VmPeak": 5406900224,
+        "VmHWM": 5235269632
+      }
+    },
+    "release_eligible": false
+  },
+  "validated_wire_except_two_headers": {
+    "time_s": 25730,
+    "wire_bytes": 5523765378,
+    "differing_header_offsets": [
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      234,
+      235,
+      236,
+      237,
+      238,
+      239,
+      240,
+      241,
+      242,
+      243
+    ],
+    "experimental_raw_sha256": "c2ff8adc483a240ff35815b4358a025467a159ae8e4bdb52c135f54c43b07ebc",
+    "physical_suffix_sha256": "0a16039baa3ea73f61f3c834c712efa0c4eea007b0f2855ba040ff6b2c32faf0",
+    "normalized_sha256": "c8335535408e13266bb4b5f15b10d0854701e644421ae3e8183d7c468d9183c9",
+    "control_raw_sha256": "c8335535408e13266bb4b5f15b10d0854701e644421ae3e8183d7c468d9183c9",
+    "exact_except_two_budget_bindings": true
+  },
+  "model": {
+    "executed_cases": 10,
+    "full_days": 7,
+    "base_150": {
+      "outward_veh": 28547.9701632,
+      "planned_outward_packets": 4869888,
+      "processed_events": 216612096,
+      "queue_wait_veh_s": 180798.4473433381,
+      "bottleneck_id": 776,
+      "bottleneck_wait_veh_s": 15096.980240050361,
+      "bottleneck_max_wait_s": 24.93384311122645,
+      "trip_time_veh_s": 36546963.71044345,
+      "bottleneck_link": "s:g27:16>g27:17|0",
+      "wall_s": 127.5,
+      "peak_rss_kib": 546560,
+      "mean_completed_trip_s": 640.0974132576792,
+      "max_snapshot_error_veh": 9.07496300328603e-13,
+      "raw_sha256": "d496a2dc16fad5393d209cafe112e46b801e491c3ce1ce76e26076bedfadddf3"
+    },
+    "city_onset": [
+      {
+        "t_s": 25700,
+        "native_car_out": 139.59831861060766,
+        "initial_error_percent": 49.118509538778454,
+        "phase_error_percent": 3.672492889008705,
+        "admission_error_veh": 1.693933882052079e-11
+      },
+      {
+        "t_s": 25710,
+        "native_car_out": 147.9676850680397,
+        "initial_error_percent": 49.465375536762735,
+        "phase_error_percent": 3.8298455907707307,
+        "admission_error_veh": 1.7621459846850485e-11
+      },
+      {
+        "t_s": 25720,
+        "native_car_out": 156.66177945804435,
+        "initial_error_percent": 49.7634396074895,
+        "phase_error_percent": 3.9809972622400602,
+        "admission_error_veh": 1.8189894035458565e-11
+      }
+    ],
+    "full_days_phase_queue": 3,
+    "forward_forecast": {
+      "frozen_sha256": "7ff4d01b8dcd596723a56efa00cba5a9def0c8557fc636e93fc6900c2cd4625d",
+      "scope": "native diagnostic internal-policy arm, not original release acceptance",
+      "scored": {
+        "25730": {
+          "metrics": {
+            "car_admitted_veh": {
+              "predicted": 996.9118548401216,
+              "observed": 996.9118548401027,
+              "delta": 1.887201506178826e-11,
+              "relative_error": 1.887379141862766e-14
+            },
+            "car_exited_veh": {
+              "predicted": 172.52452799936196,
+              "observed": 165.67414414841522,
+              "delta": 6.850383850946741,
+              "relative_error": 0.04134853924345605
+            },
+            "car_subsystem_stock_veh": {
+              "predicted": 824.3873268407597,
+              "observed": 831.2377106916874,
+              "delta": -6.850383850927756,
+              "relative_error": -0.008241185118066152
+            }
+          },
+          "receipts": [
+            {
+              "file": "arm75.jsonl",
+              "native_phase": "validated",
+              "completed_single_segment_buses": 4,
+              "physical_row_sha256": "dedc57ffc544270fea9149768372ccc10a7770fd6c9bd6e267154e0244316312",
+              "native_wall_s": 36.80374200909864
+            },
+            {
+              "file": "combined75.jsonl",
+              "native_phase": "validated",
+              "completed_single_segment_buses": 4,
+              "physical_row_sha256": "c9b9adb9862980be71b0d4497688d8d81d94b4bb90235739fe0606c79ab430c8",
+              "native_wall_s": 35.25989501795266
+            },
+            {
+              "file": "indexed-wide.jsonl",
+              "native_phase": "validated",
+              "completed_single_segment_buses": 4,
+              "physical_row_sha256": "11b4fec437b04ed86c330f29d78457d543688d75d193f9893135fcbf53e33793",
+              "native_wall_s": 39.11783218907658
+            }
+          ]
+        },
+        "25740": {
+          "metrics": {
+            "car_admitted_veh": {
+              "predicted": 1023.2192398052497,
+              "observed": 1023.21923980523,
+              "delta": 1.9667822925839573e-11,
+              "relative_error": 1.9317880628477724e-14
+            },
+            "car_exited_veh": {
+              "predicted": 182.4670864015847,
+              "observed": 174.9468274748809,
+              "delta": 7.520258926703804,
+              "relative_error": 0.042985969138443325
+            },
+            "car_subsystem_stock_veh": {
+              "predicted": 840.752153403665,
+              "observed": 848.2724123303491,
+              "delta": -7.5202589266840505,
+              "relative_error": -0.008865381942605666
+            }
+          },
+          "receipts": [
+            {
+              "file": "indexed-wide.jsonl",
+              "native_phase": "validated",
+              "completed_single_segment_buses": 4,
+              "physical_row_sha256": "a210f0c44e9f548bae416286830d27576f4658905e39ebf8833320e401b956fb",
+              "native_wall_s": 47.71568801207468
+            }
+          ]
+        }
+      },
+      "prediction_only": []
+    },
+    "phase_queue_onset": {
+      "native_exited": 156.66177945804435,
+      "native_admitted": 970.6658507556117,
+      "native_stock": 814.0040712975674,
+      "atom_access_unconstrained": 162.89848060924567,
+      "baseline_exited": 234.62206946666666,
+      "stage_queue_exited": 146.96046126666667,
+      "stage_queue_stock": 822.8946493400001,
+      "outlet_abs_error_reduction": 0.8755607734360054
+    }
+  },
+  "watchdog": {
+    "original_prd_blob": "f8cc371410ca0e24b0947cda3d6772787efddc7a",
+    "original_spec_blob": "626b78acad7cafe1f3eadb8166bffb98550e0172",
+    "original_constitution_blob": "7c78e214c9558bcb1023854e55025f1c554aadee",
+    "preserved": "City, demand, directed constrained movements, finite response in the onset model, legal route identities and congestion intervention observables.",
+    "remaining": "Original coupled multimodal flow, turn conflicts, spillback, route adaptation and lagged land use remain outside the full-day car projection."
+  },
+  "original_limits": {
+    "residents": 100000,
+    "day_s": 86400,
+    "wall_s": 7200,
+    "rss_bytes": 8589934592
+  },
+  "next_native_and_model_actions": "Keep the release RSS and wall contract. In an isolated V03 research branch, replace the row-materializing sink/interval consumer with ordered streaming reductions and a per-cell timed sweep. Compare the full native retained-state wire, mass and journey moments through a sustained loaded window; measure transfer rows per unit physical service and wall per physical second. For city-model revision, carry original entry/transfer clocks and finite receiving/queue storage across a congested bottleneck, comparing matched native arrivals, exits and occupancy. Expand to a second city and full release runs once the same coupled physics clears the peak. A guard-only change or a single new tick is insufficient evidence for scaling.",
+  "evidence": [
+    {
+      "path": "artifacts/v03_structural_reset_20261126/C01_input.json",
+      "sha256": "64998fe7700d47589dd380216ebb442418a3cc3f75b9969759f0ab43884f5e95"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/C02_owners.json",
+      "sha256": "4185f661fafaf51f364355371903f85902f99ed27a06e3ad0be968dba9ffd9e7"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/C03_cost.json",
+      "sha256": "dc447a6bdd8abd8f1a991e0e07dafc593c62d14a0dbd83923ccfe72f8fe703fc"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/C06_comparison.json",
+      "sha256": "122e55920898fa6270ad0a7b07ffd52876e7d95d9c478542c5daad88f60c31cf"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/C06_small.json",
+      "sha256": "a3b122d18aa58f6a1210c6989a4d6e87d945e865eccc31475d791203ee755eae"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/C09_small.json",
+      "sha256": "85073e5366a33212da23403dc5551c5f5d4f1ec5f520544128d4347424260734"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/R07_plateau.json",
+      "sha256": "c3c07a743c6d6e7590b897a42dd99bc2010ab020ce672dd26edcce0177e336c0"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/R07_window.json",
+      "sha256": "afb58be932e3be2fb5d2bbe0b80247f6675a805db263be68c719e68198510579"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/baseline_observe.json",
+      "sha256": "330ee5179ba304a473014f200c0eaea72a3cf0e0faf0d79441900739280d4594"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/baseline_observe.jsonl",
+      "sha256": "35b09cb8ed648dbc410cce20a0c0989daf91319de147b61c8b00651ddd592bec"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/codec_record.json",
+      "sha256": "c2d7995a5142cb734f2526ded928e1f311df11f49c373ba419748cec7477296f"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/codec_record.jsonl",
+      "sha256": "0b3dd31d24e1266b733fb52dcd295265814452a39076bac1e77eba8b7075fc2c"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/combined_observe_lean.json",
+      "sha256": "c5463d3e208e6c379d06249e4a1ccf9e0fca8c1f82f2c93008286df4d2690778"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/combined_observe_lean.jsonl",
+      "sha256": "d4bc8c63fa519988726512e66e784999e44cfcaf828a8f055758ebd9fc73be99"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/default_no_trace.json",
+      "sha256": "a135e2e220592df62553f6d0f671a530f1e6f2c3b72eb21b3aca40426e4e53a4"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/default_no_trace.jsonl",
+      "sha256": "1ee20ceafa2722045d696fa8e4eda499e131c2b9dd18394d42e56bc65e67ebc9"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/indexed_receiver/CONDITIONS.json",
+      "sha256": "9fb9fd1b1044c2eef35a66fb73748b1435c594c9670e82750733915ed6fcd9d4"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/indexed_receiver/indexed-six-trace.json",
+      "sha256": "061dcdb286dbd13d1274601f144d3ee35ac35d74544bbe7260dcf022b6a0a9ce"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/indexed_receiver/indexed-six-trace.jsonl",
+      "sha256": "25bebd4a34fa1708e5da6c086328a2133737b62eb1c6faea800df196e07ad77b"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/indexed_receiver/indexed-six.json",
+      "sha256": "405caaa554a1b211db6ac218584b7ff662b9e078a17934fa6a41472f3e3e6bea"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/indexed_receiver/indexed-wide-monitor.json",
+      "sha256": "62d1864000678d5b639833ccae00d4a71db80fd0683746e0c75d4b9be5d09988"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/indexed_receiver/indexed-wide-terminal.json",
+      "sha256": "599b400d72f0020ea1f7b860681f3e29506c01001873f38d5ed1effacad489d9"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/indexed_receiver/indexed-wide.jsonl",
+      "sha256": "a14b2f68b18b2298c222d5c4224d617145fabcb58baa6a90cb182cebaaf61d92"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/indexed_receiver/multiclass-parity.json",
+      "sha256": "fb46b93d53bc44b964b40b06e08b65fd28f4c89714bb6f142ead6c17fe233e40"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/indexed_receiver/small-0.json",
+      "sha256": "5c3d51826bb3f213337d4129709768355ba124cc28dc6942d1576f1e1916957c"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/indexed_receiver/small-1.json",
+      "sha256": "f548b8add941dd9c6cb18ed85d59cfd64b8c07d69166d979e8c0d1fcb2d4ac3d"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/indexed_receiver/small-parity.json",
+      "sha256": "bccfb6f811e26d477971aa10bae5208393081d5a150f2e51b5efb9936ec7f2a6"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/policy_ab/arm75.jsonl",
+      "sha256": "f9b497f70fb68e792bee6b6b64273789f866bf0ba0e5327172575009946b8591"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/policy_ab/arm75_monitor.json",
+      "sha256": "7843dc1ac8754c3956bfb09b25cad4858d1fb061930d21970202347dbd502af2"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/policy_ab/combined75.jsonl",
+      "sha256": "d26fcb2cfc1ccbbefadd074602a6bf59c51f658f2917246a99bfbbd3fe777023"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/policy_ab/combined75_monitor.json",
+      "sha256": "d28302f14a07082e11db4ec0d75ac40947cbc015e7c9ba89636a479fa1a38917"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/policy_ab/comparison.json",
+      "sha256": "06a9d56effa3d2b574bcf9aa85c747c792dabe054076a27db07657801363881b"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/policy_ab/cross_build_wire.json",
+      "sha256": "b338f10be57c7740cf63bcba932851e9bce6d887fda15a8e67d58272cc992ff5"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/policy_ab/interaction.json",
+      "sha256": "099d3b62fdd112b8ec748049fe47371dca769b796bfd67860d2be444469d5f66"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/policy_ab/repeat.json",
+      "sha256": "f0e1a227d093f93eb762d9267c4984406d8e507617bbcc925780aa72d23e9e02"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/policy_ab/repeat_monitor.json",
+      "sha256": "cc0282f24feeae8cdd48446a10f8a5c462016be8bd5826ed19daad0800e1b0ba"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/preparation/CAMPAIGN.json",
+      "sha256": "8b6ccce0338d566e295e9b28f371f3a22f9be929bfeb9c36469e22cf86f46761"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/preparation/coastal_weekend_s41.prepare.json",
+      "sha256": "907329c9ecae150b009ed16777727513eba74df5be473faca9706a08983206dd"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/preparation/river_weekday_s17.prepare.json",
+      "sha256": "1d429a27c41a1dc3220c98828a2a36c5b15e2f47f404ff97d956c07cf7ee660b"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/preparation/valley_weekday_s7.prepare.json",
+      "sha256": "333264c41fb7d191b41413caf8625e6d5f71e0bc027a22442be41459184e7908"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/sink_stream/production_fsum_verify.json",
+      "sha256": "ec0f6d5cf900c5aa16ce6f366e59c566d5b396c654775601f7789937dad8177a"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/sink_stream/published_verify.json",
+      "sha256": "442faf1be7bd1e38fc8f648cf5207c00f14227f146c5e5e1471914ccdef60cae"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/sink_stream/ref.json",
+      "sha256": "794109df1ca95ca14fde47db40fa60542db74b86067fc8a0f1a9beecae8e0e71"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/sink_stream/stream.json",
+      "sha256": "f4e7f74a238def1a611e8af19d7c6964b69a1b7f85e0c3bee4053a621629c08c"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/sink_stream/verify.json",
+      "sha256": "0b7c1f14c38c4c842af779c2f9b8eb66ef910a6e56e3a300cef965e14f18483a"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/strict_lean_fresh.json",
+      "sha256": "7e897c80f22513c3923c512a9d517877b777c4711b6e241e09585b05cfa205aa"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/strict_lean_resume.json",
+      "sha256": "0b2c1acefc55588002977fdb33da875af013e7247f625a4e5c93fb3816d5c59a"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/valley_point_queue/FORWARD_BEFORE_RECEIPTS.json",
+      "sha256": "7ff4d01b8dcd596723a56efa00cba5a9def0c8557fc636e93fc6900c2cd4625d"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/valley_point_queue/FORWARD_SCORE.json",
+      "sha256": "1990eb3a31582228da53d95cdcb4f483b308b340f2e2bcd08b4b8bb998ce6912"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/valley_point_queue/NATIVE_PHASE.json",
+      "sha256": "e46ed07d32d6f170bba9f992624078b5e20fe9b877650a88ee28b8119ad8efac"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/valley_point_queue/PHASE_QUEUE_RESULTS.json",
+      "sha256": "7ead38341492dedc3bf5f6b0ee49b01b3051db26e0409237572e6cb26e981fed"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/valley_point_queue/PHYSICAL_ONSET.json",
+      "sha256": "939ea6e91b26457f171f6753816a49b73a2a966c658c1c2497bb4f72a8b5086a"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/valley_point_queue/RESULTS.json",
+      "sha256": "742e47b18bc5455a6ae1cdbaa69f9a4e9699fbd7e38e62d535623e2841c29fdc"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/valley_point_queue/input_summary.json",
+      "sha256": "472ceed4dbded602231705c7675bf72f6d8cfb87167c3913ea28c9c5e62d3caa"
+    },
+    {
+      "path": "artifacts/v03_structural_reset_20261126/valley_point_queue/onset_access.json",
+      "sha256": "830141f689d5c0c4a386697ac66df6e87e0583673ec4a874d5cdf1ccaa32637b"
+    }
+  ],
+  "strict_resume_trace_off_terminal": "native road storage budget exceeded: phase=transfer candidates, required_bytes=4881919649, budget_bytes=4881896463",
+  "guard_sites": {
+    "bounded_keyset_overhead_bytes": 36136104,
+    "historical_global_keyset_overhead_bytes": 1130197512,
+    "indexed_receiver": {
+      "research_branch": "research/v03-indexed-receive-experiment-20261126",
+      "commit": "338ef2a542aeb27a2c9cf096c97acc1a700d7159",
+      "parent_release_implementation": "563c9d606eb7f9e091034190b1e2ffcdf519cca5",
+      "native_sha256": "2fafcd43ee7ffe6d7e3af85d03f08863a4ae9ee40e7b8df77179af2097d8a8c9",
+      "experimental_environment": {
+        "METROFLOW_EXPERIMENTAL_EVENT_INDEX_INCOMING": "1",
+        "METROFLOW_BUDGET_TRACE": "record",
+        "METROFLOW_TRACE_SOURCE_ATTRIBUTION": "off"
+      },
+      "contract": "12-byte event reference, path offset and control for eligible emitted non-sink transfers. Source admissions without a prior event remain owned; original event lifetime extends through combination.",
+      "strict_6g_frontier": {
+        "restored_time_s": 25720,
+        "validated_through_s": 25720,
+        "attempt_s": 25730,
+        "eligible_rows_referenced": 23932417,
+        "transfer_required_bytes": 4797447101,
+        "phase_budget_bytes": 4881896463,
+        "next_combine_required_bytes": 4977552461,
+        "native_counting_allocator_feature": false
+      },
+      "promotion_status": "Experimental sibling. This prototype adds 32 bytes of empty reference-page descriptors per eligible cell even with the opt-in disabled. Total for 1586 Valley cells is 50752 B. Scope descriptor tables to the enabled lane before a default merge.",
+      "tests": {
+        "rust_passed": 199,
+        "rust_ignored": 2,
+        "unchanged_finite_fixture_wires": 16,
+        "nonzero_index_coverage": "Dedicated Rust tests and measured real-city counter. Replayed small fixture had zero referenced rows.",
+        "dedicated_multiclass_replay": "100 states including events; flags off/on identical, 75 actual event references, 122 exits"
+      },
+      "instrumented_wide_native_sha256": "c76bee7258ef9b042c582c21bd35d93f9a7839f1f909dc3f9a2a529b1463948b",
+      "measured_same_tick_payloads": {
+        "logical_rows": 23983145,
+        "controls": 298570,
+        "default_bytes": 779603968,
+        "indexed_bytes": 300583936,
+        "saved_bytes": 479020032
+      },
+      "instrumented_policy_comparison": {
+        "sibling_checked_six_gib_s": 25720,
+        "combined_checked_seven_point_five_gib_s": 25730,
+        "sibling_checked_seven_point_five_gib_s": 25740,
+        "next_rejected_s": 25750,
+        "next_required_bytes": 6279735415,
+        "phase_budget_bytes_at_rejection": 6279647199,
+        "validated_second_tick_s": 47.71568801207468,
+        "validated_second_tick_hwm_bytes": 4613996544,
+        "receiving_rows_at_25740": 28976061,
+        "timed_receiving_payload_at_25740_bytes": 362884608
+      }
+    },
+    "true_sink_consumer_heap_bytes": {
+      "ref": 25584536,
+      "stream": 1958016
+    }
+  },
+  "paired_policy_interaction": {
+    "schema": "metroflow.research.combined-budget-interaction.v1",
+    "strict_6g_reached_s": 25720.0,
+    "strict_6g_receipt_sha256": "0b2c1acefc55588002977fdb33da875af013e7247f625a4e5c93fb3816d5c59a",
+    "combined_source_attribution": "off",
+    "combined_binary": "a18ce56ad30c58e7510bbe27c064f5e04ff40943e8e5f30617428c4254b98a7f",
+    "earlier_binary": "d3c27a681cbda620cdb06c19fe71fa6ae306489651eb9cd0c41c310d3aa11787",
+    "budget_bytes": 8053063680,
+    "outer_bytes": 8589934592,
+    "initial_same_suffix": "3ca9cad85eca4ced86d436b6de698acc259708de59611bfbe5f5a5a5c06c8540",
+    "restored_time_s": 25720.0,
+    "validated_s": 25730.0,
+    "all_equal_physical_fields": [
+      "time_s",
+      "city_identity",
+      "schedule_identity",
+      "assignment",
+      "ledger",
+      "released_intent_first_moments",
+      "service"
+    ],
+    "validated_wall_s": 35.25989501795266,
+    "attempted_s": 25740.0,
+    "error": "native road storage budget exceeded: phase=timed incoming direct combine, required_bytes=6471687203, budget_bytes=6393208311",
+    "combined_process_highwater_bytes": {
+      "VmPeak": 4453707776,
+      "VmHWM": 4366569472
+    },
+    "earlier_process_highwater_bytes": {
+      "VmPeak": 5406900224,
+      "VmHWM": 5235269632
+    },
+    "rss_reduction_bytes": 868700160,
+    "release_eligible": false
+  },
+  "indexed_wide_terminal": {
+    "schema": "metroflow.research.indexed_receiving_frontier_archive.v1",
+    "case": "valley_weekday_s7",
+    "native_sha256": "c76bee7258ef9b042c582c21bd35d93f9a7839f1f909dc3f9a2a529b1463948b",
+    "source_commit": "338ef2a542aeb27a2c9cf096c97acc1a700d7159",
+    "trace_mode": "record",
+    "internal_bytes": 8053063680,
+    "outer_bytes": 8589934592,
+    "validated_s": [
+      25730.0,
+      25740.0
+    ],
+    "rejected_target_s": 25750.0,
+    "last_error": "native road storage budget exceeded: phase=transfer candidates, required_bytes=6279735415, budget_bytes=6279647199",
+    "release_eligible": false,
+    "trace_sha256": "a14b2f68b18b2298c222d5c4224d617145fabcb58baa6a90cb182cebaaf61d92",
+    "archive_writer_metadata": "JSON emitter duplicate path after CRC-complete gzip creation; independently recovered from the closed file",
+    "gzip_path": "/tmp/metroflow-index-incoming-FwjBNm/indexed-wide.final.bin.gz",
+    "compressed_bytes": 1412841263,
+    "compressed_sha256": "70d962bf2510db36b6cf3069617d95e825c247a540ff033a70210ebf69333331",
+    "raw_sha256": "7122ca4ccb400ff1c5b336d026dd801f68e6ff29e0a5bb494c10e95ff319765d",
+    "raw_bytes": 6575906346,
+    "gzip_crc_checked": true,
+    "restored_time_s": 25740.0,
+    "matched_fields": [
+      "time_s",
+      "city_identity",
+      "schedule_identity",
+      "assignment",
+      "ledger",
+      "released_intent_first_moments",
+      "service"
+    ],
+    "complete_ledger_match": true,
+    "full_reserialization_exact": true,
+    "verification_wall_s": 263.38159107998945,
+    "peak_rss": 2810118144
+  }
+}

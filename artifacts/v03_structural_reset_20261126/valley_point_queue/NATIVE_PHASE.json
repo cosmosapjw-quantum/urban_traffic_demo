@@ -1,0 +1,11 @@
+{
+  "native_end_s": 25720.0,
+  "last_prepare_s": 25710.0,
+  "step_s": 10.0,
+  "native_routed_car_admitted_veh": 970.6658507556117,
+  "source_phase_prediction_veh": 970.6658507556299,
+  "difference_veh": 1.8189894035458565e-11,
+  "continuous_at_last_prepare_veh": 970.3857785453326,
+  "unique_origin_law_purpose_pairs": 654,
+  "network_sha256": "4422f446e0e9c7b3db9f361c88cfa1aa3c974e656c6ef813b2d01e22e7db5ced"
+}

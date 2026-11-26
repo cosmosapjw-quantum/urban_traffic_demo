@@ -1,0 +1,9 @@
+{
+  "schema": "proc_high_water_since_attach",
+  "pid": 1142089,
+  "seconds_since_attach": 72.0908238380216,
+  "process_high_water_bytes": {
+    "VmHWM": 4670599168,
+    "VmPeak": 5233737728
+  }
+}

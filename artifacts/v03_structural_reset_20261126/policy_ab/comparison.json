@@ -1,0 +1,81 @@
+{
+  "schema": "metroflow.research.conditional-budget-comparison.v1",
+  "same_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "common_native_sha256": "d3c27a681cbda620cdb06c19fe71fa6ae306489651eb9cd0c41c310d3aa11787",
+  "reference_sha256": "903b93b3e8aad6e8ec2e53a5281f8de2dc355c393b16eeee0e2135a84f98549e",
+  "starting_time_s": 25720.0,
+  "restoration_physics": [
+    "time_s",
+    "city_identity",
+    "schedule_identity",
+    "assignment",
+    "ledger",
+    "released_intent_first_moments",
+    "service"
+  ],
+  "identity_rebind": {
+    "phase": "rebound",
+    "original_sha256": "447570b8721b17fa19edf159bc4c474cfd6ad41dc936ab0b0114d902e36f0bf9",
+    "rebound_sha256": "8f1338503f00dc339e6dfa166569e83f47f31cbbe05f026f604b15ab055073a8",
+    "suffix_sha256": "3ca9cad85eca4ced86d436b6de698acc259708de59611bfbe5f5a5a5c06c8540",
+    "suffix_bytes": 4677349784,
+    "header_bytes": 282,
+    "differing_byte_offsets": [
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      234,
+      235,
+      236,
+      237,
+      238,
+      239,
+      240,
+      241,
+      242,
+      243
+    ],
+    "old_native_identity": "native-whole-v1:2dff5dfcb8c29e7a1174847606db8f774fb31eac14d9c922c13eddc32610a235:6442450944:bounded_bytes_v1:retained_capacity_v3",
+    "new_native_identity": "native-whole-v1:2dff5dfcb8c29e7a1174847606db8f774fb31eac14d9c922c13eddc32610a235:8053063680:bounded_bytes_v1:retained_capacity_v3"
+  },
+  "control": {
+    "internal_bytes": 6442450944,
+    "outer_bytes": 8589934592,
+    "child_exit": 3,
+    "max_validated_time_s": 25720.0,
+    "validated_s": [],
+    "tick_wall_s": [],
+    "last_attempt_s": 25730.0,
+    "rejection": "native road storage budget exceeded: phase=transfer candidates, required_bytes=4881979008, budget_bytes=4881896463",
+    "high_water_bytes": {
+      "VmPeak": 3907653632,
+      "VmHWM": 3683061760
+    }
+  },
+  "experimental": {
+    "internal_bytes": 8053063680,
+    "outer_bytes": 8589934592,
+    "child_exit": 3,
+    "max_validated_time_s": 25730.0,
+    "validated_s": [
+      25730.0
+    ],
+    "tick_wall_s": [
+      36.80374200909864
+    ],
+    "last_attempt_s": 25740.0,
+    "rejection": "native road storage budget exceeded: phase=timed incoming direct combine, required_bytes=6471489792, budget_bytes=6393208311",
+    "high_water_bytes": {
+      "VmPeak": 5406900224,
+      "VmHWM": 5235269632
+    }
+  },
+  "release_eligible": false
+}

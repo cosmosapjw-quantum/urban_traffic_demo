@@ -1,0 +1,30 @@
+Traceback (most recent call last):
+  File "/tmp/metroflow-index-incoming-FwjBNm/repo/src/metroflow/v1/native_engine.py", line 88, in advance
+    return self.native.advance(state, end_s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+MemoryError: native road storage budget exceeded: phase=transfer candidates, required_bytes=6279735415, budget_bytes=6279647199
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/tmp/metroflow-index-incoming-FwjBNm/repo/../run_indexed_wide.py", line 183, in main
+    state = driver.advance(state, target)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/metroflow-index-incoming-FwjBNm/repo/src/metroflow/v1/native_release_driver.py", line 48, in advance
+    updated = self.runtime.advance(state.runtime_state, end_s)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/metroflow-index-incoming-FwjBNm/repo/src/metroflow/v1/native_engine.py", line 95, in advance
+    raise exc from cause
+metroflow.active_suffix.common.BudgetExceeded: native road storage budget exceeded: phase=transfer candidates, required_bytes=6279735415, budget_bytes=6279647199
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/metroflow-index-incoming-FwjBNm/repo/../run_indexed_wide.py", line 206, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/tmp/metroflow-index-incoming-FwjBNm/repo/../run_indexed_wide.py", line 187, in main
+    retain_max()
+  File "/tmp/metroflow-index-incoming-FwjBNm/repo/../run_indexed_wide.py", line 176, in retain_max
+    emit(args.result,"terminal_wire",time_s=state.time_s,**wire)
+TypeError: emit() got multiple values for argument 'path'

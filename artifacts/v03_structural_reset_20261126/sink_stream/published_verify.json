@@ -1,0 +1,1 @@
+{"mode":"verify","checkpoint_s":25720,"events":20270113,"event_offset":3076637722,"exits":331513,"routes":21118,"ordered_sink_fnv64":"2f861327d3b1b699","route_fsum_fnv64":"6e4351c560376512","max_route_partials":12,"additional_peak_requested_heap_bytes":25584536,"consumer_s":1.524721}

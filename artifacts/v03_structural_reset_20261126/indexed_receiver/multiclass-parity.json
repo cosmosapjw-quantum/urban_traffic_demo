@@ -1,0 +1,20 @@
+{
+  "schema": "native_multiclass_receiving_shadow.v1",
+  "ticks": 100,
+  "full_state_and_events_ieee_exact": true,
+  "terminal_sha256": "4930c504a20211e24b0544d2cc8c403af7291c5246bb42be02cf276999e2c4d0",
+  "arms": [
+    {
+      "mode": "0",
+      "refs": 0,
+      "through": 75,
+      "exited": 122
+    },
+    {
+      "mode": "1",
+      "refs": 75,
+      "through": 75,
+      "exited": 122
+    }
+  ]
+}

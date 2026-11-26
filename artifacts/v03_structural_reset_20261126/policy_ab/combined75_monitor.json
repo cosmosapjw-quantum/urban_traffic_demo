@@ -1,0 +1,27 @@
+{
+  "child_exit": 3,
+  "wall_s": 372.7178423750447,
+  "wall_limit_hit": false,
+  "observed_bytes": {
+    "VmPeak": 4453707776,
+    "VmHWM": 4366569472
+  },
+  "argv": [
+    "/home/cosmosapjw/urban_traffic_v03_20261116/.venv/bin/python",
+    "/tmp/metroflow-budget-ab-20261126/compare_internal_budget.py",
+    "--repo",
+    "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123",
+    "--raw",
+    "/tmp/metroflow_v03_base_20261126/valley.bin",
+    "--reference",
+    "artifacts/v03_measure_lift_20261123/S06_fresh0.json",
+    "--result",
+    "/tmp/metroflow-budget-ab-20261126/combined75.jsonl",
+    "--native-sha256",
+    "a18ce56ad30c58e7510bbe27c064f5e04ff40943e8e5f30617428c4254b98a7f",
+    "--internal-bytes",
+    "8053063680",
+    "--steps",
+    "8"
+  ]
+}

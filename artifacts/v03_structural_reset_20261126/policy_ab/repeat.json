@@ -1,0 +1,64 @@
+{
+  "schema": "metroflow.research.budget-checkpoint-repeat.v1",
+  "native_sha256": "d3c27a681cbda620cdb06c19fe71fa6ae306489651eb9cd0c41c310d3aa11787",
+  "trial_sha256": "f9b497f70fb68e792bee6b6b64273789f866bf0ba0e5327172575009946b8591",
+  "script_sha256": "b99ee05b17ce5141e75a4f00770882d52d43a525a9cad38c698d9001585ddb5a",
+  "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "internal_bytes": 8053063680,
+  "outer_bytes": 8589934592,
+  "input_bindings": {
+    "original_sha256": "447570b8721b17fa19edf159bc4c474cfd6ad41dc936ab0b0114d902e36f0bf9",
+    "rebound_sha256": "8f1338503f00dc339e6dfa166569e83f47f31cbbe05f026f604b15ab055073a8",
+    "suffix_sha256": "3ca9cad85eca4ced86d436b6de698acc259708de59611bfbe5f5a5a5c06c8540",
+    "suffix_bytes": 4677349784,
+    "header_bytes": 282,
+    "differing_byte_offsets": [
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      234,
+      235,
+      236,
+      237,
+      238,
+      239,
+      240,
+      241,
+      242,
+      243
+    ],
+    "old_native_identity": "native-whole-v1:2dff5dfcb8c29e7a1174847606db8f774fb31eac14d9c922c13eddc32610a235:6442450944:bounded_bytes_v1:retained_capacity_v3",
+    "new_native_identity": "native-whole-v1:2dff5dfcb8c29e7a1174847606db8f774fb31eac14d9c922c13eddc32610a235:8053063680:bounded_bytes_v1:retained_capacity_v3"
+  },
+  "reached_s": [
+    25730.0
+  ],
+  "compared_physical_fields": [
+    "time_s",
+    "city_identity",
+    "schedule_identity",
+    "assignment",
+    "ledger",
+    "released_intent_first_moments",
+    "service"
+  ],
+  "wire": {
+    "raw_sha256": "c2ff8adc483a240ff35815b4358a025467a159ae8e4bdb52c135f54c43b07ebc",
+    "raw_bytes": 5523765378,
+    "reader_peak_rss_bytes": 4774617088,
+    "compressed_sha256": "2d3eeb43df893d563b646af08b6866b64c7b1f0d015351346125bae33d03f943",
+    "compressed_bytes": 1189052061,
+    "path": "/home/cosmosapjw/research_backups/metroflow_v03_structural_reset_20261126/experimental_75G_25730.bin.gz"
+  },
+  "gunzip_rehash": true,
+  "release_eligible": false,
+  "wall_s": 355.5444311359897,
+  "peak_rss_bytes": 4774617088
+}

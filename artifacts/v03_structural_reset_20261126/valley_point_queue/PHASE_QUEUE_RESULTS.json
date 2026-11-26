@@ -1,0 +1,472 @@
+{
+  "two_batch_end_times_s": [
+    70,
+    80
+  ],
+  "preparation": {
+    "city": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+    "schedule": "d9b3345d26e7b9beea2bd9012a2d58f088b64662cfa82de6b66758cb176da4f9",
+    "network_sha256": "4422f446e0e9c7b3db9f361c88cfa1aa3c974e656c6ef813b2d01e22e7db5ced",
+    "passage_sha256": "a310ee706ae3eb64ba35eef2c9275da38141dbd32eb89f86bcb6a90c89bd73c1",
+    "paths": 38916,
+    "route_edge_occurrences": 762716,
+    "scalar_subset_max_error": 1.9539925233402755e-13
+  },
+  "source_sha256": {
+    "prepare_phase_passages.py": "7661b43465235af980ccc7f258de447928931af71ba2cc7bebd7d1e68fd4033e",
+    "phase_queue.diff": "3c92f8dcfbd716b05b451f74df387855e80106bb400cdc1be9b8994c3bccfbc4",
+    "summarize_phase_queue.py": "9035a4312d284ff41481cfc65568793f1640749ec908bee7380e8ce6e615a314"
+  },
+  "solver_sha256": "326d450a67a15d41650abd8e4bbe277805c17f07be3046de514134b973116079",
+  "onset_reference_sha256": "939ea6e91b26457f171f6753816a49b73a2a966c658c1c2497bb4f72a8b5086a",
+  "matched_bins_s": {
+    "600": {
+      "baseline": {
+        "snapshots": {
+          "25720": {
+            "released": 1585.9983424,
+            "admitted": 1373.6184108,
+            "exited": 123.61652319999999,
+            "completed": 8.7127448,
+            "active": 1577.2855975999998,
+            "road": 1250.0018876,
+            "residual": 1.587618925213974e-14
+          },
+          "28800": {
+            "released": 9515.9900544,
+            "admitted": 9417.9695864,
+            "exited": 8148.5560952,
+            "completed": 7789.7864712,
+            "active": 1726.2035832,
+            "road": 1269.4134912,
+            "residual": 1.1191048088221578e-13
+          },
+          "43200": {
+            "released": 28547.970163199996,
+            "admitted": 28547.970163199996,
+            "exited": 28547.970163199996,
+            "completed": 28547.970163199996,
+            "active": 0.0,
+            "road": 0.0,
+            "residual": 6.039613253960852e-14
+          },
+          "64800": {
+            "released": 47579.950271999995,
+            "admitted": 47523.124119199994,
+            "exited": 46243.70057559999,
+            "completed": 45833.387488399996,
+            "active": 1746.5627835999999,
+            "road": 1279.4235436,
+            "residual": 1.4099832412739488e-13
+          },
+          "86400": {
+            "released": 57095.94032639999,
+            "admitted": 57095.94032639999,
+            "exited": 57095.94032639999,
+            "completed": 57095.94032639999,
+            "active": 0.0,
+            "road": 0.0,
+            "residual": 1.4210854715202004e-13
+          }
+        },
+        "final": {
+          "planned_out": 28547.9701632,
+          "initial_batches": 1217472.0,
+          "events": 54153024.0,
+          "wait_veh_s": 765157.5439146877,
+          "largest_delay_link": 776.0,
+          "largest_link_wait_veh_s": 60387.92112270847,
+          "max_wait_on_largest_link_s": 99.7353724444547,
+          "trip_veh_s": 37230995.44926401
+        }
+      },
+      "phase_queue": {
+        "snapshots": {
+          "25720": {
+            "released": 1585.9983424,
+            "admitted": 1362.8060123999999,
+            "exited": 65.28351359999999,
+            "completed": 2.3218776,
+            "active": 1583.6764647999998,
+            "road": 1297.5224988,
+            "residual": 1.199040866595169e-14
+          },
+          "28800": {
+            "released": 9515.9900544,
+            "admitted": 9404.2427664,
+            "exited": 7758.720936,
+            "completed": 7356.8867036,
+            "active": 2159.1033508,
+            "road": 1645.5218304,
+            "residual": 1.13464793116691e-13
+          },
+          "43200": {
+            "released": 28547.970163199996,
+            "admitted": 28547.970163199996,
+            "exited": 28547.970163199996,
+            "completed": 28547.970163199996,
+            "active": 0.0,
+            "road": 0.0,
+            "residual": 1.687538997430238e-13
+          },
+          "64800": {
+            "released": 47579.950271999995,
+            "admitted": 47521.14129919999,
+            "exited": 45830.76791519999,
+            "completed": 45396.42176959999,
+            "active": 2183.5285024,
+            "road": 1690.373384,
+            "residual": 2.1760371282653068e-13
+          },
+          "86400": {
+            "released": 57095.94032639999,
+            "admitted": 57095.94032639999,
+            "exited": 57095.94032639999,
+            "completed": 57095.94032639999,
+            "active": 0.0,
+            "road": 0.0,
+            "residual": 2.913225216616411e-13
+          }
+        },
+        "final": {
+          "planned_out": 28547.9701632,
+          "initial_batches": 1217472.0,
+          "events": 54153024.0,
+          "wait_veh_s": 2421859.009172891,
+          "largest_delay_link": 776.0,
+          "largest_link_wait_veh_s": 60454.4557546342,
+          "max_wait_on_largest_link_s": 99.7353724444547,
+          "trip_veh_s": 46014822.61958963
+        }
+      },
+      "wall_s": 20.61,
+      "max_rss_KiB": 155852,
+      "baseline_sha256": "2f6f335dde12fa0bafdf900718670c8334a9953f913823ce6872931f1f5897ba",
+      "phase_stdout_sha256": "58949dac70305bbd95f0527fb90fc763df6bd0837f65db24c6289b1bd00563ef"
+    },
+    "300": {
+      "baseline": {
+        "snapshots": {
+          "25720": {
+            "released": 1585.9983424,
+            "admitted": 808.3077649999999,
+            "exited": 210.6339568,
+            "completed": 93.2075594,
+            "active": 1492.790783,
+            "road": 597.6738081999999,
+            "residual": 1.765254609153999e-14
+          },
+          "28800": {
+            "released": 9515.9900544,
+            "admitted": 9250.0951168,
+            "exited": 8146.6399292,
+            "completed": 7822.454097999999,
+            "active": 1693.5359564,
+            "road": 1103.4551875999998,
+            "residual": 4.440892098500626e-14
+          },
+          "43200": {
+            "released": 28547.970163199996,
+            "admitted": 28547.970163199996,
+            "exited": 28547.970163199996,
+            "completed": 28547.970163199996,
+            "active": 0.0,
+            "road": 0.0,
+            "residual": 2.2382096176443156e-13
+          },
+          "64800": {
+            "released": 47579.950271999995,
+            "admitted": 47364.615579799996,
+            "exited": 46243.457242,
+            "completed": 45878.01179119999,
+            "active": 1701.9384808,
+            "road": 1121.1583378,
+            "residual": 1.1015632850330803e-12
+          },
+          "86400": {
+            "released": 57095.940326399985,
+            "admitted": 57095.940326399985,
+            "exited": 57095.940326399985,
+            "completed": 57095.940326399985,
+            "active": 0.0,
+            "road": 0.0,
+            "residual": 9.237055564881302e-14
+          }
+        },
+        "final": {
+          "planned_out": 28547.9701632,
+          "initial_batches": 2434944.0,
+          "events": 108306048.0,
+          "wait_veh_s": 352962.22976443666,
+          "largest_delay_link": 776.0,
+          "largest_link_wait_veh_s": 30193.960649325938,
+          "max_wait_on_largest_link_s": 49.867686222249176,
+          "trip_veh_s": 36752351.70694764
+        }
+      },
+      "phase_queue": {
+        "snapshots": {
+          "25720": {
+            "released": 1585.9983424,
+            "admitted": 784.8367184,
+            "exited": 139.48035819999998,
+            "completed": 51.7133462,
+            "active": 1534.2849962,
+            "road": 645.3563601999999,
+            "residual": 1.0658141036401503e-14
+          },
+          "28800": {
+            "released": 9515.9900544,
+            "admitted": 9203.4524142,
+            "exited": 7761.669283199999,
+            "completed": 7415.043283399999,
+            "active": 2100.946771,
+            "road": 1441.783131,
+            "residual": 7.438494264988549e-14
+          },
+          "43200": {
+            "released": 28547.970163199996,
+            "admitted": 28547.970163199996,
+            "exited": 28547.970163199996,
+            "completed": 28547.9701632,
+            "active": 0.0,
+            "road": 0.0,
+            "residual": 2.8066438062523957e-13
+          },
+          "64800": {
+            "released": 47579.950271999995,
+            "admitted": 47284.513731399995,
+            "exited": 45848.51007599999,
+            "completed": 45466.032088199994,
+            "active": 2113.9181838,
+            "road": 1436.0036554,
+            "residual": 1.5079049120458876e-12
+          },
+          "86400": {
+            "released": 57095.940326399985,
+            "admitted": 57095.940326399985,
+            "exited": 57095.940326399985,
+            "completed": 57095.940326399985,
+            "active": 0.0,
+            "road": 0.0,
+            "residual": 2.1316282072803006e-13
+          }
+        },
+        "final": {
+          "planned_out": 28547.9701632,
+          "initial_batches": 2434944.0,
+          "events": 108306048.0,
+          "wait_veh_s": 1889094.0522418614,
+          "largest_delay_link": 776.0,
+          "largest_link_wait_veh_s": 30220.700338182472,
+          "max_wait_on_largest_link_s": 49.867686222249176,
+          "trip_veh_s": 45489342.25093663
+        }
+      },
+      "wall_s": 48.57,
+      "max_rss_KiB": 288668,
+      "baseline_sha256": "370af0f3f4aeaa1fc972f5cf968eef828163c177221db6c5557c2610f0a484e1",
+      "phase_stdout_sha256": "f884ce0b8d37a56e17bef02efae75ebf112b9b1edb520853bfc72c4ed86c18b7"
+    },
+    "150": {
+      "baseline": {
+        "snapshots": {
+          "25720": {
+            "released": 1189.4987568,
+            "admitted": 1020.0136623,
+            "exited": 226.6877844,
+            "completed": 98.8232424,
+            "active": 1090.6755144,
+            "road": 793.3258779,
+            "residual": 1.84297022087776e-14
+          },
+          "28800": {
+            "released": 9515.9900544,
+            "admitted": 9112.1033471,
+            "exited": 8168.2947981,
+            "completed": 7825.306683399999,
+            "active": 1690.683371,
+            "road": 943.808549,
+            "residual": 9.07496300328603e-13
+          },
+          "43200": {
+            "released": 28547.9701632,
+            "admitted": 28547.9701632,
+            "exited": 28547.9701632,
+            "completed": 28547.9701632,
+            "active": 0.0,
+            "road": 0.0,
+            "residual": 4.920508445138694e-13
+          },
+          "64800": {
+            "released": 47579.950271999995,
+            "admitted": 47206.16148989999,
+            "exited": 46264.194779599995,
+            "completed": 45886.40993649999,
+            "active": 1693.5403355,
+            "road": 941.9667103,
+            "residual": 3.611555499105634e-13
+          },
+          "86400": {
+            "released": 57095.94032639999,
+            "admitted": 57095.94032639999,
+            "exited": 57095.94032639999,
+            "completed": 57095.94032639999,
+            "active": 0.0,
+            "road": 0.0,
+            "residual": 9.023892744153272e-13
+          }
+        },
+        "final": {
+          "planned_out": 28547.9701632,
+          "initial_batches": 4869888.0,
+          "events": 216612096.0,
+          "wait_veh_s": 180798.4473433381,
+          "largest_delay_link": 776.0,
+          "largest_link_wait_veh_s": 15096.980240050361,
+          "max_wait_on_largest_link_s": 24.93384311122645,
+          "trip_veh_s": 36546963.71044345
+        }
+      },
+      "phase_queue": {
+        "snapshots": {
+          "25720": {
+            "released": 1189.4987568,
+            "admitted": 998.1805178,
+            "exited": 145.59915279999998,
+            "completed": 60.285223599999995,
+            "active": 1129.2135332,
+            "road": 852.581365,
+            "residual": 2.0594637106796654e-14
+          },
+          "28800": {
+            "released": 9515.9900544,
+            "admitted": 9063.6923863,
+            "exited": 7776.356677299999,
+            "completed": 7420.948279499999,
+            "active": 2095.0417749,
+            "road": 1287.335709,
+            "residual": 8.65307825392847e-13
+          },
+          "43200": {
+            "released": 28547.9701632,
+            "admitted": 28547.9701632,
+            "exited": 28547.9701632,
+            "completed": 28547.9701632,
+            "active": 0.0,
+            "road": 0.0,
+            "residual": 7.833733661755105e-13
+          },
+          "64800": {
+            "released": 47579.950271999995,
+            "admitted": 47158.854453299995,
+            "exited": 45873.29802499999,
+            "completed": 45478.88460899999,
+            "active": 2101.065663,
+            "road": 1285.5564283,
+            "residual": 4.1655567883935873e-13
+          },
+          "86400": {
+            "released": 57095.94032639999,
+            "admitted": 57095.94032639999,
+            "exited": 57095.94032639999,
+            "completed": 57095.94032639999,
+            "active": 0.0,
+            "road": 0.0,
+            "residual": 6.643574579356937e-13
+          }
+        },
+        "final": {
+          "planned_out": 28547.9701632,
+          "initial_batches": 4869888.0,
+          "events": 216612096.0,
+          "wait_veh_s": 1595576.4468659295,
+          "largest_delay_link": 45.0,
+          "largest_link_wait_veh_s": 19948.348780050368,
+          "max_wait_on_largest_link_s": 8.7697709985041,
+          "trip_veh_s": 45211483.48122387
+        }
+      },
+      "wall_s": 124.93,
+      "max_rss_KiB": 555160,
+      "baseline_sha256": "d496a2dc16fad5393d209cafe112e46b801e491c3ce1ce76e26076bedfadddf3",
+      "phase_stdout_sha256": "6b5598a06364cf88ce202b8f87efadd6a4586910c5007c788b8c5649b9994475"
+    },
+    "10": {
+      "baseline": {
+        "snapshots": {
+          "25720": {
+            "released": 1374.531896746667,
+            "admitted": 996.2884163133336,
+            "exited": 234.62206946666666,
+            "completed": 104.25331952666666,
+            "active": 1270.2785772200004,
+            "road": 761.6663468466668,
+            "residual": 1.990074771640593e-13
+          }
+        },
+        "final": {
+          "planned_out": 28547.9701632,
+          "initial_batches": 73048320.0,
+          "events": 22157283.0,
+          "wait_veh_s": 135.18313161426167,
+          "largest_delay_link": 776.0,
+          "largest_link_wait_veh_s": 7.294824452287185,
+          "max_wait_on_largest_link_s": 1.2723108444333775,
+          "trip_veh_s": 35145.34880712443
+        }
+      },
+      "phase_queue": {
+        "snapshots": {
+          "25720": {
+            "released": 1374.531896746667,
+            "admitted": 969.8551106066669,
+            "exited": 146.96046126666667,
+            "completed": 62.08304142666666,
+            "active": 1312.4488553200003,
+            "road": 822.8946493400001,
+            "residual": 1.1657341758564144e-13
+          }
+        },
+        "final": {
+          "planned_out": 28547.9701632,
+          "initial_batches": 73048320.0,
+          "events": 17189950.0,
+          "wait_veh_s": 11641.945138211326,
+          "largest_delay_link": 36.0,
+          "largest_link_wait_veh_s": 234.33302911268686,
+          "max_wait_on_largest_link_s": 5.335837596689089,
+          "trip_veh_s": 21744.83643660759
+        }
+      },
+      "wall_s": 7.38,
+      "max_rss_KiB": 328052,
+      "baseline_sha256": "30fd90c1fceb52e2308c28e49d24cda31f16d30e1c81717053321b46e7b75ebb",
+      "phase_stdout_sha256": "b00b0a38e78b3bfc8a5d87c70f4004defd61696778b11470480655a127941903"
+    }
+  },
+  "onset_25720": {
+    "native_exited": 156.66177945804435,
+    "native_admitted": 970.6658507556117,
+    "native_stock": 814.0040712975674,
+    "atom_access_unconstrained": 162.89848060924567,
+    "baseline_exited": 234.62206946666666,
+    "stage_queue_exited": 146.96046126666667,
+    "stage_queue_stock": 822.8946493400001,
+    "outlet_abs_error_reduction": 0.8755607734360054
+  },
+  "forward_queue_outputs": {
+    "25730": {
+      "admitted": 996.2884163133336,
+      "exited": 155.63623995999998,
+      "road": 840.6521763533335,
+      "stdout_sha256": "f3834ef346f9bacfdc75604de92b51b7744c81a2f07c4598ffb69ad76a60c08b"
+    },
+    "25740": {
+      "admitted": 1022.7217220200004,
+      "exited": 164.60057358666666,
+      "road": 858.1211484333335,
+      "stdout_sha256": "6cd0574d3f81b1fd283d607441684fe49a3077690e9d9c367a917a32555d7f77"
+    }
+  }
+}

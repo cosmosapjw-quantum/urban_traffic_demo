@@ -1,0 +1,35 @@
+{
+  "schema": "metroflow.research.combined-budget-interaction.v1",
+  "strict_6g_reached_s": 25720.0,
+  "strict_6g_receipt_sha256": "0b2c1acefc55588002977fdb33da875af013e7247f625a4e5c93fb3816d5c59a",
+  "combined_source_attribution": "off",
+  "combined_binary": "a18ce56ad30c58e7510bbe27c064f5e04ff40943e8e5f30617428c4254b98a7f",
+  "earlier_binary": "d3c27a681cbda620cdb06c19fe71fa6ae306489651eb9cd0c41c310d3aa11787",
+  "budget_bytes": 8053063680,
+  "outer_bytes": 8589934592,
+  "initial_same_suffix": "3ca9cad85eca4ced86d436b6de698acc259708de59611bfbe5f5a5a5c06c8540",
+  "restored_time_s": 25720.0,
+  "validated_s": 25730.0,
+  "all_equal_physical_fields": [
+    "time_s",
+    "city_identity",
+    "schedule_identity",
+    "assignment",
+    "ledger",
+    "released_intent_first_moments",
+    "service"
+  ],
+  "validated_wall_s": 35.25989501795266,
+  "attempted_s": 25740.0,
+  "error": "native road storage budget exceeded: phase=timed incoming direct combine, required_bytes=6471687203, budget_bytes=6393208311",
+  "combined_process_highwater_bytes": {
+    "VmPeak": 4453707776,
+    "VmHWM": 4366569472
+  },
+  "earlier_process_highwater_bytes": {
+    "VmPeak": 5406900224,
+    "VmHWM": 5235269632
+  },
+  "rss_reduction_bytes": 868700160,
+  "release_eligible": false
+}
