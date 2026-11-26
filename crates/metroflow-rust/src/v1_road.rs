@@ -427,6 +427,25 @@ struct ExactKeyGroup {
 /// Captures one supplied immutable snapshot, the committed owner, a candidate,
 /// and the large source/transfer/splitting workspaces. Unrelated user-retained
 /// snapshots and allocator metadata remain covered by the process limit.
+// The source-row observation envelope was introduced with raw motion and
+// junction reductions. It is not a retained state owner. The receiving
+// experiment expires it only after the source frame's large temporaries
+// are gone; every receiving buffer is separately charged.
+fn receiving_lifetime_enabled()->bool {
+    std::env::var_os("METROFLOW_EXPERIMENTAL_RECEIVING_LIFETIMES").as_deref()
+        ==Some(std::ffi::OsStr::new("1"))
+    && !crate::v1_trace::source_attribution_enabled()
+}
+fn receiving_lifetime_floor(full_base:usize,max_cell_scratch:usize,source_rows:usize,
+                            max_old_owner:usize,candidate_owner:usize)->PyResult<usize> {
+    let old_observation=source_rows.checked_mul(4*std::mem::size_of::<f64>())
+        .ok_or_else(||budget("source observation envelope overflow"))?;
+    full_base.checked_sub(max_cell_scratch)
+        .and_then(|x|x.checked_sub(old_observation))
+        .and_then(|x|x.checked_add(candidate_owner.saturating_sub(max_old_owner)))
+        .ok_or_else(||arithmetic("receiving lifetime floor identity differs"))
+}
+
 struct RoadWorkBudget {
     limit: Option<usize>,
     base: usize,
@@ -2153,6 +2172,45 @@ fn interval_merge_census(out: &[Packet]) {
         prev = Some((a, b, here));
     }
 }
+fn interval_merge_census_ordered(out:&[Packet])->PyResult<()> {
+    let mut prev:Option<(&Packet,f64,f64)>=None;
+    for packet in out {
+        let Some(first)=packet.parts.iter().next() else{continue};
+        let (a,b)=(first.a.unwrap(),first.b.unwrap());
+        if !(b>a) {continue}
+        // Verify rather than assume the precondition of the linear intersection.
+        let mut last=None;
+        for p in &packet.parts {
+            let k=(p.tag,p.offset);
+            if last.is_some_and(|old|old>=k) {
+                return Err(arithmetic("interval diagnostic ordered unique keys differ"));
+            }
+            last=Some(k);
+        }
+        if let Some((old,pa,pb))=prev {
+            if pb==a && pb>pa {
+                let mut before=old.parts.iter().peekable();
+                let mut same_key=0u64;
+                let mut same_density=0u64;
+                for p in &packet.parts {
+                    let key=(p.tag,p.offset);
+                    while before.peek().is_some_and(|q|(q.tag,q.offset)<key) {before.next();}
+                    if let Some(q)=before.peek() {
+                        if (q.tag,q.offset)==key {
+                            same_key+=1;
+                            same_density+=u64::from((q.mass/(pb-pa)).to_bits()==(p.mass/(b-a)).to_bits());
+                        }
+                    }
+                }
+                crate::v1_trace::add("merge.adjacent_rows",packet.parts.len() as u64);
+                crate::v1_trace::add("merge.same_key_rows",same_key);
+                crate::v1_trace::add("merge.equal_density_rows",same_density);
+            }
+        }
+        prev=Some((packet,a,b));
+    }
+    Ok(())
+}
 /// Diagnostic: group one cell's incoming rows by non-point interval (a,b) and
 /// count maximal runs of time-contiguous intervals whose contributing source
 /// set {(cell, head position, rate bits)} is identical. Such runs have
@@ -3673,6 +3731,7 @@ impl V1Road {
                         .saturating_mul(3 * std::mem::size_of::<Packet>()),
                 )
         };
+        let lifetime=work.timed_referenced_rows.is_some() && receiving_lifetime_enabled();
         let mut out:Vec<Packet> = vec![];
         let mut records = 0;
         let ordered_stream=compactable_source && work.timed_referenced_rows.is_some()
@@ -3687,7 +3746,8 @@ impl V1Road {
             // CorePart buffer and source index array (40B/selected row);
             // mixed signed-zero or other bit-distinct endpoints retain the
             // exact original materialized path and its 104B/row guard.
-            work.interval(transient(count, out.len(), !uniform_point))?;
+            work.interval(transient(count, out.len(), !uniform_point)
+                .saturating_add(if lifetime && count>0 {128*1024+96}else{0}))?;
             let packed_point = if uniform_point {
                 let core = combine_uniform_point_core(&parts, &sweep.current_points)?;
                 if core.is_empty() {
@@ -3714,7 +3774,8 @@ impl V1Road {
             };
             if let Some(parts) = packed_point {
                 work.retain_interval(
-                    parts.allocated_bytes().saturating_add(std::mem::size_of::<Packet>()),
+                    parts.allocated_bytes().saturating_add(std::mem::size_of::<Packet>())
+                        .saturating_add(if lifetime {96}else{0}),
                 );
                 push_checked(&mut out, Packet { target, parts })?;
             }
@@ -3737,7 +3798,8 @@ impl V1Road {
                     if records>self.record_budget {return Err(budget("entry interval record budget"));}
                     continue;
                 }
-                work.interval(transient(count, out.len(), false))?;
+                work.interval(transient(count, out.len(), false)
+                    .saturating_add(if lifetime && count>0 {128*1024+96}else{0}))?;
                 // Original fallback for wide or noncanonical input.
                 let packed = if compactable_source {
                     let core =
@@ -3767,7 +3829,8 @@ impl V1Road {
                     work.retain_interval(
                         parts
                             .allocated_bytes()
-                            .saturating_add(std::mem::size_of::<Packet>()),
+                            .saturating_add(std::mem::size_of::<Packet>())
+                            .saturating_add(if lifetime {96}else{0}),
                     );
                     push_checked(&mut out, Packet { target, parts })?;
                 }
@@ -3782,7 +3845,7 @@ impl V1Road {
             crate::v1_trace::add("split.edges", edges.len() as u64);
             crate::v1_trace::add("split.out_rows", records as u64);
             crate::v1_trace::add("split.out_packets", out.len() as u64);
-            interval_merge_census(&out);
+            if lifetime {interval_merge_census_ordered(&out)?;} else {interval_merge_census(&out);}
         }
         Ok(out)
     }
@@ -4723,7 +4786,26 @@ impl V1Road {
         // the opt-in exact indexed lane, only one consumer is live at a time.
         let full_consumer_base = work.base;
         let local_consumer = use_timed_incoming && work.timed_referenced_rows.is_some();
-        let consumer_floor = full_consumer_base.saturating_sub(work.transfer_exclusive_cell_scratch);
+        let use_lifetimes=local_consumer && receiving_lifetime_enabled();
+        let consumer_floor = if use_lifetimes {
+            // All junction and pending loops have ended. Their row observers
+            // and raw temporary arrays are dead. Queue survivors now belong
+            // to out, which is measured before crediting any scratch.
+            drop(motions);drop(queues);drop(position);drop(last_serve);
+            drop(free);drop(space);
+            let stats=s.debug_stats();
+            let rows=stats.cell_parts.saturating_add(stats.pending_parts);
+            let old=s.retained_storage_bytes().max(self.retained_input_bytes);
+            let candidate=out.retained_storage_bytes();
+            let floor=receiving_lifetime_floor(full_consumer_base,
+                work.transfer_exclusive_cell_scratch,rows,old,candidate)?;
+            crate::v1_trace::add("receiving.expired_source_observation_bytes",
+                rows.saturating_mul(32) as u64);
+            crate::v1_trace::add("receiving.initial_candidate_owner_bytes",candidate as u64);
+            work.base=floor;
+            work.require(0,"receiving phase actual candidate owner")?;
+            floor
+        } else {full_consumer_base.saturating_sub(work.transfer_exclusive_cell_scratch)};
         for i in 0..n {
             if local_consumer { work.base = consumer_floor; }
             let raw_rows=if use_timed_incoming {timed_rows[i].len()}else{incoming[i].len()};
@@ -8238,5 +8320,16 @@ mod ordered_stream_interval_tests {
         for (x,y) in out.iter().zip(old.iter()) {
             assert_eq!((x.tag,x.offset,x.mass.to_bits(),x.birth.to_bits()),(y.tag as usize,y.offset as usize,y.mass.to_bits(),y.birth.to_bits()));
         }
+    }
+}
+
+#[cfg(test)]
+mod receiving_lifetime_floor_tests {
+    use super::*;
+    #[test]
+    fn expired_source_rows_only_credit_once_and_candidate_growth_is_charged() {
+        assert_eq!(receiving_lifetime_floor(100000,8000,1000,20000,23000).unwrap(),63000);
+        assert_eq!(receiving_lifetime_floor(100000,8000,1000,20000,17000).unwrap(),60000);
+        assert!(receiving_lifetime_floor(1000,8000,1000,20000,23000).is_err());
     }
 }
