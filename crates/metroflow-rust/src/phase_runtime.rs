@@ -483,6 +483,13 @@ impl Runtime {
         self.count(&w.wire)?;
         Ok(())
     }
+    pub(crate) fn growth_stock_identity(&self,w:&Wire)->CoreResult<Option<String>>{
+        match (&self.growth,&w.growth_state){
+            (Some(g),Some(s))=>Ok(Some(g.materialized_identity(s)?)),
+            (None,None)=>Ok(None),
+            _=>Err(bad("growth identity mismatch")),
+        }
+    }
     pub fn finalize(&self, mut w: World, pending: &[Report]) -> CoreResult<Wire> {
         if !pending.is_empty() {
             return Err(bad("reports require eligible medium boundary"));

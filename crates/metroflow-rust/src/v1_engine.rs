@@ -2369,9 +2369,14 @@ pub fn run_native_phase(
         state=next;
     }
     let wire=runtime.finalize(world,&pending)?;
+    let growth_stock_identity=runtime.growth_stock_identity(&wire)?;
     let phase_wire=serde_json::to_value(&wire).map_err(|e|bad(e.to_string()))?;
+    let wire_bytes=serde_json::to_vec(&phase_wire).map_err(|e|bad(e.to_string()))?;
+    if wire_bytes.len()>16*1024*1024{return Err(CoreError::resource("phase wire byte bound"))}
+    let phase_wire_sha256=crate::frozen_city::hash(&wire_bytes);
+    drop(wire_bytes);
     let ledger=ledger_json(&engine,&state)?;
     let advance_s=t.elapsed().as_secs_f64();
     save_atomic_native(&mut engine,checkpoint,&state)?;
-    Ok(json!({"schema":"metroflow_native_world_v1","scope":"C01 proposal-only phase semantics on actual native T04 state; explicit growth publications; no occupied suffix mutation","status":"EXECUTED_FOR_REVIEW","city_identity":engine.city,"schedule_identity":engine.schedule,"native_identity":engine.identity,"phase_model_identity":runtime.id,"start_s":begin,"time_s":state.time_s(),"calendar_legs":calendar_legs,"calendar_totals":calendar_totals,"threads":threads,"byte_budget":engine.byte_budget,"build_s":build_s,"advance_s":advance_s,"tick_times_s":tick_times,"ledger":ledger["ledger"],"phase_wire":phase_wire,"physical_suffix_applied":false}))
+    Ok(json!({"schema":"metroflow_native_world_v1","scope":"C01 proposal-only phase semantics on actual native T04 state; explicit growth publications; no occupied suffix mutation","status":"EXECUTED_FOR_REVIEW","city_identity":engine.city,"schedule_identity":engine.schedule,"native_identity":engine.identity,"phase_model_identity":runtime.id,"start_s":begin,"time_s":state.time_s(),"calendar_legs":calendar_legs,"calendar_totals":calendar_totals,"threads":threads,"byte_budget":engine.byte_budget,"build_s":build_s,"advance_s":advance_s,"tick_times_s":tick_times,"ledger":ledger["ledger"],"phase_wire":phase_wire,"phase_wire_sha256":phase_wire_sha256,"growth_stock_identity":growth_stock_identity,"physical_suffix_applied":false}))
 }

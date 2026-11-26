@@ -1,0 +1,16 @@
+{
+  "growth": {
+    "snapshot": {
+      "city_identity": "068dc06c219b2b963c347d4bffb179b2625d41e1a6fee715a233a0860a772aa7",
+      "stamp_s": 10,
+      "costs": [
+        [
+          "home",
+          20
+        ]
+      ],
+      "source_version": "next_completed_fixture"
+    },
+    "increment": 0
+  }
+}

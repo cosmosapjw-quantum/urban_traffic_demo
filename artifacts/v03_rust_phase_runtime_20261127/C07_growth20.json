@@ -1,0 +1,310 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "advance_s": 0.000780559,
+  "build_s": 0.000439649,
+  "byte_budget": 268435456,
+  "calendar_legs": 5,
+  "calendar_totals": [
+    20.0,
+    13.06,
+    100.0
+  ],
+  "checkpoint_bytes": 1744,
+  "checkpoint_sha256": "c7d62dc8efa71313e201f07e6e1524526bc7641699bfb9e373bc795edd4a4a40",
+  "city_identity": "rust-host-fixture-city",
+  "executable_sha256": "bbd348ef974ad5621f8654224cf5e705c0b0ac396b7478b89f920bf00a52fae3",
+  "growth_stock_identity": "068dc06c219b2b963c347d4bffb179b2625d41e1a6fee715a233a0860a772aa7",
+  "ledger": {
+    "cargo_kg": {
+      "active": 100.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 100.0,
+      "released_intent_first_moment": 750.0,
+      "requested": 100.0
+    },
+    "persons": {
+      "active": 3.2,
+      "completed": 4.8,
+      "pending": 2.0,
+      "released": 8.0,
+      "released_intent_first_moment": 40.000000000000014,
+      "requested": 10.0
+    },
+    "vehicles": {
+      "active": 2.66,
+      "completed": 3.84,
+      "pending": 0.08000000000000007,
+      "released": 6.5,
+      "released_intent_first_moment": 32.750000000000014,
+      "requested": 6.58
+    }
+  },
+  "manifest_sha256": "2dbedc0ab2720529b71ef1377f9def399bb40e6e400ac22a6073e33bbf4f6a21",
+  "native_identity": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3",
+  "peak_rss_bytes": 7884800,
+  "phase_config_sha256": "08d2e601dadf0cef9545b8ab2aecdf07e34cfdd31f566af3aa44df63c0c69154",
+  "phase_inputs_sha256": "973622b6837cea60c52794b45c08e815404f897bb47ba6321eb5da3fc19c2a44",
+  "phase_model_identity": "717edebfdde80cea2acb9d10c463dd419ec6fc92437c04886e5226f045a550df",
+  "phase_wire": {
+    "accessibility": {
+      "completed_veh": 3.8400000000000003,
+      "stamp_s": 20.0
+    },
+    "city_identity": "rust-host-fixture-city",
+    "completed_costs": [
+      {
+        "end_s": 19.745998999557308,
+        "key": {
+          "class": "car",
+          "id": "c0:out",
+          "kind": "route"
+        },
+        "mass_veh": 1.3091576176471094,
+        "measure": "completed conditional birth-to-exit mean; includes all recorded holds",
+        "population": "05512088dff6e7721f2dbd30d684508e463f0f499f179490c8e92aae0013815a",
+        "seconds": 14.405389510282932,
+        "sensor_xy": [
+          0.0,
+          0.0
+        ],
+        "source": "T04_completed_outlet",
+        "stamp_s": 20.0,
+        "start_s": 19.0,
+        "version": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3"
+      }
+    ],
+    "decisions": [
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 10.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 10.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "920b935c58a725ca325b60fa9cd2bc887ef8667889ebdd06df7bb0fac61e30f2",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 5.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 10.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 10.0
+          }
+        ],
+        "cache_hit": true,
+        "cost_epoch": "920b935c58a725ca325b60fa9cd2bc887ef8667889ebdd06df7bb0fac61e30f2",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 10.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 10.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 10.0
+          }
+        ],
+        "cache_hit": true,
+        "cost_epoch": "920b935c58a725ca325b60fa9cd2bc887ef8667889ebdd06df7bb0fac61e30f2",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 15.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 10.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 10.0
+          }
+        ],
+        "cache_hit": true,
+        "cost_epoch": "920b935c58a725ca325b60fa9cd2bc887ef8667889ebdd06df7bb0fac61e30f2",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 20.0
+      }
+    ],
+    "demand_identity": "rust-host-fixture-schedule",
+    "growth_increment": 0,
+    "growth_snapshot": {
+      "city_identity": "068dc06c219b2b963c347d4bffb179b2625d41e1a6fee715a233a0860a772aa7",
+      "costs": [
+        [
+          "home",
+          20.0
+        ]
+      ],
+      "source_version": "next_completed_fixture",
+      "stamp_s": 10.0
+    },
+    "growth_state": {
+      "added": [
+        20
+      ],
+      "allocations": [
+        1010
+      ],
+      "built": [
+        true
+      ],
+      "construction_m": 25.0,
+      "consumed_access_stamp_s": 10.0,
+      "epoch_s": 20.0,
+      "model": "5a608c6ec92e788bdfe3aaec8fdb9b57b403688a911039b59674a3ab1c595a01",
+      "moves": [],
+      "original_residents": 1000,
+      "pending_increment": 0,
+      "requested_increment": 10,
+      "status": "APPLIED"
+    },
+    "info_time_s": 20.0,
+    "information_reports": [],
+    "journal": [
+      {
+        "input_stamp_s": 0.0,
+        "phase": "medium",
+        "time_s": 5.0
+      },
+      {
+        "input_stamp_s": 5.0,
+        "phase": "medium",
+        "time_s": 10.0
+      },
+      {
+        "input_stamp_s": 5.0,
+        "phase": "slow",
+        "time_s": 10.0
+      },
+      {
+        "input_stamp_s": 10.0,
+        "phase": "medium",
+        "time_s": 15.0
+      },
+      {
+        "input_stamp_s": 15.0,
+        "phase": "medium",
+        "time_s": 20.0
+      },
+      {
+        "input_stamp_s": 15.0,
+        "phase": "slow",
+        "time_s": 20.0
+      }
+    ],
+    "model_id": "717edebfdde80cea2acb9d10c463dd419ec6fc92437c04886e5226f045a550df",
+    "next_medium_s": 25.0,
+    "next_slow_s": 30.0,
+    "observation_cursor_s": 20.0,
+    "routing": {
+      "cache": [
+        [
+          "c1ca07390937205df721e6251dd8a92c82360deb96b6a32a1912efd309329275",
+          [
+            4621819117588971520,
+            4626322717216342016
+          ]
+        ]
+      ],
+      "hits": 3,
+      "misses": 1,
+      "model": "72c86b40621519d37094ea6ac86085ed161d90e1095f394e106dda5ac6dd72ce"
+    },
+    "slow_input": {
+      "completed_veh": 0.0,
+      "stamp_s": 15.0
+    },
+    "time_s": 20.0,
+    "traffic_identity": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3"
+  },
+  "phase_wire_sha256": "ddec72225ff45930efa5ff6a6d989b84a426df061a23f2c6d7d7ea562245a023",
+  "physical_suffix_applied": false,
+  "python_runtime_dependency": "none",
+  "schedule_identity": "rust-host-fixture-schedule",
+  "schema": "metroflow_native_world_v1",
+  "scope": "C01 proposal-only phase semantics on actual native T04 state; explicit growth publications; no occupied suffix mutation",
+  "start_s": 10.0,
+  "status": "EXECUTED_FOR_REVIEW",
+  "threads": 8,
+  "tick_times_s": [
+    0.000088819,
+    0.000017874,
+    0.000014397,
+    0.000013285,
+    0.000012784,
+    0.00001597,
+    0.000013396,
+    0.00004178,
+    0.000066647,
+    0.00003136
+  ],
+  "time_s": 20.0,
+  "wall_s": 0.009460258
+}

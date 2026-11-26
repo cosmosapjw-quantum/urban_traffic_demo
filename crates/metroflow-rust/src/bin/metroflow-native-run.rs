@@ -68,6 +68,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let manifest=bounded_read(&a[2])?;let config=bounded_read(&a[3])?;let inputs=bounded_read(&a[4])?;
         let resume=if a.len()==11{let prior:Value=bounded_read(&a[9])?;
             if prior["schema"]!="metroflow_native_world_v1"||prior["status"]!="EXECUTED_FOR_REVIEW"||prior["manifest_sha256"]!=mh||prior["phase_config_sha256"]!=cfg_hash||prior["checkpoint_sha256"]!=digest(Path::new(&a[10]))?{return Err("phase resume binding differs".into())}
+            let wire_hash=format!("{:x}",Sha256::digest(serde_json::to_vec(&prior["phase_wire"])?));
+            if prior["phase_wire_sha256"]!=wire_hash{return Err("phase wire digest differs".into())}
             Some((a[10].as_str(),serde_json::from_value(prior["phase_wire"].clone())?))
         }else{None};
         let mut out=run_native_phase(manifest,a[6].parse()?,a[5].parse()?,config,inputs,resume,&a[8])?;

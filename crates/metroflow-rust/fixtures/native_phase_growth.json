@@ -1,0 +1,92 @@
+{
+  "medium_s": 5,
+  "slow_s": 10,
+  "record_budget": 1000,
+  "origin": "a",
+  "destination": "b",
+  "observer_xy": [
+    0,
+    0
+  ],
+  "preference": {
+    "class": "car",
+    "purpose": "work",
+    "time_weight": 1,
+    "distance_s_per_m": 0,
+    "money_s_per_unit": 0,
+    "logit_scale_s": 30,
+    "path_size_beta": 1
+  },
+  "priors": [
+    {
+      "key": {
+        "kind": "link",
+        "id": "ab",
+        "class": "car"
+      },
+      "seconds": 10,
+      "version": "fixture-declared-prior",
+      "measure": "conditional link mean"
+    },
+    {
+      "key": {
+        "kind": "link",
+        "id": "ba",
+        "class": "car"
+      },
+      "seconds": 10,
+      "version": "fixture-declared-prior",
+      "measure": "conditional link mean"
+    }
+  ],
+  "channels": [
+    {
+      "id": "fixture_direct",
+      "kind": "direct",
+      "coverage": [
+        {
+          "kind": "link",
+          "id": "ab",
+          "class": "car"
+        }
+      ],
+      "radius_m": 1000,
+      "latency_s": 5,
+      "propagation_mps": 100,
+      "max_age_s": 100
+    }
+  ],
+  "k": 1,
+  "expansion_budget": 100,
+  "frontier_budget": 100,
+  "cache_limit": 4,
+  "growth": {
+    "blocks": [
+      {
+        "id": "home",
+        "residents": 1000,
+        "housing_capacity": 1000
+      }
+    ],
+    "entries": [
+      {
+        "id": "door",
+        "block": "home",
+        "city_identity": "rust-host-fixture-city",
+        "node": "a",
+        "construction_length_m": 25,
+        "capacity_veh_s": 1
+      }
+    ],
+    "sites": [
+      {
+        "block": "home",
+        "entry_id": "door",
+        "added_capacity": 20,
+        "priority": 0
+      }
+    ],
+    "construction_budget_m": 100,
+    "max_access_s": 50
+  }
+}
