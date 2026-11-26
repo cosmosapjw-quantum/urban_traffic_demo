@@ -63,3 +63,7 @@ Use page-backed compact marked payloads, a run-start bit in event order, source/
 ## C04. Add externally monitored matched checkpoint trials
 
 The probe verifies the input matrix, original raw checkpoint bytes, driver identity, starting ledger, binary and source fingerprints. It runs one process per treatment, records the original 8 GiB address-space ceiling, samples VmPeak and VmHWM, and flushes a ledger record before requesting a wire digest. The parent persists signal exits and unfinished attempts. Original release eligibility stays false for this diagnostic tool. The original strict run_v03_prefix.py remains the fresh-prefix test.
+
+## C05. Implement the exact ordered event run carrier in Rust
+
+Production compact events now factor tag/destination/mass/birth from source and time-index controls. A fixed-page run-start bitmap preserves wire order, including alternations and signed endpoint bits. The source admission code projects candidate rows plus run controls and time pages. The same projection serves sequential checkpoint decode. Tests exercise 12,000 rows across boundaries and compare reconstructed tuples bitwise. This implementation changes candidate and retained storage for compact events.

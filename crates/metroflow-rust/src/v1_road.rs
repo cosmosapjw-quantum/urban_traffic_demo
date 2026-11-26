@@ -524,175 +524,180 @@ impl CompactEventRow {
     }
 }
 
-/// Exact time-pair dictionary over consecutive source-order event runs.
-/// The four u32 fields plus two f64 payloads occupy 32 bytes; time bits are
-/// stored once per run, with no arithmetic or global deduplication.
-#[derive(Clone,Copy)]
-struct TimedEventRow {
-    tag:u32, source:u32, dest:u32, time_index:u32,
-    mass:f64, birth:f64,
+/// Consecutive source/time controls are shared by all events in a service run.
+/// The bit stream identifies the first event of each run in original row order.
+#[derive(Clone, Copy)]
+struct EventPayload {
+    tag: u32,
+    dest: u32,
+    mass: f64,
+    birth: f64,
 }
-impl TimedEventRow {
-    fn try_new(e:EventRow,time_index:usize)->Option<Self> {
-        let packed=CompactEventRow::try_new(e)?;
-        Some(Self {tag:packed.tag,source:packed.source,dest:packed.dest,
-            time_index:u32::try_from(time_index).ok()?,mass:packed.mass,birth:packed.birth})
-    }
-    fn unpack(self,time:(u64,u64))->EventRow {
-        (self.tag as usize,self.source as usize,
-         if self.dest==u32::MAX {None}else{Some(self.dest as usize)},
-         self.mass,f64::from_bits(time.0),f64::from_bits(time.1),self.birth)
+impl EventPayload {
+    fn unpack(self, source: u32, time: (u64, u64)) -> EventRow {
+        (self.tag as usize, source as usize,
+         if self.dest == u32::MAX { None } else { Some(self.dest as usize) },
+         self.mass, f64::from_bits(time.0), f64::from_bits(time.1), self.birth)
     }
 }
-fn indexed_event_time(chunks:&[Vec<(u64,u64)>],index:usize)->(u64,u64) {
-    chunks[index/EVENT_PAGE_ROWS][index%EVENT_PAGE_ROWS]
+
+const FLAG_WORDS_PER_PAGE: usize = EVENT_PAGE_ROWS / u64::BITS as usize;
+const CONTROL_PAGE_ROWS: usize = 256;
+
+// Reserve a complete, fixed-size payload page before changing logical contents.
+// An empty page from a failed multi-stream reservation remains available on retry.
+fn ensure_event_slot<T>(pages: &mut Vec<Vec<T>>, rows_per_page: usize) -> PyResult<()> {
+    if pages.last().is_none_or(|page| page.len() == rows_per_page) {
+        let page = checkpoint_vec(rows_per_page)?;
+        if page.capacity() != rows_per_page {
+            return Err(budget("fixed event page capacity differs from projection"));
+        }
+        push_checked(pages, page)?;
+    }
+    Ok(())
 }
 
 #[derive(Default)]
 pub(crate) struct ChunkedEvents {
-    chunks:Vec<Vec<EventRow>>,
-    compact_chunks:Vec<Vec<TimedEventRow>>,
-    time_chunks:Vec<Vec<(u64,u64)>>,
-    compressed:bool,
-    len:usize,
-    time_len:usize,
-    last_time:Option<(u64,u64)>,
+    chunks: Vec<Vec<EventRow>>,
+    compact_chunks: Vec<Vec<EventPayload>>,
+    time_chunks: Vec<Vec<(u64, u64)>>,
+    flag_chunks: Vec<Vec<u64>>,
+    control_chunks: Vec<Vec<(u32, u32)>>,
+    compressed: bool,
+    len: usize,
+    time_len: usize,
+    control_len: usize,
+    last_time: Option<(u64, u64)>,
 }
 impl ChunkedEvents {
-    pub(crate) fn new(compressed:bool)->Self {
-        Self {compressed,..Self::default()}
+    pub(crate) fn new(compressed: bool) -> Self {
+        Self { compressed, ..Self::default() }
     }
-    pub(crate) fn len(&self)->usize {self.len}
-    fn capacity(&self)->usize {
+    pub(crate) fn len(&self) -> usize { self.len }
+    fn capacity(&self) -> usize {
         if self.compressed {
             self.compact_chunks.iter().map(Vec::capacity).sum()
         } else {
             self.chunks.iter().map(Vec::capacity).sum()
         }
     }
-    fn descriptor_capacity(&self)->usize {
-        if self.compressed {
-            self.compact_chunks.capacity().saturating_add(self.time_chunks.capacity())
-        } else {self.chunks.capacity()}
-    }
-    fn physical_capacity_bytes(&self)->usize {
-        if self.compressed {
-            self.capacity().saturating_mul(std::mem::size_of::<TimedEventRow>())
-                .saturating_add(self.time_chunks.iter().map(Vec::capacity).sum::<usize>()
-                    .saturating_mul(std::mem::size_of::<(u64,u64)>()))
-        } else {
-            self.capacity().saturating_mul(std::mem::size_of::<EventRow>())
-        }
-    }
-    /// Actual retained allocations of this immutable carrier, including all
-    /// descriptor capacities, page allocation allowances and the enclosing Arc.
-    /// Logical row count and legacy wire length are deliberately not byte costs.
-    pub(crate) fn retained_storage_bytes(&self) -> usize {
-        let descriptor_slots = self.chunks.capacity()
+    fn descriptor_capacity(&self) -> usize {
+        self.chunks.capacity()
             .saturating_add(self.compact_chunks.capacity())
-            .saturating_add(self.time_chunks.capacity());
-        let pages = self.chunks.len()
-            .saturating_add(self.compact_chunks.len())
-            .saturating_add(self.time_chunks.len());
+            .saturating_add(self.time_chunks.capacity())
+            .saturating_add(self.flag_chunks.capacity())
+            .saturating_add(self.control_chunks.capacity())
+    }
+    fn physical_capacity_bytes(&self) -> usize {
+        fn payload<T>(pages: &[Vec<T>]) -> usize {
+            pages.iter().map(Vec::capacity).sum::<usize>()
+                .saturating_mul(std::mem::size_of::<T>())
+        }
+        payload(&self.chunks).saturating_add(payload(&self.compact_chunks))
+            .saturating_add(payload(&self.time_chunks))
+            .saturating_add(payload(&self.flag_chunks))
+            .saturating_add(payload(&self.control_chunks))
+    }
+    pub(crate) fn retained_storage_bytes(&self) -> usize {
+        let pages = self.chunks.len() + self.compact_chunks.len() + self.time_chunks.len()
+            + self.flag_chunks.len() + self.control_chunks.len();
         self.physical_capacity_bytes()
-            .saturating_add(descriptor_slots.saturating_mul(std::mem::size_of::<Vec<EventRow>>()))
+            .saturating_add(self.descriptor_capacity().saturating_mul(std::mem::size_of::<Vec<EventRow>>()))
             .saturating_add(pages.saturating_mul(32))
             .saturating_add(std::mem::size_of::<Self>())
             .saturating_add(2 * std::mem::size_of::<usize>() + 128)
     }
-
-    /// Constant-time pre-allocation bound for streaming legacy decode. The
-    /// established page projection includes old+new descriptor growth. Extra
-    /// retained overhead is conservative even for an empty/wide carrier.
-    /// Never rescan all previous pages on each decoded event.
+    fn last_source(&self) -> Option<u32> {
+        let i = self.control_len.checked_sub(1)?;
+        Some(self.control_chunks[i / CONTROL_PAGE_ROWS][i % CONTROL_PAGE_ROWS].0)
+    }
     pub(crate) fn projected_append_storage_bytes(&self, row: EventRow) -> PyResult<usize> {
-        let rows = self.len.checked_add(1)
-            .ok_or_else(|| budget("event decode row count overflow"))?;
-        let row_pages = rows.div_ceil(EVENT_PAGE_ROWS);
-        let time_pages = if self.compressed {
-            let pairs = self.time_len.checked_add(usize::from(
-                self.last_time != Some((row.4.to_bits(), row.5.to_bits()))))
-                .ok_or_else(|| budget("event decode time count overflow"))?;
-            pairs.div_ceil(EVENT_PAGE_ROWS)
-        } else { 0 };
-        Ok(self.projected_candidate_bytes(1, row.4, row.5)?
-            .saturating_add(row_pages.saturating_add(time_pages).saturating_mul(32))
+        let projected = self.projected_candidate_bytes(1, row.1, row.4, row.5)?;
+        if self.compressed {
+            return Ok(projected);
+        }
+        let rows = self.len.checked_add(1).ok_or_else(|| budget("event decode row count overflow"))?;
+        Ok(projected.saturating_add(rows.div_ceil(EVENT_PAGE_ROWS).saturating_mul(32))
             .saturating_add(std::mem::size_of::<Self>())
             .saturating_add(2 * std::mem::size_of::<usize>() + 128))
     }
-
-    /// Source preflight for one serve: all additional rows have the SAME
-    /// start/end bit pair. The requested count may exceed actual emitted rows
-    /// after IEEE underflow filtering; such a count remains conservative.
-    fn projected_candidate_bytes(&self,additional_rows:usize,start:f64,end:f64)->PyResult<usize> {
-        let rows=self.len.checked_add(additional_rows)
-            .ok_or_else(||budget("event projection row count overflow"))?;
-        if !self.compressed {return Ok(paged_event_candidate_bytes(rows));}
-        let pair=(start.to_bits(),end.to_bits());
-        let new_pair=usize::from(additional_rows>0 && self.last_time!=Some(pair));
-        let pairs=self.time_len.checked_add(new_pair)
-            .ok_or_else(||budget("event time-run count overflow"))?;
-        if pairs>u32::MAX as usize {
-            return Err(budget("event time-run index exceeds exact compact domain"));
-        }
-        Ok(paged_timed_event_candidate_bytes(rows,pairs))
+    /// All additional events of a source serve have the same source and time bits.
+    /// The wire decoder calls this with exactly one row. Filtered rows may reduce
+    /// the actual append count without increasing the projected number of controls.
+    fn projected_candidate_bytes(
+        &self, additional: usize, source: usize, start: f64, end: f64,
+    ) -> PyResult<usize> {
+        let rows = self.len.checked_add(additional).ok_or_else(|| budget("event projection row count overflow"))?;
+        if !self.compressed { return Ok(paged_event_candidate_bytes(rows)); }
+        let source = u32::try_from(source).map_err(|_| arithmetic("compressed event source exceeds u32"))?;
+        let different_time = self.last_time != Some((start.to_bits(), end.to_bits()));
+        let new_time = additional > 0 && different_time;
+        let new_control = additional > 0 && (different_time || self.last_source() != Some(source));
+        let times = self.time_len.checked_add(usize::from(new_time))
+            .filter(|&n| n <= u32::MAX as usize).ok_or_else(|| budget("event time index exceeds compact domain"))?;
+        let controls = self.control_len.checked_add(usize::from(new_control))
+            .ok_or_else(|| budget("event control count overflow"))?;
+        Ok(paged_run_event_candidate_bytes(rows, controls, times))
     }
-    pub(crate) fn iter(&self)->impl Iterator<Item=EventRow>+'_ {
-        self.chunks.iter().flat_map(|c|c.iter().copied())
-            .chain(self.compact_chunks.iter().flat_map(|c|c.iter().copied())
-                .map(|e|e.unpack(indexed_event_time(&self.time_chunks,e.time_index as usize))))
+    pub(crate) fn iter(&self) -> impl Iterator<Item=EventRow> + '_ {
+        let mut controls = self.control_chunks.iter().flatten();
+        let mut current = (0, (0, 0));
+        let compact = self.compact_chunks.iter().flatten().enumerate().map(move |(i, row)| {
+            let word = self.flag_chunks[i / EVENT_PAGE_ROWS][(i % EVENT_PAGE_ROWS) / 64];
+            if (word >> (i % 64)) & 1 != 0 {
+                let &(source, time) = controls.next().expect("event run has one control");
+                let time = time as usize;
+                current = (source, self.time_chunks[time / EVENT_PAGE_ROWS][time % EVENT_PAGE_ROWS]);
+            }
+            row.unpack(current.0, current.1)
+        });
+        self.chunks.iter().flatten().copied().chain(compact)
     }
-    pub(crate) fn push_checked(&mut self,e:EventRow)->PyResult<()> {
-        if self.compressed {
-            let pair=(e.4.to_bits(),e.5.to_bits());
-            let is_new=self.last_time!=Some(pair);
-            let index=if is_new {self.time_len}else{self.time_len-1};
-            let packed=TimedEventRow::try_new(e,index).ok_or_else(||
-                arithmetic("compressed event source-index contract differs"))?;
-            if is_new {
-                if self.time_chunks.last().is_none_or(|c|c.len()==EVENT_PAGE_ROWS) {
-                    let page=checkpoint_vec(EVENT_PAGE_ROWS)?;
-                    if page.capacity()!=EVENT_PAGE_ROWS {
-                        return Err(budget("event time fixed page capacity differs"));
-                    }
-                    push_checked(&mut self.time_chunks,page)?;
-                }
-                self.time_chunks.last_mut().expect("time page allocated").push(pair);
-                self.time_len+=1;
-                self.last_time=Some(pair);
-            }
-            if self.compact_chunks.last().is_none_or(|c|c.len()==EVENT_PAGE_ROWS) {
-                let page=checkpoint_vec(EVENT_PAGE_ROWS)?;
-                if page.capacity()!=EVENT_PAGE_ROWS {
-                    return Err(budget("compact event fixed page capacity differs"));
-                }
-                push_checked(&mut self.compact_chunks,page)?;
-            }
-            self.compact_chunks.last_mut().expect("compact page allocated").push(packed);
-        } else {
-            if self.chunks.last().is_none_or(|c|c.len()==EVENT_PAGE_ROWS) {
-                let page=checkpoint_vec(EVENT_PAGE_ROWS)?;
-                if page.capacity()!=EVENT_PAGE_ROWS {
-                    return Err(budget("fixed event page capacity differs from native contract"));
-                }
-                push_checked(&mut self.chunks,page)?;
-            }
-            self.chunks.last_mut().expect("original event page allocated").push(e);
+    pub(crate) fn push_checked(&mut self, event: EventRow) -> PyResult<()> {
+        if !self.compressed {
+            ensure_event_slot(&mut self.chunks, EVENT_PAGE_ROWS)?;
+            self.chunks.last_mut().unwrap().push(event);
+            self.len += 1;
+            return Ok(());
         }
-        self.len+=1;
+        let packed = CompactEventRow::try_new(event)
+            .ok_or_else(|| arithmetic("compressed event source-index contract differs"))?;
+        let time = (event.4.to_bits(), event.5.to_bits());
+        let new_time = self.last_time != Some(time);
+        let new_control = new_time || self.last_source() != Some(packed.source);
+        if new_time && self.time_len >= u32::MAX as usize {
+            return Err(budget("event time index exceeds compact domain"));
+        }
+        ensure_event_slot(&mut self.compact_chunks, EVENT_PAGE_ROWS)?;
+        if self.len % 64 == 0 { ensure_event_slot(&mut self.flag_chunks, FLAG_WORDS_PER_PAGE)?; }
+        if new_time { ensure_event_slot(&mut self.time_chunks, EVENT_PAGE_ROWS)?; }
+        if new_control { ensure_event_slot(&mut self.control_chunks, CONTROL_PAGE_ROWS)?; }
+        if new_time {
+            self.time_chunks.last_mut().unwrap().push(time);
+            self.time_len += 1;
+            self.last_time = Some(time);
+        }
+        let flags = self.flag_chunks.last_mut().unwrap();
+        if self.len % 64 == 0 { flags.push(0); }
+        if new_control {
+            *flags.last_mut().unwrap() |= 1u64 << (self.len % 64);
+            self.control_chunks.last_mut().unwrap().push((packed.source, (self.time_len - 1) as u32));
+            self.control_len += 1;
+        }
+        self.compact_chunks.last_mut().unwrap().push(EventPayload {
+            tag: packed.tag, dest: packed.dest, mass: packed.mass, birth: packed.birth,
+        });
+        self.len += 1;
         Ok(())
     }
-    fn into_flat_checked(self)->PyResult<Vec<EventRow>> {
-        let mut flat=checkpoint_vec(self.len)?;
-        if flat.capacity()!=self.len {
+    fn into_flat_checked(self) -> PyResult<Vec<EventRow>> {
+        let mut flat = checkpoint_vec(self.len)?;
+        if flat.capacity() != self.len {
             return Err(budget("flat event output reserve exceeds exact native contract"));
         }
-        for page in self.chunks {flat.extend(page);}
-        for page in self.compact_chunks {
-            flat.extend(page.into_iter().map(|e|
-                e.unpack(indexed_event_time(&self.time_chunks,e.time_index as usize))));
-        }
-        debug_assert_eq!(flat.len(),self.len);
+        flat.extend(self.iter());
+        debug_assert_eq!(flat.len(), self.len);
         Ok(flat)
     }
 }
@@ -719,19 +724,21 @@ fn paged_compact_event_candidate_bytes(n:usize)->usize {
     paged_event_candidate_payload_bytes(n,std::mem::size_of::<CompactEventRow>())
 }
 
-/// Both real fixed-page payload families and BOTH growing descriptor Vecs.
-/// With one time pair per row the payload is at most the former 48-byte form;
-/// repeated source times reduce physical payload without changing EventRow.
-fn paged_timed_event_candidate_bytes(rows:usize,time_pairs:usize)->usize {
-    let row_pages=rows.div_ceil(EVENT_PAGE_ROWS);
-    let time_pages=time_pairs.div_ceil(EVENT_PAGE_ROWS);
-    row_pages.saturating_mul(EVENT_PAGE_ROWS)
-        .saturating_mul(std::mem::size_of::<TimedEventRow>())
-        .saturating_add(time_pages.saturating_mul(EVENT_PAGE_ROWS)
-            .saturating_mul(std::mem::size_of::<(u64,u64)>()))
-        .saturating_add(row_pages.saturating_add(time_pages).saturating_add(2)
-            .saturating_mul(3*std::mem::size_of::<Vec<EventRow>>()))
-        .saturating_add(192)
+/// Admission includes the full last payload/flag/control/time pages, the four
+/// growing header vectors (including their old and new allocations), per-page
+/// allocator padding and carrier metadata. The bound uses no allocator credit.
+fn paged_run_event_candidate_bytes(rows: usize, controls: usize, times: usize) -> usize {
+    let row_pages = rows.div_ceil(EVENT_PAGE_ROWS);
+    let control_pages = controls.div_ceil(CONTROL_PAGE_ROWS);
+    let time_pages = times.div_ceil(EVENT_PAGE_ROWS);
+    let pages = row_pages.saturating_mul(2).saturating_add(control_pages).saturating_add(time_pages);
+    row_pages.saturating_mul(EVENT_PAGE_ROWS * std::mem::size_of::<EventPayload>())
+        .saturating_add(row_pages.saturating_mul(FLAG_WORDS_PER_PAGE * std::mem::size_of::<u64>()))
+        .saturating_add(control_pages.saturating_mul(CONTROL_PAGE_ROWS * std::mem::size_of::<(u32, u32)>()))
+        .saturating_add(time_pages.saturating_mul(EVENT_PAGE_ROWS * std::mem::size_of::<(u64, u64)>()))
+        .saturating_add(pages.saturating_add(4).saturating_mul(3 * std::mem::size_of::<Vec<EventRow>>()))
+        .saturating_add(pages.saturating_mul(32))
+        .saturating_add(std::mem::size_of::<ChunkedEvents>() + 2 * std::mem::size_of::<usize>() + 128)
 }
 
 /// Live owners AFTER road step temporaries have been dropped. The final
@@ -4150,7 +4157,7 @@ impl V1Road {
                     let incoming_count=served_parts(&packet.parts,fraction)
                         .filter(|part|self.dest(part).is_some()).count();
                     work.event_candidate_live_bound=Some(events.projected_candidate_bytes(
-                        packet.parts.len(),start_time,end_time,
+                        packet.parts.len(),i,start_time,end_time,
                     )?);
                     if use_timed_incoming {
                         // At most one immutable time/mark control per class in
@@ -4320,6 +4327,7 @@ impl V1Road {
         if use_timed_incoming && crate::v1_trace::enabled() {
             crate::v1_trace::add("event_time.source_rows",events.len() as u64);
             crate::v1_trace::add("event_time.exact_time_runs",events.time_len as u64);
+            crate::v1_trace::add("event_time.source_time_runs",events.control_len as u64);
             crate::v1_trace::add("event_time.physical_payload_bytes",events.physical_capacity_bytes() as u64);
             crate::v1_trace::add("event_time.saved_payload_bytes",
                 events.capacity().saturating_mul(std::mem::size_of::<CompactEventRow>())
@@ -4328,6 +4336,7 @@ impl V1Road {
         if work.limit.is_some() && crate::v1_trace::enabled() && !use_timed_incoming {
             crate::v1_trace::add("event_time.source_rows",events.len() as u64);
             crate::v1_trace::add("event_time.exact_time_runs",events.time_len as u64);
+            crate::v1_trace::add("event_time.source_time_runs",events.control_len as u64);
             crate::v1_trace::add("event_time.physical_payload_bytes",events.physical_capacity_bytes() as u64);
             crate::v1_trace::add("event_time.saved_payload_bytes",
                 events.capacity().saturating_mul(std::mem::size_of::<CompactEventRow>())
@@ -6598,7 +6607,7 @@ mod exact_compact_candidate_event_tests {
             for i in 0..n {p.push_checked(event(i)).unwrap();}
             assert_eq!(p.len(),n);
             assert_eq!(p.capacity(),n.div_ceil(EVENT_PAGE_ROWS)*EVENT_PAGE_ROWS);
-            assert!(p.physical_capacity_bytes()<=p.capacity()*48);
+            assert!(p.physical_capacity_bytes()<=p.capacity()*48+p.capacity().div_ceil(64)*8);
             let got=p.into_flat_checked().unwrap().into_iter().map(bits).collect::<Vec<_>>();
             assert_eq!(expected,got);
         }
@@ -6836,8 +6845,8 @@ mod exact_event_page_live_capacity_contract_tests {
                 )).unwrap();
             }
             assert_eq!(pages.physical_capacity_bytes(),
-                n.div_ceil(EVENT_PAGE_ROWS)*EVENT_PAGE_ROWS
-                  *std::mem::size_of::<CompactEventRow>());
+                n.div_ceil(EVENT_PAGE_ROWS)*(EVENT_PAGE_ROWS*40+FLAG_WORDS_PER_PAGE*8)
+                  +n.div_ceil(CONTROL_PAGE_ROWS)*CONTROL_PAGE_ROWS*8);
         }
     }
 }
@@ -7341,7 +7350,9 @@ mod exact_event_time_run_tests {
         let n=3*EVENT_PAGE_ROWS+17;
         let mut pages=ChunkedEvents::new(true);
         for i in 0..n {pages.push_checked(row(i)).unwrap();}
-        let expected_payload=pages.capacity()*32+EVENT_PAGE_ROWS*16;
+        assert_eq!(pages.control_len,n);
+        let expected_payload=pages.capacity()*24 + pages.capacity().div_ceil(64)*8
+            + n.div_ceil(CONTROL_PAGE_ROWS)*CONTROL_PAGE_ROWS*8 + EVENT_PAGE_ROWS*16;
         assert_eq!(pages.physical_capacity_bytes(), expected_payload,
             "repeated source time pairs still stored in every physical event row");
         let expected=(0..n).map(row).map(bits).collect::<Vec<_>>();
@@ -7349,21 +7360,44 @@ mod exact_event_time_run_tests {
         assert_eq!(pages.into_flat_checked().unwrap().into_iter().map(bits).collect::<Vec<_>>(),expected);
     }
     #[test]
+    fn source_runs_share_control_bits_across_payload_and_flag_pages() {
+        let mut events = ChunkedEvents::new(true);
+        let n = EVENT_PAGE_ROWS * 3 + 77;
+        let expected = (0..n).map(|i| {
+            let mut e = row(i);
+            e.1 = if (4093..8195).contains(&i) { 7 } else { 9 };
+            e.4 = if i < 8196 { -0.0 } else { 0.0 };
+            e.5 = 2.0;
+            e
+        }).collect::<Vec<_>>();
+        for &e in &expected {
+            let bound = events.projected_append_storage_bytes(e).unwrap();
+            events.push_checked(e).unwrap();
+            assert!(events.retained_storage_bytes() <= bound);
+        }
+        assert_eq!(events.control_len, 4);
+        assert_eq!(events.time_len, 2);
+        let old_payload = events.capacity() * 32 + EVENT_PAGE_ROWS * 16;
+        assert!(old_payload - events.physical_capacity_bytes() >= 7 * n);
+        assert_eq!(events.iter().map(bits).collect::<Vec<_>>(),
+                   expected.into_iter().map(bits).collect::<Vec<_>>());
+    }
+    #[test]
     fn projected_source_append_bounds_both_page_and_descriptor_allocations() {
-        assert_eq!(std::mem::size_of::<TimedEventRow>(),32);
+        assert_eq!(std::mem::size_of::<EventPayload>(),24);
         assert_eq!(std::mem::size_of::<(u64,u64)>(),16);
         let mut pages=ChunkedEvents::new(true);
         let mut ordinal=0usize;
         for (batch,requested) in [1usize,17,4095,4096,4097,0,73].into_iter().enumerate() {
             let start=if batch%2==0 {-0.0}else{0.0};
             let end=(batch+1) as f64;
-            let projected=pages.projected_candidate_bytes(requested,start,end).unwrap();
+            let projected=pages.projected_candidate_bytes(requested,batch,start,end).unwrap();
             // The source preflight uses head length, which can overcount a
             // filtered zero-mass row. Prove the predicted buffer still covers
             // every actual prefix, including both header Vec allocations.
             let actual=requested.saturating_sub(usize::from(batch%3==0));
             for _ in 0..actual {
-                let mut e=row(ordinal); e.4=start;e.5=end;
+                let mut e=row(ordinal); e.1=batch; e.4=start;e.5=end;
                 pages.push_checked(e).unwrap();ordinal+=1;
                 let observed=pages.physical_capacity_bytes()
                     +pages.descriptor_capacity()*std::mem::size_of::<Vec<EventRow>>()
@@ -7382,7 +7416,7 @@ mod exact_event_time_run_tests {
 
     #[test]
     fn event_carrier_bound_preserves_all_original_input_and_current_history_bytes() {
-        let carrier=paged_timed_event_candidate_bytes(12_305,193);
+        let carrier=paged_run_event_candidate_bytes(12_305,250,193);
         let tracked=segmented_incoming_exact_cell_pages_charge(0,0,0,true,None);
         let mut work=RoadWorkBudget {
             limit:Some(111+222+carrier+tracked),base:0,
@@ -7417,7 +7451,7 @@ mod exact_event_time_run_tests {
         }).collect::<Vec<_>>();
         let mut pages=ChunkedEvents::new(true);
         for &e in &original {pages.push_checked(e).unwrap();}
-        assert!(pages.physical_capacity_bytes()<=pages.capacity()*48);
+        assert!(pages.physical_capacity_bytes()<=pages.capacity()*48+pages.capacity().div_ceil(64)*8);
         assert_eq!(pages.into_flat_checked().unwrap().into_iter().map(bits).collect::<Vec<_>>(),
             original.into_iter().map(bits).collect::<Vec<_>>());
     }
@@ -7430,12 +7464,11 @@ mod event_carrier_metadata_tests {
     #[test]
     fn zero_row_page_allowance_covers_the_actual_living_carrier() {
         let carrier=std::mem::size_of::<ChunkedEvents>();
-        assert_eq!(carrier,120,"x86_64 measured carrier layout changed");
         assert!(paged_event_candidate_bytes(0)>=carrier,
             "empty wide event allowance is smaller than its actual carrier");
         assert!(paged_compact_event_candidate_bytes(0)>=carrier,
             "empty compact fallback allowance is smaller than its actual carrier");
-        assert!(paged_timed_event_candidate_bytes(0,0)>=carrier);
+        assert!(paged_run_event_candidate_bytes(0,0,0)>=carrier);
     }
     #[test]
     fn flatten_allowance_covers_coexisting_carrier_and_flat_vec_header_at_zero_rows() {
