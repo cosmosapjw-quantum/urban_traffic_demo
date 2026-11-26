@@ -14,15 +14,21 @@ serde = { version = "1", features = ["derive"], optional = true }
 serde_json = { version = "1", features = ["float_roundtrip"], optional = true }
 sha2 = { version = "0.10", optional = true }
 libc = { version = "0.2", optional = true }
+lzma-rust2 = { version = "0.25", default-features = false, features = ["std","xz"], optional = true }
 
 [features]
 default = ["python-extension"]
 python-extension = ["dep:pyo3", "pyo3/extension-module"]
-native-cli = ["dep:serde", "dep:serde_json", "dep:sha2", "dep:libc"]
+native-cli = ["dep:serde", "dep:serde_json", "dep:sha2", "dep:libc", "dep:lzma-rust2"]
 # Diagnostic instrument only: counting allocator and observe-mode guards.
 budget_trace = []
 
 [[bin]]
 name = "metroflow-native-run"
 path = "src/bin/metroflow-native-run.rs"
+required-features = ["native-cli"]
+
+[[bin]]
+name = "metroflow-frozen-road-audit"
+path = "src/bin/metroflow-frozen-road-audit.rs"
 required-features = ["native-cli"]

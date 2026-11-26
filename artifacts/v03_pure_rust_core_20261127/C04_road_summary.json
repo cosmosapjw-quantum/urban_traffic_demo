@@ -1,0 +1,56 @@
+{
+  "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "threads": 8,
+  "valley_historical_road_comparison": {
+    "link_id_order_exact": true,
+    "max_scaled_difference": 0.0,
+    "rows": 1586
+  },
+  "rows": [
+    {
+      "blocks": 588,
+      "case": "river_weekday_s17",
+      "city_identity": "85d1c4351f39ded22781779f16bbbbb454bc29e73c500b18c030cd523c7bb088",
+      "incoming_groups": 992,
+      "legal_turns": 7442,
+      "links": 3158,
+      "nodes": 992,
+      "patch_sha256": "8040bf2037bdece32504b8079342abb025d3e8a62a4742a0cc5cb0213b691c27",
+      "population": 100000,
+      "portals": 557,
+      "scope": "byte-pinned frozen maps; directional transport registry, ground face/stock/portal validation; not generative atlas or complete terrain clearance validation",
+      "source_sha256": "f7e7bd19a5a8af51b25526e25b15bf9314ac7d4fd3f50875c70db412e066c8b2",
+      "wall_s": 0.069921701
+    },
+    {
+      "blocks": 500,
+      "case": "coastal_weekend_s41",
+      "city_identity": "dabc78e1c5c574f492dd8b009af0348b4c22bf5efc5f5c5983d8e6b16d7250d5",
+      "incoming_groups": 849,
+      "legal_turns": 6348,
+      "links": 2696,
+      "nodes": 849,
+      "patch_sha256": "f22743e502442405732db7c09e5745a8f41471c9d949358d56c04b685ad419cf",
+      "population": 100000,
+      "portals": 478,
+      "scope": "byte-pinned frozen maps; directional transport registry, ground face/stock/portal validation; not generative atlas or complete terrain clearance validation",
+      "source_sha256": "5c3107b147b7f71046f5958a8ad8d3f0212d0bcc5bbfcc27ebbebbd9d476756e",
+      "wall_s": 0.059466501
+    },
+    {
+      "blocks": 245,
+      "case": "valley_weekday_s7",
+      "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+      "incoming_groups": 549,
+      "legal_turns": 3314,
+      "links": 1586,
+      "nodes": 549,
+      "patch_sha256": "da5fa61d26316b17d09a96ae467d4fb0accc2781f17a96572607ddf423946ac7",
+      "population": 100000,
+      "portals": 234,
+      "scope": "byte-pinned frozen maps; directional transport registry, ground face/stock/portal validation; not generative atlas or complete terrain clearance validation",
+      "source_sha256": "a32ef2e24bc0eec6a5115f3c435489c17c94ec983d39b1924dc8935302edb2b5",
+      "wall_s": 0.034841537
+    }
+  ]
+}

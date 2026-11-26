@@ -1318,3 +1318,5 @@ mod tests {
 // still uses PyO3 error/binding types; no Python script participates.
 #[cfg(feature="native-cli")]
 pub use v1_engine::run_native_declaration;
+#[cfg(feature="native-cli")]
+pub mod frozen_city;
