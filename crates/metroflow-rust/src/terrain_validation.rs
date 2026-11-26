@@ -16,35 +16,35 @@ fn xy(p: P3) -> Point {
 fn delta(a: P3, b: P3, t: f64) -> P3 {
     std::array::from_fn(|i| a[i] + t * (b[i] - a[i]))
 }
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub(crate) struct Rect {
     xmin: f64,
     ymin: f64,
     xmax: f64,
     ymax: f64,
 }
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub(crate) struct Terrain {
-    n: usize,
-    spacing_m: f64,
-    heights_m: Vec<f64>,
-    water: Vec<Rect>,
-    protected: Vec<Rect>,
-    bridge_rows: Vec<usize>,
+    pub(crate) n: usize,
+    pub(crate) spacing_m: f64,
+    pub(crate) heights_m: Vec<f64>,
+    pub(crate) water: Vec<Rect>,
+    pub(crate) protected: Vec<Rect>,
+    pub(crate) bridge_rows: Vec<usize>,
 }
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub(crate) struct Region {
-    points: Vec<Point>,
-    bounds: [f64; 4],
+    pub(crate) points: Vec<Point>,
+    pub(crate) bounds: [f64; 4],
 }
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub(crate) struct Landscape {
     pub terrain: Terrain,
-    water: Vec<Region>,
-    protected: Vec<Region>,
+    pub(crate) water: Vec<Region>,
+    pub(crate) protected: Vec<Region>,
 }
 impl Terrain {
-    fn validate(&self) -> CoreResult<()> {
+    pub(crate) fn validate(&self) -> CoreResult<()> {
         if self.n == 0
             || self.n > 4096
             || !self.spacing_m.is_finite()
@@ -68,7 +68,7 @@ impl Terrain {
         }
         Ok(())
     }
-    fn elevation(&self, p: Point) -> CoreResult<f64> {
+    pub(crate) fn elevation(&self, p: Point) -> CoreResult<f64> {
         let lim = self.n as f64 * self.spacing_m;
         if p.iter().any(|x| !x.is_finite() || *x < 0. || *x > lim) {
             return Err(bad("outside terrain"));
@@ -86,7 +86,7 @@ impl Terrain {
         );
         Ok((1. - u) * (1. - v) * a + u * (1. - v) * b + (1. - u) * v * c + u * v * d)
     }
-    fn cuts(&self, p: Point, q: Point) -> Vec<f64> {
+    pub(crate) fn cuts(&self, p: Point, q: Point) -> Vec<f64> {
         let mut cuts = vec![0., 1.];
         for a in 0..2 {
             let d = q[a] - p[a];
@@ -105,7 +105,7 @@ impl Terrain {
         cuts.dedup_by(|a, b| *a == *b);
         cuts
     }
-    fn ground_profile(&self, ps: &[P3]) -> CoreResult<(f64, f64)> {
+    pub(crate) fn ground_profile(&self, ps: &[P3]) -> CoreResult<(f64, f64)> {
         let mut length = 0.;
         let mut grade = 0f64;
         for w in ps.windows(2) {
@@ -134,7 +134,7 @@ impl Terrain {
         }
         Ok((length, grade))
     }
-    fn ground_gap(&self, ps: &[P3]) -> CoreResult<f64> {
+    pub(crate) fn ground_gap(&self, ps: &[P3]) -> CoreResult<f64> {
         let mut g = f64::INFINITY;
         for w in ps.windows(2) {
             let p = w[0];
@@ -161,7 +161,7 @@ impl Terrain {
         Ok(g)
     }
 }
-fn bounds(ps: &[Point]) -> [f64; 4] {
+pub(crate) fn bounds(ps: &[Point]) -> [f64; 4] {
     let mut a = [
         f64::INFINITY,
         f64::INFINITY,
@@ -185,7 +185,7 @@ fn edges(ps: &[Point]) -> impl Iterator<Item = (Point, Point)> + '_ {
         .zip(ps.iter().copied().cycle().skip(1))
         .take(ps.len())
 }
-fn segment_clear(a: Point, b: Point, regions: &[Region], width: f64) -> bool {
+pub(crate) fn segment_clear(a: Point, b: Point, regions: &[Region], width: f64) -> bool {
     let bb = bounds(&[a, b]);
     for r in regions {
         if !overlap(bb, r.bounds, width) {
