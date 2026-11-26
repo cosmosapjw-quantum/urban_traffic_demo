@@ -1,0 +1,195 @@
+{
+  "scope": "fixed-route access-resolved three-class projection; not native V03",
+  "input_sha256": "af8a0c16e2bd31d4a42282e83d076ea10075e6cbe0bb3982dfb5978cfa9f72a5",
+  "passages_sha256": "a310ee706ae3eb64ba35eef2c9275da38141dbd32eb89f86bcb6a90c89bd73c1",
+  "runs": [
+    {
+      "mesh_s": 1200,
+      "horizon_s": 86400,
+      "wall_s": 91.61,
+      "peak_rss_kib": 431892,
+      "expected_total": 57120.93915140021,
+      "released": 57120.939151399994,
+      "admitted": 57120.939151399994,
+      "exited": 57120.939151399994,
+      "completed": 57120.939151399994,
+      "active": 0.0,
+      "road_stock": 0.0,
+      "max_mass_error": 7.892575482060238e-13,
+      "max_meter_error": 7.042977312465837e-16,
+      "max_storage_ratio": 0.9999978705281816,
+      "max_receiving_ratio": 0.9999951975723949,
+      "storage_blocks": 85,
+      "rate_blocks": 489,
+      "waiting_veh_s": 2399277.189890104,
+      "blocked_veh_s": 12614.913109531857,
+      "event_count": 256004489,
+      "veh_trip_seconds": 45606428.330343954,
+      "full_day_all_projected_trips_completed": true,
+      "per_class": [
+        {
+          "class_name": "car",
+          "expected": 57095.9403264,
+          "completed": 57095.94032639999,
+          "active": 0.0,
+          "trip_seconds": 45588089.86668066
+        },
+        {
+          "class_name": "freight",
+          "expected": 0.998825,
+          "completed": 0.998825,
+          "active": 0.0,
+          "trip_seconds": 768.4636632923031
+        },
+        {
+          "class_name": "scheduled_bus",
+          "expected": 24.0,
+          "completed": 24.0,
+          "active": 0.0,
+          "trip_seconds": 17570.0
+        }
+      ]
+    },
+    {
+      "mesh_s": 600,
+      "horizon_s": 25720,
+      "wall_s": 8.98,
+      "peak_rss_kib": 168144,
+      "expected_total": 57120.93915140021,
+      "released": 1372.972408,
+      "admitted": 963.8569893776782,
+      "exited": 153.832978805536,
+      "completed": 76.76904426915928,
+      "active": 1296.2033637308407,
+      "road_stock": 810.0240105721423,
+      "max_mass_error": 3.4416913763379853e-15,
+      "max_meter_error": 1.4224732503009818e-16,
+      "max_storage_ratio": 0.1543711010149955,
+      "max_receiving_ratio": 0.3712853303197916,
+      "storage_blocks": 0,
+      "rate_blocks": 0,
+      "waiting_veh_s": 9648.632716543148,
+      "blocked_veh_s": 0.0,
+      "event_count": 2339324,
+      "veh_trip_seconds": 26235.88277444273,
+      "full_day_all_projected_trips_completed": false,
+      "per_class": [
+        {
+          "class_name": "car",
+          "expected": 57095.9403264,
+          "completed": 72.76904426915928,
+          "active": 1296.2033637308407,
+          "trip_seconds": 23345.88277444273
+        },
+        {
+          "class_name": "freight",
+          "expected": 0.998825,
+          "completed": 0.0,
+          "active": 0.0,
+          "trip_seconds": 0.0
+        },
+        {
+          "class_name": "scheduled_bus",
+          "expected": 24.0,
+          "completed": 4.0,
+          "active": 0.0,
+          "trip_seconds": 2890.0
+        }
+      ]
+    },
+    {
+      "mesh_s": 600,
+      "horizon_s": 28800,
+      "wall_s": 23.05,
+      "peak_rss_kib": 311692,
+      "expected_total": 57120.93915140021,
+      "released": 9519.9900544,
+      "admitted": 9119.702276899816,
+      "exited": 7765.858189571008,
+      "completed": 7411.825882398782,
+      "active": 2108.164172001218,
+      "road_stock": 1353.8440873288084,
+      "max_mass_error": 8.526512829121202e-14,
+      "max_meter_error": 1.27675647831893e-15,
+      "max_storage_ratio": 0.22541448962753632,
+      "max_receiving_ratio": 0.560959096574428,
+      "storage_blocks": 0,
+      "rate_blocks": 0,
+      "waiting_veh_s": 369647.7393189894,
+      "blocked_veh_s": 0.0,
+      "event_count": 55255017,
+      "veh_trip_seconds": 5683021.033093756,
+      "full_day_all_projected_trips_completed": false,
+      "per_class": [
+        {
+          "class_name": "car",
+          "expected": 57095.9403264,
+          "completed": 7407.825882398782,
+          "active": 2108.164172001218,
+          "trip_seconds": 5680131.033093756
+        },
+        {
+          "class_name": "freight",
+          "expected": 0.998825,
+          "completed": 0.0,
+          "active": 0.0,
+          "trip_seconds": 0.0
+        },
+        {
+          "class_name": "scheduled_bus",
+          "expected": 24.0,
+          "completed": 4.0,
+          "active": 0.0,
+          "trip_seconds": 2890.0
+        }
+      ]
+    },
+    {
+      "mesh_s": 600,
+      "horizon_s": 86400,
+      "wall_s": 161.31,
+      "peak_rss_kib": 787608,
+      "expected_total": 57120.93915140021,
+      "released": 57120.939151399994,
+      "admitted": 57120.939151399994,
+      "exited": 57120.939151399994,
+      "completed": 57120.939151399994,
+      "active": 0.0,
+      "road_stock": 0.0,
+      "max_mass_error": 9.059419880941277e-13,
+      "max_meter_error": 1.27675647831893e-15,
+      "max_storage_ratio": 0.28743820137116394,
+      "max_receiving_ratio": 0.6364300246176745,
+      "storage_blocks": 0,
+      "rate_blocks": 0,
+      "waiting_veh_s": 2475927.520387618,
+      "blocked_veh_s": 0.0,
+      "event_count": 511105880,
+      "veh_trip_seconds": 45551552.806591906,
+      "full_day_all_projected_trips_completed": true,
+      "per_class": [
+        {
+          "class_name": "car",
+          "expected": 57095.9403264,
+          "completed": 57095.94032639999,
+          "active": 0.0,
+          "trip_seconds": 45533202.22849581
+        },
+        {
+          "class_name": "freight",
+          "expected": 0.998825,
+          "completed": 0.998825,
+          "active": 0.0,
+          "trip_seconds": 770.5780960968758
+        },
+        {
+          "class_name": "scheduled_bus",
+          "expected": 24.0,
+          "completed": 24.0,
+          "active": 0.0,
+          "trip_seconds": 17580.0
+        }
+      ]
+    }
+  ]
+}

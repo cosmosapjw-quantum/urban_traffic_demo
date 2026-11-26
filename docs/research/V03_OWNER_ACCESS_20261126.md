@@ -43,3 +43,28 @@ Original strict S04 restart used binary 9a680f55d0ee71daa3c3749d5fd8a8d072a73520
 The exact recorded three-owner terms total 5,301,435,192 B, so the remaining scratch allowance with those terms held fixed is 487,931,679 B. Existing decoder-validation scratch 936,563,136 B dominates other validation after call-binding credit 376,822,636 B. If a genuinely bounded streaming validator replaced that raw workspace while the owner terms stayed unchanged, the conditional budget headroom would be 111,109,043 B. This is an actionable inequality, not proof that the new state is checkpointable. Historical 2026-11-21 lifetime work and source v1_road.rs::read_state/read_packets show that legacy wire decoding can transiently expand SharedKeys into independent Uniform rows before interning. The decoded-road envelope must therefore be audited against uninterned owner size, or the decoder must construct exact key sharing during load. Do not subtract alias credit from a future independent reload or simply remove the 16 B/row validation charge. Next structural intervention: streamed per-class/global validation expansions with fixed scratch, direct packet-wise exact keyset reconstruction and measured new wire save/load. This targets the actual remaining gate rather than a first-refusal-byte chase.
 
 Cross-build 100 ticks of multiclass physical state and event outputs are byte-identical to prior binary. Rust 208 passed, 2 ignored (S04). Default Python focused suite 78 passed, including the previous opt-in-only failure fixture in its supported default mode. Broad opt-in suite not repeated; previous opt-in failure is not declared closed.
+
+## S09 — actual horizon ramp and current original calendar prerequisites
+
+All four actual runs finished with process exit 0. Original export input and passage bytes rehashed, every emitted checkpoint and class ledger checked, separate meter error and receiving/storage maxima bounded. These are fixed-route projected vehicle trips, not native full-state V03 acceptance.
+
+| Departure mesh s | Horizon s | Wall s | RSS KiB | Completed vehicles | Active | Max storage ratio | Max receiving ratio | Storage/rate refusals |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 600 | 25720 | 8.98 | 168144 | 76.769044269 | 1296.203363731 | 0.154371101 | 0.371285330 | 0/0 |
+| 600 | 28800 | 23.05 | 311692 | 7411.825882399 | 2108.164172001 | 0.225414490 | 0.560959097 | 0/0 |
+| 1200 | 86400 | 91.61 | 431892 | 57120.939151400 | 0.000000000 | 0.999997871 | 0.999995198 | 85/489 |
+| 600 | 86400 | 161.31 | 787608 | 57120.939151400 | 0.000000000 | 0.287438201 | 0.636430025 | 0/0 |
+
+At mesh 1200 s: 256004489 events, all projected trips complete=True, max mass error 7.8926e-13 veh, max meter error 7.0430e-16 m, total vehicle trip seconds 45606428.330343954, blocked vehicle seconds 12614.913109532.
+
+At mesh 600 s: 511105880 events, all projected trips complete=True, max mass error 9.0594e-13 veh, max meter error 1.2768e-15 m, total vehicle trip seconds 45551552.806591906, blocked vehicle seconds 0.000000000.
+
+Mesh changes also change departure strata and nonlinear queues; these two samples are sensitivity evidence, not a convergence order or causal isolation of access coupling versus receiving physics. No second-city projected execution or native full-day claim.
+
+Fresh current S04 native full-calendar preparation (identical matrix, measured source/binary, resident stock 100000 each):
+
+- coastal_weekend_s41: 2449750 legs, 39.225 s, RSS 1114587136 B, simulated_s=0.
+- river_weekday_s17: 5093765 legs, 69.344 s, RSS 2172112896 B, simulated_s=0.
+- valley_weekday_s7: 918450 legs, 22.268 s, RSS 446136320 B, simulated_s=0.
+
+Calendar prerequisites 3/3; original full-day runs 0/9, strict original frontier remains 25720 s.

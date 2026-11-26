@@ -1,0 +1,67 @@
+{
+  "scope": "native whole calendar only",
+  "completed": 3,
+  "total": 3,
+  "runs": [
+    {
+      "case": "coastal_weekend_s41",
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "simulated_s": 0,
+      "calendar": {
+        "legs": 2449750,
+        "persons": 100000.0,
+        "vehicles": 49001.0,
+        "cargo_kg": 1000,
+        "resident_stock": 100000.0,
+        "requested_workers": 10000.0,
+        "allocated_workers": 10000.0,
+        "unassigned_workers": 0.0
+      },
+      "wall_s": 39.22537027206272,
+      "peak_rss_bytes": 1114587136,
+      "candidate_source_sha256": "4d5f1b78742d9ebc2fe48362ac5b18aed524db7bc3871ba15170a6c219587238",
+      "native_binary_sha256": "9a680f55d0ee71daa3c3749d5fd8a8d072a7352064fc0961b232226ee6112109",
+      "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a"
+    },
+    {
+      "case": "river_weekday_s17",
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "simulated_s": 0,
+      "calendar": {
+        "legs": 5093765,
+        "persons": 120000.0,
+        "vehicles": 58801.0,
+        "cargo_kg": 1000,
+        "resident_stock": 100000.0,
+        "requested_workers": 50000.0,
+        "allocated_workers": 40000.0,
+        "unassigned_workers": 10000.0
+      },
+      "wall_s": 69.3441471750848,
+      "peak_rss_bytes": 2172112896,
+      "candidate_source_sha256": "4d5f1b78742d9ebc2fe48362ac5b18aed524db7bc3871ba15170a6c219587238",
+      "native_binary_sha256": "9a680f55d0ee71daa3c3749d5fd8a8d072a7352064fc0961b232226ee6112109",
+      "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a"
+    },
+    {
+      "case": "valley_weekday_s7",
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "simulated_s": 0,
+      "calendar": {
+        "legs": 918450,
+        "persons": 120000.0,
+        "vehicles": 58801.0,
+        "cargo_kg": 1000,
+        "resident_stock": 100000.0,
+        "requested_workers": 50000.0,
+        "allocated_workers": 40000.0,
+        "unassigned_workers": 10000.0
+      },
+      "wall_s": 22.267945040017366,
+      "peak_rss_bytes": 446136320,
+      "candidate_source_sha256": "4d5f1b78742d9ebc2fe48362ac5b18aed524db7bc3871ba15170a6c219587238",
+      "native_binary_sha256": "9a680f55d0ee71daa3c3749d5fd8a8d072a7352064fc0961b232226ee6112109",
+      "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a"
+    }
+  ]
+}
