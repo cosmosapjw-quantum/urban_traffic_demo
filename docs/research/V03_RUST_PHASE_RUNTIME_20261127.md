@@ -1,0 +1,2 @@
+# Native phase and resource continuation
+Parent fa343876097e3485e04502e41f96bdebb4ffc4ad verified. Fixed 15-group functional census. Original Python C01 Runtime produces proposals without rewriting occupied packets; physical suffix application must not be invented or confused with C01 parity. Preserve all physical ledgers, clocks, identities, source history, 6 GiB structural accounting, 8 GiB RSS/address cap and 7200 s per case. All scientific execution Rust; Python only explicit oracle tests. Continue from current 25620 s identity, not historic 25720 s.
