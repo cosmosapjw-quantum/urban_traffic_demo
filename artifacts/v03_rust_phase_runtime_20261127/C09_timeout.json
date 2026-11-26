@@ -1,0 +1,38 @@
+{
+  "cases": [
+    {
+      "case": "valley_weekday_s7",
+      "checkpoint_replay": "NOT_FULL_DAY_TEST",
+      "failure": {
+        "native_failure": null,
+        "reason": "external wall timeout",
+        "repeat": 0,
+        "stage": "execute_or_validate",
+        "step_s": 10.0
+      },
+      "refinement_status": "NOT_RUN_OR_INCOMPLETE",
+      "runs": [
+        {
+          "last_valid_checkpoint_exists": false,
+          "replay_requested": true,
+          "status": "BLOCKED_RESOURCE",
+          "step_s": 10.0,
+          "timeout": true,
+          "total_wall_s": 0.706418643,
+          "validated": false,
+          "validation_error": "external wall timeout"
+        }
+      ],
+      "status": "BLOCKED"
+    }
+  ],
+  "completed_full_runs": 0,
+  "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "mode": "PREFIX_ONLY",
+  "prepare_binary_sha256": "b6d0fcd69097f6196c79aab95def1f7cbc9b0677f5de73720d9a92e9e41e0cb3",
+  "required_full_runs": 9,
+  "run_binary_sha256": "8e0f6851b9b1d9efdd858e3736c6ec2455068ed93b5459efcb60d0c495895e5d",
+  "schema": "metroflow_v03_rust_campaign_v1",
+  "status": "BLOCKED",
+  "threads": 8
+}

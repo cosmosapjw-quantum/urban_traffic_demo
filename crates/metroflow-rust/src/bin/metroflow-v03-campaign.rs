@@ -34,11 +34,35 @@ fn atomic(p: &Path, v: &Value) -> Result<()> {
     serde_json::to_writer_pretty(&f, v)?;
     f.sync_all()?;
     fs::rename(tmp, p)?;
+    File::open(p.parent().unwrap_or_else(|| Path::new(".")))?.sync_all()?;
     Ok(())
 }
 fn launch(mut c: Command, stem: &Path, limit: Duration) -> Result<(bool, bool, f64)> {
     c.stdout(Stdio::from(File::create(stem.with_extension("stdout"))?))
         .stderr(Stdio::from(File::create(stem.with_extension("stderr"))?));
+    // Both preparation and native simulation are subject to the same 8 GiB
+    // address-space ceiling. No child can silently bypass the production cap.
+    #[cfg(target_os = "linux")]
+    {
+        use std::os::unix::process::CommandExt;
+        // SAFETY: only async-signal-safe getrlimit/setrlimit in the child.
+        unsafe {
+            c.pre_exec(|| {
+                let mut lim = libc::rlimit {
+                    rlim_cur: 0,
+                    rlim_max: 0,
+                };
+                if libc::getrlimit(libc::RLIMIT_AS, &mut lim) != 0 {
+                    return Err(std::io::Error::last_os_error());
+                }
+                lim.rlim_cur = lim.rlim_cur.min(lim.rlim_max).min(8 * 1024u64.pow(3));
+                if libc::setrlimit(libc::RLIMIT_AS, &lim) != 0 {
+                    return Err(std::io::Error::last_os_error());
+                }
+                Ok(())
+            });
+        }
+    }
     let t = Instant::now();
     let mut child = c.spawn()?;
     loop {
@@ -55,6 +79,7 @@ fn launch(mut c: Command, stem: &Path, limit: Duration) -> Result<(bool, bool, f
 }
 fn validate(r: &Value, end: f64, step: f64, prep: &Value, hash: &str, replay: bool) -> Result<()> {
     if r["status"] != "EXECUTED_FOR_REVIEW"
+        || r["start_s"].as_f64() != Some(0.)
         || r["time_s"].as_f64() != Some(end)
         || r["manifest_sha256"] != hash
         || r["resume_verified"].as_bool() != Some(replay)
@@ -65,9 +90,13 @@ fn validate(r: &Value, end: f64, step: f64, prep: &Value, hash: &str, replay: bo
     {
         return Err("execution binding or status differs".into());
     }
-    if r["peak_rss_bytes"]
+    if r["address_space_limit_bytes"]
         .as_u64()
         .is_none_or(|x| x > 8 * 1024u64.pow(3))
+        || r["byte_budget"].as_u64() != Some(6 * 1024u64.pow(3))
+        || r["peak_rss_bytes"]
+            .as_u64()
+            .is_none_or(|x| x > 8 * 1024u64.pow(3))
         || r["native_route_latency"]["status"] != "MEASURED_INTERVAL"
         || r["native_route_latency"]["observed_calls"]
             .as_u64()
@@ -109,6 +138,38 @@ fn validate(r: &Value, end: f64, step: f64, prep: &Value, hash: &str, replay: bo
     }
     Ok(())
 }
+fn valid_refinement(r: &Value) -> bool {
+    if r["time_s"].as_f64() != Some(28800.) {
+        return false;
+    }
+    for u in ["persons", "vehicles", "cargo_kg"] {
+        let v = ["requested", "released", "completed", "pending", "active"]
+            .map(|k| r["ledger"][u][k].as_f64().unwrap_or(f64::NAN));
+        if v.iter().any(|x| !x.is_finite()) {
+            return false;
+        }
+        let t = 1e-9 * v[0].abs().max(v[1].abs()).max(v[2].abs()).max(1.);
+        if v.iter().any(|x| *x < -t)
+            || (v[0] - v[1] - v[3]).abs() > t
+            || (v[1] - v[2] - v[4]).abs() > t
+        {
+            return false;
+        }
+    }
+    true
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn missing_refinement_rows_cannot_be_counted() {
+        let l = json!({"requested":10.,"released":7.,"completed":3.,"pending":3.,"active":4.});
+        let mut x = json!({"time_s":28800.,"ledger":{"persons":l,"vehicles":l,"cargo_kg":l}});
+        assert!(valid_refinement(&x));
+        x["ledger"]["persons"]["active"] = Value::Null;
+        assert!(!valid_refinement(&x));
+    }
+}
 fn main() -> Result<()> {
     let a: Vec<_> = std::env::args().collect();
     if ![8, 9].contains(&a.len()) {
@@ -117,6 +178,9 @@ fn main() -> Result<()> {
     let root = Path::new(&a[1]);
     let matrix_path = Path::new(&a[2]);
     let (m, msha) = Matrix::load(matrix_path)?;
+    if msha != "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a" {
+        return Err("original release matrix byte binding differs".into());
+    }
     let out = PathBuf::from(&a[3]);
     fs::create_dir(&out)?;
     let threads: usize = a[6].parse()?;
@@ -124,6 +188,15 @@ fn main() -> Result<()> {
         return Err("threads invalid".into());
     }
     let full = a[7] == "full";
+    let diagnostic_timeout = std::env::var("METROFLOW_CAMPAIGN_PREFIX_TIMEOUT_S")
+        .ok()
+        .map(|x| x.parse::<f64>())
+        .transpose()?;
+    if diagnostic_timeout
+        .is_some_and(|x| full || !x.is_finite() || x <= 0. || x > m.limits.wall_s as f64)
+    {
+        return Err("diagnostic timeout permitted only for bounded prefix".into());
+    }
     let end = if full {
         m.horizon_s
     } else {
@@ -212,7 +285,9 @@ fn main() -> Result<()> {
                 if replay {
                     c.env("METROFLOW_NATIVE_REPLAY_AT_S", replay_at.to_string());
                 }
-                let remain = (m.limits.wall_s as f64 - prep_wall).max(0.);
+                let remain = (m.limits.wall_s as f64 - prep_wall)
+                    .max(0.)
+                    .min(diagnostic_timeout.unwrap_or(f64::INFINITY));
                 let (ok, timeout, wall) = launch(c, &stem, Duration::from_secs_f64(remain))?;
                 let mut row = if result.exists() {
                     read(&result)?
@@ -223,12 +298,68 @@ fn main() -> Result<()> {
                 row["total_wall_s"] = json!(wall + prep_wall);
                 row["replay_requested"] = json!(replay);
                 row["timeout"] = json!(timeout);
-                let valid = ok
-                    && wall + prep_wall <= m.limits.wall_s as f64
-                    && validate(&row, horizon, step, &prep, &hash, replay).is_ok()
-                    && row["checkpoint_sha256"] == digest(&ck)?
-                    && row["executable_sha256"] == run_sha;
+                let validation: Result<()> = (|| {
+                    if !ok {
+                        return Err(if timeout {
+                            "external wall timeout"
+                        } else {
+                            "child returned nonzero"
+                        }
+                        .into());
+                    }
+                    if wall + prep_wall > m.limits.wall_s as f64 {
+                        return Err("wall limit exceeded".into());
+                    }
+                    validate(&row, horizon, step, &prep, &hash, replay)?;
+                    if row["checkpoint_sha256"] != digest(&ck)?
+                        || row["executable_sha256"] != run_sha
+                    {
+                        return Err("checkpoint or binary digest differs".into());
+                    }
+                    Ok(())
+                })();
+                let valid = validation.is_ok();
+                row["validation_error"] = json!(validation.err().map(|e| e.to_string()));
                 row["validated"] = json!(valid);
+                if !valid && ck.is_file() {
+                    // Recovery is an explicitly separate diagnostic, never
+                    // credited to the measured run or its original horizon.
+                    let recover_file = stem.with_extension("recovery.json");
+                    let mut c = Command::new(&a[5]);
+                    c.arg("--recover")
+                        .arg(&manifest)
+                        .arg(&ck)
+                        .arg(&recover_file)
+                        .arg(threads.to_string());
+                    let (rok, rtimed, rwall) = launch(
+                        c,
+                        &stem.with_extension("recovery"),
+                        Duration::from_secs(120),
+                    )?;
+                    let recovery = if rok && recover_file.is_file() {
+                        let r = read(&recover_file)?;
+                        if r["status"] == "RECOVERED_CHECKPOINT_ONLY"
+                            && r["manifest_sha256"] == hash
+                            && r["checkpoint_sha256"] == digest(&ck)?
+                            && r["executable_sha256"] == run_sha
+                            && r["city_identity"] == prep["city_identity"]
+                            && r["schedule_identity"] == prep["schedule_identity"]
+                            && r["time_s"].as_f64().is_some_and(|t| {
+                                t.is_finite()
+                                    && t >= 0.
+                                    && t <= horizon
+                                    && (t / step - (t / step).round()).abs() < 1e-8
+                            })
+                        {
+                            json!({"status":"RECOVERED_CHECKPOINT_ONLY","time_s":r["time_s"],"checkpoint_sha256":r["checkpoint_sha256"],"receipt":recover_file,"diagnostic_wall_s":rwall})
+                        } else {
+                            json!({"status":"RECOVERY_BINDING_REJECTED","diagnostic_wall_s":rwall})
+                        }
+                    } else {
+                        json!({"status":"RECOVERY_NOT_VERIFIED","timeout":rtimed,"diagnostic_wall_s":rwall})
+                    };
+                    row["recovery"] = recovery;
+                }
                 if let Some(t) = row["tick_times_s"].as_array() {
                     let mut ts: Vec<_> = t.iter().filter_map(Value::as_f64).collect();
                     ts.sort_by(f64::total_cmp);
@@ -244,8 +375,7 @@ fn main() -> Result<()> {
                 atomic(&dir.join("case.json"), &case_report)?;
                 if !valid {
                     all_ok = false;
-                    case_report["failure"] =
-                        json!({"stage":"execute_or_validate","step_s":step,"repeat":rep});
+                    case_report["failure"] = json!({"stage":"execute_or_validate","step_s":step,"repeat":rep,"reason":row["validation_error"],"native_failure":row["failure"]});
                     break 'steps;
                 }
                 if full && step == 10. {
@@ -268,7 +398,7 @@ fn main() -> Result<()> {
         let refinement = coarse_prefix
             .as_ref()
             .zip(fine_prefix.as_ref())
-            .filter(|(a, b)| a["time_s"] == 28800. && b["time_s"] == 28800.);
+            .filter(|(a, b)| valid_refinement(a) && valid_refinement(b));
         let has_refinement = refinement.is_some();
         if let Some((a, b)) = refinement {
             let mut delta = serde_json::Map::new();
@@ -285,7 +415,11 @@ fn main() -> Result<()> {
             }
             case_report["refinement_deltas"] = json!(delta);
         }
-        case_report["checkpoint_replay"] = json!(replay_ok);
+        case_report["checkpoint_replay"] = if full {
+            json!(replay_ok)
+        } else {
+            json!("NOT_FULL_DAY_TEST")
+        };
         case_report["refinement_status"] = json!(if has_refinement {
             "REQUIRES_SEPARATE_REVIEW"
         } else {
@@ -328,7 +462,7 @@ fn main() -> Result<()> {
         "{}",
         json!({"status":report["status"],"completed_full_runs":completed,"receipt":out.join("RECEIPT.json")})
     );
-    if !all_ok {
+    if !all_ok || report["status"] == "BLOCKED_INCOMPLETE_MATRIX" {
         std::process::exit(2)
     }
     Ok(())
