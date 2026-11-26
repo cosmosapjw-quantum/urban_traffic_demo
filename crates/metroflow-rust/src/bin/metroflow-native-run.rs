@@ -1,4 +1,4 @@
-use _metroflow_rust::run_native_declaration_with_plan;
+use _metroflow_rust::{run_native_declaration_with_plan,recover_native_checkpoint};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::{
@@ -56,6 +56,19 @@ fn address_cap() -> std::io::Result<u64> {
 }
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let a: Vec<_> = std::env::args().collect();
+    if a.get(1).is_some_and(|x|x=="--recover"){
+        if a.len()!=6{return Err("usage: metroflow-native-run --recover MANIFEST CHECKPOINT RECEIPT THREADS".into())}
+        let started=Instant::now();let cap=address_cap()?;
+        if Path::new(&a[4]).exists(){return Err("output exists".into())}
+        let mh=digest(Path::new(&a[2]))?;let ch=digest(Path::new(&a[3]))?;
+        let input=serde_json::from_reader(BufReader::new(File::open(&a[2])?))?;
+        let mut out=recover_native_checkpoint(input,a[5].parse()?,&a[3])?;
+        if mh!=digest(Path::new(&a[2]))?||ch!=digest(Path::new(&a[3]))?{return Err("recovery input changed".into())}
+        out["manifest_sha256"]=json!(mh);out["checkpoint_sha256"]=json!(ch);out["executable_sha256"]=json!(digest(&std::env::current_exe()?)?);
+        out["checkpoint_bytes"]=json!(std::fs::metadata(&a[3])?.len());out["address_space_limit_bytes"]=json!(cap);out["peak_rss_bytes"]=json!(rss());out["wall_s"]=json!(started.elapsed().as_secs_f64());out["python_runtime_dependency"]=json!("none");
+        serde_json::to_writer_pretty(OpenOptions::new().write(true).create_new(true).open(&a[4])?,&out)?;
+        println!("{}",serde_json::to_string(&out)?);return Ok(())
+    }
     if ![6, 8].contains(&a.len()) {
         return Err("usage: metroflow-native-run MANIFEST END_S THREADS RECEIPT CHECKPOINT [PRIOR_RECEIPT PRIOR_CHECKPOINT]".into());
     }

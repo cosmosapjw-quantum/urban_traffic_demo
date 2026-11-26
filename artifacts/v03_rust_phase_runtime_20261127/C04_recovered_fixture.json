@@ -1,0 +1,100 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "build_s": 0.00053753,
+  "byte_budget": 268435456,
+  "calendar_legs": 5,
+  "calendar_totals": [
+    20.0,
+    13.06,
+    100.0
+  ],
+  "checkpoint_bytes": 1528,
+  "checkpoint_sha256": "934ee5da2dd3003ebda551a1e8c09bad4384827edff1e401e5bcc9c189ae8f28",
+  "city_identity": "rust-host-fixture-city",
+  "class_names": [
+    "car",
+    "freight",
+    "scheduled_bus"
+  ],
+  "completed_event_rows": 0,
+  "executable_sha256": "b1675cdd1962d6759178728e713edfc12e63a7ceb134e309d4007e7c05cb21f8",
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 100.0,
+      "pending": 0.0,
+      "released": 100.0,
+      "released_intent_first_moment": 750.0,
+      "requested": 100.0
+    },
+    "persons": {
+      "active": 0.0,
+      "completed": 20.0,
+      "pending": 0.0,
+      "released": 20.0,
+      "released_intent_first_moment": 500.00000000000006,
+      "requested": 20.0
+    },
+    "vehicles": {
+      "active": 0.0,
+      "completed": 13.06,
+      "pending": 0.0,
+      "released": 13.06,
+      "released_intent_first_moment": 324.75000000000006,
+      "requested": 13.06
+    }
+  },
+  "load_s": 0.000055897,
+  "manifest_sha256": "2dbedc0ab2720529b71ef1377f9def399bb40e6e400ac22a6073e33bbf4f6a21",
+  "native_identity": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3",
+  "peak_rss_bytes": 5783552,
+  "python_runtime_dependency": "none",
+  "road_class_ledgers": [
+    [
+      12.800000000000002,
+      12.800000000000006,
+      12.800000000000002,
+      3.2806052142577564,
+      0.0
+    ],
+    [
+      0.1,
+      0.1,
+      0.1,
+      0.018500000000000016,
+      0.0
+    ],
+    [
+      2.0,
+      2.0,
+      2.0,
+      0.5,
+      0.0
+    ]
+  ],
+  "road_records": {
+    "cell_packets": 0,
+    "cell_parts": 0,
+    "mixed_parts": 0,
+    "pending_packets": 0,
+    "pending_parts": 0,
+    "retained_storage_bytes": 1264,
+    "uniform_parts": 0
+  },
+  "road_totals": [
+    14.900000000000004,
+    14.9,
+    411.00000000000006,
+    628.4033409529547,
+    14.900000000000004,
+    0.0,
+    6.400000000000011
+  ],
+  "schedule_identity": "rust-host-fixture-schedule",
+  "schema": "metroflow_native_recovery_v1",
+  "scope": "strict complete decode, cross-owner ledger validation and original identity; no execution or elapsed-horizon claim",
+  "status": "RECOVERED_CHECKPOINT_ONLY",
+  "threads": 8,
+  "time_s": 120.0,
+  "wall_s": 0.003196896
+}

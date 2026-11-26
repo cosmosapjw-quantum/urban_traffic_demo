@@ -2106,6 +2106,45 @@ impl NativeWholeEngine {
     }
 }
 
+#[cfg(feature="native-cli")]
+fn build_native_input(manifest:serde_json::Value,threads:usize)->CoreResult<(NativeWholeEngine,usize,(f64,f64,f64))>{
+    if manifest.get("schema").and_then(|v|v.as_str())!=Some("metroflow_native_declaration_v1"){
+        return Err(bad("native declaration schema differs"))
+    }
+    let budget=manifest.get("byte_budget").and_then(|v|v.as_u64()).and_then(|v|usize::try_from(v).ok())
+        .ok_or_else(||bad("native byte budget missing"))?;
+    if budget==0||budget>6*1024usize.pow(3){return Err(bad("native byte budget outside 1..6GiB"))}
+    let calendar:crate::v1_calendar::FactorizedDeclaration=serde_json::from_value(
+        manifest.get("calendar").cloned().ok_or_else(||bad("calendar missing"))?)
+        .map_err(|e|bad(format!("calendar declaration: {e}")))?;
+    let raw=manifest.get("static").cloned().ok_or_else(||bad("static missing"))?;
+    if raw.get("schema").and_then(|v|v.as_str())!=Some("native_calendar_static_v1"){return Err(bad("static schema differs"))}
+    let s:Static=serde_json::from_value(raw).map_err(|e|bad(format!("static declaration: {e}")))?;
+    let calendar=calendar.compile(budget)?;
+    let calendar_legs=calendar.owned_legs().len();
+    let calendar_totals=calendar.totals();
+    let parallel=ParallelPolicy::new(threads).map_err(bad)?;
+    let engine=NativeWholeEngine::build(&calendar,s,budget,parallel,"bounded_bytes_v1".to_owned())?;
+    drop(calendar);
+
+    Ok((engine,calendar_legs,calendar_totals))
+}
+
+/// Strict full decoder recovery: no stepping and no acceptance credit.
+#[cfg(feature="native-cli")]
+pub fn recover_native_checkpoint(manifest:serde_json::Value,threads:usize,path:&str)->CoreResult<serde_json::Value>{
+    use serde_json::json;
+    let t=Instant::now();
+    let (mut engine,calendar_legs,calendar_totals)=build_native_input(manifest,threads)?;
+    let build_s=t.elapsed().as_secs_f64();let t=Instant::now();
+    let state=engine.load(path.to_owned())?;
+    let ledger=ledger_json(&engine,&state)?;let (totals,classes)=state.value.road.summary();
+    let road=state.value.road.debug_stats();
+    let mut out=json!({"schema":"metroflow_native_recovery_v1","status":"RECOVERED_CHECKPOINT_ONLY","scope":"strict complete decode, cross-owner ledger validation and original identity; no execution or elapsed-horizon claim","time_s":state.time_s(),"city_identity":engine.city,"schedule_identity":engine.schedule,"native_identity":engine.identity,"calendar_legs":calendar_legs,"calendar_totals":calendar_totals,"byte_budget":engine.byte_budget,"threads":threads,"build_s":build_s,"load_s":t.elapsed().as_secs_f64(),"ledger":ledger["ledger"],"road_totals":totals,"road_class_ledgers":classes,"class_names":engine.class_names,"road_records":{"cell_parts":road.cell_parts,"pending_parts":road.pending_parts,"cell_packets":road.cell_packets,"pending_packets":road.pending_packets,"uniform_parts":road.uniform_parts,"mixed_parts":road.mixed_parts,"retained_storage_bytes":state.value.road.retained_storage_bytes()},"completed_event_rows":state.value.service.1.len()});
+    if crate::v1_trace::enabled(){out["budget_trace"]=crate::v1_trace::native_snapshot();}
+    Ok(out)
+}
+
 /// Native host entry point, with the exact same engine build/advance/save/load
 /// code as the Python binding. No Python dictionary or GIL is used on the
 /// successful execution path. The existing CoreError type remains for errors.
@@ -2128,24 +2167,8 @@ pub fn run_native_declaration_with_plan(
 )->CoreResult<serde_json::Value>{
     use serde_json::json;
     let start=Instant::now();
-    if manifest.get("schema").and_then(|v|v.as_str())!=Some("metroflow_native_declaration_v1"){
-        return Err(bad("native declaration schema differs"))
-    }
-    let budget=manifest.get("byte_budget").and_then(|v|v.as_u64()).and_then(|v|usize::try_from(v).ok())
-        .ok_or_else(||bad("native byte budget missing"))?;
-    if budget==0||budget>6*1024usize.pow(3){return Err(bad("native byte budget outside 1..6GiB"))}
-    let calendar:crate::v1_calendar::FactorizedDeclaration=serde_json::from_value(
-        manifest.get("calendar").cloned().ok_or_else(||bad("calendar missing"))?)
-        .map_err(|e|bad(format!("calendar declaration: {e}")))?;
-    let raw=manifest.get("static").cloned().ok_or_else(||bad("static missing"))?;
-    if raw.get("schema").and_then(|v|v.as_str())!=Some("native_calendar_static_v1"){return Err(bad("static schema differs"))}
-    let s:Static=serde_json::from_value(raw).map_err(|e|bad(format!("static declaration: {e}")))?;
-    let calendar=calendar.compile(budget)?;
-    let calendar_legs=calendar.owned_legs().len();
-    let calendar_totals=calendar.totals();
-    let parallel=ParallelPolicy::new(threads).map_err(bad)?;
-    let mut engine=NativeWholeEngine::build(&calendar,s,budget,parallel,"bounded_bytes_v1".to_owned())?;
-    drop(calendar);
+    let (mut engine,calendar_legs,calendar_totals)=build_native_input(manifest,threads)?;
+    let budget=engine.byte_budget;
     let build_s=start.elapsed().as_secs_f64();
     let initial=if let Some(path)=resume{engine.load(path.to_owned())?}else{engine.initial()};
     let begin=initial.time_s();
