@@ -539,30 +539,15 @@ pub fn run(input: &Input, cfg: Config) -> Result<Run> {
     {
         return Err("invalid run config".into());
     }
-    let bounds = input.route_bounds();
-    let bins: Vec<Result<u32>> = input
-        .groups
-        .par_iter()
-        .map(|g| {
-            let w = input.windows[g.purpose as usize];
-            let b = ((w[1] - w[0]).max(w[3] - w[2]) / cfg.mesh_s).ceil().max(1.);
-            if b > u32::MAX as f64 {
-                return Err("rank count overflow".into());
-            }
-            for r in [Some(g.forward), g.backward].into_iter().flatten() {
-                let q = bounds[r as usize];
-                if g.mass / b * FOOTPRINT[g.class as usize] > q[0] || g.mass / b > q[1] {
-                    return Err("batch exceeds receiving/storage".into());
-                }
-            }
-            Ok(b as u32)
-        })
-        .collect();
+    let bins = crate::preflight::ranks(
+        input,
+        cfg.mesh_s,
+        std::env::var_os("METROFLOW_AVX_PREFLIGHT").is_some(),
+    )?;
     let mut key = 0u64;
     let mut prepared = Vec::with_capacity(bins.len());
     let mut expected = [Sum::default(); 3];
     for (g, b) in input.groups.iter().zip(bins) {
-        let b = b?;
         prepared.push(Prepared {
             bins: b,
             offset: key,

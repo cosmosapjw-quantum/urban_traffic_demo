@@ -2,6 +2,7 @@
 pub mod access;
 pub mod input;
 pub mod kinetics;
+pub mod preflight;
 pub mod prepare;
 pub mod queue;
 pub mod receipt;

@@ -3585,13 +3585,13 @@ impl V1Road {
         }
     }
     fn motion(&self, i: usize, c: &Cell, dt: f64, factor: f64) -> PyResult<Motion> {
-        let mut counts: BTreeMap<usize, Vec<f64>> = BTreeMap::new();
+        let mut counts: BTreeMap<usize, RoadExpansion> = BTreeMap::new();
         for packet in &c.packets {
             for p in &packet.parts {
-                push_checked(counts.entry(self.class(&p)).or_default(), p.mass)?;
+                counts.entry(self.class(&p)).or_default().add(p.mass);
             }
         }
-        let counts: BTreeMap<usize, f64> = counts.into_iter().map(|(k, v)| (k, sum(v))).collect();
+        let counts: BTreeMap<usize, f64> = counts.into_iter().map(|(k, v)| (k, v.finish())).collect();
         if counts.is_empty() {
             return Ok(Motion {
                 dx: 0.,
@@ -3926,9 +3926,9 @@ impl V1Road {
                 .saturating_add(packets.saturating_add(s.cells.len()).saturating_mul(32));
             check_storage_limit(self.storage_budget, bytes, "state validation workspace")?;
         }
-        let mut stored = vec![vec![]; self.classes.len()];
-        let mut all = vec![];
-        let mut residence = vec![];
+        let mut stored: Vec<_> = (0..self.classes.len()).map(|_| RoadExpansion::default()).collect();
+        let mut all = RoadExpansion::default();
+        let mut residence = RoadExpansion::default();
         let mut records = 0;
         for (i, c) in s.cells.iter().enumerate() {
             if !c.v[0].is_finite()
@@ -3955,8 +3955,8 @@ impl V1Road {
             if self.occupied(c) > self.groups[i][4] + 1e-9 * self.groups[i][4].max(1.) {
                 return Err(arithmetic("cell storage"));
             }
-            push_checked(&mut residence, (c.v[2] - c.v[3]) * s.t - c.v[4] + c.v[5])?;
-            push_checked(&mut all, occ)?;
+            residence.add((c.v[2] - c.v[3]) * s.t - c.v[4] + c.v[5]);
+            all.add(occ);
             for (pending, packets) in [(false, &c.packets), (true, &s.pending[i])] {
                 for packet in packets {
                     if packet.parts.is_empty()
@@ -3989,10 +3989,10 @@ impl V1Road {
                         {
                             return Err(val("invalid native entry interval"));
                         }
-                        push_checked(&mut stored[self.class(&p)], p.mass)?;
+                        stored[self.class(&p)].add(p.mass);
                     }
                     if pending {
-                        push_checked(&mut all, mass(packet))?;
+                        all.add(mass(packet));
                     }
                 }
             }
@@ -4001,17 +4001,17 @@ impl V1Road {
             return Err(budget("packet state budget"));
         }
         let tol = 1e-9 * s.totals[0].max(1.);
-        if (s.totals[0] - s.totals[1] - sum(all)).abs() > tol {
+        if (s.totals[0] - s.totals[1] - all.finish()).abs() > tol {
             return Err(arithmetic("network mass ledger"));
         }
-        let total_residence = sum(residence) + s.totals[4] + s.totals[5] + s.totals[6];
+        let total_residence = residence.finish() + s.totals[4] + s.totals[5] + s.totals[6];
         let system = (s.totals[0] - s.totals[1]) * s.t - s.totals[2] + s.totals[3];
         if (total_residence - system).abs() > 1e-8 * total_residence.max(1.) {
             return Err(arithmetic("residence ledger"));
         }
-        for (k, l) in s.ledger.iter().enumerate() {
+        for (l, acc) in s.ledger.iter().zip(stored) {
             if l.iter().any(|x| !finite_nonnegative(*x))
-                || (l[0] - l[1] - sum(stored[k].iter().copied())).abs() > 1e-9 * l[0].max(1.)
+                || (l[0] - l[1] - acc.finish()).abs() > 1e-9 * l[0].max(1.)
             {
                 return Err(arithmetic("class mass/ledger mismatch"));
             }
@@ -4239,16 +4239,16 @@ impl V1Road {
                         continue;
                     }
                     heads.insert(i, ());
-                    let mut dest: BTreeMap<usize, Vec<f64>> = BTreeMap::new();
-                    let mut ds: BTreeMap<usize, Vec<f64>> = BTreeMap::new();
+                    let mut dest: BTreeMap<usize, RoadExpansion> = BTreeMap::new();
+                    let mut ds: BTreeMap<usize, RoadExpansion> = BTreeMap::new();
                     for p in &packet.parts {
                         let j = self.dest(&p).unwrap_or(n);
-                        push_checked(dest.entry(j).or_default(), p.mass)?;
-                        push_checked(ds.entry(j).or_default(), p.mass * self.footprint(p.tag))?;
+                        dest.entry(j).or_default().add(p.mass);
+                        ds.entry(j).or_default().add(p.mass * self.footprint(p.tag));
                     }
                     let pm = mass(packet);
-                    beta.insert(i, dest.into_iter().map(|(j, v)| (j, sum(v) / pm)).collect());
-                    beta_space.insert(i, ds.into_iter().map(|(j, v)| (j, sum(v) / pm)).collect());
+                    beta.insert(i, dest.into_iter().map(|(j, v)| (j, v.finish() / pm)).collect());
+                    beta_space.insert(i, ds.into_iter().map(|(j, v)| (j, v.finish() / pm)).collect());
                 }
                 let send: BTreeMap<usize, f64> = heads
                     .keys()
