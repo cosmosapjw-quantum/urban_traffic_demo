@@ -11,12 +11,18 @@ crate-type = ["cdylib", "rlib"]
 pyo3 = { version = "0.23" }
 rayon = "1.10"
 serde = { version = "1", features = ["derive"], optional = true }
-serde_json = { version = "1", optional = true }
+serde_json = { version = "1", features = ["float_roundtrip"], optional = true }
 sha2 = { version = "0.10", optional = true }
+libc = { version = "0.2", optional = true }
 
 [features]
 default = ["python-extension"]
 python-extension = ["pyo3/extension-module"]
-native-cli = ["dep:serde", "dep:serde_json", "dep:sha2", "pyo3/auto-initialize"]
+native-cli = ["dep:serde", "dep:serde_json", "dep:sha2", "dep:libc", "pyo3/auto-initialize"]
 # Diagnostic instrument only: counting allocator and observe-mode guards.
 budget_trace = []
+
+[[bin]]
+name = "metroflow-native-run"
+path = "src/bin/metroflow-native-run.rs"
+required-features = ["native-cli"]

@@ -1295,3 +1295,8 @@ mod tests {
         assert_eq!(error, "route_offsets contains out-of-range offsets");
     }
 }
+
+// Rust host interface for the existing original physical engine. The crate
+// still uses PyO3 error/binding types; no Python script participates.
+#[cfg(feature="native-cli")]
+pub use v1_engine::run_native_declaration;

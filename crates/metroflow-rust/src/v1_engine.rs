@@ -1998,3 +1998,64 @@ impl NativeWholeEngine {
         Ok(values)
     }
 }
+
+/// Native host entry point, with the exact same engine build/advance/save/load
+/// code as the Python binding. No Python dictionary or GIL is used on the
+/// successful execution path. The existing PyErr type remains for errors.
+#[cfg(feature="native-cli")]
+pub fn run_native_declaration(
+    manifest: serde_json::Value,
+    threads:usize,
+    end_s:f64,
+    resume:Option<&str>,
+    checkpoint:&str,
+)->PyResult<serde_json::Value>{
+    use serde_json::json;
+    let start=Instant::now();
+    if manifest.get("schema").and_then(|v|v.as_str())!=Some("metroflow_native_declaration_v1"){
+        return Err(bad("native declaration schema differs"))
+    }
+    let budget=manifest.get("byte_budget").and_then(|v|v.as_u64()).and_then(|v|usize::try_from(v).ok())
+        .ok_or_else(||bad("native byte budget missing"))?;
+    if budget==0||budget>6*1024usize.pow(3){return Err(bad("native byte budget outside 1..6GiB"))}
+    let calendar:crate::v1_calendar::FactorizedDeclaration=serde_json::from_value(
+        manifest.get("calendar").cloned().ok_or_else(||bad("calendar missing"))?)
+        .map_err(|e|bad(format!("calendar declaration: {e}")))?;
+    let raw=manifest.get("static").cloned().ok_or_else(||bad("static missing"))?;
+    if raw.get("schema").and_then(|v|v.as_str())!=Some("native_calendar_static_v1"){return Err(bad("static schema differs"))}
+    let s:Static=serde_json::from_value(raw).map_err(|e|bad(format!("static declaration: {e}")))?;
+    let calendar=calendar.compile(budget)?;
+    let calendar_legs=calendar.owned_legs().len();
+    let parallel=ParallelPolicy::new(threads).map_err(bad)?;
+    let mut engine=NativeWholeEngine::build(&calendar,s,budget,parallel,"bounded_bytes_v1".to_owned())?;
+    drop(calendar);
+    let build_s=start.elapsed().as_secs_f64();
+    let initial=if let Some(path)=resume{engine.load(path.to_owned())?}else{engine.initial()};
+    let begin=initial.time_s();
+    let clock=Instant::now();
+    let state=engine.advance_owned(&initial,end_s)?;
+    let advance_s=clock.elapsed().as_secs_f64();
+    drop(initial);
+    let values=engine.ledger_values(&state)?;
+    let mut ledger=serde_json::Map::new();
+    for (name,v) in ["persons","vehicles","cargo_kg"].into_iter().zip(values){
+        if v.iter().any(|x|!x.is_finite())||v[1]>v[0]+1e-8*v[0].max(1.)||v[2]>v[1]+1e-8*v[1].max(1.){
+            return Err(bad("native ledger differs"))
+        }
+        ledger.insert(name.into(),json!({"requested":v[0],"released":v[1],"completed":v[2],
+            "pending":v[0]-v[1],"active":v[1]-v[2],"released_intent_first_moment":v[3]}));
+    }
+    let (totals,classes)=state.value.road.summary();
+    let (tick_times,peak_records)=engine.advance_metrics();
+    let mut result=json!({"schema":"metroflow_native_rust_host_v1","scope":"original native engine from typed declared input; not original city construction or V03 acceptance",
+        "city_identity":engine.city,"schedule_identity":engine.schedule,"native_identity":engine.identity,
+        "start_s":begin,"time_s":state.time_s(),"calendar_legs":calendar_legs,"threads":threads,"byte_budget":budget,
+        "build_s":build_s,"advance_s":advance_s,"ledger":ledger,"road_totals":totals,"road_class_ledgers":classes,
+        "class_names":engine.class_names,"events":state.value.service.1.len(),
+        "tick_times_s":tick_times,"peak_records":peak_records,"unique_paths":engine.unique_paths,
+        "unsupported_legs":engine.unsupported});
+    let clock=Instant::now();
+    engine.save(checkpoint.to_owned(),&state)?;
+    result["save_s"]=json!(clock.elapsed().as_secs_f64());
+    Ok(result)
+}
