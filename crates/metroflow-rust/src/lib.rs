@@ -1324,3 +1324,5 @@ pub mod frozen_city;
 pub mod v1_prepare_city;
 #[cfg(feature="native-cli")]
 pub mod causal;
+#[cfg(feature="native-cli")]
+pub mod causal_routing;
