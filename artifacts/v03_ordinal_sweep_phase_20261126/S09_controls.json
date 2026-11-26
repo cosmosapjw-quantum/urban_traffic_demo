@@ -1,0 +1,50 @@
+{
+  "phase41": {
+    "complete_veh": 57095.94032639999,
+    "active_veh": 0.0,
+    "max_ledger_error": 1.9095836023552692e-13,
+    "peak_storage_fraction": 0.3152693408322346,
+    "receiving_wait_veh_s": 0.0,
+    "trip_time_veh_s": 45547907.811252624,
+    "service_wait_veh_s": 2339323.183058303,
+    "events": 96824891,
+    "initial_batches": 1217472,
+    "onset_admitted": 960.4395952,
+    "onset_exited": 148.34054319999998,
+    "onset_stock": 812.0990519999999,
+    "wall_s": 66.72,
+    "peak_rss_kib": 161948
+  },
+  "phase7shock": {
+    "complete_veh": 57095.94032639999,
+    "active_veh": 0.0,
+    "max_ledger_error": 1.8474111129762605e-13,
+    "peak_storage_fraction": 0.33290465284020127,
+    "receiving_wait_veh_s": 0.0,
+    "trip_time_veh_s": 45551871.00938662,
+    "service_wait_veh_s": 2343584.7167943763,
+    "events": 96824476,
+    "initial_batches": 1217472,
+    "onset_admitted": 959.1347112,
+    "onset_exited": 143.9858036,
+    "onset_stock": 815.1489075999999,
+    "wall_s": 52.01,
+    "peak_rss_kib": 161796
+  },
+  "phase7shock300": {
+    "complete_veh": 57095.940326399985,
+    "active_veh": 0.0,
+    "max_ledger_error": 1.4521717162097048e-12,
+    "peak_storage_fraction": 0.2908165719549171,
+    "receiving_wait_veh_s": 0.0,
+    "trip_time_veh_s": 45547370.38453262,
+    "service_wait_veh_s": 2449599.815008364,
+    "events": 193330205,
+    "initial_batches": 2434944,
+    "onset_admitted": 970.0693,
+    "onset_exited": 147.8979096,
+    "onset_stock": 822.1713904,
+    "wall_s": 66.83,
+    "peak_rss_kib": 300600
+  }
+}
