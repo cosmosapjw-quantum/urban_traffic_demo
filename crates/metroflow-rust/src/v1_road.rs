@@ -2523,30 +2523,55 @@ fn combine_chunked_parts(parts: &ChunkedParts) -> PyResult<Vec<Part>> {
 fn combine_indexed_parts(
     len:usize,get:impl Fn(usize)->Part,
 )->PyResult<Vec<Part>> {
+    combine_indexed_impl(len,get,|i|i,|i|i,|_,_|Ok(()))
+}
+
+// In the indexed lane, retain 32-bit source ordinals only if the complete
+// source fits. The comparator and reduction order are unchanged.
+fn combine_compact_indexed_parts(
+    len:usize,get:impl Fn(usize)->Part,
+    mut preflight:impl FnMut(usize,usize)->PyResult<()>,
+)->PyResult<Vec<Part>> {
+    if len <= u32::MAX as usize {
+        combine_indexed_impl(len,get,|i|i as u32,|i|i as usize,
+            |index_bytes,groups|preflight(index_bytes,groups))
+    } else {
+        combine_indexed_impl(len,get,|i|i,|i|i,
+            |index_bytes,groups|preflight(index_bytes,groups))
+    }
+}
+
+fn combine_indexed_impl<I:Copy+Ord>(
+    len:usize,get:impl Fn(usize)->Part,
+    encode:impl Fn(usize)->I,decode:impl Fn(I)->usize,
+    mut preflight:impl FnMut(usize,usize)->PyResult<()>,
+)->PyResult<Vec<Part>> {
     let key = |p: &Part| {
         (p.tag, p.offset, p.a.map_or(u64::MAX, f64::to_bits),
          p.b.map_or(u64::MAX, f64::to_bits))
     };
+    preflight(len.saturating_mul(std::mem::size_of::<I>()),0)?;
     let mut indices=checkpoint_vec(len)?;
-    indices.extend((0..len).filter(|&i|get(i).mass > 0.0));
+    indices.extend((0..len).filter(|&i|get(i).mass > 0.0).map(&encode));
     indices.sort_unstable_by(|&a,&b| {
-        key(&get(a)).cmp(&key(&get(b))).then(a.cmp(&b))
+        key(&get(decode(a))).cmp(&key(&get(decode(b)))).then(a.cmp(&b))
     });
     let groups = usize::from(!indices.is_empty())
         + indices.windows(2)
-            .filter(|p|key(&get(p[0])) != key(&get(p[1])))
+            .filter(|p|key(&get(decode(p[0]))) != key(&get(decode(p[1]))))
             .count();
+    preflight(indices.capacity().saturating_mul(std::mem::size_of::<I>()),groups)?;
     let mut out=checkpoint_vec(groups)?;
     let mut start=0;
     while start < indices.len() {
         let mut end=start+1;
         while end < indices.len()
-            && key(&get(indices[start]))==key(&get(indices[end])) {
+            && key(&get(decode(indices[start])))==key(&get(decode(indices[end]))) {
             end+=1;
         }
-        let mut item=get(indices[start]);
-        item.mass=sum(indices[start..end].iter().map(|&i|get(i).mass));
-        item.birth=sum(indices[start..end].iter().map(|&i|get(i).birth));
+        let mut item=get(decode(indices[start]));
+        item.mass=sum(indices[start..end].iter().map(|&i|get(decode(i)).mass));
+        item.birth=sum(indices[start..end].iter().map(|&i|get(decode(i)).birth));
         out.push(item);
         start=end;
     }
@@ -4614,7 +4639,7 @@ impl V1Road {
                 continue;
             }
             let local_peak = if local_consumer {
-                receiving_local_combine_scratch(raw_rows, self.classes.len())
+                receiving_local_combine_scratch(0, self.classes.len())
             } else { 0 };
             if local_consumer {
                 work.require(local_peak, "timed incoming local consumer preflight")?;
@@ -4653,8 +4678,14 @@ impl V1Road {
             let (parts,expired)=if use_timed_incoming {
                 work.require(local_peak,"timed incoming direct combine")?;
                 let source=std::mem::take(&mut timed_rows[i]);
-                let parts=combine_indexed_parts(source.len(),|index|
-                    source.get_with_events(index,&timed_controls,&events).0)?;
+                let get=|index|source.get_with_events(index,&timed_controls,&events).0;
+                let parts=if local_consumer {
+                    combine_compact_indexed_parts(source.len(),get,|index_bytes,groups|{
+                        let scratch=local_peak.saturating_add(index_bytes)
+                            .saturating_add(groups.saturating_mul(std::mem::size_of::<Part>()));
+                        work.require(scratch,"timed incoming exact group allocation")
+                    })?
+                } else {combine_indexed_parts(source.len(),get)?};
                 let expired=release_consumed_timed_incoming(&mut work,i,source)?;
                 (parts,expired)
             } else {
@@ -8012,6 +8043,30 @@ mod receiving_local_lifetime_tests {
         for n in [0usize,1,128,129,65536] {
             let bytes = n*(std::mem::size_of::<Part>()+std::mem::size_of::<usize>());
             assert!(receiving_local_combine_scratch(n,3)>=bytes);
+        }
+    }
+}
+
+#[cfg(test)]
+mod compact_receiving_group_tests {
+    use super::*;
+    #[test]
+    fn compact_source_ordinals_and_group_census_preserve_order_and_bits() {
+        let rows:Vec<Part>=(0..4096).map(|i|Part{
+            tag:i%13,offset:i%5,
+            mass:if i%31==0 {0.} else {2f64.powi(-((i%61) as i32))},
+            birth:2f64.powi(-((i%53) as i32)),
+            a:PackedTime::new(Some((i%3) as f64)).unwrap(),b:PackedTime::new(Some((i%3+1) as f64)).unwrap(),
+        }).collect();
+        let old=combine_indexed_parts(rows.len(),|i|rows[i]).unwrap();
+        let mut charges=vec![];
+        let new=combine_compact_indexed_parts(rows.len(),|i|rows[i],|b,g|{charges.push((b,g));Ok(())}).unwrap();
+        assert_eq!(old.len(),new.len());
+        assert_eq!(charges,vec![(rows.len()*4,0),(rows.len()*4,new.len())]);
+        assert!(new.len()<rows.len());
+        for (a,b) in old.iter().zip(new.iter()) {
+            assert_eq!((a.tag,a.offset,a.a.0,a.b.0,a.mass.to_bits(),a.birth.to_bits()),
+                       (b.tag,b.offset,b.a.0,b.b.0,b.mass.to_bits(),b.birth.to_bits()));
         }
     }
 }
