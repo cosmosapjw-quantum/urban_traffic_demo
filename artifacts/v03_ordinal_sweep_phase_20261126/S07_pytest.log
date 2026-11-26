@@ -1,0 +1,18 @@
+.............F.......................................................... [ 92%]
+......                                                                   [100%]
+=================================== FAILURES ===================================
+______ test_packing_checks_expanded_and_compact_buffers_before_allocating ______
+
+    def test_packing_checks_expanded_and_compact_buffers_before_allocating():
+        native = one_group(count=128)
+        native.configure_storage_budget(38000)
+        before = native.snapshot()
+>       with pytest.raises(MemoryError, match='phase=packet interval packing'):
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'phase=packet interval packing'
+E         Actual message: 'native road storage budget exceeded: phase=tick preflight, required_bytes=40584, budget_bytes=38000'
+
+tests/v1/test_native_packed_intervals.py:66: AssertionError
+=========================== short test summary info ============================
+FAILED tests/v1/test_native_packed_intervals.py::test_packing_checks_expanded_and_compact_buffers_before_allocating
+1 failed, 77 passed in 13.10s
