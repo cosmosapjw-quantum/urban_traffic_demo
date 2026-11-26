@@ -1337,3 +1337,5 @@ pub mod geometry_simd;
 mod atlas_seed;
 #[cfg(feature="native-cli")]
 mod atlas_roads;
+#[cfg(feature="native-cli")]
+mod atlas_zoning;
