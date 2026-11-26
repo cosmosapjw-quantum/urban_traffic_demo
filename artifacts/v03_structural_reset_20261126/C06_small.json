@@ -1,0 +1,2009 @@
+{
+  "label": "event-run-codec",
+  "native": {
+    "path": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/native_binding/_metroflow_rust.so",
+    "sha256": "d3c27a681cbda620cdb06c19fe71fa6ae306489651eb9cd0c41c310d3aa11787",
+    "size_bytes": 3312896,
+    "status": "MEASURED"
+  },
+  "policies": {
+    "bounded_bytes_v1": {
+      "batch_wire_identical": true,
+      "max_events": 8,
+      "nonempty_event_ticks": 10,
+      "restart_wire_identical": true,
+      "snapshot_immutable": true,
+      "states": [
+        {
+          "physical": {
+            "assignment": {
+              "fixed_fleet_vehicles": 2,
+              "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents",
+              "units": {
+                "cargo_kg": {
+                  "assigned": 100.0,
+                  "requested": 100.0,
+                  "unassigned": 0.0
+                },
+                "persons": {
+                  "assigned": 50.0,
+                  "requested": 52.5,
+                  "unassigned": 2.5
+                },
+                "vehicles": {
+                  "assigned": 3.0,
+                  "requested": 5.0,
+                  "unassigned": 2.0
+                }
+              }
+            },
+            "ledger": {
+              "cargo_kg": {
+                "active": 0.0,
+                "completed": 0.0,
+                "pending": 50.0,
+                "released": 0.0,
+                "requested": 50.0
+              },
+              "persons": {
+                "active": 0.0,
+                "completed": 0.0,
+                "pending": 26.25,
+                "released": 0.0,
+                "requested": 26.25
+              },
+              "vehicles": {
+                "active": 0.0,
+                "completed": 0.0,
+                "pending": 2.5,
+                "released": 0.0,
+                "requested": 2.5
+              }
+            },
+            "released_intent_first_moments": {
+              "cargo_kg": 0.0,
+              "persons": 0.0,
+              "vehicles": 0.0
+            },
+            "service": {
+              "arrived_persons": 0.0,
+              "bus_road_vehicles": 0.0,
+              "bus_stop_or_finished_vehicles": 2.0,
+              "cargo_delivered_kg": 0.0,
+              "cargo_unfinished_kg": 100.0,
+              "completed_bus_vehicles": 0,
+              "freight_completed_vehicles": 0.0,
+              "onboard_persons": 0.0,
+              "road_completed_veh": 0.0,
+              "road_released_veh": 0.0,
+              "scheduled_bus_vehicles": 2,
+              "time_s": 1.0,
+              "wait_person_s": 0.0,
+              "waiting_persons": 50.0
+            },
+            "time_s": 1.0
+          },
+          "time_s": 1,
+          "wire_bytes": 3224,
+          "wire_sha256": "dad97e3631aa33316f220cfbc4d680dee9d750cc06108574fe23af1481359585"
+        },
+        {
+          "physical": {
+            "assignment": {
+              "fixed_fleet_vehicles": 2,
+              "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents",
+              "units": {
+                "cargo_kg": {
+                  "assigned": 100.0,
+                  "requested": 100.0,
+                  "unassigned": 0.0
+                },
+                "persons": {
+                  "assigned": 50.0,
+                  "requested": 52.5,
+                  "unassigned": 2.5
+                },
+                "vehicles": {
+                  "assigned": 3.0,
+                  "requested": 5.0,
+                  "unassigned": 2.0
+                }
+              }
+            },
+            "ledger": {
+              "cargo_kg": {
+                "active": 100.0,
+                "completed": 0.0,
+                "pending": 0.0,
+                "released": 100.0,
+                "requested": 100.0
+              },
+              "persons": {
+                "active": 1.25,
+                "completed": 0.0,
+                "pending": 51.25,
+                "released": 1.25,
+                "requested": 52.5
+              },
+              "vehicles": {
+                "active": 2.0,
+                "completed": 0.0,
+                "pending": 3.0,
+                "released": 2.0,
+                "requested": 5.0
+              }
+            },
+            "released_intent_first_moments": {
+              "cargo_kg": 100.0,
+              "persons": 1.25,
+              "vehicles": 2.0
+            },
+            "service": {
+              "arrived_persons": 0.0,
+              "bus_road_vehicles": 0.0,
+              "bus_stop_or_finished_vehicles": 2.0,
+              "cargo_delivered_kg": 0.0,
+              "cargo_unfinished_kg": 100.0,
+              "completed_bus_vehicles": 0,
+              "freight_completed_vehicles": 0.0,
+              "onboard_persons": 0.0,
+              "road_completed_veh": 0.0,
+              "road_released_veh": 2.0,
+              "scheduled_bus_vehicles": 2,
+              "time_s": 3.0,
+              "wait_person_s": 50.0,
+              "waiting_persons": 50.0
+            },
+            "time_s": 3.0
+          },
+          "time_s": 3,
+          "wire_bytes": 3592,
+          "wire_sha256": "768d91f981104e3a0fa51d30422d96ab6881dfd51faa6d3dfbb0dfa68b2a8224"
+        },
+        {
+          "physical": {
+            "assignment": {
+              "fixed_fleet_vehicles": 2,
+              "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents",
+              "units": {
+                "cargo_kg": {
+                  "assigned": 100.0,
+                  "requested": 100.0,
+                  "unassigned": 0.0
+                },
+                "persons": {
+                  "assigned": 50.0,
+                  "requested": 52.5,
+                  "unassigned": 2.5
+                },
+                "vehicles": {
+                  "assigned": 3.0,
+                  "requested": 5.0,
+                  "unassigned": 2.0
+                }
+              }
+            },
+            "ledger": {
+              "cargo_kg": {
+                "active": 100.0,
+                "completed": 0.0,
+                "pending": 0.0,
+                "released": 100.0,
+                "requested": 100.0
+              },
+              "persons": {
+                "active": 26.25,
+                "completed": 0.0,
+                "pending": 26.25,
+                "released": 26.25,
+                "requested": 52.5
+              },
+              "vehicles": {
+                "active": 3.0,
+                "completed": 0.0,
+                "pending": 2.0,
+                "released": 3.0,
+                "requested": 5.0
+              }
+            },
+            "released_intent_first_moments": {
+              "cargo_kg": 100.0,
+              "persons": 26.25,
+              "vehicles": 3.0
+            },
+            "service": {
+              "arrived_persons": 0.0,
+              "bus_road_vehicles": 1.0,
+              "bus_stop_or_finished_vehicles": 1.0,
+              "cargo_delivered_kg": 0.0,
+              "cargo_unfinished_kg": 100.0,
+              "completed_bus_vehicles": 0,
+              "freight_completed_vehicles": 0.0,
+              "onboard_persons": 25.0,
+              "road_completed_veh": 0.0,
+              "road_released_veh": 3.0,
+              "scheduled_bus_vehicles": 2,
+              "time_s": 5.0,
+              "wait_person_s": 100.0,
+              "waiting_persons": 25.0
+            },
+            "time_s": 5.0
+          },
+          "time_s": 5,
+          "wire_bytes": 4088,
+          "wire_sha256": "51b2bfc20c704c9fca177d03cc34ec1ca69c7302fbd521c4a34ff2f18c699f79"
+        },
+        {
+          "physical": {
+            "assignment": {
+              "fixed_fleet_vehicles": 2,
+              "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents",
+              "units": {
+                "cargo_kg": {
+                  "assigned": 100.0,
+                  "requested": 100.0,
+                  "unassigned": 0.0
+                },
+                "persons": {
+                  "assigned": 50.0,
+                  "requested": 52.5,
+                  "unassigned": 2.5
+                },
+                "vehicles": {
+                  "assigned": 3.0,
+                  "requested": 5.0,
+                  "unassigned": 2.0
+                }
+              }
+            },
+            "ledger": {
+              "cargo_kg": {
+                "active": 100.0,
+                "completed": 0.0,
+                "pending": 0.0,
+                "released": 100.0,
+                "requested": 100.0
+              },
+              "persons": {
+                "active": 26.25,
+                "completed": 0.0,
+                "pending": 26.25,
+                "released": 26.25,
+                "requested": 52.5
+              },
+              "vehicles": {
+                "active": 3.0,
+                "completed": 0.0,
+                "pending": 2.0,
+                "released": 3.0,
+                "requested": 5.0
+              }
+            },
+            "released_intent_first_moments": {
+              "cargo_kg": 100.0,
+              "persons": 26.25,
+              "vehicles": 3.0
+            },
+            "service": {
+              "arrived_persons": 0.0,
+              "bus_road_vehicles": 2.0,
+              "bus_stop_or_finished_vehicles": 0.0,
+              "cargo_delivered_kg": 0.0,
+              "cargo_unfinished_kg": 100.0,
+              "completed_bus_vehicles": 0,
+              "freight_completed_vehicles": 0.0,
+              "onboard_persons": 25.0,
+              "road_completed_veh": 0.0,
+              "road_released_veh": 4.0,
+              "scheduled_bus_vehicles": 2,
+              "time_s": 10.0,
+              "wait_person_s": 225.0,
+              "waiting_persons": 25.0
+            },
+            "time_s": 10.0
+          },
+          "time_s": 10,
+          "wire_bytes": 4536,
+          "wire_sha256": "0bb8e3d98aa42f8e27f53a8541bb4334825b80d5ac66b5a60691abc13a651f21"
+        },
+        {
+          "physical": {
+            "assignment": {
+              "fixed_fleet_vehicles": 2,
+              "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents",
+              "units": {
+                "cargo_kg": {
+                  "assigned": 100.0,
+                  "requested": 100.0,
+                  "unassigned": 0.0
+                },
+                "persons": {
+                  "assigned": 50.0,
+                  "requested": 52.5,
+                  "unassigned": 2.5
+                },
+                "vehicles": {
+                  "assigned": 3.0,
+                  "requested": 5.0,
+                  "unassigned": 2.0
+                }
+              }
+            },
+            "ledger": {
+              "cargo_kg": {
+                "active": 100.0,
+                "completed": 0.0,
+                "pending": 0.0,
+                "released": 100.0,
+                "requested": 100.0
+              },
+              "persons": {
+                "active": 26.25,
+                "completed": 0.0,
+                "pending": 26.25,
+                "released": 26.25,
+                "requested": 52.5
+              },
+              "vehicles": {
+                "active": 3.0,
+                "completed": 0.0,
+                "pending": 2.0,
+                "released": 3.0,
+                "requested": 5.0
+              }
+            },
+            "released_intent_first_moments": {
+              "cargo_kg": 100.0,
+              "persons": 26.25,
+              "vehicles": 3.0
+            },
+            "service": {
+              "arrived_persons": 0.0,
+              "bus_road_vehicles": 2.0,
+              "bus_stop_or_finished_vehicles": 0.0,
+              "cargo_delivered_kg": 0.0,
+              "cargo_unfinished_kg": 100.0,
+              "completed_bus_vehicles": 0,
+              "freight_completed_vehicles": 0.0,
+              "onboard_persons": 25.0,
+              "road_completed_veh": 0.0,
+              "road_released_veh": 4.0,
+              "scheduled_bus_vehicles": 2,
+              "time_s": 15.0,
+              "wait_person_s": 350.0,
+              "waiting_persons": 25.0
+            },
+            "time_s": 15.0
+          },
+          "time_s": 15,
+          "wire_bytes": 4536,
+          "wire_sha256": "39c1f6ba7b2fed7bdd96f7fa40915120652b8abaeb232a01aaa0a96ff87aed8f"
+        },
+        {
+          "physical": {
+            "assignment": {
+              "fixed_fleet_vehicles": 2,
+              "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents",
+              "units": {
+                "cargo_kg": {
+                  "assigned": 100.0,
+                  "requested": 100.0,
+                  "unassigned": 0.0
+                },
+                "persons": {
+                  "assigned": 50.0,
+                  "requested": 52.5,
+                  "unassigned": 2.5
+                },
+                "vehicles": {
+                  "assigned": 3.0,
+                  "requested": 5.0,
+                  "unassigned": 2.0
+                }
+              }
+            },
+            "ledger": {
+              "cargo_kg": {
+                "active": -2.842170943040401e-14,
+                "completed": 100.00000000000003,
+                "pending": 0.0,
+                "released": 100.0,
+                "requested": 100.0
+              },
+              "persons": {
+                "active": 0.0,
+                "completed": 26.25,
+                "pending": 26.25,
+                "released": 26.25,
+                "requested": 52.5
+              },
+              "vehicles": {
+                "active": 0.0,
+                "completed": 3.0,
+                "pending": 2.0,
+                "released": 3.0,
+                "requested": 5.0
+              }
+            },
+            "released_intent_first_moments": {
+              "cargo_kg": 100.0,
+              "persons": 26.25,
+              "vehicles": 3.0
+            },
+            "service": {
+              "arrived_persons": 25.0,
+              "bus_road_vehicles": -4.440892098500626e-16,
+              "bus_stop_or_finished_vehicles": 2.0,
+              "cargo_delivered_kg": 100.00000000000003,
+              "cargo_unfinished_kg": -2.220446049250313e-14,
+              "completed_bus_vehicles": 2,
+              "freight_completed_vehicles": 1.0000000000000002,
+              "onboard_persons": 0.0,
+              "road_completed_veh": 4.0,
+              "road_released_veh": 4.0,
+              "scheduled_bus_vehicles": 2,
+              "time_s": 30.0,
+              "wait_person_s": 725.0,
+              "waiting_persons": 25.0
+            },
+            "time_s": 30.0
+          },
+          "time_s": 30,
+          "wire_bytes": 3480,
+          "wire_sha256": "aca207fd7f3bcc42c092db7c67532530dd9b165fb8fcad89ade7a72bfaa124af"
+        },
+        {
+          "physical": {
+            "assignment": {
+              "fixed_fleet_vehicles": 2,
+              "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents",
+              "units": {
+                "cargo_kg": {
+                  "assigned": 100.0,
+                  "requested": 100.0,
+                  "unassigned": 0.0
+                },
+                "persons": {
+                  "assigned": 50.0,
+                  "requested": 52.5,
+                  "unassigned": 2.5
+                },
+                "vehicles": {
+                  "assigned": 3.0,
+                  "requested": 5.0,
+                  "unassigned": 2.0
+                }
+              }
+            },
+            "ledger": {
+              "cargo_kg": {
+                "active": -2.842170943040401e-14,
+                "completed": 100.00000000000003,
+                "pending": 0.0,
+                "released": 100.0,
+                "requested": 100.0
+              },
+              "persons": {
+                "active": 0.0,
+                "completed": 27.5,
+                "pending": 25.0,
+                "released": 27.5,
+                "requested": 52.5
+              },
+              "vehicles": {
+                "active": 0.0,
+                "completed": 4.0,
+                "pending": 1.0,
+                "released": 4.0,
+                "requested": 5.0
+              }
+            },
+            "released_intent_first_moments": {
+              "cargo_kg": 100.0,
+              "persons": 27.5,
+              "vehicles": 4.0
+            },
+            "service": {
+              "arrived_persons": 25.0,
+              "bus_road_vehicles": -4.440892098500626e-16,
+              "bus_stop_or_finished_vehicles": 2.0,
+              "cargo_delivered_kg": 100.00000000000003,
+              "cargo_unfinished_kg": -2.220446049250313e-14,
+              "completed_bus_vehicles": 2,
+              "freight_completed_vehicles": 1.0000000000000002,
+              "onboard_persons": 0.0,
+              "road_completed_veh": 5.0,
+              "road_released_veh": 5.000000000000001,
+              "scheduled_bus_vehicles": 2,
+              "time_s": 60.0,
+              "wait_person_s": 1475.0,
+              "waiting_persons": 25.0
+            },
+            "time_s": 60.0
+          },
+          "time_s": 60,
+          "wire_bytes": 3608,
+          "wire_sha256": "3ce9004c57b3a8433d26340bdc125db7fbfec1b24cd970179f160ef4262422fb"
+        },
+        {
+          "physical": {
+            "assignment": {
+              "fixed_fleet_vehicles": 2,
+              "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents",
+              "units": {
+                "cargo_kg": {
+                  "assigned": 100.0,
+                  "requested": 100.0,
+                  "unassigned": 0.0
+                },
+                "persons": {
+                  "assigned": 50.0,
+                  "requested": 52.5,
+                  "unassigned": 2.5
+                },
+                "vehicles": {
+                  "assigned": 3.0,
+                  "requested": 5.0,
+                  "unassigned": 2.0
+                }
+              }
+            },
+            "ledger": {
+              "cargo_kg": {
+                "active": -2.842170943040401e-14,
+                "completed": 100.00000000000003,
+                "pending": 0.0,
+                "released": 100.0,
+                "requested": 100.0
+              },
+              "persons": {
+                "active": 0.0,
+                "completed": 27.5,
+                "pending": 25.0,
+                "released": 27.5,
+                "requested": 52.5
+              },
+              "vehicles": {
+                "active": 0.0,
+                "completed": 4.0,
+                "pending": 1.0,
+                "released": 4.0,
+                "requested": 5.0
+              }
+            },
+            "released_intent_first_moments": {
+              "cargo_kg": 100.0,
+              "persons": 27.5,
+              "vehicles": 4.0
+            },
+            "service": {
+              "arrived_persons": 25.0,
+              "bus_road_vehicles": -4.440892098500626e-16,
+              "bus_stop_or_finished_vehicles": 2.0,
+              "cargo_delivered_kg": 100.00000000000003,
+              "cargo_unfinished_kg": -2.220446049250313e-14,
+              "completed_bus_vehicles": 2,
+              "freight_completed_vehicles": 1.0000000000000002,
+              "onboard_persons": 0.0,
+              "road_completed_veh": 5.0,
+              "road_released_veh": 5.000000000000001,
+              "scheduled_bus_vehicles": 2,
+              "time_s": 120.0,
+              "wait_person_s": 2975.0,
+              "waiting_persons": 25.0
+            },
+            "time_s": 120.0
+          },
+          "time_s": 120,
+          "wire_bytes": 3608,
+          "wire_sha256": "a0f5576ecea92891e777107ebf120b75e199e0a93556b844819107d2fbe8b0cd"
+        }
+      ],
+      "trace": {
+        "alloc_counting": true,
+        "counters": {
+          "arc.default_pointer_verified_credit": [
+            345,
+            25872,
+            408
+          ],
+          "arc.experimental_paired_credit": [
+            345,
+            0,
+            0
+          ],
+          "engine_admission.verified_future_capture_arc_credit": [
+            255,
+            10056,
+            408
+          ],
+          "entry.combined_rows": [
+            38,
+            52,
+            3
+          ],
+          "entry.raw_rows": [
+            38,
+            54,
+            3
+          ],
+          "event_history.retained_rows": [
+            345,
+            120,
+            8
+          ],
+          "event_history.retained_storage_bytes": [
+            345,
+            5117760,
+            167232
+          ],
+          "event_time.exact_time_runs": [
+            345,
+            78,
+            4
+          ],
+          "event_time.physical_payload_bytes": [
+            345,
+            4992000,
+            166400
+          ],
+          "event_time.saved_payload_bytes": [
+            345,
+            906240,
+            30208
+          ],
+          "event_time.source_rows": [
+            345,
+            120,
+            8
+          ],
+          "event_time.source_time_runs": [
+            345,
+            78,
+            4
+          ],
+          "exact.intervals": [
+            38,
+            0,
+            0
+          ],
+          "exact.point_rows": [
+            38,
+            54,
+            3
+          ],
+          "exact.runs": [
+            38,
+            0,
+            0
+          ],
+          "incoming_timed.control_rows": [
+            345,
+            54,
+            4
+          ],
+          "incoming_timed.expired_source_payload_bytes": [
+            8970,
+            155648,
+            4096
+          ],
+          "incoming_timed.legacy_part_mark_payload_bytes": [
+            345,
+            272384,
+            14336
+          ],
+          "incoming_timed.logical_rows": [
+            345,
+            54,
+            4
+          ],
+          "incoming_timed.physical_payload_bytes": [
+            345,
+            286720,
+            12288
+          ],
+          "incoming_timed.saved_payload_bytes": [
+            345,
+            12288,
+            2048
+          ],
+          "keyset.continuous_converted": [
+            345,
+            0,
+            0
+          ],
+          "keyset.continuous_saved_bytes": [
+            345,
+            0,
+            0
+          ],
+          "pending.partial_rows": [
+            20,
+            26,
+            2
+          ],
+          "pending.rows": [
+            46,
+            54,
+            2
+          ],
+          "road_work.expired_source_rows": [
+            8970,
+            54,
+            3
+          ],
+          "split.edges": [
+            38,
+            38,
+            1
+          ],
+          "split.in_rows": [
+            38,
+            52,
+            3
+          ],
+          "split.out_packets": [
+            38,
+            38,
+            1
+          ],
+          "split.out_rows": [
+            38,
+            52,
+            3
+          ],
+          "tick.cell_packets": [
+            345,
+            725,
+            10
+          ],
+          "tick.cell_parts": [
+            345,
+            1052,
+            17
+          ],
+          "tick.offers": [
+            345,
+            28,
+            2
+          ],
+          "tick.pending_packets": [
+            345,
+            20,
+            2
+          ],
+          "tick.pending_parts": [
+            345,
+            26,
+            3
+          ],
+          "xfer.head_rows": [
+            78,
+            120,
+            3
+          ],
+          "xfer.new_head_rows": [
+            78,
+            120,
+            3
+          ],
+          "xfer.partial_rows": [
+            30,
+            51,
+            3
+          ],
+          "xfer.partial_serve": [
+            78,
+            30,
+            1
+          ],
+          "xfer.serve_incoming_rows": [
+            78,
+            0,
+            0
+          ],
+          "xfer.serve_rows": [
+            78,
+            120,
+            3
+          ],
+          "xfer.sink_rows": [
+            78,
+            120,
+            3
+          ],
+          "xfer.substep_heads": [
+            78,
+            78,
+            1
+          ]
+        },
+        "live_bytes": 387087,
+        "mode": "record",
+        "peak_bytes": 741302,
+        "sites": {
+          "engine_admission:capture": {
+            "calls": 133,
+            "exceeded": 0,
+            "limit_at_max": 268435456,
+            "live_at_max": 550938,
+            "max_ratio": 0.2526618354022503,
+            "max_required": 67823395,
+            "terms_at_max": {
+              "call_binding": 1605,
+              "events": 167232,
+              "fixed_base": 67274278,
+              "journey": 792,
+              "road": 14480,
+              "road_3max_without_credit": 43440,
+              "validation_scratch": 0,
+              "verified_future_capture_arc_credit": 0
+            }
+          },
+          "engine_admission:capture/validation": {
+            "calls": 122,
+            "exceeded": 0,
+            "limit_at_max": 268435456,
+            "live_at_max": 718290,
+            "max_ratio": 0.25266315788030624,
+            "max_required": 67823750,
+            "terms_at_max": {
+              "call_binding": 1605,
+              "events": 167232,
+              "fixed_base": 67274278,
+              "journey": 792,
+              "road": 14480,
+              "road_3max_without_credit": 43440,
+              "validation_scratch": 2344,
+              "verified_future_capture_arc_credit": 384
+            }
+          },
+          "engine_admission:load validation": {
+            "calls": 1,
+            "exceeded": 0,
+            "limit_at_max": 268435456,
+            "live_at_max": 400876,
+            "max_ratio": 0.2507266029715538,
+            "max_required": 67303910,
+            "terms_at_max": {
+              "call_binding": 1605,
+              "current_dynamic": 12528,
+              "decoded_dynamic": 14760,
+              "fixed_base": 67274278,
+              "validation_scratch": 2344
+            }
+          },
+          "journey_commit:checkpointability": {
+            "calls": 345,
+            "exceeded": 0,
+            "limit_at_max": 201159573,
+            "live_at_max": 723566,
+            "max_ratio": 0.003054371168306268,
+            "max_required": 614416,
+            "terms_at_max": {
+              "call_binding_reserve": 1605,
+              "candidate_event": 167232,
+              "candidate_road": 14352,
+              "current_event": 167232,
+              "current_road": 14336,
+              "decoded_journey": 2432,
+              "decoded_road": 14496,
+              "input_event": 167232,
+              "input_road": 14336,
+              "journey_retained_input": 792,
+              "new_journey": 848,
+              "old_journey": 792,
+              "phase_event_charge": 501696,
+              "phase_journey_charge": 4016,
+              "phase_road_charge": 43168,
+              "road_decode_scratch": 1312,
+              "validation_scratch": 2344
+            }
+          },
+          "journey_owner:road step input/current/pending census": {
+            "calls": 345,
+            "exceeded": 0,
+            "limit_at_max": 201159573,
+            "live_at_max": 555536,
+            "max_ratio": 2.7679517891997117e-05,
+            "max_required": 5568,
+            "terms_at_max": {
+              "argmax_input0_current1_pending2": 0,
+              "clock_bits": 4632092954238910464,
+              "current": 1856,
+              "current_egress": 0,
+              "current_enter": 0,
+              "current_internal": 0,
+              "history_bytes": 1856,
+              "input": 1856,
+              "max_owner": 1856,
+              "pending": 1856,
+              "pending_egress": 0,
+              "pending_enter": 0,
+              "pending_internal": 0,
+              "working_copies": 3
+            }
+          },
+          "journey_store:stored/working": {
+            "calls": 1327,
+            "exceeded": 0,
+            "limit_at_max": 200613733,
+            "live_at_max": 728153,
+            "max_ratio": 0.0006129590340657287,
+            "max_required": 122968,
+            "terms_at_max": {
+              "dynamic": 19144,
+              "retained": 0,
+              "scratch": 0
+            }
+          },
+          "phase_allowance:journey finish": {
+            "calls": 345,
+            "exceeded": 0,
+            "limit_at_max": 201159573,
+            "live_at_max": 728183,
+            "max_ratio": 0.002717056871064247,
+            "max_required": 546562,
+            "terms_at_max": {}
+          },
+          "phase_allowance:journey prepare": {
+            "calls": 345,
+            "exceeded": 0,
+            "limit_at_max": 201159573,
+            "live_at_max": 556341,
+            "max_ratio": 0.0018076793193431565,
+            "max_required": 363632,
+            "terms_at_max": {}
+          },
+          "phase_allowance:road step": {
+            "calls": 345,
+            "exceeded": 0,
+            "limit_at_max": 201159573,
+            "live_at_max": 555536,
+            "max_ratio": 2.7679517891997117e-05,
+            "max_required": 5568,
+            "terms_at_max": {}
+          },
+          "road_base:components": {
+            "calls": 345,
+            "exceeded": 0,
+            "limit_at_max": 201159573,
+            "live_at_max": 390198,
+            "max_ratio": 0.0007623798246976792,
+            "max_required": 153360,
+            "terms_at_max": {
+              "classes": 3,
+              "default_pointer_verified_credit": 408,
+              "experimental_pointer_verified_credit": 0,
+              "groups": 26,
+              "input_retained": 12208,
+              "max_cell_parts": 13,
+              "offers": 0,
+              "paired_arc_credit": 408,
+              "rows": 17,
+              "state_retained": 15160
+            }
+          },
+          "road_candidate:candidate and immutable snapshot": {
+            "calls": 345,
+            "exceeded": 0,
+            "limit_at_max": 201159573,
+            "live_at_max": 387933,
+            "max_ratio": 0.00022608916554023507,
+            "max_required": 45480,
+            "terms_at_max": {
+              "retained": 15160
+            }
+          },
+          "road_decode:checkpoint decode preflight": {
+            "calls": 101,
+            "exceeded": 0,
+            "limit_at_max": 201158613,
+            "live_at_max": 399675,
+            "max_ratio": 0.00022243144020882665,
+            "max_required": 44744,
+            "terms_at_max": {
+              "decoded": 14440,
+              "retained_input": 12208,
+              "validation": 1424
+            }
+          },
+          "road_post:continuous keyset allocation": {
+            "calls": 345,
+            "exceeded": 0,
+            "limit_at_max": 201158397,
+            "live_at_max": 727670,
+            "max_ratio": 0.0019058413952264693,
+            "max_required": 383376,
+            "terms_at_max": {
+              "candidate_event_storage_bytes": 167232,
+              "candidate_existing_shared_rows": 0,
+              "candidate_keyset_allocation_rows": 16,
+              "candidate_packets": 9,
+              "candidate_road_retained": 14480,
+              "candidate_uniform_rows": 16,
+              "committed_road_retained": 14584,
+              "old_event_bytes": 167552,
+              "road_owner_sum": 43504,
+              "supplied_input_road_retained": 14440
+            }
+          },
+          "road_work:cell packet reservation": {
+            "calls": 38,
+            "exceeded": 0,
+            "limit_at_max": 201159573,
+            "live_at_max": 414638,
+            "max_ratio": 0.0008206420283065524,
+            "max_required": 165080,
+            "terms_at_max": {
+              "base": 153360,
+              "event_bytes": 816,
+              "event_candidate_live_bound": 0,
+              "extra": 1056,
+              "full_source_base": 153360,
+              "incoming_actual_descriptor_bytes": 96,
+              "incoming_actual_page_charge": 9776,
+              "incoming_descriptors_frozen": 1,
+              "incoming_live_pages": 1,
+              "incoming_rows": 1,
+              "interval_retained": 72,
+              "interval_transient": 0,
+              "timed_incoming_control_bytes": 5216,
+              "transfer_exclusive_cell_scratch": 0
+            }
+          },
+          "road_work:entry interval split": {
+            "calls": 38,
+            "exceeded": 0,
+            "limit_at_max": 201159573,
+            "live_at_max": 414478,
+            "max_ratio": 0.0008195682539055698,
+            "max_required": 164864,
+            "terms_at_max": {
+              "base": 153360,
+              "event_bytes": 816,
+              "event_candidate_live_bound": 0,
+              "extra": 0,
+              "full_source_base": 153360,
+              "incoming_actual_descriptor_bytes": 96,
+              "incoming_actual_page_charge": 9776,
+              "incoming_descriptors_frozen": 1,
+              "incoming_live_pages": 1,
+              "incoming_rows": 1,
+              "interval_retained": 0,
+              "interval_transient": 912,
+              "timed_incoming_control_bytes": 5216,
+              "transfer_exclusive_cell_scratch": 0
+            }
+          },
+          "road_work:indexed sweep preflight": {
+            "calls": 38,
+            "exceeded": 0,
+            "limit_at_max": 201159573,
+            "live_at_max": 414430,
+            "max_ratio": 0.0008165060083916563,
+            "max_required": 164248,
+            "terms_at_max": {
+              "base": 153360,
+              "event_bytes": 816,
+              "event_candidate_live_bound": 0,
+              "extra": 296,
+              "full_source_base": 153360,
+              "incoming_actual_descriptor_bytes": 96,
+              "incoming_actual_page_charge": 9776,
+              "incoming_descriptors_frozen": 1,
+              "incoming_live_pages": 1,
+              "incoming_rows": 1,
+              "interval_retained": 0,
+              "interval_transient": 0,
+              "timed_incoming_control_bytes": 5216,
+              "transfer_exclusive_cell_scratch": 0
+            }
+          },
+          "road_work:interval edges and indexed sweep": {
+            "calls": 38,
+            "exceeded": 0,
+            "limit_at_max": 201159573,
+            "live_at_max": 414470,
+            "max_ratio": 0.000816545777813915,
+            "max_required": 164256,
+            "terms_at_max": {
+              "base": 153360,
+              "event_bytes": 816,
+              "event_candidate_live_bound": 0,
+              "extra": 304,
+              "full_source_base": 153360,
+              "incoming_actual_descriptor_bytes": 96,
+              "incoming_actual_page_charge": 9776,
+              "incoming_descriptors_frozen": 1,
+              "incoming_live_pages": 1,
+              "incoming_rows": 1,
+              "interval_retained": 0,
+              "interval_transient": 0,
+              "timed_incoming_control_bytes": 5216,
+              "transfer_exclusive_cell_scratch": 0
+            }
+          },
+          "road_work:packet interval packing": {
+            "calls": 26,
+            "exceeded": 0,
+            "limit_at_max": 201155325,
+            "live_at_max": 394558,
+            "max_ratio": 0.0007624754651660352,
+            "max_required": 153376,
+            "terms_at_max": {
+              "base": 150584,
+              "event_bytes": 816,
+              "event_candidate_live_bound": 0,
+              "extra": 24,
+              "full_source_base": 150584,
+              "incoming_actual_descriptor_bytes": 0,
+              "incoming_actual_page_charge": 1952,
+              "incoming_descriptors_frozen": 0,
+              "incoming_live_pages": 0,
+              "incoming_rows": 0,
+              "interval_retained": 0,
+              "interval_transient": 0,
+              "timed_incoming_control_bytes": 992,
+              "transfer_exclusive_cell_scratch": 0
+            }
+          },
+          "road_work:source remainder packing": {
+            "calls": 70,
+            "exceeded": 0,
+            "limit_at_max": 201158397,
+            "live_at_max": 740966,
+            "max_ratio": 0.002443765745458789,
+            "max_required": 491584,
+            "terms_at_max": {
+              "base": 150384,
+              "event_bytes": 334976,
+              "event_candidate_live_bound": 167424,
+              "extra": 48,
+              "full_source_base": 151728,
+              "incoming_actual_descriptor_bytes": 0,
+              "incoming_actual_page_charge": 6176,
+              "incoming_descriptors_frozen": 0,
+              "incoming_live_pages": 0,
+              "incoming_rows": 0,
+              "interval_retained": 0,
+              "interval_transient": 0,
+              "timed_incoming_control_bytes": 5216,
+              "transfer_exclusive_cell_scratch": 1344
+            }
+          },
+          "road_work:tick preflight": {
+            "calls": 345,
+            "exceeded": 0,
+            "limit_at_max": 201158397,
+            "live_at_max": 556878,
+            "max_ratio": 0.0015977856494849678,
+            "max_required": 321408,
+            "terms_at_max": {
+              "base": 151728,
+              "event_bytes": 167728,
+              "event_candidate_live_bound": 0,
+              "extra": 0,
+              "full_source_base": 151728,
+              "incoming_actual_descriptor_bytes": 0,
+              "incoming_actual_page_charge": 1952,
+              "incoming_descriptors_frozen": 0,
+              "incoming_live_pages": 0,
+              "incoming_rows": 0,
+              "interval_retained": 0,
+              "interval_transient": 0,
+              "timed_incoming_control_bytes": 992,
+              "transfer_exclusive_cell_scratch": 0
+            }
+          },
+          "road_work:timed incoming direct combine": {
+            "calls": 8970,
+            "exceeded": 0,
+            "limit_at_max": 201158397,
+            "live_at_max": 739294,
+            "max_ratio": 0.0024261080187470375,
+            "max_required": 488032,
+            "terms_at_max": {
+              "base": 151728,
+              "event_bytes": 334976,
+              "event_candidate_live_bound": 167424,
+              "extra": 0,
+              "full_source_base": 151728,
+              "incoming_actual_descriptor_bytes": 0,
+              "incoming_actual_page_charge": 1328,
+              "incoming_descriptors_frozen": 1,
+              "incoming_live_pages": 0,
+              "incoming_rows": 0,
+              "interval_retained": 0,
+              "interval_transient": 0,
+              "timed_incoming_control_bytes": 992,
+              "transfer_exclusive_cell_scratch": 0
+            }
+          },
+          "road_work:transfer candidates": {
+            "calls": 124,
+            "exceeded": 0,
+            "limit_at_max": 201158397,
+            "live_at_max": 574158,
+            "max_ratio": 0.0024435271275302516,
+            "max_required": 491536,
+            "terms_at_max": {
+              "base": 150384,
+              "event_bytes": 334976,
+              "event_candidate_live_bound": 167424,
+              "extra": 0,
+              "full_source_base": 151728,
+              "incoming_actual_descriptor_bytes": 0,
+              "incoming_actual_page_charge": 6176,
+              "incoming_descriptors_frozen": 0,
+              "incoming_live_pages": 0,
+              "incoming_rows": 0,
+              "interval_retained": 0,
+              "interval_transient": 0,
+              "timed_incoming_control_bytes": 5216,
+              "transfer_exclusive_cell_scratch": 1344
+            }
+          },
+          "service_sinks:service finish": {
+            "calls": 345,
+            "exceeded": 0,
+            "limit_at_max": 201159573,
+            "live_at_max": 727726,
+            "max_ratio": 0.003073221874456852,
+            "max_required": 618208,
+            "terms_at_max": {
+              "event_live": 501696,
+              "exit_rows": 4,
+              "journey_live": 5496,
+              "road_live": 43320,
+              "sink_envelope": 2160
+            }
+          }
+        }
+      }
+    },
+    "legacy_records": {
+      "batch_wire_identical": true,
+      "max_events": 8,
+      "nonempty_event_ticks": 10,
+      "restart_wire_identical": true,
+      "snapshot_immutable": true,
+      "states": [
+        {
+          "physical": {
+            "assignment": {
+              "fixed_fleet_vehicles": 2,
+              "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents",
+              "units": {
+                "cargo_kg": {
+                  "assigned": 100.0,
+                  "requested": 100.0,
+                  "unassigned": 0.0
+                },
+                "persons": {
+                  "assigned": 50.0,
+                  "requested": 52.5,
+                  "unassigned": 2.5
+                },
+                "vehicles": {
+                  "assigned": 3.0,
+                  "requested": 5.0,
+                  "unassigned": 2.0
+                }
+              }
+            },
+            "ledger": {
+              "cargo_kg": {
+                "active": 0.0,
+                "completed": 0.0,
+                "pending": 50.0,
+                "released": 0.0,
+                "requested": 50.0
+              },
+              "persons": {
+                "active": 0.0,
+                "completed": 0.0,
+                "pending": 26.25,
+                "released": 0.0,
+                "requested": 26.25
+              },
+              "vehicles": {
+                "active": 0.0,
+                "completed": 0.0,
+                "pending": 2.5,
+                "released": 0.0,
+                "requested": 2.5
+              }
+            },
+            "released_intent_first_moments": {
+              "cargo_kg": 0.0,
+              "persons": 0.0,
+              "vehicles": 0.0
+            },
+            "service": {
+              "arrived_persons": 0.0,
+              "bus_road_vehicles": 0.0,
+              "bus_stop_or_finished_vehicles": 2.0,
+              "cargo_delivered_kg": 0.0,
+              "cargo_unfinished_kg": 100.0,
+              "completed_bus_vehicles": 0,
+              "freight_completed_vehicles": 0.0,
+              "onboard_persons": 0.0,
+              "road_completed_veh": 0.0,
+              "road_released_veh": 0.0,
+              "scheduled_bus_vehicles": 2,
+              "time_s": 1.0,
+              "wait_person_s": 0.0,
+              "waiting_persons": 50.0
+            },
+            "time_s": 1.0
+          },
+          "time_s": 1,
+          "wire_bytes": 3148,
+          "wire_sha256": "c9961b18789d61f2ec8d579cbaf7ea13e0a922bd781ff206da87c10d2403e675"
+        },
+        {
+          "physical": {
+            "assignment": {
+              "fixed_fleet_vehicles": 2,
+              "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents",
+              "units": {
+                "cargo_kg": {
+                  "assigned": 100.0,
+                  "requested": 100.0,
+                  "unassigned": 0.0
+                },
+                "persons": {
+                  "assigned": 50.0,
+                  "requested": 52.5,
+                  "unassigned": 2.5
+                },
+                "vehicles": {
+                  "assigned": 3.0,
+                  "requested": 5.0,
+                  "unassigned": 2.0
+                }
+              }
+            },
+            "ledger": {
+              "cargo_kg": {
+                "active": 100.0,
+                "completed": 0.0,
+                "pending": 0.0,
+                "released": 100.0,
+                "requested": 100.0
+              },
+              "persons": {
+                "active": 1.25,
+                "completed": 0.0,
+                "pending": 51.25,
+                "released": 1.25,
+                "requested": 52.5
+              },
+              "vehicles": {
+                "active": 2.0,
+                "completed": 0.0,
+                "pending": 3.0,
+                "released": 2.0,
+                "requested": 5.0
+              }
+            },
+            "released_intent_first_moments": {
+              "cargo_kg": 100.0,
+              "persons": 1.25,
+              "vehicles": 2.0
+            },
+            "service": {
+              "arrived_persons": 0.0,
+              "bus_road_vehicles": 0.0,
+              "bus_stop_or_finished_vehicles": 2.0,
+              "cargo_delivered_kg": 0.0,
+              "cargo_unfinished_kg": 100.0,
+              "completed_bus_vehicles": 0,
+              "freight_completed_vehicles": 0.0,
+              "onboard_persons": 0.0,
+              "road_completed_veh": 0.0,
+              "road_released_veh": 2.0,
+              "scheduled_bus_vehicles": 2,
+              "time_s": 3.0,
+              "wait_person_s": 50.0,
+              "waiting_persons": 50.0
+            },
+            "time_s": 3.0
+          },
+          "time_s": 3,
+          "wire_bytes": 3516,
+          "wire_sha256": "1fa766bb16f18dd088e017fc5f89cbded7e5fceec2b887ba16b6cde451a6692f"
+        },
+        {
+          "physical": {
+            "assignment": {
+              "fixed_fleet_vehicles": 2,
+              "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents",
+              "units": {
+                "cargo_kg": {
+                  "assigned": 100.0,
+                  "requested": 100.0,
+                  "unassigned": 0.0
+                },
+                "persons": {
+                  "assigned": 50.0,
+                  "requested": 52.5,
+                  "unassigned": 2.5
+                },
+                "vehicles": {
+                  "assigned": 3.0,
+                  "requested": 5.0,
+                  "unassigned": 2.0
+                }
+              }
+            },
+            "ledger": {
+              "cargo_kg": {
+                "active": 100.0,
+                "completed": 0.0,
+                "pending": 0.0,
+                "released": 100.0,
+                "requested": 100.0
+              },
+              "persons": {
+                "active": 26.25,
+                "completed": 0.0,
+                "pending": 26.25,
+                "released": 26.25,
+                "requested": 52.5
+              },
+              "vehicles": {
+                "active": 3.0,
+                "completed": 0.0,
+                "pending": 2.0,
+                "released": 3.0,
+                "requested": 5.0
+              }
+            },
+            "released_intent_first_moments": {
+              "cargo_kg": 100.0,
+              "persons": 26.25,
+              "vehicles": 3.0
+            },
+            "service": {
+              "arrived_persons": 0.0,
+              "bus_road_vehicles": 1.0,
+              "bus_stop_or_finished_vehicles": 1.0,
+              "cargo_delivered_kg": 0.0,
+              "cargo_unfinished_kg": 100.0,
+              "completed_bus_vehicles": 0,
+              "freight_completed_vehicles": 0.0,
+              "onboard_persons": 25.0,
+              "road_completed_veh": 0.0,
+              "road_released_veh": 3.0,
+              "scheduled_bus_vehicles": 2,
+              "time_s": 5.0,
+              "wait_person_s": 100.0,
+              "waiting_persons": 25.0
+            },
+            "time_s": 5.0
+          },
+          "time_s": 5,
+          "wire_bytes": 4012,
+          "wire_sha256": "4a084ffbb9e59602df45e2905d7d1c45b75e16209b95206e6b8d1eb6be7c435b"
+        },
+        {
+          "physical": {
+            "assignment": {
+              "fixed_fleet_vehicles": 2,
+              "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents",
+              "units": {
+                "cargo_kg": {
+                  "assigned": 100.0,
+                  "requested": 100.0,
+                  "unassigned": 0.0
+                },
+                "persons": {
+                  "assigned": 50.0,
+                  "requested": 52.5,
+                  "unassigned": 2.5
+                },
+                "vehicles": {
+                  "assigned": 3.0,
+                  "requested": 5.0,
+                  "unassigned": 2.0
+                }
+              }
+            },
+            "ledger": {
+              "cargo_kg": {
+                "active": 100.0,
+                "completed": 0.0,
+                "pending": 0.0,
+                "released": 100.0,
+                "requested": 100.0
+              },
+              "persons": {
+                "active": 26.25,
+                "completed": 0.0,
+                "pending": 26.25,
+                "released": 26.25,
+                "requested": 52.5
+              },
+              "vehicles": {
+                "active": 3.0,
+                "completed": 0.0,
+                "pending": 2.0,
+                "released": 3.0,
+                "requested": 5.0
+              }
+            },
+            "released_intent_first_moments": {
+              "cargo_kg": 100.0,
+              "persons": 26.25,
+              "vehicles": 3.0
+            },
+            "service": {
+              "arrived_persons": 0.0,
+              "bus_road_vehicles": 2.0,
+              "bus_stop_or_finished_vehicles": 0.0,
+              "cargo_delivered_kg": 0.0,
+              "cargo_unfinished_kg": 100.0,
+              "completed_bus_vehicles": 0,
+              "freight_completed_vehicles": 0.0,
+              "onboard_persons": 25.0,
+              "road_completed_veh": 0.0,
+              "road_released_veh": 4.0,
+              "scheduled_bus_vehicles": 2,
+              "time_s": 10.0,
+              "wait_person_s": 225.0,
+              "waiting_persons": 25.0
+            },
+            "time_s": 10.0
+          },
+          "time_s": 10,
+          "wire_bytes": 4460,
+          "wire_sha256": "02ba5ff6f7c3d2cf7ba0fb1b3bd6f9df5e60f89f5a8f4a939ac1ac61e0897a09"
+        },
+        {
+          "physical": {
+            "assignment": {
+              "fixed_fleet_vehicles": 2,
+              "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents",
+              "units": {
+                "cargo_kg": {
+                  "assigned": 100.0,
+                  "requested": 100.0,
+                  "unassigned": 0.0
+                },
+                "persons": {
+                  "assigned": 50.0,
+                  "requested": 52.5,
+                  "unassigned": 2.5
+                },
+                "vehicles": {
+                  "assigned": 3.0,
+                  "requested": 5.0,
+                  "unassigned": 2.0
+                }
+              }
+            },
+            "ledger": {
+              "cargo_kg": {
+                "active": 100.0,
+                "completed": 0.0,
+                "pending": 0.0,
+                "released": 100.0,
+                "requested": 100.0
+              },
+              "persons": {
+                "active": 26.25,
+                "completed": 0.0,
+                "pending": 26.25,
+                "released": 26.25,
+                "requested": 52.5
+              },
+              "vehicles": {
+                "active": 3.0,
+                "completed": 0.0,
+                "pending": 2.0,
+                "released": 3.0,
+                "requested": 5.0
+              }
+            },
+            "released_intent_first_moments": {
+              "cargo_kg": 100.0,
+              "persons": 26.25,
+              "vehicles": 3.0
+            },
+            "service": {
+              "arrived_persons": 0.0,
+              "bus_road_vehicles": 2.0,
+              "bus_stop_or_finished_vehicles": 0.0,
+              "cargo_delivered_kg": 0.0,
+              "cargo_unfinished_kg": 100.0,
+              "completed_bus_vehicles": 0,
+              "freight_completed_vehicles": 0.0,
+              "onboard_persons": 25.0,
+              "road_completed_veh": 0.0,
+              "road_released_veh": 4.0,
+              "scheduled_bus_vehicles": 2,
+              "time_s": 15.0,
+              "wait_person_s": 350.0,
+              "waiting_persons": 25.0
+            },
+            "time_s": 15.0
+          },
+          "time_s": 15,
+          "wire_bytes": 4460,
+          "wire_sha256": "3225b8e82bf98ba2ee5a52674e76fa044909007d87587418e768d9b685f3faf5"
+        },
+        {
+          "physical": {
+            "assignment": {
+              "fixed_fleet_vehicles": 2,
+              "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents",
+              "units": {
+                "cargo_kg": {
+                  "assigned": 100.0,
+                  "requested": 100.0,
+                  "unassigned": 0.0
+                },
+                "persons": {
+                  "assigned": 50.0,
+                  "requested": 52.5,
+                  "unassigned": 2.5
+                },
+                "vehicles": {
+                  "assigned": 3.0,
+                  "requested": 5.0,
+                  "unassigned": 2.0
+                }
+              }
+            },
+            "ledger": {
+              "cargo_kg": {
+                "active": -2.842170943040401e-14,
+                "completed": 100.00000000000003,
+                "pending": 0.0,
+                "released": 100.0,
+                "requested": 100.0
+              },
+              "persons": {
+                "active": 0.0,
+                "completed": 26.25,
+                "pending": 26.25,
+                "released": 26.25,
+                "requested": 52.5
+              },
+              "vehicles": {
+                "active": 0.0,
+                "completed": 3.0,
+                "pending": 2.0,
+                "released": 3.0,
+                "requested": 5.0
+              }
+            },
+            "released_intent_first_moments": {
+              "cargo_kg": 100.0,
+              "persons": 26.25,
+              "vehicles": 3.0
+            },
+            "service": {
+              "arrived_persons": 25.0,
+              "bus_road_vehicles": -4.440892098500626e-16,
+              "bus_stop_or_finished_vehicles": 2.0,
+              "cargo_delivered_kg": 100.00000000000003,
+              "cargo_unfinished_kg": -2.220446049250313e-14,
+              "completed_bus_vehicles": 2,
+              "freight_completed_vehicles": 1.0000000000000002,
+              "onboard_persons": 0.0,
+              "road_completed_veh": 4.0,
+              "road_released_veh": 4.0,
+              "scheduled_bus_vehicles": 2,
+              "time_s": 30.0,
+              "wait_person_s": 725.0,
+              "waiting_persons": 25.0
+            },
+            "time_s": 30.0
+          },
+          "time_s": 30,
+          "wire_bytes": 3404,
+          "wire_sha256": "c6401038e5d20a41eadc87be074b8ac2884d6c493803eb2ec339a267a2d7b782"
+        },
+        {
+          "physical": {
+            "assignment": {
+              "fixed_fleet_vehicles": 2,
+              "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents",
+              "units": {
+                "cargo_kg": {
+                  "assigned": 100.0,
+                  "requested": 100.0,
+                  "unassigned": 0.0
+                },
+                "persons": {
+                  "assigned": 50.0,
+                  "requested": 52.5,
+                  "unassigned": 2.5
+                },
+                "vehicles": {
+                  "assigned": 3.0,
+                  "requested": 5.0,
+                  "unassigned": 2.0
+                }
+              }
+            },
+            "ledger": {
+              "cargo_kg": {
+                "active": -2.842170943040401e-14,
+                "completed": 100.00000000000003,
+                "pending": 0.0,
+                "released": 100.0,
+                "requested": 100.0
+              },
+              "persons": {
+                "active": 0.0,
+                "completed": 27.5,
+                "pending": 25.0,
+                "released": 27.5,
+                "requested": 52.5
+              },
+              "vehicles": {
+                "active": 0.0,
+                "completed": 4.0,
+                "pending": 1.0,
+                "released": 4.0,
+                "requested": 5.0
+              }
+            },
+            "released_intent_first_moments": {
+              "cargo_kg": 100.0,
+              "persons": 27.5,
+              "vehicles": 4.0
+            },
+            "service": {
+              "arrived_persons": 25.0,
+              "bus_road_vehicles": -4.440892098500626e-16,
+              "bus_stop_or_finished_vehicles": 2.0,
+              "cargo_delivered_kg": 100.00000000000003,
+              "cargo_unfinished_kg": -2.220446049250313e-14,
+              "completed_bus_vehicles": 2,
+              "freight_completed_vehicles": 1.0000000000000002,
+              "onboard_persons": 0.0,
+              "road_completed_veh": 5.0,
+              "road_released_veh": 5.000000000000001,
+              "scheduled_bus_vehicles": 2,
+              "time_s": 60.0,
+              "wait_person_s": 1475.0,
+              "waiting_persons": 25.0
+            },
+            "time_s": 60.0
+          },
+          "time_s": 60,
+          "wire_bytes": 3532,
+          "wire_sha256": "b4d1949f36ca3938b78cc6dbcbe6dabf147d9376a3686d6619ba296aee6698a2"
+        },
+        {
+          "physical": {
+            "assignment": {
+              "fixed_fleet_vehicles": 2,
+              "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents",
+              "units": {
+                "cargo_kg": {
+                  "assigned": 100.0,
+                  "requested": 100.0,
+                  "unassigned": 0.0
+                },
+                "persons": {
+                  "assigned": 50.0,
+                  "requested": 52.5,
+                  "unassigned": 2.5
+                },
+                "vehicles": {
+                  "assigned": 3.0,
+                  "requested": 5.0,
+                  "unassigned": 2.0
+                }
+              }
+            },
+            "ledger": {
+              "cargo_kg": {
+                "active": -2.842170943040401e-14,
+                "completed": 100.00000000000003,
+                "pending": 0.0,
+                "released": 100.0,
+                "requested": 100.0
+              },
+              "persons": {
+                "active": 0.0,
+                "completed": 27.5,
+                "pending": 25.0,
+                "released": 27.5,
+                "requested": 52.5
+              },
+              "vehicles": {
+                "active": 0.0,
+                "completed": 4.0,
+                "pending": 1.0,
+                "released": 4.0,
+                "requested": 5.0
+              }
+            },
+            "released_intent_first_moments": {
+              "cargo_kg": 100.0,
+              "persons": 27.5,
+              "vehicles": 4.0
+            },
+            "service": {
+              "arrived_persons": 25.0,
+              "bus_road_vehicles": -4.440892098500626e-16,
+              "bus_stop_or_finished_vehicles": 2.0,
+              "cargo_delivered_kg": 100.00000000000003,
+              "cargo_unfinished_kg": -2.220446049250313e-14,
+              "completed_bus_vehicles": 2,
+              "freight_completed_vehicles": 1.0000000000000002,
+              "onboard_persons": 0.0,
+              "road_completed_veh": 5.0,
+              "road_released_veh": 5.000000000000001,
+              "scheduled_bus_vehicles": 2,
+              "time_s": 120.0,
+              "wait_person_s": 2975.0,
+              "waiting_persons": 25.0
+            },
+            "time_s": 120.0
+          },
+          "time_s": 120,
+          "wire_bytes": 3532,
+          "wire_sha256": "a0741c43f7e1b7ac506d0bb733032e6ffcb524bf7ae7cf01a9a2a5ea1b831357"
+        }
+      ],
+      "trace": {
+        "alloc_counting": true,
+        "counters": {
+          "entry.combined_rows": [
+            38,
+            52,
+            3
+          ],
+          "entry.raw_rows": [
+            38,
+            54,
+            3
+          ],
+          "event_history.retained_rows": [
+            345,
+            120,
+            8
+          ],
+          "event_history.retained_storage_bytes": [
+            345,
+            7978560,
+            262592
+          ],
+          "exact.intervals": [
+            38,
+            0,
+            0
+          ],
+          "exact.point_rows": [
+            38,
+            54,
+            3
+          ],
+          "exact.runs": [
+            38,
+            0,
+            0
+          ],
+          "pending.partial_rows": [
+            20,
+            26,
+            2
+          ],
+          "pending.rows": [
+            46,
+            54,
+            2
+          ],
+          "road_work.expired_source_payload_bytes": [
+            8970,
+            311296,
+            8192
+          ],
+          "road_work.expired_source_rows": [
+            8970,
+            54,
+            3
+          ],
+          "split.edges": [
+            38,
+            38,
+            1
+          ],
+          "split.in_rows": [
+            38,
+            52,
+            3
+          ],
+          "split.out_packets": [
+            38,
+            38,
+            1
+          ],
+          "split.out_rows": [
+            38,
+            52,
+            3
+          ],
+          "tick.cell_packets": [
+            345,
+            725,
+            10
+          ],
+          "tick.cell_parts": [
+            345,
+            1052,
+            17
+          ],
+          "tick.offers": [
+            345,
+            28,
+            2
+          ],
+          "tick.pending_packets": [
+            345,
+            20,
+            2
+          ],
+          "tick.pending_parts": [
+            345,
+            26,
+            3
+          ],
+          "xfer.head_rows": [
+            78,
+            120,
+            3
+          ],
+          "xfer.new_head_rows": [
+            78,
+            120,
+            3
+          ],
+          "xfer.partial_rows": [
+            30,
+            51,
+            3
+          ],
+          "xfer.partial_serve": [
+            78,
+            30,
+            1
+          ],
+          "xfer.serve_incoming_rows": [
+            78,
+            0,
+            0
+          ],
+          "xfer.serve_rows": [
+            78,
+            120,
+            3
+          ],
+          "xfer.sink_rows": [
+            78,
+            120,
+            3
+          ],
+          "xfer.substep_heads": [
+            78,
+            78,
+            1
+          ]
+        },
+        "live_bytes": 374894,
+        "mode": "record",
+        "peak_bytes": 912480,
+        "sites": {}
+      }
+    }
+  },
+  "script_sha256": "7281a0ef4a58ff4982c183f0242b8e1e872ee9b97ff45915c57574e3e65bed86"
+}

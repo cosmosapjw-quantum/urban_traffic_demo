@@ -1,0 +1,12 @@
+{
+  "identical_states": {
+    "bounded_bytes_v1": 8,
+    "legacy_records": 8
+  },
+  "native": {
+    "path": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/native_binding/_metroflow_rust.so",
+    "sha256": "d3c27a681cbda620cdb06c19fe71fa6ae306489651eb9cd0c41c310d3aa11787",
+    "size_bytes": 3312896,
+    "status": "MEASURED"
+  }
+}

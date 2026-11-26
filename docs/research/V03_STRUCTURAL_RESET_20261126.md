@@ -67,3 +67,7 @@ The probe verifies the input matrix, original raw checkpoint bytes, driver ident
 ## C05. Implement the exact ordered event run carrier in Rust
 
 Production compact events now factor tag/destination/mass/birth from source and time-index controls. A fixed-page run-start bitmap preserves wire order, including alternations and signed endpoint bits. The source admission code projects candidate rows plus run controls and time pages. The same projection serves sequential checkpoint decode. Tests exercise 12,000 rows across boundaries and compare reconstructed tuples bitwise. This implementation changes candidate and retained storage for compact events.
+
+## C06. Verify retained event codec through engine and checkpoint APIs
+
+In the default production build, both supported small-fixture policies reproduce the eight archived wire digests and all science fields at every selected checkpoint. Nonempty retained events occurred on ten ticks. Snapshot immutability, one-call vs partitioned execution and restored t=15 to t=120 passed. Rust 194 passed / 2 ignored, with 50 scoped Python integration tests passed. The later measured Valley trials exercise a different scale.
