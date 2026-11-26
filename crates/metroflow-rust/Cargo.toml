@@ -67,3 +67,8 @@ required-features = ["native-cli"]
 name = "metroflow-next-epoch"
 path = "src/bin/metroflow-next-epoch.rs"
 required-features = ["native-cli"]
+
+[[bin]]
+name = "metroflow-restored-generate"
+path = "src/bin/metroflow-restored-generate.rs"
+required-features = ["native-cli"]

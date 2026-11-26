@@ -9,15 +9,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if !(1..=256).contains(&n) {
         return Err("worker count".into());
     }
+    let size: f64 = a[3].parse()?;
+    let resolution: u32 = a[4].parse()?;
+    let seed: u64 = a[5].parse()?;
+    let population: u64 = a[6].parse()?;
+    if !size.is_finite() || population > (1u64 << 53) { return Err("invalid atlas size or population".into()); }
     let pool = rayon::ThreadPoolBuilder::new().num_threads(n).build()?;
     let (value, mut report) = pool.install(|| {
         atlas_generate::generate(
             &a[1],
             &a[2],
-            a[3].parse().unwrap_or(f64::NAN),
-            a[4].parse().unwrap_or(0),
-            a[5].parse().unwrap_or(u64::MAX),
-            a[6].parse().unwrap_or(u64::MAX),
+            size,
+            resolution as usize,
+            seed,
+            population,
             true,
         )
     })?;

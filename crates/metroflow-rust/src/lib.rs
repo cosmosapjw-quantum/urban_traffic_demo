@@ -1345,3 +1345,5 @@ mod atlas_portals;
 pub mod atlas_generate;
 #[cfg(feature="native-cli")]
 pub mod next_epoch;
+#[cfg(feature="native-cli")]
+pub mod restored_atlas;

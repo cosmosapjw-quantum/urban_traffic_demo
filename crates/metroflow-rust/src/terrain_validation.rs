@@ -18,10 +18,10 @@ fn delta(a: P3, b: P3, t: f64) -> P3 {
 }
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub(crate) struct Rect {
-    xmin: f64,
-    ymin: f64,
-    xmax: f64,
-    ymax: f64,
+    pub(crate) xmin: f64,
+    pub(crate) ymin: f64,
+    pub(crate) xmax: f64,
+    pub(crate) ymax: f64,
 }
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub(crate) struct Terrain {
