@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.39**, 2026-11-27. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.40**, 2026-11-27. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -2122,7 +2122,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-Finish B10 native causal phase orchestration and actual eligible live suffix application (next-epoch native city/demand materialization now verified on actual completed observations). Finish B15 full-mode campaign, loaded refinement and recovery; continue current identity Valley from valid25620 s checkpoint within unchanged 8 GiB RSS/7200 s and 6 GiB accounting. Historical25720/25730 distinct identity remains separate. Python scientific oracle explicit opt-in tests only.
+B10: preserve original C01 proposal-only semantics; complete actual eligible live suffix application with per-commodity/journey identity, legal turns and causal link observations, graph edit and extended-real input semantics; release-sized coupled phase replay and shared accounting. B15: continue current identity Valley from valid25660 s, profile ordered interval materialization and checkpoint I/O, measure full-day 3x3, matched refinement and recovery under unchanged 8 GiB RSS/7200 s and 6 GiB accounting. Historical25720/25730 distinct identity remains separate. Python scientific oracle explicit opt-in tests only.
 
 **예산·종료조건**
 
@@ -2306,11 +2306,11 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "V03"
   ],
   "native_subagent": "NOT_RUN_NO_TOOL",
-  "scope": "10 coding stages: independent original atlas generation, 38/38 archived maps and 3/3 portal patches, restored interchange 8/8 opt-in tests; actual feedback to next-epoch native city/demand; immutable checkpoint serialization, loaded Valley 25620 s; 13/15 scoped pure Rust, 2 partial, 0 unported; original full days 0/9.",
+  "scope": "10 coding stages: original proposal-only C01 phase runtime and typed growth checkpoints ported; compact exact decoder, strict interrupted-run recovery at 25640 s, loaded Valley 25650/25660 s; batched wire and optional immutable hardlink; capped campaign prefix and timeout evidence. 13/15 scoped pure Rust, 2 partial, 0 unported; original full days 0/9.",
   "full_repository_ci": "DEFERRED_BY_USER",
   "full_day_100k": "BLOCKED_RESOURCE_AND_MIGRATION_0_OF_9",
   "main_modified": false,
-  "evidence": "artifacts/v03_rust_atlas_integration_20261127/C10_RESEARCH_RECEIPT.json",
+  "evidence": "artifacts/v03_rust_phase_runtime_20261127/C10_RESEARCH_RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
@@ -2319,19 +2319,19 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "status": "success"
   },
   "parallel_agents": [],
-  "active_branch": "research/v03-rust-atlas-integration-20261127",
-  "production_commit": "0c0c0247961815d3510ed93a24d20adbe85f0f9f",
+  "active_branch": "research/v03-rust-phase-runtime-20261127",
+  "production_commit": "e705103f99cdf67b47c2f10cf3b0c399507b3e47",
   "research_stages_completed": 10,
   "research_stages_total": 10,
-  "source_commit": "8c3c6110b9f646a5843c1fb5877140c5cd612a1c",
-  "native_source_sha256": "2d1f188f1acf66664853c8d0736932e63bb6cd55593ef99d1dcb0ae58de687ae",
-  "native_binary_sha256": "d9822a57b995e23c6444da5d48f081f3315e98b89288941d8a3ec0210940758b",
+  "source_commit": "1a44217ce3e021c6ed13a7042bceaffa42ee7578",
+  "native_source_sha256": "9cb9a3648cb7d8b3dd14678f5983864e32a7a7185ff1673c84df499c4c0b84dd",
+  "native_binary_sha256": "8e0f6851b9b1d9efdd858e3736c6ec2455068ed93b5459efcb60d0c495895e5d",
   "current_loop_stages_completed": 10,
   "current_loop_stages_total": 10,
   "current_loop_native_subagent": "NOT_RUN_NO_TOOL",
-  "native_source_hash_method": "SHA256 of C10_tracked_rust_sources.sha256; final C09 source, loaded frontier prior C06 binary, optimized checkpoint tests C08",
-  "native_binary_feature": "native-cli no Python; loaded prior C06 binary and final C09 build separately hashed",
-  "rust_backend_scoped": "13/15 pure Rust scoped; 2 partial; zero unported; loaded Valley 25620 s"
+  "native_source_hash_method": "SHA256 of C10_tracked_rust_sources.sha256; C09 source inventory, C08 executable used for loaded frontier and byte-identical final native rebuild",
+  "native_binary_feature": "native-cli no Python; loaded C08 executable matches final C09 native rebuild",
+  "rust_backend_scoped": "13/15 pure Rust scoped; 2 partial; zero unported; loaded Valley 25660 s"
 }
 ```
 

@@ -1,0 +1,23 @@
+.F.......                                                                [100%]
+=================================== FAILURES ===================================
+____________ test_generated_documents_are_one_view_of_one_authority ____________
+
+    def test_generated_documents_are_one_view_of_one_authority():
+        p = plan()
+        for filename, text in mod.outputs(p).items():
+>           assert (ROOT / "docs/v1" / filename).read_text() == text
+E           assert '# MetroFlow ...결과를 조회한다.\n\n' == '# MetroFlow ...결과를 조회한다.\n\n'
+E
+E             Skipping 6711 identical leading characters in diff, use -v to show
+E             - _floor": 1.0,
+E             ?           --
+E             + _floor": 1,
+E                 "interpretation": "tol=relative*max(1,해당누적량). 작은검산은분석해와절대오차도따로시험. 큰조건수/상쇄오차는관측특성에맞게사전정의,실패후완화금지.",
+E                 "supported_python": [...
+E
+E             ...Full output truncated (2149 lines hidden), use '-vv' to show
+
+tests/test_v1_plan.py:28: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_v1_plan.py::test_generated_documents_are_one_view_of_one_authority
+1 failed, 8 passed in 0.16s

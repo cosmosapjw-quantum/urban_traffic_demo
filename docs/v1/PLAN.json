@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.39",
+  "version": "1.1.40",
   "date": "2026-11-27",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -371,11 +371,11 @@
       "V03"
     ],
     "native_subagent": "NOT_RUN_NO_TOOL",
-    "scope": "10 coding stages: independent original atlas generation, 38/38 archived maps and 3/3 portal patches, restored interchange 8/8 opt-in tests; actual feedback to next-epoch native city/demand; immutable checkpoint serialization, loaded Valley 25620 s; 13/15 scoped pure Rust, 2 partial, 0 unported; original full days 0/9.",
+    "scope": "10 coding stages: original proposal-only C01 phase runtime and typed growth checkpoints ported; compact exact decoder, strict interrupted-run recovery at 25640 s, loaded Valley 25650/25660 s; batched wire and optional immutable hardlink; capped campaign prefix and timeout evidence. 13/15 scoped pure Rust, 2 partial, 0 unported; original full days 0/9.",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "BLOCKED_RESOURCE_AND_MIGRATION_0_OF_9",
     "main_modified": false,
-    "evidence": "artifacts/v03_rust_atlas_integration_20261127/C10_RESEARCH_RECEIPT.json",
+    "evidence": "artifacts/v03_rust_phase_runtime_20261127/C10_RESEARCH_RECEIPT.json",
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
@@ -384,19 +384,19 @@
       "status": "success"
     },
     "parallel_agents": [],
-    "active_branch": "research/v03-rust-atlas-integration-20261127",
-    "production_commit": "0c0c0247961815d3510ed93a24d20adbe85f0f9f",
+    "active_branch": "research/v03-rust-phase-runtime-20261127",
+    "production_commit": "e705103f99cdf67b47c2f10cf3b0c399507b3e47",
     "research_stages_completed": 10,
     "research_stages_total": 10,
-    "source_commit": "8c3c6110b9f646a5843c1fb5877140c5cd612a1c",
-    "native_source_sha256": "2d1f188f1acf66664853c8d0736932e63bb6cd55593ef99d1dcb0ae58de687ae",
-    "native_binary_sha256": "d9822a57b995e23c6444da5d48f081f3315e98b89288941d8a3ec0210940758b",
+    "source_commit": "1a44217ce3e021c6ed13a7042bceaffa42ee7578",
+    "native_source_sha256": "9cb9a3648cb7d8b3dd14678f5983864e32a7a7185ff1673c84df499c4c0b84dd",
+    "native_binary_sha256": "8e0f6851b9b1d9efdd858e3736c6ec2455068ed93b5459efcb60d0c495895e5d",
     "current_loop_stages_completed": 10,
     "current_loop_stages_total": 10,
     "current_loop_native_subagent": "NOT_RUN_NO_TOOL",
-    "native_source_hash_method": "SHA256 of C10_tracked_rust_sources.sha256; final C09 source, loaded frontier prior C06 binary, optimized checkpoint tests C08",
-    "native_binary_feature": "native-cli no Python; loaded prior C06 binary and final C09 build separately hashed",
-    "rust_backend_scoped": "13/15 pure Rust scoped; 2 partial; zero unported; loaded Valley 25620 s"
+    "native_source_hash_method": "SHA256 of C10_tracked_rust_sources.sha256; C09 source inventory, C08 executable used for loaded frontier and byte-identical final native rebuild",
+    "native_binary_feature": "native-cli no Python; loaded C08 executable matches final C09 native rebuild",
+    "rust_backend_scoped": "13/15 pure Rust scoped; 2 partial; zero unported; loaded Valley 25660 s"
   },
   "nodes": [
     {
@@ -1901,7 +1901,7 @@
       "failure_classification": [
         "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
       ],
-      "positive_next_action": "Finish B10 native causal phase orchestration and actual eligible live suffix application (next-epoch native city/demand materialization now verified on actual completed observations). Finish B15 full-mode campaign, loaded refinement and recovery; continue current identity Valley from valid25620 s checkpoint within unchanged 8 GiB RSS/7200 s and 6 GiB accounting. Historical25720/25730 distinct identity remains separate. Python scientific oracle explicit opt-in tests only.",
+      "positive_next_action": "B10: preserve original C01 proposal-only semantics; complete actual eligible live suffix application with per-commodity/journey identity, legal turns and causal link observations, graph edit and extended-real input semantics; release-sized coupled phase replay and shared accounting. B15: continue current identity Valley from valid25660 s, profile ordered interval materialization and checkpoint I/O, measure full-day 3x3, matched refinement and recovery under unchanged 8 GiB RSS/7200 s and 6 GiB accounting. Historical25720/25730 distinct identity remains separate. Python scientific oracle explicit opt-in tests only.",
       "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
       "contracts": [
         "C_RUNTIME",
@@ -2065,14 +2065,14 @@
         }
       ],
       "current_research_evidence": {
-        "path": "artifacts/v03_rust_atlas_integration_20261127/C10_RESEARCH_RECEIPT.json",
-        "sha256": "97a19ccac40dee64414ddab90e1d3c27e881dfb3098fbe44764fed33b339d47b",
+        "path": "artifacts/v03_rust_phase_runtime_20261127/C10_RESEARCH_RECEIPT.json",
+        "sha256": "7841a3c4744afa231ee11b144c4bbdf04fd380e6f87d6480303b7c1ed12eaf75",
         "status": "10 coding stages scoped; 13/15 pure Rust; 2 partial; V03 blocked",
-        "baseline_commit": "84056393b21cfa512cf0a7c6dfcba67d77e97dcc",
-        "source_sha256": "2d1f188f1acf66664853c8d0736932e63bb6cd55593ef99d1dcb0ae58de687ae",
-        "native_sha256": "d9822a57b995e23c6444da5d48f081f3315e98b89288941d8a3ec0210940758b",
-        "source_hash_method": "SHA256 of C10_tracked_rust_sources.sha256; final C09 source, loaded frontier prior C06 binary, optimized checkpoint tests C08",
-        "theory_path": "docs/research/V03_RUST_ATLAS_INTEGRATION_20261127.md"
+        "baseline_commit": "fa343876097e3485e04502e41f96bdebb4ffc4ad",
+        "source_sha256": "9cb9a3648cb7d8b3dd14678f5983864e32a7a7185ff1673c84df499c4c0b84dd",
+        "native_sha256": "8e0f6851b9b1d9efdd858e3736c6ec2455068ed93b5459efcb60d0c495895e5d",
+        "source_hash_method": "SHA256 of C10_tracked_rust_sources.sha256; C09 source inventory, C08 executable used for loaded frontier and byte-identical final native rebuild",
+        "theory_path": "docs/research/V03_RUST_PHASE_RUNTIME_20261127.md"
       },
       "historical_research_evidence": [
         {
@@ -2170,6 +2170,16 @@
           "native_sha256": "d9822a57b995e23c6444da5d48f081f3315e98b89288941d8a3ec0210940758b",
           "source_hash_method": "SHA256 of C10_tracked_rust_sources.sha256; code at current C09, loaded native binary at C06",
           "theory_path": "docs/research/V03_RUST_FINAL_SLICES_20261127.md"
+        },
+        {
+          "path": "artifacts/v03_rust_atlas_integration_20261127/C10_RESEARCH_RECEIPT.json",
+          "sha256": "97a19ccac40dee64414ddab90e1d3c27e881dfb3098fbe44764fed33b339d47b",
+          "status": "10 coding stages scoped; 13/15 pure Rust; 2 partial; V03 blocked",
+          "baseline_commit": "84056393b21cfa512cf0a7c6dfcba67d77e97dcc",
+          "source_sha256": "2d1f188f1acf66664853c8d0736932e63bb6cd55593ef99d1dcb0ae58de687ae",
+          "native_sha256": "d9822a57b995e23c6444da5d48f081f3315e98b89288941d8a3ec0210940758b",
+          "source_hash_method": "SHA256 of C10_tracked_rust_sources.sha256; final C09 source, loaded frontier prior C06 binary, optimized checkpoint tests C08",
+          "theory_path": "docs/research/V03_RUST_ATLAS_INTEGRATION_20261127.md"
         }
       ],
       "secondary_blocked_evidence": {
@@ -2393,7 +2403,7 @@
     "authorized_on": "2026-11-16",
     "supersedes": "pure Python core restriction in PLAN v1.1.17 and AGENTS.md",
     "target": "Rust-owned backend, input preparation, measurement, headless execution and acceptance; Python frontend serialization or explicit opt-in test oracle only",
-    "mode": "Pure Rust native CLI, optional Python frontend; original atlas generation and portal parity verified scoped; actual completed observations to new epoch native materialization; live suffix/causal runner and full-day campaign remain.",
+    "mode": "Pure Rust native CLI, optional Python frontend; original C01 proposal-only runtime and typed growth checkpoints verified on fixture, production live suffix and full campaign remain.",
     "current_scope": [
       "Persistent f64 legal-turn routing in V1 preparation",
       "Direct factorized Rust calendar construction without Python per-leg objects",
@@ -2416,10 +2426,11 @@
       "Standalone Rust headless projection, declared-input preparation, exact marginal coupling and parallel kinetic passage; native direct host, bounded fixture checkpoint replay; streaming reductions and measured Rayon/AVX preflight.",
       "Pure Rust native dependency graph; Rust frozen map/portal/activity/demand/fleet declarations and original 100k city-prefix executions; dense route ranks, Arc potentials, segmented checkpoint and campaign runner.",
       "Original frozen terrain/mask/crossing validation; causal R01/R02 and M04 Rust kernels; 518 actual completed route observations bound to 206 destination blocks; loaded Valley 25320 s restart exact; opt-in AVX bit parity on original manifests.",
-      "Independent original atlas: all 38 archived maps, 3 portal patches, restored interchange grammar 8 opt-in comparisons; worker parity; actual completed feedback to native next-epoch city/demand; immutable snapshot serialization and loaded Valley 25620 s."
+      "Independent original atlas: all 38 archived maps, 3 portal patches, restored interchange grammar 8 opt-in comparisons; worker parity; actual completed feedback to native next-epoch city/demand; immutable snapshot serialization and loaded Valley 25620 s.",
+      "Native C01 phase and growth checkpoint orchestration, direct exact uniform decode, strict recovered25640 and loaded25660, matched batched wire/optional immutable hardlink evidence, capped campaign failure receipts."
     ],
     "remaining": [
-      "Finish B10 native causal phase orchestration and actual eligible live suffix application (next-epoch native city/demand materialization now verified on actual completed observations). Finish B15 full-mode campaign, loaded refinement and recovery; continue current identity Valley from valid25620 s checkpoint within unchanged 8 GiB RSS/7200 s and 6 GiB accounting. Historical25720/25730 distinct identity remains separate. Python scientific oracle explicit opt-in tests only.",
+      "B10: preserve original C01 proposal-only semantics; complete actual eligible live suffix application with per-commodity/journey identity, legal turns and causal link observations, graph edit and extended-real input semantics; release-sized coupled phase replay and shared accounting. B15: continue current identity Valley from valid25660 s, profile ordered interval materialization and checkpoint I/O, measure full-day 3x3, matched refinement and recovery under unchanged 8 GiB RSS/7200 s and 6 GiB accounting. Historical25720/25730 distinct identity remains separate. Python scientific oracle explicit opt-in tests only.",
       "Original current-source Valley continuation reaches indexed sweep preflight after source remainder/transfer fixes; no valid25710state. Ordered interval materialization and retained ownership exceed the unchanged phase allowance. Historical guard-bypassed failures remain historical evidence, not a universal impossibility proof.",
       "Integrate source-aligned rank/span views into the actual ordered interval consumer and checkpoint expansion; retain finite response and commodity/birth observables. Separate bit-exact event sharing, real-arithmetic rank equivalence and explicitly approximate block closure; require complete-tick, ledger and checkpoint evidence.",
       "Frozen candidate3cases x3 full-day completion, matched refinement and full-day checkpoint replay; current completion0/9",
@@ -2429,13 +2440,13 @@
     "historical_local_patch_sha256": "7d89e8be20339709a9c0dc894a26dc7db75bdc0d857637ffb30f7bc7fe4a1326",
     "last_completed_work": {
       "date": "2026-11-27",
-      "scope": "10 coding stages: independent original atlas generation, 38/38 archived maps and 3/3 portal patches, restored interchange 8/8 opt-in tests; actual feedback to next-epoch native city/demand; immutable checkpoint serialization, loaded Valley 25620 s; 13/15 scoped pure Rust, 2 partial, 0 unported; original full days 0/9.",
-      "evidence": "artifacts/v03_rust_atlas_integration_20261127/C10_RESEARCH_RECEIPT.json"
+      "scope": "10 coding stages: original proposal-only C01 phase runtime and typed growth checkpoints ported; compact exact decoder, strict interrupted-run recovery at 25640 s, loaded Valley 25650/25660 s; batched wire and optional immutable hardlink; capped campaign prefix and timeout evidence. 13/15 scoped pure Rust, 2 partial, 0 unported; original full days 0/9.",
+      "evidence": "artifacts/v03_rust_phase_runtime_20261127/C10_RESEARCH_RECEIPT.json"
     },
-    "active_work": "Finish B10 native causal phase orchestration and actual eligible live suffix application (next-epoch native city/demand materialization now verified on actual completed observations). Finish B15 full-mode campaign, loaded refinement and recovery; continue current identity Valley from valid25620 s checkpoint within unchanged 8 GiB RSS/7200 s and 6 GiB accounting. Historical25720/25730 distinct identity remains separate. Python scientific oracle explicit opt-in tests only.",
+    "active_work": "B10: preserve original C01 proposal-only semantics; complete actual eligible live suffix application with per-commodity/journey identity, legal turns and causal link observations, graph edit and extended-real input semantics; release-sized coupled phase replay and shared accounting. B15: continue current identity Valley from valid25660 s, profile ordered interval materialization and checkpoint I/O, measure full-day 3x3, matched refinement and recovery under unchanged 8 GiB RSS/7200 s and 6 GiB accounting. Historical25720/25730 distinct identity remains separate. Python scientific oracle explicit opt-in tests only.",
     "backend_census": {
-      "path": "artifacts/v03_rust_atlas_integration_20261127/C10_backend_coverage.json",
-      "sha256": "c2c5ddae0b008fc411f70010cf8a9a360a5e9e85ffd1447f493a5ab3d7d8a877",
+      "path": "artifacts/v03_rust_phase_runtime_20261127/C10_backend_coverage.json",
+      "sha256": "eebf457dc5d895855ae6bd0eb94bd2f43e8df7be221b068374ab11a775c6b65a",
       "denominator": 15,
       "implemented_scoped": 13,
       "pure_rust_scoped": 13,
