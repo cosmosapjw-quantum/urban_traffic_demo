@@ -101,6 +101,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if Path::new(&a[4]).exists() || Path::new(&a[5]).exists() {
         return Err("output exists".into());
     }
+    let mut prior_hash=None;
     if a.len() == 8 {
         let previous: Value = serde_json::from_reader(BufReader::new(File::open(&a[6])?))?;
         if previous["manifest_sha256"] != manifest_hash
@@ -108,6 +109,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         {
             return Err("resume source/byte identity differs".into());
         }
+        prior_hash=previous["checkpoint_sha256"].as_str().map(str::to_owned);
     }
     let input: Value = serde_json::from_reader(BufReader::new(File::open(&a[1])?))?;
     let segment = std::env::var("METROFLOW_NATIVE_SEGMENT_S").ok().map(|x|x.parse::<f64>()).transpose()?;
@@ -121,6 +123,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         segment,replay,
     )
     .map_err(|e| e.to_string())?;
+    if let Some(h)=prior_hash{if h!=digest(Path::new(&a[7]))?{return Err("resume source changed during execution".into())}}
     if digest(Path::new(&a[1]))? != manifest_hash {
         return Err("manifest changed".into());
     }

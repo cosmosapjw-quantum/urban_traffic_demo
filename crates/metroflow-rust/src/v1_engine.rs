@@ -2174,13 +2174,27 @@ pub fn run_native_declaration_with_plan(
     let begin=initial.time_s();
     let clock=Instant::now();
     let mut state=initial;
-    let mut checkpoint_write_s=0.;
+    let mut checkpoint_write_s=0.;let mut initial_checkpoint_method="not_applicable";
     let mut ticks=Vec::new();let mut peak=0usize;let mut segments=0usize;let mut replay_verified=false;let mut failure=None;let mut prefix=None;
     if !end_s.is_finite()||end_s<begin||((end_s-begin)/engine.step-((end_s-begin)/engine.step).round()).abs()>1e-8{return Err(bad("invalid aligned execution horizon"))}
     if let Some(chunk)=segment_s{
         if !chunk.is_finite()||chunk<=0.||((chunk/engine.step)-(chunk/engine.step).round()).abs()>1e-8{return Err(bad("segment must align with native step"))}
         if replay_at_s.is_some_and(|x|!x.is_finite()||x<=begin||x>end_s||((x-begin)/engine.step-((x-begin)/engine.step).round()).abs()>1e-8){return Err(bad("replay must align within execution horizon"))}
-        {let t=Instant::now();save_atomic_native(&mut engine,checkpoint,&state)?;checkpoint_write_s+=t.elapsed().as_secs_f64();}
+        {
+            let t=Instant::now();
+            // Opt-in: a strictly loaded immutable source can be linked
+            // without serializing it again. Later saves rename a fresh inode
+            // over the output name; the input checkpoint is never modified.
+            let linked=if std::env::var("METROFLOW_NATIVE_LINK_RESUME").as_deref()==Ok("1"){
+                if let Some(source)=resume{
+                    let source=std::fs::canonicalize(source).map_err(io)?;
+                    if !std::fs::metadata(&source).map_err(io)?.is_file(){return Err(bad("resume source not regular file"))}
+                    match std::fs::hard_link(&source,checkpoint){Ok(())=>{sync_parent_native(checkpoint)?;true},Err(e) if e.kind()==std::io::ErrorKind::AlreadyExists=>return Err(io(e)),Err(_)=>false}
+                }else{false}
+            }else{false};
+            if linked{initial_checkpoint_method="immutable_hardlink";}else{save_atomic_native(&mut engine,checkpoint,&state)?;initial_checkpoint_method="serialize";}
+            checkpoint_write_s+=t.elapsed().as_secs_f64();
+        }
         while state.time_s()<end_s{
             let mut target=(state.time_s()+chunk).min(end_s);
             if let Some(x)=replay_at_s{if state.time_s()<x{target=target.min(x)}}
@@ -2228,6 +2242,8 @@ pub fn run_native_declaration_with_plan(
     if segment_s.is_none(){{let t=Instant::now();save_atomic_native(&mut engine,checkpoint,&state)?;checkpoint_write_s+=t.elapsed().as_secs_f64();}}
     result["save_s"]=json!(clock.elapsed().as_secs_f64());
     result["checkpoint_write_s"]=json!(checkpoint_write_s);
+    result["initial_checkpoint_method"]=json!(initial_checkpoint_method);
+    result["wire_writer"]=json!(if std::env::var_os("METROFLOW_NATIVE_SCALAR_WIRE").is_some(){"scalar"}else{"batched_stack"});
     result["checkpoint_writer"]=json!(if std::env::var("METROFLOW_NATIVE_LEGACY_SAVE").as_deref()==Ok("1"){"legacy_restore"}else{"immutable_snapshot"});
     if let Ok(cursor)=std::env::var("METROFLOW_NATIVE_COMPLETED_SINCE_S"){
         let since:f64=cursor.parse().map_err(|_|bad("invalid completed observation cursor"))?;
@@ -2263,6 +2279,11 @@ fn route_metrics_json(m:&NativeRouteMetrics)->serde_json::Value{
     json!({"status":if m.calls==0{"NOT_MEASURED"}else{"MEASURED_INTERVAL"},"observed_calls":m.calls,"failed_calls":m.failed,"pair_cache_hits":m.cache_hits,"search_calls":m.calls-m.cache_hits,"min_ns":m.minimum_ns,"max_ns":m.maximum_ns,"p99_ns":p99,"source":"native_whole_router.route","scope":"native whole-engine OD requests including pair-cache hits"})
 }
 #[cfg(feature="native-cli")]
+fn sync_parent_native(path:&str)->CoreResult<()>{
+    let p=std::path::Path::new(path).parent().filter(|p|!p.as_os_str().is_empty()).unwrap_or_else(||std::path::Path::new("."));
+    std::fs::File::open(p).map_err(io)?.sync_all().map_err(io)
+}
+#[cfg(feature="native-cli")]
 fn save_atomic_native(engine:&mut NativeWholeEngine,path:&str,state:&NativeWholeState)->CoreResult<()>{
     // Unique scratch path, same filesystem as destination. A failed save
     // never replaces the last known-valid checkpoint.
@@ -2274,7 +2295,7 @@ fn save_atomic_native(engine:&mut NativeWholeEngine,path:&str,state:&NativeWhole
             // which already validates the complete bundle. Serialize borrowed
             // committed owners directly; no restore clone or altered physics.
             engine.checked(state)?;
-            let mut f=BufWriter::new(std::fs::OpenOptions::new().write(true).create_new(true).open(&tmp).map_err(io)?);
+            let mut f=BufWriter::with_capacity(1024*1024,std::fs::OpenOptions::new().write(true).create_new(true).open(&tmp).map_err(io)?);
             f.write_all(b"MFWHOLE1").map_err(io)?;
             f.write_all(&(engine.identity.len()as u64).to_le_bytes()).map_err(io)?;
             f.write_all(engine.identity.as_bytes()).map_err(io)?;
@@ -2285,6 +2306,7 @@ fn save_atomic_native(engine:&mut NativeWholeEngine,path:&str,state:&NativeWhole
         }
         std::fs::File::open(&tmp).map_err(io)?.sync_all().map_err(io)?;
         std::fs::rename(&tmp,path).map_err(io)?;
+        sync_parent_native(path)?;
         Ok(())
     })();
     if result.is_err(){let _=std::fs::remove_file(&tmp);}

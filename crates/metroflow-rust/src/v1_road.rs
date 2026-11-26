@@ -3043,10 +3043,14 @@ impl V1Road {
     }
     fn write_packets<W: Write>(&self, w: &mut W, q: &[Packet]) -> CoreResult<()> {
         write_len(w, q.len())?;
+        let scalar_wire=std::env::var_os("METROFLOW_NATIVE_SCALAR_WIRE").is_some();
         for p in q {
             write_f64(w, p.target)?;
             write_len(w, p.parts.len())?;
             for p in &p.parts {
+                // Exact little-endian record in one bounded stack buffer.
+                // Do not change option flags, order or floating-point bits.
+                if scalar_wire{
                 write_len(w, p.tag)?;
                 write_len(w, p.offset)?;
                 write_f64(w, p.mass)?;
@@ -3056,6 +3060,13 @@ impl V1Road {
                     if let Some(v) = v {
                         write_f64(w, v)?;
                     }
+                }
+                }else{
+                    let mut bytes=[0u8;64];let mut len=0;
+                    let mut append=|x:u64|{bytes[len..len+8].copy_from_slice(&x.to_le_bytes());len+=8;};
+                    for x in [p.tag as u64,p.offset as u64,p.mass.to_bits(),p.birth.to_bits()]{append(x);}
+                    for v in [p.a.option(),p.b.option()]{append(u64::from(v.is_some()));if let Some(x)=v{append(x.to_bits());}}
+                    w.write_all(&bytes[..len]).map_err(|e|CoreError::io(e.to_string()))?;
                 }
             }
         }
