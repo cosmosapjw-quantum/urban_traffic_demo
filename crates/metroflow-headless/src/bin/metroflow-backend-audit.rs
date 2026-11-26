@@ -23,7 +23,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     assert_eq!(by.len(), 15);
     let mut seen = BTreeSet::new();
-    let (mut baseline, mut host, mut pure) = (0, 0, 0);
+    let (mut baseline, mut host, mut pure, mut partial) = (0, 0, 0, 0);
     let mut rows = vec![];
     for l in result.lines().skip(1) {
         let v: Vec<_> = l.split('\t').collect();
@@ -40,6 +40,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
             "PURE_RUST_SCOPED" => {
                 pure += 1;
+                Some(receipt::sha256(&d.join(v[2]))?)
+            }
+            "PARTIAL" => {
+                partial += 1;
                 Some(receipt::sha256(&d.join(v[2]))?)
             }
             "REMAINING" => {
@@ -80,10 +84,31 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         })
         .count();
     let total = by.len();
+    let mut original = 0;
+    for case in [
+        "valley_weekday_s7",
+        "coastal_weekend_s41",
+        "river_weekday_s17",
+    ] {
+        let pp = d.join(format!("{case}.prepare.json"));
+        let ep = d.join(format!("{case}.engine10.json"));
+        if pp.exists() && ep.exists() {
+            let p: Value = serde_json::from_reader(fs::File::open(pp)?)?;
+            let e: Value = serde_json::from_reader(fs::File::open(ep)?)?;
+            assert_eq!(p["case"], case);
+            assert_eq!(p["population"].as_f64(), Some(100000.));
+            assert_eq!(p["calendar"]["calendar_legs"], e["calendar_legs"]);
+            assert_eq!(p["city_identity"], e["city_identity"]);
+            assert_eq!(p["schedule_identity"], e["schedule_identity"]);
+            assert_eq!(e["time_s"].as_f64(), Some(10.));
+            assert_eq!(e["python_runtime_dependency"], "none");
+            original += 1;
+        }
+    }
     println!(
         "{}",
         serde_json::to_string_pretty(
-            &json!({"schema":"metroflow_backend_functional_census_v1","denominator":total,"method":"unweighted, fixed C01 functional inventory; scoped evidence reviewed; not LOC, full-city completeness or release acceptance","baseline_rust_core":baseline,"rust_implemented_scoped":host+pure,"rust_implemented_percent":100.*(host+pure) as f64/total as f64,"pure_rust_verified_scoped":pure,"pure_rust_percent":100.*pure as f64/total as f64,"native_host_linked_python_scoped":host,"remaining_functions":total-host-pure,"original_v03_full_days":0,"original_v03_total":9,"original_dag_scoped_or_accepted":scoped,"original_dag_accepted":accepted,"original_dag_total":nodes.len(),"original_v03_direct_dependencies_ready":ready,"original_v03_direct_dependencies_total":deps.len(),"original_v03_rust_only_city_preparations_verified":0,"rows":rows})
+            &json!({"schema":"metroflow_backend_functional_census_v1","denominator":total,"method":"unweighted, fixed C01 functional inventory; scoped evidence reviewed; not LOC, full-city completeness or release acceptance","baseline_rust_core":baseline,"rust_implemented_scoped":host+pure,"rust_implemented_percent":100.*(host+pure) as f64/total as f64,"pure_rust_verified_scoped":pure,"pure_rust_percent":100.*pure as f64/total as f64,"native_host_linked_python_scoped":host,"remaining_functions":total-host-pure,"partial_functions":partial,"unimplemented_functions":total-host-pure-partial,"original_v03_full_days":0,"original_v03_total":9,"original_dag_scoped_or_accepted":scoped,"original_dag_accepted":accepted,"original_dag_total":nodes.len(),"original_v03_direct_dependencies_ready":ready,"original_v03_direct_dependencies_total":deps.len(),"original_v03_rust_only_city_preparations_verified":original,"rows":rows})
         )?
     );
     Ok(())

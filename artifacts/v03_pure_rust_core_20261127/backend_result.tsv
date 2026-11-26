@@ -1,0 +1,16 @@
+id	status	evidence
+B01	PARTIAL	C04_road_summary.json
+B02	PURE_RUST_SCOPED	C06_oracle.log
+B03	PURE_RUST_SCOPED	river_weekday_s17.prepare.json
+B04	PURE_RUST_SCOPED	river_weekday_s17.engine10.json
+B05	PURE_RUST_SCOPED	C07-c07-2.json
+B06	PURE_RUST_SCOPED	C06_oracle.log
+B07	PURE_RUST_SCOPED	C08_fixture.json
+B08	PURE_RUST_SCOPED	C08_fixture.json
+B09	PURE_RUST_SCOPED	C08_valley300.json
+B10	REMAINING	-
+B11	PURE_RUST_SCOPED	../v03_rust_only_backend_20261126/C03_test.log
+B12	PURE_RUST_SCOPED	../v03_rust_only_backend_20261126/C04_test.log
+B13	PURE_RUST_SCOPED	../v03_rust_only_backend_20261126/C09_parity.json
+B14	PURE_RUST_SCOPED	C09_campaign.json
+B15	PARTIAL	C09_campaign.json

@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.36**, 2026-11-26. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.37**, 2026-11-27. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -2103,10 +2103,10 @@ V03에서samecity traffic성능으로연결
 
 **실행·수용시험 명령**
 
-- cargo test --offline -p metroflow-headless
 - cargo test --offline -p metroflow-rust --no-default-features --features native-cli --lib
-- metroflow-native-run declared-input fixture/checkpoint replay (scoped only); full original Rust V03 campaign runner and city declarations BLOCKED_IMPLEMENTATION_DEPENDENCY
-- Historical opt-in oracle only: METROFLOW_ENABLE_PYTHON_ORACLE=1 METROFLOW_V1_ROUTING_BACKEND=python_oracle python tools/run_v1_local_acceptance.py --run-local --matrix scenarios/v1/release_matrix.json (not production acceptance)
+- cargo test --offline -p metroflow-headless
+- metroflow-v03-campaign original frozen matrix; prefix verified; full mode not verified
+- Explicit opt-in Python semantic oracle tests/v1/test_frozen_rust_marginals_optin.py only
 
 **완료조건**
 
@@ -2121,7 +2121,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-Rust-only migration is mandatory before further original-city research. Port B01 city/map validation, B02 activity/portal geometry, B03 demand and inventory, B06 fleet/freight declarations, B10 causal routing/lagged land-use, B15 original campaign/acceptance. Remove PyO3 error/runtime linkage from the five original core functions. Rust must prepare and bind all three original 100k declarations, then reproduce the historical 25720 s checkpoint, solve 25730 s checkpointability with bounded decoder workspace and actual wire replay, and run 30/60/300 s loaded horizons under unchanged 8 GiB RSS and 7200 s original acceptance limits. No projected-day credit. Python only UI/serialization and explicitly opted-in tests; no Python or C++ scientific execution.
+Complete remaining B01 generative atlas and full terrain/crossing validation, B10 causal information/routing and lagged land-use integration, and B15 full campaign validation (including failure/recovery and 5/10 s refinement). Bind historical/new identities only after explicit scientific mapping; no claim that old 25720 s checkpoint is accepted by new declarations. Re-run loaded native traffic, preserve strict 8 GiB RSS / 7200 s and 6 GiB internal accounting; solve actual checkpointability blocker, then 3x3 original 24h. Python UI/serialization or explicit opt-in tests only.
 
 **예산·종료조건**
 
@@ -2305,11 +2305,11 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "V03"
   ],
   "native_subagent": "NOT_RUN_NO_TOOL",
-  "scope": "10 scoped coding stages: restore Rust-only contract, standalone Rust projection/preparation, original native Rust host and replay, streaming reductions, measured Rayon/AVX, opt-in Python boundaries. 9/15 scoped Rust implementations, 4/15 dependency-free Rust scoped; original 100k Rust city preparation 0/3 and native days 0/9.",
+  "scope": "10 coding stages: pure Rust native link, three original frozen city declarations and 10 s runs, route optimization, durable segmented run and Rust campaign prefix. Scoped pure Rust 12/15 (80%); B01/B15 partial, B10 remaining. Original full days 0/9.",
   "full_repository_ci": "DEFERRED_BY_USER",
-  "full_day_100k": "BLOCKED_RUST_PREPARATION_AND_RESOURCE_0_OF_9",
+  "full_day_100k": "BLOCKED_RESOURCE_AND_MIGRATION_0_OF_9",
   "main_modified": false,
-  "evidence": "artifacts/v03_rust_only_backend_20261126/C10_RESEARCH_RECEIPT.json",
+  "evidence": "artifacts/v03_pure_rust_core_20261127/C10_RESEARCH_RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
@@ -2318,19 +2318,19 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "status": "success"
   },
   "parallel_agents": [],
-  "active_branch": "research/v03-rust-only-backend-20261126",
-  "production_commit": "55e8dc106b13c32127cfa653b2e994811e11601f",
+  "active_branch": "research/v03-pure-rust-core-20261127",
+  "production_commit": "5a6464cdd276c18d61ef448dfd36d55e88281fff",
   "research_stages_completed": 10,
   "research_stages_total": 10,
-  "source_commit": "97a933cfde436d11160ddfc27690148464fbf80c",
-  "native_source_sha256": "92d87fd41af1f0b20e1f3f3b3952b87a694a7aa2eabeb2ff5fff470a03c6bc63",
-  "native_binary_sha256": "8216e9b3394b2b45120ce26c60e77d9d9ee5e9910070b144159b65a9fbd9d480",
+  "source_commit": "78fc8599c51a51b0d18765bec385309ec1cf0ab5",
+  "native_source_sha256": "878a746cd14ad36d1a953038824f5ffb03426627513fe2cd9453ae0413f5167c",
+  "native_binary_sha256": "a20eb13ea44cd87bc229eebc98b7d5b5342540da1f8e110c787893cfcffced2c",
   "current_loop_stages_completed": 10,
   "current_loop_stages_total": 10,
   "current_loop_native_subagent": "NOT_RUN_NO_TOOL",
-  "native_source_hash_method": "SHA256 of C10_tracked_rust_sources.sha256; distinct from historical Python runner source digest",
-  "native_binary_feature": "native-cli, original engine host, links libpython",
-  "rust_backend_scoped": "9/15; pure Rust scoped 4/15; see functional census"
+  "native_source_hash_method": "SHA256 of C10_tracked_rust_sources.sha256 (current tree; not historical Python runner digest)",
+  "native_binary_feature": "native-cli without default Python extension; dependency and ldd verified",
+  "rust_backend_scoped": "12/15 pure Rust scoped; 2 partial, 1 remaining; original frozen preparation 3/3"
 }
 ```
 
