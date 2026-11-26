@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.32",
+  "version": "1.1.33",
   "date": "2026-11-26",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -370,12 +370,12 @@
     "node_ids": [
       "V03"
     ],
-    "native_subagent": "COMPLETED_SCOPED",
-    "scope": "Ten theory stages and ten implementation/experimental stages. Three preparations; class- and clock-matched onset, full-day Valley projection, matched internal-budget comparison. Original full days 0/9.",
+    "native_subagent": "NOT_RUN_NO_TOOL",
+    "scope": "10 interleaved scoped theory/implementation/experiment stages; two native restart attempts and finite-storage projected city trials. Original full days 0/9.",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "BLOCKED_RESOURCE_0_OF_9",
     "main_modified": false,
-    "evidence": "artifacts/v03_structural_reset_20261126/C10_RESEARCH_RECEIPT.json",
+    "evidence": "artifacts/v03_receiving_spillback_20261126/S10_RESEARCH_RECEIPT.json",
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
@@ -383,23 +383,17 @@
       "run": 40184942213,
       "status": "success"
     },
-    "parallel_agents": [
-      "marked transfer theory",
-      "Valley city replay and closure",
-      "event codec and ordered consumer",
-      "retained owner accounting",
-      "matched budget intervention"
-    ],
-    "active_branch": "research/v03-structural-reset-20261126",
-    "production_commit": "563c9d606eb7f9e091034190b1e2ffcdf519cca5",
-    "research_stages_completed": 20,
-    "research_stages_total": 20,
-    "source_commit": "563c9d606eb7f9e091034190b1e2ffcdf519cca5",
-    "native_source_sha256": "a2ebf6b3a3da140115fd1d3af26f7fed3e16315bece82d551c0c58e3495285cc",
-    "native_binary_sha256": "a18ce56ad30c58e7510bbe27c064f5e04ff40943e8e5f30617428c4254b98a7f",
-    "current_loop_stages_completed": 20,
-    "current_loop_stages_total": 20,
-    "current_loop_native_subagent": "COMPLETED_SCOPED"
+    "parallel_agents": [],
+    "active_branch": "research/v03-receiving-spillback-20261126",
+    "production_commit": "798d14468ce23ac88aeb2cd221ebcf35dfcc868f",
+    "research_stages_completed": 10,
+    "research_stages_total": 10,
+    "source_commit": "798d14468ce23ac88aeb2cd221ebcf35dfcc868f",
+    "native_source_sha256": "38805de3f2989af7dc1804c3c06414cf113ff3428a1f02631b231aad4dd2cba0",
+    "native_binary_sha256": "25b556434a2efd78b7a59d1818be8a02b5f452d9c9f0d27d5765bc59a5abffa2",
+    "current_loop_stages_completed": 10,
+    "current_loop_stages_total": 10,
+    "current_loop_native_subagent": "NOT_RUN_NO_TOOL"
   },
   "nodes": [
     {
@@ -1900,7 +1894,7 @@
       "failure_classification": [
         "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
       ],
-      "positive_next_action": "Keep the release RSS and wall contract. In an isolated V03 research branch, replace the row-materializing sink/interval consumer with ordered streaming reductions and a per-cell timed sweep. Compare the full native retained-state wire, mass and journey moments through a sustained loaded window; measure transfer rows per unit physical service and wall per physical second. For city-model revision, carry original entry/transfer clocks and finite receiving/queue storage across a congested bottleneck, comparing matched native arrivals, exits and occupancy. Expand to a second city and full release runs once the same coupled physics clears the peak. A guard-only change or a single new tick is insufficient evidence for scaling.",
+      "positive_next_action": "Keep original release matrix and all thresholds. Replace the 33,957,144-byte indexed interval sweep reservation in the 27th receiver with exact compact endpoint/source ordinals and phase-local liveness; obtain a completed strict tick and matching whole-state wire, then sustained loaded-window scaling. The car-only alternative must restore full access phase distributions, multiclass/shared storage and route selection before promotion; compare finite versus infinite storage at matched fine mesh and a second city. Re-read original PRD/spec/constitution every research turn and preserve its causal/feedback intent. Do not interpret coarse-batch spillback as a resolved physical prediction.",
       "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
       "contracts": [
         "C_RUNTIME",
@@ -1978,6 +1972,11 @@
           "path": "artifacts/v03_measure_lift_20261123/S06_CAMPAIGNS.json",
           "sha256": "ca9a9e1716764d1be16bb571d661a3ba7f74f21839349b4066f48a12e41f65b8",
           "scope": "Original Valley full demand: native source-repack fresh0->25720 checkpoint and resumed25720 with exact wire/ledger equality; 25730 remains resource-blocked; no 24h completion."
+        },
+        {
+          "path": "artifacts/v03_receiving_spillback_20261126/strict-groups.jsonl",
+          "sha256": "3787a2ffdc86b112519fd0c5baea8412328905d8d90cdfd39ff6d3e0c8d43993",
+          "scope": "Same strict 6 GiB original checkpoint; 27 exact direct combines and 54 cardinality preflights pass; next indexed sweep rejected, no completed new tick."
         }
       ],
       "historical_blocked_evidence": [
@@ -2019,13 +2018,13 @@
         }
       ],
       "current_research_evidence": {
-        "path": "artifacts/v03_structural_reset_20261126/C10_RESEARCH_RECEIPT.json",
-        "sha256": "a16db159f85d7ef3712dce4ef89454a6d38fb79f330447d3574e39c1c02df9e0",
-        "status": "Theory 10/10, code 10/10; strict and diagnostic results recorded separately, 0/9 full release days.",
-        "source_sha256": "a2ebf6b3a3da140115fd1d3af26f7fed3e16315bece82d551c0c58e3495285cc",
-        "native_sha256": "a18ce56ad30c58e7510bbe27c064f5e04ff40943e8e5f30617428c4254b98a7f",
-        "baseline_commit": "5c8486cc7d8ba090b7883bff5c0f1fb3ed1448c3",
-        "theory_path": "docs/research/V03_WINDOWED_TAG_TRANSPORT_20261126.md"
+        "path": "artifacts/v03_receiving_spillback_20261126/S10_RESEARCH_RECEIPT.json",
+        "sha256": "10aa85946ae34851f03e74a6e3c01bda6ce6694dac0a1d98f629e2001ee5b02a",
+        "status": "10 interleaved scoped stages; native BLOCKED_RESOURCE, original full days 0/9",
+        "baseline_commit": "3277f9ede2620dca8b9d044c542aa3ad156aa999",
+        "source_sha256": "38805de3f2989af7dc1804c3c06414cf113ff3428a1f02631b231aad4dd2cba0",
+        "native_sha256": "25b556434a2efd78b7a59d1818be8a02b5f452d9c9f0d27d5765bc59a5abffa2",
+        "theory_path": "docs/research/V03_RECEIVING_SPILLBACK_20261126.md"
       },
       "historical_research_evidence": [
         {
@@ -2057,6 +2056,15 @@
           "native_sha256": "26b6b79ca0922c6defb2ec2fabbcaeac98b0b269922e313b18d3c4c52895273f",
           "baseline_commit": "aae52d2b4cfb0f32e6f91b1cf9f7d40d33a37236",
           "theory_path": "docs/research/V03_PROGRESSIVE_NODE_STABILITY_20261124.md"
+        },
+        {
+          "path": "artifacts/v03_structural_reset_20261126/C10_RESEARCH_RECEIPT.json",
+          "sha256": "a16db159f85d7ef3712dce4ef89454a6d38fb79f330447d3574e39c1c02df9e0",
+          "status": "Theory 10/10, code 10/10; strict and diagnostic results recorded separately, 0/9 full release days.",
+          "source_sha256": "a2ebf6b3a3da140115fd1d3af26f7fed3e16315bece82d551c0c58e3495285cc",
+          "native_sha256": "a18ce56ad30c58e7510bbe27c064f5e04ff40943e8e5f30617428c4254b98a7f",
+          "baseline_commit": "5c8486cc7d8ba090b7883bff5c0f1fb3ed1448c3",
+          "theory_path": "docs/research/V03_WINDOWED_TAG_TRANSPORT_20261126.md"
         }
       ],
       "secondary_blocked_evidence": {
@@ -2311,9 +2319,9 @@
     "historical_local_patch_sha256": "7d89e8be20339709a9c0dc894a26dc7db75bdc0d857637ffb30f7bc7fe4a1326",
     "last_completed_work": {
       "date": "2026-11-26",
-      "scope": "Ten theory stages and ten implementation/experimental stages. Three preparations; class- and clock-matched onset, full-day Valley projection, matched internal-budget comparison. Original full days 0/9.",
-      "evidence": "artifacts/v03_structural_reset_20261126/C10_RESEARCH_RECEIPT.json"
+      "scope": "10 interleaved scoped theory/implementation/experiment stages; two native restart attempts and finite-storage projected city trials. Original full days 0/9.",
+      "evidence": "artifacts/v03_receiving_spillback_20261126/S10_RESEARCH_RECEIPT.json"
     },
-    "active_work": "Keep the release RSS and wall contract. In an isolated V03 research branch, replace the row-materializing sink/interval consumer with ordered streaming reductions and a per-cell timed sweep. Compare the full native retained-state wire, mass and journey moments through a sustained loaded window; measure transfer rows per unit physical service and wall per physical second. For city-model revision, carry original entry/transfer clocks and finite receiving/queue storage across a congested bottleneck, comparing matched native arrivals, exits and occupancy. Expand to a second city and full release runs once the same coupled physics clears the peak. A guard-only change or a single new tick is insufficient evidence for scaling."
+    "active_work": "Keep original release matrix and all thresholds. Replace the 33,957,144-byte indexed interval sweep reservation in the 27th receiver with exact compact endpoint/source ordinals and phase-local liveness; obtain a completed strict tick and matching whole-state wire, then sustained loaded-window scaling. The car-only alternative must restore full access phase distributions, multiclass/shared storage and route selection before promotion; compare finite versus infinite storage at matched fine mesh and a second city. Re-read original PRD/spec/constitution every research turn and preserve its causal/feedback intent. Do not interpret coarse-batch spillback as a resolved physical prediction."
   }
 }

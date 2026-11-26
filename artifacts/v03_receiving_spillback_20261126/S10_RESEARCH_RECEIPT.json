@@ -1,0 +1,177 @@
+{
+  "schema": "metroflow_v03_interleaved_receiving_spillback.v1",
+  "status": "10 scoped stages with native restart still BLOCKED_RESOURCE",
+  "baseline_commit": "3277f9ede2620dca8b9d044c542aa3ad156aa999",
+  "research_head_before_receipt": "bb3234ec341a07b5e9cae04ecfc23df886a71c7c",
+  "native_source_commit": "798d14468ce23ac88aeb2cd221ebcf35dfcc868f",
+  "native_source_sha256": "38805de3f2989af7dc1804c3c06414cf113ff3428a1f02631b231aad4dd2cba0",
+  "native_binary_sha256": "25b556434a2efd78b7a59d1818be8a02b5f452d9c9f0d27d5765bc59a5abffa2",
+  "stages_total": 10,
+  "stages_completed": 10,
+  "native_subagent": "NOT_RUN_NO_TOOL",
+  "native_original_release_days": {
+    "completed": 0,
+    "total": 9
+  },
+  "readiness": {
+    "scoped_or_accepted": 19,
+    "accepted": 5,
+    "total": 21,
+    "direct_dependencies_scoped_or_accepted": 3,
+    "direct_dependencies_total": 3,
+    "historical_calendar_preparations": 3,
+    "calendar_total": 3,
+    "calendar_preparations_reexecuted_this_turn": false,
+    "strict_frontier_s": 25720,
+    "diagnostic_75G_previous_frontier_s": 25740,
+    "strict_new_ticks": 0,
+    "strict_24h_fraction": 0.29768518518518516
+  },
+  "strict_receiving": {
+    "historical_direct_combine_over_bytes": 95655998,
+    "local_consumer_over_bytes": 76434,
+    "local_combines_passed": 26,
+    "compact_combines_passed": 27,
+    "compact_group_checks_passed": 54,
+    "residual_phase": "indexed sweep preflight",
+    "residual_over_bytes": 8232206
+  },
+  "projection": {
+    "spill600": {
+      "horizon_s": 86400.0,
+      "completed_veh": 57095.94032639999,
+      "active_veh": 0.0,
+      "ledger_error_veh": 3.197442310920451e-13,
+      "peak_storage_fraction": 0.9999925179817596,
+      "receiving_wait_veh_s": 38688.155271999996,
+      "trip_time_veh_s": 46017368.45101962,
+      "wall_s": 38.22,
+      "peak_rss_kib": 165492
+    },
+    "spill300": {
+      "horizon_s": 86400.0,
+      "completed_veh": 57095.940326399985,
+      "active_veh": 0.0,
+      "ledger_error_veh": 3.730349362740526e-13,
+      "peak_storage_fraction": 0.8828783403716884,
+      "receiving_wait_veh_s": 0.0,
+      "trip_time_veh_s": 45492996.98678012,
+      "wall_s": 71.31,
+      "peak_rss_kib": 303052
+    },
+    "spill150": {
+      "horizon_s": 86400.0,
+      "completed_veh": 57095.94032639999,
+      "active_veh": 0.0,
+      "ledger_error_veh": 9.521272659185342e-13,
+      "peak_storage_fraction": 0.44143917018584417,
+      "receiving_wait_veh_s": 0.0,
+      "trip_time_veh_s": 45218065.09574313,
+      "wall_s": 136.93,
+      "peak_rss_kib": 579288
+    },
+    "spill600shock": {
+      "horizon_s": 86400.0,
+      "completed_veh": 57095.94032639999,
+      "active_veh": 0.0,
+      "ledger_error_veh": 2.8421709430404007e-13,
+      "peak_storage_fraction": 0.9999925179817596,
+      "receiving_wait_veh_s": 47399.917912,
+      "trip_time_veh_s": 46062852.78804262,
+      "wall_s": 40.82,
+      "peak_rss_kib": 165568
+    },
+    "spill10onset": {
+      "horizon_s": 25740.0,
+      "completed_veh": 72.87677380666666,
+      "active_veh": 1354.5217343533336,
+      "ledger_error_veh": 3.4044989050130425e-13,
+      "peak_storage_fraction": 0.13232957645137589,
+      "receiving_wait_veh_s": 0.0,
+      "trip_time_veh_s": 26119.89874285442,
+      "wall_s": 14.5,
+      "peak_rss_kib": 254220
+    }
+  },
+  "test": {
+    "rust_passed": 203,
+    "rust_ignored": 2,
+    "python_passed": 11,
+    "multiclass_cross_build_ieee_exact": true,
+    "ticks": 100
+  },
+  "evidence": [
+    {
+      "path": "artifacts/v03_receiving_spillback_20261126/storage.json",
+      "sha256": "69a405e4c513c3ba10bf6b90d1cbd96dfb1cfb56dbe42fabe8603b10304f8242"
+    },
+    {
+      "path": "artifacts/v03_receiving_spillback_20261126/strict-local.jsonl",
+      "sha256": "c882a8b4156fd638b96cdd16f0e618e583cfe45aaa9dc40db9355aa1c56f628e"
+    },
+    {
+      "path": "artifacts/v03_receiving_spillback_20261126/strict-groups.jsonl",
+      "sha256": "3787a2ffdc86b112519fd0c5baea8412328905d8d90cdfd39ff6d3e0c8d43993"
+    },
+    {
+      "path": "artifacts/v03_receiving_spillback_20261126/multiclass.json",
+      "sha256": "fb46b93d53bc44b964b40b06e08b65fd28f4c89714bb6f142ead6c17fe233e40"
+    },
+    {
+      "path": "artifacts/v03_receiving_spillback_20261126/multiclass-prior.json",
+      "sha256": "fb46b93d53bc44b964b40b06e08b65fd28f4c89714bb6f142ead6c17fe233e40"
+    },
+    {
+      "path": "artifacts/v03_receiving_spillback_20261126/S07_rust.log",
+      "sha256": "026c24ae9cf864cf02ee65a10a69c8955e7422fe2509839c877766d7da395da8"
+    },
+    {
+      "path": "artifacts/v03_receiving_spillback_20261126/S09_pytest.log",
+      "sha256": "774fa5fd1a962d190b3b9cef91c898268681218542619fcd34cdec6ddb403a12"
+    },
+    {
+      "path": "artifacts/v03_receiving_spillback_20261126/spill600.txt",
+      "sha256": "f5a830c5187e1f66928fd6c035eebfa295d296cae07e7e396cd4cdb289f5094d"
+    },
+    {
+      "path": "artifacts/v03_receiving_spillback_20261126/spill300.txt",
+      "sha256": "813360fe33fd0fb001e541e6e01ae60b357fd3936d372010ce8ff157ba73765a"
+    },
+    {
+      "path": "artifacts/v03_receiving_spillback_20261126/spill150.txt",
+      "sha256": "fd722a0cd544776dad6bfbfe37bcd83cd5032524f854c0daa3aa24dd8773b960"
+    },
+    {
+      "path": "artifacts/v03_receiving_spillback_20261126/spill600shock.txt",
+      "sha256": "290b15bf76b10b608838accc420d7cead0ab24ebe783eed519e0d032b2102de6"
+    },
+    {
+      "path": "artifacts/v03_receiving_spillback_20261126/spill10onset.txt",
+      "sha256": "54a53aa1913254e5413d9ec1ef6192e9666c2c137fd9560dd3c75cde4693e164"
+    }
+  ],
+  "drift_watchdog": {
+    "history": [
+      "0492364",
+      "6524500"
+    ],
+    "preserved": [
+      "physical units",
+      "persistent resident source",
+      "legal routed geometry",
+      "finite response and finite storage in candidate closure",
+      "conserved commodity ledger",
+      "causal access and residence",
+      "immutable native replay and original release threshold"
+    ],
+    "not_equivalent": [
+      "car-only",
+      "one fixed route per direction",
+      "mean access",
+      "whole-batch FIFO",
+      "no delayed land-use feedback in projection"
+    ],
+    "required_every_turn": true
+  },
+  "positive_next_action": "Keep original release matrix and all thresholds. Replace the 33,957,144-byte indexed interval sweep reservation in the 27th receiver with exact compact endpoint/source ordinals and phase-local liveness; obtain a completed strict tick and matching whole-state wire, then sustained loaded-window scaling. The car-only alternative must restore full access phase distributions, multiclass/shared storage and route selection before promotion; compare finite versus infinite storage at matched fine mesh and a second city. Re-read original PRD/spec/constitution every research turn and preserve its causal/feedback intent. Do not interpret coarse-batch spillback as a resolved physical prediction."
+}

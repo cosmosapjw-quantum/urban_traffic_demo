@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.32**, 2026-11-26. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.33**, 2026-11-26. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -2118,7 +2118,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-Keep the release RSS and wall contract. In an isolated V03 research branch, replace the row-materializing sink/interval consumer with ordered streaming reductions and a per-cell timed sweep. Compare the full native retained-state wire, mass and journey moments through a sustained loaded window; measure transfer rows per unit physical service and wall per physical second. For city-model revision, carry original entry/transfer clocks and finite receiving/queue storage across a congested bottleneck, comparing matched native arrivals, exits and occupancy. Expand to a second city and full release runs once the same coupled physics clears the peak. A guard-only change or a single new tick is insufficient evidence for scaling.
+Keep original release matrix and all thresholds. Replace the 33,957,144-byte indexed interval sweep reservation in the 27th receiver with exact compact endpoint/source ordinals and phase-local liveness; obtain a completed strict tick and matching whole-state wire, then sustained loaded-window scaling. The car-only alternative must restore full access phase distributions, multiclass/shared storage and route selection before promotion; compare finite versus infinite storage at matched fine mesh and a second city. Re-read original PRD/spec/constitution every research turn and preserve its causal/feedback intent. Do not interpret coarse-batch spillback as a resolved physical prediction.
 
 **예산·종료조건**
 
@@ -2301,12 +2301,12 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
   "node_ids": [
     "V03"
   ],
-  "native_subagent": "COMPLETED_SCOPED",
-  "scope": "Ten theory stages and ten implementation/experimental stages. Three preparations; class- and clock-matched onset, full-day Valley projection, matched internal-budget comparison. Original full days 0/9.",
+  "native_subagent": "NOT_RUN_NO_TOOL",
+  "scope": "10 interleaved scoped theory/implementation/experiment stages; two native restart attempts and finite-storage projected city trials. Original full days 0/9.",
   "full_repository_ci": "DEFERRED_BY_USER",
   "full_day_100k": "BLOCKED_RESOURCE_0_OF_9",
   "main_modified": false,
-  "evidence": "artifacts/v03_structural_reset_20261126/C10_RESEARCH_RECEIPT.json",
+  "evidence": "artifacts/v03_receiving_spillback_20261126/S10_RESEARCH_RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
@@ -2314,23 +2314,17 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "run": 40184942213,
     "status": "success"
   },
-  "parallel_agents": [
-    "marked transfer theory",
-    "Valley city replay and closure",
-    "event codec and ordered consumer",
-    "retained owner accounting",
-    "matched budget intervention"
-  ],
-  "active_branch": "research/v03-structural-reset-20261126",
-  "production_commit": "563c9d606eb7f9e091034190b1e2ffcdf519cca5",
-  "research_stages_completed": 20,
-  "research_stages_total": 20,
-  "source_commit": "563c9d606eb7f9e091034190b1e2ffcdf519cca5",
-  "native_source_sha256": "a2ebf6b3a3da140115fd1d3af26f7fed3e16315bece82d551c0c58e3495285cc",
-  "native_binary_sha256": "a18ce56ad30c58e7510bbe27c064f5e04ff40943e8e5f30617428c4254b98a7f",
-  "current_loop_stages_completed": 20,
-  "current_loop_stages_total": 20,
-  "current_loop_native_subagent": "COMPLETED_SCOPED"
+  "parallel_agents": [],
+  "active_branch": "research/v03-receiving-spillback-20261126",
+  "production_commit": "798d14468ce23ac88aeb2cd221ebcf35dfcc868f",
+  "research_stages_completed": 10,
+  "research_stages_total": 10,
+  "source_commit": "798d14468ce23ac88aeb2cd221ebcf35dfcc868f",
+  "native_source_sha256": "38805de3f2989af7dc1804c3c06414cf113ff3428a1f02631b231aad4dd2cba0",
+  "native_binary_sha256": "25b556434a2efd78b7a59d1818be8a02b5f452d9c9f0d27d5765bc59a5abffa2",
+  "current_loop_stages_completed": 10,
+  "current_loop_stages_total": 10,
+  "current_loop_native_subagent": "NOT_RUN_NO_TOOL"
 }
 ```
 
