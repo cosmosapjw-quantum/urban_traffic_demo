@@ -5,6 +5,7 @@
 use pyo3::prelude::*;
 use crate::core_error::{CoreError,CoreResult};
 use std::cmp::Ordering;
+use std::sync::Arc;
 use std::collections::{BinaryHeap, HashMap, HashSet, VecDeque};
 
 #[derive(Clone)]
@@ -33,7 +34,7 @@ struct Candidate {
     estimate: f64,
     cost: f64,
     path: Vec<usize>,
-    visited: Vec<String>,
+    visited: Vec<usize>,
 }
 impl PartialEq for Candidate {
     fn eq(&self, o: &Self) -> bool {
@@ -64,18 +65,21 @@ impl PartialOrd for Candidate {
 pub struct V1RoutingGraph {
     ids: Vec<String>,
     heads: Vec<String>,
+    // Sorted node ranks preserve the former String lexicographic tie-break.
+    node_ranks: HashMap<String, usize>,
+    head_ranks: Vec<usize>,
     costs: Vec<f64>,
     outgoing: HashMap<String, Vec<usize>>,
     successors: Vec<Vec<usize>>,
     predecessors: Vec<Vec<usize>>,
-    potentials: HashMap<String, Vec<f64>>,
+    potentials: HashMap<String, Arc<Vec<f64>>>,
     lru: VecDeque<String>,
     max_destinations: usize,
     builds: usize,
 }
 
 impl V1RoutingGraph {
-    fn potential(&mut self, destination: &str) -> Vec<f64> {
+    fn potential(&mut self, destination: &str) -> Arc<Vec<f64>> {
         if let Some(values) = self.potentials.get(destination) {
             self.lru.retain(|d| d != destination);
             self.lru.push_back(destination.to_owned());
@@ -102,6 +106,7 @@ impl V1RoutingGraph {
                 }
             }
         }
+        let values = Arc::new(values);
         if self.max_destinations > 0 {
             if self.lru.len() == self.max_destinations {
                 if let Some(old) = self.lru.pop_front() {
@@ -129,13 +134,14 @@ impl V1RoutingGraph {
         }
         let values = self.potential(destination);
         let mut heap = BinaryHeap::new();
+        let Some(&origin_rank)=self.node_ranks.get(origin) else {return Ok((Vec::new(),0,false))};
         for &i in self.outgoing.get(origin).into_iter().flatten() {
             if values[i].is_finite() {
                 heap.push(Candidate {
                     estimate: values[i],
                     cost: self.costs[i],
                     path: vec![i],
-                    visited: vec![origin.to_owned(), self.heads[i].clone()],
+                    visited: vec![origin_rank, self.head_ranks[i]],
                 });
             }
         }
@@ -150,13 +156,13 @@ impl V1RoutingGraph {
                 continue;
             }
             for &j in &self.successors[i] {
-                if current.visited.contains(&self.heads[j]) || !values[j].is_finite() {
+                if current.visited.contains(&self.head_ranks[j]) || !values[j].is_finite() {
                     continue;
                 }
                 let mut path = current.path.clone();
                 path.push(j);
                 let mut visited = current.visited.clone();
-                visited.push(self.heads[j].clone());
+                visited.push(self.head_ranks[j]);
                 heap.push(Candidate {
                     estimate: current.cost + values[j],
                     cost: current.cost + self.costs[j],
@@ -197,6 +203,10 @@ crate::optional_binding::optional_pymethods!(V1RoutingGraph,
         let ids: Vec<_> = rows.iter().map(|r| r.0 .0.clone()).collect();
         let heads: Vec<_> = rows.iter().map(|r| r.0 .2.clone()).collect();
         let costs = rows.iter().map(|r| r.1).collect();
+        let mut nodes:Vec<_>=rows.iter().flat_map(|r|[r.0.1.clone(),r.0.2.clone()]).collect();
+        nodes.sort_unstable();nodes.dedup();
+        let node_ranks:HashMap<_,_>=nodes.into_iter().enumerate().map(|(i,s)|(s,i)).collect();
+        let head_ranks=heads.iter().map(|h|node_ranks[h]).collect();
         let mut outgoing: HashMap<String, Vec<usize>> = HashMap::new();
         for (i, r) in rows.iter().enumerate() {
             outgoing.entry(r.0 .1.clone()).or_default().push(i);
@@ -219,6 +229,8 @@ crate::optional_binding::optional_pymethods!(V1RoutingGraph,
         Ok(Self {
             ids,
             heads,
+            node_ranks,
+            head_ranks,
             costs,
             outgoing,
             successors,
@@ -293,3 +305,19 @@ crate::optional_binding::optional_pymethods!(V1RoutingGraph,
     }
     }
 );
+
+#[cfg(test)]
+mod pure_routing_tests {
+    use super::*;
+    #[test]
+    fn potential_reuses_storage_and_lexical_path_ties() {
+        let arcs=vec![("e0","origin","n2"),("e1","origin","n10"),("e2","n2","dest"),("e3","n10","dest"),("e4","n2","origin")].into_iter().map(|(a,b,c)|(a.into(),b.into(),c.into())).collect();
+        let mut g=V1RoutingGraph::new(arcs,vec![1.;5],None,2).unwrap();
+        let a=g.potential("dest");let b=g.potential("dest");
+        assert!(Arc::ptr_eq(&a,&b));assert_eq!(g.builds,1);
+        assert!(g.node_ranks["n10"]<g.node_ranks["n2"]);
+        let (paths,_,truncated)=g.search_inner("origin","dest",2,2000).unwrap();
+        assert_eq!(paths,vec![vec!["e0","e2"],vec!["e1","e3"]]);assert!(!truncated);
+        assert_eq!(g.search_inner("absent","dest",1,2000).unwrap(),(vec![],0,false));
+    }
+}

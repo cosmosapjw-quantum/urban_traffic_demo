@@ -1,0 +1,93 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "advance_s": 0.169913588,
+  "build_s": 3.157814089,
+  "byte_budget": 6442450944,
+  "calendar_legs": 918450,
+  "checkpoint_bytes": 29539674,
+  "checkpoint_sha256": "5580c3a3520a6600c00296d807484de4730a6b7e81dd4f03992e37dac86e37aa",
+  "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+  "class_names": [
+    "car",
+    "freight",
+    "scheduled_bus"
+  ],
+  "events": 0,
+  "executable_sha256": "4e22e75d63ef434755fddaf69ef83ea81d330f94d66e61c125fa9872a8c060a3",
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    },
+    "vehicles": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    }
+  },
+  "manifest_sha256": "2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3",
+  "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3",
+  "peak_records": 0,
+  "peak_rss_bytes": 413220864,
+  "python_runtime_dependency": "none",
+  "road_class_ledgers": [
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  ],
+  "road_totals": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "save_s": 0.035076811,
+  "schedule_identity": "61bf90204d22e3442c565f3f62b8ef4cba7d7be3e74b1d33e6c8bcf96208c920",
+  "schema": "metroflow_native_rust_host_v1",
+  "scope": "original native engine from typed declared input; not original city construction or V03 acceptance",
+  "start_s": 0.0,
+  "threads": 8,
+  "tick_times_s": [
+    0.02206143
+  ],
+  "time_s": 10.0,
+  "unique_paths": 38916,
+  "unsupported_legs": 610820,
+  "wall_s": 3.487886812
+}
