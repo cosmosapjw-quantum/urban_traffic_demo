@@ -1,0 +1,46 @@
+{
+  "case": {
+    "id": "valley_weekday_s7",
+    "map_index": 12,
+    "map_case": "valley_city",
+    "seed": 7,
+    "day": "weekday",
+    "max_cohorts": 20000
+  },
+  "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+  "schedule_identity": "d9b3345d26e7b9beea2bd9012a2d58f088b64662cfa82de6b66758cb176da4f9",
+  "input_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "source_static_identity": "2dff5dfcb8c29e7a1174847606db8f774fb31eac14d9c922c13eddc32610a235",
+  "extracted_input_sha256": "4422f446e0e9c7b3db9f361c88cfa1aa3c974e656c6ef813b2d01e22e7db5ced",
+  "resident_stock": 100000.0,
+  "total_calendar_legs": 918450,
+  "original_mode_vehicles": {
+    "car": 57600.000000000095,
+    "bus": 1199.999999999983,
+    "noncar": 0.0,
+    "freight": 0.9999999999999997
+  },
+  "original_mode_persons": {
+    "car": 71999.99999999691,
+    "bus": 29999.999999998963,
+    "noncar": 17999.99999999923,
+    "freight": 0.0
+  },
+  "original_cargo_kg": 1000,
+  "projected_vehicle_legs": 304368,
+  "projected_vehicles": 57095.9403264,
+  "car_vehicles_excluded": {
+    "intrazonal": 369.2901024000001,
+    "missing_or_colocated_gate": 134.76957120000006
+  },
+  "links": 1586,
+  "distinct_legal_paths": 38916,
+  "windows": 0,
+  "declared_nonempty_signals": 0,
+  "purpose_order": [
+    "work",
+    "school",
+    "service"
+  ],
+  "wall_s": 28.576877148938365
+}

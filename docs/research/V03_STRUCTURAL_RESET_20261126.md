@@ -71,3 +71,7 @@ Production compact events now factor tag/destination/mass/birth from source and 
 ## C06. Verify retained event codec through engine and checkpoint APIs
 
 In the default production build, both supported small-fixture policies reproduce the eight archived wire digests and all science fields at every selected checkpoint. Nonempty retained events occurred on ten ticks. Snapshot immutability, one-call vs partitioned execution and restored t=15 to t=120 passed. Rust 194 passed / 2 ignored, with 50 scoped Python integration tests passed. The later measured Valley trials exercise a different scale.
+
+## C07. Run a full day on the 100k Valley routed-car model
+
+Reproduce with python tools/research/valley_point_queue/run_point_queue.py <repo> <fresh-output-dir> in the project's Python environment. The extractor preserves Valley city, schedule and legal route identities. Ten measured cases include seven full days and three matched onsets. At 150 s release quadrature, 216,612,096 events, 127.50 wall seconds and 546,560 KiB peak RSS gave 57,095.94 completed car trips and zero unfinished at t=86400. Onset car outlet excess at 10 s resolution was 49.76%. The analytical source entry curve one native tick earlier lies within 0.28 vehicles of measured admitted car stock. Finite storage, receiving, class/service feedback and delayed urban development remain outside this approximation.

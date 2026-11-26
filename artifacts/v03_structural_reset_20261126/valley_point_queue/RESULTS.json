@@ -1,0 +1,1146 @@
+{
+  "analytic_onset_access_cdf": {
+    "25700": {
+      "mean_access_veh": 942.6212167194114,
+      "source_access_veh": 944.1397796815941,
+      "source_minus_native_admitted_veh": -26.526071074017636
+    },
+    "25710": {
+      "mean_access_veh": 969.0545224260782,
+      "source_access_veh": 970.3857785453326,
+      "source_minus_native_admitted_veh": -0.2800722102790587
+    },
+    "25720": {
+      "mean_access_veh": 995.4878281327449,
+      "source_access_veh": 996.6467709220933,
+      "source_minus_native_admitted_veh": 25.98092016648161
+    }
+  },
+  "schema": "valley-routed-car-point-queues-v1",
+  "input": {
+    "case": {
+      "id": "valley_weekday_s7",
+      "map_index": 12,
+      "map_case": "valley_city",
+      "seed": 7,
+      "day": "weekday",
+      "max_cohorts": 20000
+    },
+    "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+    "schedule_identity": "d9b3345d26e7b9beea2bd9012a2d58f088b64662cfa82de6b66758cb176da4f9",
+    "input_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+    "source_static_identity": "2dff5dfcb8c29e7a1174847606db8f774fb31eac14d9c922c13eddc32610a235",
+    "extracted_input_sha256": "4422f446e0e9c7b3db9f361c88cfa1aa3c974e656c6ef813b2d01e22e7db5ced",
+    "resident_stock": 100000.0,
+    "total_calendar_legs": 918450,
+    "original_mode_vehicles": {
+      "car": 57600.000000000095,
+      "bus": 1199.999999999983,
+      "noncar": 0.0,
+      "freight": 0.9999999999999997
+    },
+    "original_mode_persons": {
+      "car": 71999.99999999691,
+      "bus": 29999.999999998963,
+      "noncar": 17999.99999999923,
+      "freight": 0.0
+    },
+    "original_cargo_kg": 1000,
+    "projected_vehicle_legs": 304368,
+    "projected_vehicles": 57095.9403264,
+    "car_vehicles_excluded": {
+      "intrazonal": 369.2901024000001,
+      "missing_or_colocated_gate": 134.76957120000006
+    },
+    "links": 1586,
+    "distinct_legal_paths": 38916,
+    "windows": 0,
+    "declared_nonempty_signals": 0,
+    "purpose_order": [
+      "work",
+      "school",
+      "service"
+    ],
+    "wall_s": 28.576877148938365
+  },
+  "extraction_router_basis_git": "5c8486cc7d8ba090b7883bff5c0f1fb3ed1448c3",
+  "prepared_input_fraction_of_car_veh": 0.9912489639999984,
+  "native_reference": {
+    "file": "artifacts/v03_measure_lift_20261123/S06_fresh0.json",
+    "sha256": "903b93b3e8aad6e8ec2e53a5281f8de2dc355c393b16eeee0e2135a84f98549e",
+    "git": "36a8b6407967a90576d94c9025ff7fa3da416301",
+    "physical_total_admitted_veh": 974.6658507556117,
+    "physical_total_exited_veh": 160.66177945804435,
+    "completed_single_segment_buses": 4,
+    "bus_active_veh": 0.0,
+    "first_freight_window_s": 32400,
+    "car_reference": {
+      "road_admitted_veh": 970.6658507556117,
+      "road_exited_veh": 156.66177945804435,
+      "on_road_veh": 814.0040712975674
+    }
+  },
+  "analytic_fixture": {
+    "snapshots": {
+      "25720": {
+        "time_s": 25720.0,
+        "released_veh": 2.0,
+        "road_admitted_veh": 2.0,
+        "road_exited_veh": 2.0,
+        "completed_veh": 2.0,
+        "active_veh": 0.0,
+        "on_road_veh": 0.0,
+        "max_ledger_error_veh": 0.0
+      },
+      "28800": {
+        "time_s": 28800.0,
+        "released_veh": 2.0,
+        "road_admitted_veh": 2.0,
+        "road_exited_veh": 2.0,
+        "completed_veh": 2.0,
+        "active_veh": 0.0,
+        "on_road_veh": 0.0,
+        "max_ledger_error_veh": 0.0
+      },
+      "43200": {
+        "time_s": 43200.0,
+        "released_veh": 2.0,
+        "road_admitted_veh": 2.0,
+        "road_exited_veh": 2.0,
+        "completed_veh": 2.0,
+        "active_veh": 0.0,
+        "on_road_veh": 0.0,
+        "max_ledger_error_veh": 0.0
+      },
+      "64800": {
+        "time_s": 64800.0,
+        "released_veh": 4.0,
+        "road_admitted_veh": 4.0,
+        "road_exited_veh": 4.0,
+        "completed_veh": 4.0,
+        "active_veh": 0.0,
+        "on_road_veh": 0.0,
+        "max_ledger_error_veh": 0.0
+      },
+      "86400": {
+        "time_s": 86400.0,
+        "released_veh": 4.0,
+        "road_admitted_veh": 4.0,
+        "road_exited_veh": 4.0,
+        "completed_veh": 4.0,
+        "active_veh": 0.0,
+        "on_road_veh": 0.0,
+        "max_ledger_error_veh": 0.0
+      }
+    },
+    "purpose_completions_veh": {
+      "work": {
+        "outward": 2.0,
+        "inbound": 2.0
+      }
+    },
+    "summary": {
+      "outward_veh": 2.0,
+      "planned_outward_packets": 2,
+      "processed_events": 16,
+      "queue_wait_veh_s": 2.0,
+      "bottleneck_id": 0,
+      "bottleneck_wait_veh_s": 2.0,
+      "bottleneck_max_wait_s": 2.0,
+      "trip_time_veh_s": 50.0
+    }
+  },
+  "sources_sha256": {
+    "point_queue.cpp": "743c15d34219f9eb16928ee3596e80c48e4dfc31448e162d1cfc39650db2d4e1",
+    "prepare_point_queue.py": "7266f51304f4b0efb2933bab365c4fb992fe02ea93a7caf86444625e2b543738",
+    "run_point_queue.py": "0db3e06ee7a8f30d9f8cb2b4a143bb2e646b71c74d317153d1fa75b63cc67c97"
+  },
+  "cases": {
+    "base_1200": {
+      "snapshots": {
+        "25720": {
+          "time_s": 25720.0,
+          "released_veh": 0.0,
+          "road_admitted_veh": 0.0,
+          "road_exited_veh": 0.0,
+          "completed_veh": 0.0,
+          "active_veh": 0.0,
+          "on_road_veh": 0.0,
+          "max_ledger_error_veh": 0.0
+        },
+        "28800": {
+          "time_s": 28800.0,
+          "released_veh": 9515.9900544,
+          "road_admitted_veh": 9515.9900544,
+          "road_exited_veh": 8191.05332,
+          "completed_veh": 7553.7017352,
+          "active_veh": 1962.2883192,
+          "on_road_veh": 1324.9367344,
+          "max_ledger_error_veh": 7.538414337204813e-14
+        },
+        "43200": {
+          "time_s": 43200.0,
+          "released_veh": 28547.970163199996,
+          "road_admitted_veh": 28547.970163199996,
+          "road_exited_veh": 28547.970163199996,
+          "completed_veh": 28547.970163199996,
+          "active_veh": 0.0,
+          "on_road_veh": 0.0,
+          "max_ledger_error_veh": 1.829647544582258e-13
+        },
+        "64800": {
+          "time_s": 64800.0,
+          "released_veh": 47579.950271999995,
+          "road_admitted_veh": 47579.950271999995,
+          "road_exited_veh": 46242.837,
+          "completed_veh": 45604.7535048,
+          "active_veh": 1975.1967671999998,
+          "on_road_veh": 1337.1132719999998,
+          "max_ledger_error_veh": 1.2967404927621828e-13
+        },
+        "86400": {
+          "time_s": 86400.0,
+          "released_veh": 57095.94032639999,
+          "road_admitted_veh": 57095.94032639999,
+          "road_exited_veh": 57095.94032639999,
+          "completed_veh": 57095.94032639999,
+          "active_veh": 0.0,
+          "on_road_veh": 0.0,
+          "max_ledger_error_veh": 1.7408297026122455e-13
+        }
+      },
+      "purpose_completions_veh": {
+        "work": {
+          "outward": 19031.9801088,
+          "inbound": 19031.9801088
+        },
+        "school": {
+          "outward": 2378.9975136,
+          "inbound": 2378.9975136
+        },
+        "service": {
+          "outward": 7136.9925408,
+          "inbound": 7136.9925408
+        }
+      },
+      "summary": {
+        "outward_veh": 28547.9701632,
+        "planned_outward_packets": 608736,
+        "processed_events": 27076512,
+        "queue_wait_veh_s": 2240015.9065046697,
+        "bottleneck_id": 24,
+        "bottleneck_wait_veh_s": 210719.80317293532,
+        "bottleneck_max_wait_s": 116.089908715192,
+        "trip_time_veh_s": 38838750.66818622,
+        "bottleneck_link": "s:g10:17>g10:18|0",
+        "wall_s": 16.68,
+        "peak_rss_kib": 80668,
+        "mean_completed_trip_s": 680.236641101924,
+        "max_snapshot_error_veh": 1.829647544582258e-13,
+        "raw_sha256": "09227d73a97afaf916b82cbafe5d300d92ea8535ecf3ff7c23b7d185b99c640d"
+      },
+      "scenario": {
+        "max_bin_s": 1200,
+        "capacity_factor": 1,
+        "stop_s": 86400,
+        "shocked_link": null
+      },
+      "native_car_comparison": {
+        "road_admitted_veh": {
+          "native": 970.6658507556117,
+          "projected": 0.0,
+          "delta": -970.6658507556117,
+          "relative_delta": -1.0
+        },
+        "road_exited_veh": {
+          "native": 156.66177945804435,
+          "projected": 0.0,
+          "delta": -156.66177945804435,
+          "relative_delta": -1.0
+        },
+        "on_road_veh": {
+          "native": 814.0040712975674,
+          "projected": 0.0,
+          "delta": -814.0040712975674,
+          "relative_delta": -1.0
+        }
+      }
+    },
+    "base_600": {
+      "snapshots": {
+        "25720": {
+          "time_s": 25720.0,
+          "released_veh": 1585.9983424,
+          "road_admitted_veh": 1373.6184108,
+          "road_exited_veh": 123.61652319999999,
+          "completed_veh": 8.7127448,
+          "active_veh": 1577.2855975999998,
+          "on_road_veh": 1250.0018876,
+          "max_ledger_error_veh": 1.587618925213974e-14
+        },
+        "28800": {
+          "time_s": 28800.0,
+          "released_veh": 9515.9900544,
+          "road_admitted_veh": 9417.9695864,
+          "road_exited_veh": 8148.5560952,
+          "completed_veh": 7789.7864712,
+          "active_veh": 1726.2035832,
+          "on_road_veh": 1269.4134912,
+          "max_ledger_error_veh": 1.1191048088221578e-13
+        },
+        "43200": {
+          "time_s": 43200.0,
+          "released_veh": 28547.970163199996,
+          "road_admitted_veh": 28547.970163199996,
+          "road_exited_veh": 28547.970163199996,
+          "completed_veh": 28547.970163199996,
+          "active_veh": 0.0,
+          "on_road_veh": 0.0,
+          "max_ledger_error_veh": 6.039613253960852e-14
+        },
+        "64800": {
+          "time_s": 64800.0,
+          "released_veh": 47579.950271999995,
+          "road_admitted_veh": 47523.124119199994,
+          "road_exited_veh": 46243.70057559999,
+          "completed_veh": 45833.387488399996,
+          "active_veh": 1746.5627835999999,
+          "on_road_veh": 1279.4235436,
+          "max_ledger_error_veh": 1.4099832412739488e-13
+        },
+        "86400": {
+          "time_s": 86400.0,
+          "released_veh": 57095.94032639999,
+          "road_admitted_veh": 57095.94032639999,
+          "road_exited_veh": 57095.94032639999,
+          "completed_veh": 57095.94032639999,
+          "active_veh": 0.0,
+          "on_road_veh": 0.0,
+          "max_ledger_error_veh": 1.4210854715202004e-13
+        }
+      },
+      "purpose_completions_veh": {
+        "work": {
+          "outward": 19031.9801088,
+          "inbound": 19031.9801088
+        },
+        "school": {
+          "outward": 2378.9975136,
+          "inbound": 2378.9975136
+        },
+        "service": {
+          "outward": 7136.9925408,
+          "inbound": 7136.9925408
+        }
+      },
+      "summary": {
+        "outward_veh": 28547.9701632,
+        "planned_outward_packets": 1217472,
+        "processed_events": 54153024,
+        "queue_wait_veh_s": 765157.5439146877,
+        "bottleneck_id": 776,
+        "bottleneck_wait_veh_s": 60387.92112270847,
+        "bottleneck_max_wait_s": 99.7353724444547,
+        "trip_time_veh_s": 37230995.44926401,
+        "bottleneck_link": "s:g27:16>g27:17|0",
+        "wall_s": 31.57,
+        "peak_rss_kib": 147048,
+        "mean_completed_trip_s": 652.0778051193452,
+        "max_snapshot_error_veh": 1.4210854715202004e-13,
+        "raw_sha256": "2f6f335dde12fa0bafdf900718670c8334a9953f913823ce6872931f1f5897ba"
+      },
+      "scenario": {
+        "max_bin_s": 600,
+        "capacity_factor": 1,
+        "stop_s": 86400,
+        "shocked_link": null
+      },
+      "native_car_comparison": {
+        "road_admitted_veh": {
+          "native": 970.6658507556117,
+          "projected": 1373.6184108,
+          "delta": 402.9525600443883,
+          "relative_delta": 0.4151300467928394
+        },
+        "road_exited_veh": {
+          "native": 156.66177945804435,
+          "projected": 123.61652319999999,
+          "delta": -33.04525625804436,
+          "relative_delta": -0.21093374767196627
+        },
+        "on_road_veh": {
+          "native": 814.0040712975674,
+          "projected": 1250.0018876,
+          "delta": 435.9978163024325,
+          "relative_delta": 0.5356211739917074
+        }
+      }
+    },
+    "base_300": {
+      "snapshots": {
+        "25720": {
+          "time_s": 25720.0,
+          "released_veh": 1585.9983424,
+          "road_admitted_veh": 808.3077649999999,
+          "road_exited_veh": 210.6339568,
+          "completed_veh": 93.2075594,
+          "active_veh": 1492.790783,
+          "on_road_veh": 597.6738081999999,
+          "max_ledger_error_veh": 1.765254609153999e-14
+        },
+        "28800": {
+          "time_s": 28800.0,
+          "released_veh": 9515.9900544,
+          "road_admitted_veh": 9250.0951168,
+          "road_exited_veh": 8146.6399292,
+          "completed_veh": 7822.454097999999,
+          "active_veh": 1693.5359564,
+          "on_road_veh": 1103.4551875999998,
+          "max_ledger_error_veh": 4.440892098500626e-14
+        },
+        "43200": {
+          "time_s": 43200.0,
+          "released_veh": 28547.970163199996,
+          "road_admitted_veh": 28547.970163199996,
+          "road_exited_veh": 28547.970163199996,
+          "completed_veh": 28547.970163199996,
+          "active_veh": 0.0,
+          "on_road_veh": 0.0,
+          "max_ledger_error_veh": 2.2382096176443156e-13
+        },
+        "64800": {
+          "time_s": 64800.0,
+          "released_veh": 47579.950271999995,
+          "road_admitted_veh": 47364.615579799996,
+          "road_exited_veh": 46243.457242,
+          "completed_veh": 45878.01179119999,
+          "active_veh": 1701.9384808,
+          "on_road_veh": 1121.1583378,
+          "max_ledger_error_veh": 1.1015632850330803e-12
+        },
+        "86400": {
+          "time_s": 86400.0,
+          "released_veh": 57095.940326399985,
+          "road_admitted_veh": 57095.940326399985,
+          "road_exited_veh": 57095.940326399985,
+          "completed_veh": 57095.940326399985,
+          "active_veh": 0.0,
+          "on_road_veh": 0.0,
+          "max_ledger_error_veh": 9.237055564881302e-14
+        }
+      },
+      "purpose_completions_veh": {
+        "work": {
+          "outward": 19031.9801088,
+          "inbound": 19031.9801088
+        },
+        "school": {
+          "outward": 2378.9975136,
+          "inbound": 2378.9975136
+        },
+        "service": {
+          "outward": 7136.992540799999,
+          "inbound": 7136.992540799999
+        }
+      },
+      "summary": {
+        "outward_veh": 28547.9701632,
+        "planned_outward_packets": 2434944,
+        "processed_events": 108306048,
+        "queue_wait_veh_s": 352962.22976443666,
+        "bottleneck_id": 776,
+        "bottleneck_wait_veh_s": 30193.960649325938,
+        "bottleneck_max_wait_s": 49.867686222249176,
+        "trip_time_veh_s": 36752351.70694764,
+        "bottleneck_link": "s:g27:16>g27:17|0",
+        "wall_s": 77.65,
+        "peak_rss_kib": 279784,
+        "mean_completed_trip_s": 643.6946566926775,
+        "max_snapshot_error_veh": 1.1015632850330803e-12,
+        "raw_sha256": "370af0f3f4aeaa1fc972f5cf968eef828163c177221db6c5557c2610f0a484e1"
+      },
+      "scenario": {
+        "max_bin_s": 300,
+        "capacity_factor": 1,
+        "stop_s": 86400,
+        "shocked_link": null
+      },
+      "native_car_comparison": {
+        "road_admitted_veh": {
+          "native": 970.6658507556117,
+          "projected": 808.3077649999999,
+          "delta": -162.3580857556118,
+          "relative_delta": -0.1672646520213158
+        },
+        "road_exited_veh": {
+          "native": 156.66177945804435,
+          "projected": 210.6339568,
+          "delta": 53.97217734195564,
+          "relative_delta": 0.3445140067262542
+        },
+        "on_road_veh": {
+          "native": 814.0040712975674,
+          "projected": 597.6738081999999,
+          "delta": -216.33026309756747,
+          "relative_delta": -0.2657606647503926
+        }
+      }
+    },
+    "shock_300": {
+      "snapshots": {
+        "25720": {
+          "time_s": 25720.0,
+          "released_veh": 1585.9983424,
+          "road_admitted_veh": 808.3077649999999,
+          "road_exited_veh": 210.6339568,
+          "completed_veh": 93.2075594,
+          "active_veh": 1492.790783,
+          "on_road_veh": 597.6738081999999,
+          "max_ledger_error_veh": 1.765254609153999e-14
+        },
+        "28800": {
+          "time_s": 28800.0,
+          "released_veh": 9515.9900544,
+          "road_admitted_veh": 9250.0951168,
+          "road_exited_veh": 8146.1278907999995,
+          "completed_veh": 7820.8593114,
+          "active_veh": 1695.130743,
+          "on_road_veh": 1103.967226,
+          "max_ledger_error_veh": 3.930189507173054e-14
+        },
+        "43200": {
+          "time_s": 43200.0,
+          "released_veh": 28547.970163199996,
+          "road_admitted_veh": 28547.970163199996,
+          "road_exited_veh": 28547.970163199996,
+          "completed_veh": 28547.970163199996,
+          "active_veh": 0.0,
+          "on_road_veh": 0.0,
+          "max_ledger_error_veh": 1.1368683772161603e-13
+        },
+        "64800": {
+          "time_s": 64800.0,
+          "released_veh": 47579.950271999995,
+          "road_admitted_veh": 47364.615579799996,
+          "road_exited_veh": 46241.4341838,
+          "completed_veh": 45875.609197,
+          "active_veh": 1704.341075,
+          "on_road_veh": 1123.181396,
+          "max_ledger_error_veh": 1.0277334538955074e-12
+        },
+        "86400": {
+          "time_s": 86400.0,
+          "released_veh": 57095.940326399985,
+          "road_admitted_veh": 57095.940326399985,
+          "road_exited_veh": 57095.940326399985,
+          "completed_veh": 57095.940326399985,
+          "active_veh": 0.0,
+          "on_road_veh": 0.0,
+          "max_ledger_error_veh": 1.3145040611561853e-13
+        }
+      },
+      "purpose_completions_veh": {
+        "work": {
+          "outward": 19031.9801088,
+          "inbound": 19031.9801088
+        },
+        "school": {
+          "outward": 2378.9975136,
+          "inbound": 2378.9975136
+        },
+        "service": {
+          "outward": 7136.992540799999,
+          "inbound": 7136.992540799999
+        }
+      },
+      "summary": {
+        "outward_veh": 28547.9701632,
+        "planned_outward_packets": 2434944,
+        "processed_events": 108306048,
+        "queue_wait_veh_s": 383450.6428204983,
+        "bottleneck_id": 776,
+        "bottleneck_wait_veh_s": 60536.16754309874,
+        "bottleneck_max_wait_s": 99.7353724444547,
+        "trip_time_veh_s": 36783341.45896315,
+        "bottleneck_link": "s:g27:16>g27:17|0",
+        "wall_s": 92.24,
+        "peak_rss_kib": 280136,
+        "mean_completed_trip_s": 644.2374229881156,
+        "max_snapshot_error_veh": 1.0277334538955074e-12,
+        "raw_sha256": "6b3b3d5f85de2117f8e88a96ffd3bd4d456a27a7a898f9382fc1d305f381f6da"
+      },
+      "scenario": {
+        "max_bin_s": 300,
+        "capacity_factor": 0.5,
+        "stop_s": 86400,
+        "shocked_link": "s:g27:16>g27:17|0"
+      },
+      "native_car_comparison": {
+        "road_admitted_veh": {
+          "native": 970.6658507556117,
+          "projected": 808.3077649999999,
+          "delta": -162.3580857556118,
+          "relative_delta": -0.1672646520213158
+        },
+        "road_exited_veh": {
+          "native": 156.66177945804435,
+          "projected": 210.6339568,
+          "delta": 53.97217734195564,
+          "relative_delta": 0.3445140067262542
+        },
+        "on_road_veh": {
+          "native": 814.0040712975674,
+          "projected": 597.6738081999999,
+          "delta": -216.33026309756747,
+          "relative_delta": -0.2657606647503926
+        }
+      }
+    },
+    "prefix_60": {
+      "snapshots": {
+        "25720": {
+          "time_s": 25720.0,
+          "released_veh": 1427.39850816,
+          "road_admitted_veh": 986.1289353599999,
+          "road_exited_veh": 233.33824396,
+          "completed_veh": 103.09152908,
+          "active_veh": 1324.30697908,
+          "on_road_veh": 752.7906913999999,
+          "max_ledger_error_veh": 7.09432512735475e-14
+        }
+      },
+      "purpose_completions_veh": {
+        "work": {
+          "outward": 103.09152908,
+          "inbound": 0.0
+        },
+        "school": {
+          "outward": 0.0,
+          "inbound": 0.0
+        },
+        "service": {
+          "outward": 0.0,
+          "inbound": 0.0
+        }
+      },
+      "summary": {
+        "outward_veh": 28547.9701632,
+        "planned_outward_packets": 12174720,
+        "processed_events": 3697534,
+        "queue_wait_veh_s": 771.1834268949548,
+        "bottleneck_id": 776,
+        "bottleneck_wait_veh_s": 39.39271945221325,
+        "bottleneck_max_wait_s": 7.633865066571161,
+        "trip_time_veh_s": 34659.72844048652,
+        "bottleneck_link": "s:g27:16>g27:17|0",
+        "wall_s": 1.97,
+        "peak_rss_kib": 81692,
+        "mean_completed_trip_s": 336.20345677082975,
+        "max_snapshot_error_veh": 7.09432512735475e-14,
+        "raw_sha256": "2b42242fb203009dbdb5a10a29b22fef8da2846b9012628137fb6df453c54e6f"
+      },
+      "scenario": {
+        "max_bin_s": 60,
+        "capacity_factor": 1,
+        "stop_s": 25720,
+        "shocked_link": null
+      },
+      "native_car_comparison": {
+        "road_admitted_veh": {
+          "native": 970.6658507556117,
+          "projected": 986.1289353599999,
+          "delta": 15.4630846043882,
+          "relative_delta": 0.01593038901322319
+        },
+        "road_exited_veh": {
+          "native": 156.66177945804435,
+          "projected": 233.33824396,
+          "delta": 76.67646450195565,
+          "relative_delta": 0.4894395095422135
+        },
+        "on_road_veh": {
+          "native": 814.0040712975674,
+          "projected": 752.7906913999999,
+          "delta": -61.213379897567506,
+          "relative_delta": -0.07520033628331857
+        }
+      }
+    },
+    "prefix_20": {
+      "snapshots": {
+        "25720": {
+          "time_s": 25720.0,
+          "released_veh": 1374.5318967466667,
+          "road_admitted_veh": 994.5534904266665,
+          "road_exited_veh": 234.43521898666665,
+          "completed_veh": 104.24113516,
+          "active_veh": 1270.2907615866668,
+          "on_road_veh": 760.11827144,
+          "max_ledger_error_veh": 6.850076061937216e-14
+        }
+      },
+      "purpose_completions_veh": {
+        "work": {
+          "outward": 104.24113516,
+          "inbound": 0.0
+        },
+        "school": {
+          "outward": 0.0,
+          "inbound": 0.0
+        },
+        "service": {
+          "outward": 0.0,
+          "inbound": 0.0
+        }
+      },
+      "summary": {
+        "outward_veh": 28547.9701632,
+        "planned_outward_packets": 36524160,
+        "processed_events": 11073415,
+        "queue_wait_veh_s": 267.4532054546233,
+        "bottleneck_id": 776,
+        "bottleneck_wait_veh_s": 14.589605283620099,
+        "bottleneck_max_wait_s": 2.5446216889213247,
+        "trip_time_veh_s": 35138.37218733657,
+        "bottleneck_link": "s:g27:16>g27:17|0",
+        "wall_s": 5.64,
+        "peak_rss_kib": 176716,
+        "mean_completed_trip_s": 337.0873900538649,
+        "max_snapshot_error_veh": 6.850076061937216e-14,
+        "raw_sha256": "bf8748adf0da01031886d92e693d80373761fbd2773c87ed9c134b048142893f"
+      },
+      "scenario": {
+        "max_bin_s": 20,
+        "capacity_factor": 1,
+        "stop_s": 25720,
+        "shocked_link": null
+      },
+      "native_car_comparison": {
+        "road_admitted_veh": {
+          "native": 970.6658507556117,
+          "projected": 994.5534904266665,
+          "delta": 23.887639671054785,
+          "relative_delta": 0.0246095395778676
+        },
+        "road_exited_veh": {
+          "native": 156.66177945804435,
+          "projected": 234.43521898666665,
+          "delta": 77.7734395286223,
+          "relative_delta": 0.4964416962303868
+        },
+        "on_road_veh": {
+          "native": 814.0040712975674,
+          "projected": 760.11827144,
+          "delta": -53.88579985756746,
+          "relative_delta": -0.06619844022606736
+        }
+      }
+    },
+    "prefix_10": {
+      "snapshots": {
+        "25720": {
+          "time_s": 25720.0,
+          "released_veh": 1374.531896746667,
+          "road_admitted_veh": 996.2884163133336,
+          "road_exited_veh": 234.62206946666666,
+          "completed_veh": 104.25331952666666,
+          "active_veh": 1270.2785772200004,
+          "on_road_veh": 761.6663468466668,
+          "max_ledger_error_veh": 1.990074771640593e-13
+        }
+      },
+      "purpose_completions_veh": {
+        "work": {
+          "outward": 104.25331952666666,
+          "inbound": 0.0
+        },
+        "school": {
+          "outward": 0.0,
+          "inbound": 0.0
+        },
+        "service": {
+          "outward": 0.0,
+          "inbound": 0.0
+        }
+      },
+      "summary": {
+        "outward_veh": 28547.9701632,
+        "planned_outward_packets": 73048320,
+        "processed_events": 22157283,
+        "queue_wait_veh_s": 135.18313161426167,
+        "bottleneck_id": 776,
+        "bottleneck_wait_veh_s": 7.294824452287185,
+        "bottleneck_max_wait_s": 1.2723108444333775,
+        "trip_time_veh_s": 35145.34880712443,
+        "bottleneck_link": "s:g27:16>g27:17|0",
+        "wall_s": 12.1,
+        "peak_rss_kib": 320128,
+        "mean_completed_trip_s": 337.1149136228195,
+        "max_snapshot_error_veh": 1.990074771640593e-13,
+        "raw_sha256": "30fd90c1fceb52e2308c28e49d24cda31f16d30e1c81717053321b46e7b75ebb"
+      },
+      "scenario": {
+        "max_bin_s": 10,
+        "capacity_factor": 1,
+        "stop_s": 25720,
+        "shocked_link": null
+      },
+      "native_car_comparison": {
+        "road_admitted_veh": {
+          "native": 970.6658507556117,
+          "projected": 996.2884163133336,
+          "delta": 25.62256555772194,
+          "relative_delta": 0.026396896045921547
+        },
+        "road_exited_veh": {
+          "native": 156.66177945804435,
+          "projected": 234.62206946666666,
+          "delta": 77.96029000862231,
+          "relative_delta": 0.497634396074895
+        },
+        "on_road_veh": {
+          "native": 814.0040712975674,
+          "projected": 761.6663468466668,
+          "delta": -52.33772445090062,
+          "relative_delta": -0.0642966371992113
+        }
+      }
+    },
+    "base_150": {
+      "snapshots": {
+        "25720": {
+          "time_s": 25720.0,
+          "released_veh": 1189.4987568,
+          "road_admitted_veh": 1020.0136623,
+          "road_exited_veh": 226.6877844,
+          "completed_veh": 98.8232424,
+          "active_veh": 1090.6755144,
+          "on_road_veh": 793.3258779,
+          "max_ledger_error_veh": 1.84297022087776e-14
+        },
+        "28800": {
+          "time_s": 28800.0,
+          "released_veh": 9515.9900544,
+          "road_admitted_veh": 9112.1033471,
+          "road_exited_veh": 8168.2947981,
+          "completed_veh": 7825.306683399999,
+          "active_veh": 1690.683371,
+          "on_road_veh": 943.808549,
+          "max_ledger_error_veh": 9.07496300328603e-13
+        },
+        "43200": {
+          "time_s": 43200.0,
+          "released_veh": 28547.9701632,
+          "road_admitted_veh": 28547.9701632,
+          "road_exited_veh": 28547.9701632,
+          "completed_veh": 28547.9701632,
+          "active_veh": 0.0,
+          "on_road_veh": 0.0,
+          "max_ledger_error_veh": 4.920508445138694e-13
+        },
+        "64800": {
+          "time_s": 64800.0,
+          "released_veh": 47579.950271999995,
+          "road_admitted_veh": 47206.16148989999,
+          "road_exited_veh": 46264.194779599995,
+          "completed_veh": 45886.40993649999,
+          "active_veh": 1693.5403355,
+          "on_road_veh": 941.9667103,
+          "max_ledger_error_veh": 3.611555499105634e-13
+        },
+        "86400": {
+          "time_s": 86400.0,
+          "released_veh": 57095.94032639999,
+          "road_admitted_veh": 57095.94032639999,
+          "road_exited_veh": 57095.94032639999,
+          "completed_veh": 57095.94032639999,
+          "active_veh": 0.0,
+          "on_road_veh": 0.0,
+          "max_ledger_error_veh": 9.023892744153272e-13
+        }
+      },
+      "purpose_completions_veh": {
+        "work": {
+          "outward": 19031.980108799995,
+          "inbound": 19031.98010879999
+        },
+        "school": {
+          "outward": 2378.9975136,
+          "inbound": 2378.9975136
+        },
+        "service": {
+          "outward": 7136.992540799999,
+          "inbound": 7136.992540799999
+        }
+      },
+      "summary": {
+        "outward_veh": 28547.9701632,
+        "planned_outward_packets": 4869888,
+        "processed_events": 216612096,
+        "queue_wait_veh_s": 180798.4473433381,
+        "bottleneck_id": 776,
+        "bottleneck_wait_veh_s": 15096.980240050361,
+        "bottleneck_max_wait_s": 24.93384311122645,
+        "trip_time_veh_s": 36546963.71044345,
+        "bottleneck_link": "s:g27:16>g27:17|0",
+        "wall_s": 127.5,
+        "peak_rss_kib": 546560,
+        "mean_completed_trip_s": 640.0974132576792,
+        "max_snapshot_error_veh": 9.07496300328603e-13,
+        "raw_sha256": "d496a2dc16fad5393d209cafe112e46b801e491c3ce1ce76e26076bedfadddf3"
+      },
+      "scenario": {
+        "max_bin_s": 150,
+        "capacity_factor": 1,
+        "stop_s": 86400,
+        "shocked_link": null
+      },
+      "native_car_comparison": {
+        "road_admitted_veh": {
+          "native": 970.6658507556117,
+          "projected": 1020.0136623,
+          "delta": 49.347811544388264,
+          "relative_delta": 0.05083913429732134
+        },
+        "road_exited_veh": {
+          "native": 156.66177945804435,
+          "projected": 226.6877844,
+          "delta": 70.02600494195565,
+          "relative_delta": 0.44698844341104493
+        },
+        "on_road_veh": {
+          "native": 814.0040712975674,
+          "projected": 793.3258779,
+          "delta": -20.678193397567384,
+          "relative_delta": -0.025403058936308787
+        }
+      }
+    },
+    "stress_300": {
+      "snapshots": {
+        "25720": {
+          "time_s": 25720.0,
+          "released_veh": 1585.9983424,
+          "road_admitted_veh": 808.3077649999999,
+          "road_exited_veh": 210.6094664,
+          "completed_veh": 93.19611139999999,
+          "active_veh": 1492.802231,
+          "on_road_veh": 597.6982985999999,
+          "max_ledger_error_veh": 1.3322676295501878e-14
+        },
+        "28800": {
+          "time_s": 28800.0,
+          "released_veh": 9515.9900544,
+          "road_admitted_veh": 9250.0951168,
+          "road_exited_veh": 8098.120096199999,
+          "completed_veh": 7776.1260422,
+          "active_veh": 1739.8640122,
+          "on_road_veh": 1151.9750205999999,
+          "max_ledger_error_veh": 7.627232179174825e-14
+        },
+        "43200": {
+          "time_s": 43200.0,
+          "released_veh": 28547.970163199996,
+          "road_admitted_veh": 28547.970163199996,
+          "road_exited_veh": 28547.970163199996,
+          "completed_veh": 28547.970163199996,
+          "active_veh": 0.0,
+          "on_road_veh": 0.0,
+          "max_ledger_error_veh": 6.039613253960852e-14
+        },
+        "64800": {
+          "time_s": 64800.0,
+          "released_veh": 47579.950271999995,
+          "road_admitted_veh": 47364.615579799996,
+          "road_exited_veh": 46148.922750599995,
+          "completed_veh": 45787.2545222,
+          "active_veh": 1792.6957498,
+          "on_road_veh": 1215.6928292,
+          "max_ledger_error_veh": 1.1300960167659468e-12
+        },
+        "86400": {
+          "time_s": 86400.0,
+          "released_veh": 57095.940326399985,
+          "road_admitted_veh": 57095.940326399985,
+          "road_exited_veh": 57095.940326399985,
+          "completed_veh": 57095.940326399985,
+          "active_veh": 0.0,
+          "on_road_veh": 0.0,
+          "max_ledger_error_veh": 3.659295089164516e-13
+        }
+      },
+      "purpose_completions_veh": {
+        "work": {
+          "outward": 19031.9801088,
+          "inbound": 19031.9801088
+        },
+        "school": {
+          "outward": 2378.9975136,
+          "inbound": 2378.9975136
+        },
+        "service": {
+          "outward": 7136.992540799999,
+          "inbound": 7136.992540799999
+        }
+      },
+      "summary": {
+        "outward_veh": 28547.9701632,
+        "planned_outward_packets": 2434944,
+        "processed_events": 108306048,
+        "queue_wait_veh_s": 2853524.5603110613,
+        "bottleneck_id": 776,
+        "bottleneck_wait_veh_s": 2533380.482402055,
+        "bottleneck_max_wait_s": 5358.974199999371,
+        "trip_time_veh_s": 39257426.08812931,
+        "bottleneck_link": "s:g27:16>g27:17|0",
+        "wall_s": 59.75,
+        "peak_rss_kib": 280696,
+        "mean_completed_trip_s": 687.5694815376828,
+        "max_snapshot_error_veh": 1.1300960167659468e-12,
+        "raw_sha256": "3ddc2c68b8858510c8cd87d76dec9330e2309f4278d4a90ca10c9d61284458d2"
+      },
+      "scenario": {
+        "max_bin_s": 300,
+        "capacity_factor": 0.1,
+        "stop_s": 86400,
+        "shocked_link": "s:g27:16>g27:17|0"
+      },
+      "native_car_comparison": {
+        "road_admitted_veh": {
+          "native": 970.6658507556117,
+          "projected": 808.3077649999999,
+          "delta": -162.3580857556118,
+          "relative_delta": -0.1672646520213158
+        },
+        "road_exited_veh": {
+          "native": 156.66177945804435,
+          "projected": 210.6094664,
+          "delta": 53.94768694195565,
+          "relative_delta": 0.344357680147527
+        },
+        "on_road_veh": {
+          "native": 814.0040712975674,
+          "projected": 597.6982985999999,
+          "delta": -216.30577269756748,
+          "relative_delta": -0.26573057841438574
+        }
+      }
+    },
+    "stress_150": {
+      "snapshots": {
+        "25720": {
+          "time_s": 25720.0,
+          "released_veh": 1189.4987568,
+          "road_admitted_veh": 1020.0136623,
+          "road_exited_veh": 226.3667088,
+          "completed_veh": 98.8232424,
+          "active_veh": 1090.6755144,
+          "on_road_veh": 793.6469535,
+          "max_ledger_error_veh": 1.9595436384634013e-14
+        },
+        "28800": {
+          "time_s": 28800.0,
+          "released_veh": 9515.9900544,
+          "road_admitted_veh": 9112.1033471,
+          "road_exited_veh": 8121.6301748999995,
+          "completed_veh": 7779.918027199999,
+          "active_veh": 1736.0720271999999,
+          "on_road_veh": 990.4731722,
+          "max_ledger_error_veh": 8.267830864383541e-13
+        },
+        "43200": {
+          "time_s": 43200.0,
+          "released_veh": 28547.9701632,
+          "road_admitted_veh": 28547.9701632,
+          "road_exited_veh": 28547.9701632,
+          "completed_veh": 28547.9701632,
+          "active_veh": 0.0,
+          "on_road_veh": 0.0,
+          "max_ledger_error_veh": 4.565237077258644e-13
+        },
+        "64800": {
+          "time_s": 64800.0,
+          "released_veh": 47579.950271999995,
+          "road_admitted_veh": 47206.16148989999,
+          "road_exited_veh": 46172.01167629999,
+          "completed_veh": 45797.927592199994,
+          "active_veh": 1782.0226798,
+          "on_road_veh": 1034.1498136,
+          "max_ledger_error_veh": 2.970956813896919e-13
+        },
+        "86400": {
+          "time_s": 86400.0,
+          "released_veh": 57095.94032639999,
+          "road_admitted_veh": 57095.94032639999,
+          "road_exited_veh": 57095.94032639999,
+          "completed_veh": 57095.94032639999,
+          "active_veh": 0.0,
+          "on_road_veh": 0.0,
+          "max_ledger_error_veh": 4.760636329592671e-13
+        }
+      },
+      "purpose_completions_veh": {
+        "work": {
+          "outward": 19031.980108799995,
+          "inbound": 19031.980108799995
+        },
+        "school": {
+          "outward": 2378.9975136,
+          "inbound": 2378.9975136
+        },
+        "service": {
+          "outward": 7136.992540799999,
+          "inbound": 7136.992540799999
+        }
+      },
+      "summary": {
+        "outward_veh": 28547.9701632,
+        "planned_outward_packets": 4869888,
+        "processed_events": 216612096,
+        "queue_wait_veh_s": 2593317.032697244,
+        "bottleneck_id": 776,
+        "bottleneck_wait_veh_s": 2428939.394074678,
+        "bottleneck_max_wait_s": 5213.730711111537,
+        "trip_time_veh_s": 38961738.32111491,
+        "bottleneck_link": "s:g27:16>g27:17|0",
+        "wall_s": 117.01,
+        "peak_rss_kib": 547372,
+        "mean_completed_trip_s": 682.3906936006763,
+        "max_snapshot_error_veh": 8.267830864383541e-13,
+        "raw_sha256": "7454e1b97830c09d95bfba5c34f39965168a9bc163bdb5703c6a015713d57363"
+      },
+      "scenario": {
+        "max_bin_s": 150,
+        "capacity_factor": 0.1,
+        "stop_s": 86400,
+        "shocked_link": "s:g27:16>g27:17|0"
+      },
+      "native_car_comparison": {
+        "road_admitted_veh": {
+          "native": 970.6658507556117,
+          "projected": 1020.0136623,
+          "delta": 49.347811544388264,
+          "relative_delta": 0.05083913429732134
+        },
+        "road_exited_veh": {
+          "native": 156.66177945804435,
+          "projected": 226.3667088,
+          "delta": 69.70492934195565,
+          "relative_delta": 0.4449389607541343
+        },
+        "on_road_veh": {
+          "native": 814.0040712975674,
+          "projected": 793.6469535,
+          "delta": -20.357117797567412,
+          "relative_delta": -0.02500861914009478
+        }
+      }
+    }
+  },
+  "lazy_300_validation": {
+    "eager_raw_sha": "370af0f3f4aeaa1fc972f5cf968eef828163c177221db6c5557c2610f0a484e1",
+    "lazy_raw_sha": "370af0f3f4aeaa1fc972f5cf968eef828163c177221db6c5557c2610f0a484e1",
+    "wall_s": 60.56,
+    "peak_rss_kib": 280532
+  }
+}
