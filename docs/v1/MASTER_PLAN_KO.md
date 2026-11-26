@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.35**, 2026-11-26. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.36**, 2026-11-26. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -138,7 +138,7 @@ DEFERRED_BY_USER_UNTIL_ALL_DAG_IMPLEMENTED_AND_SEPARATE_REVIEW
 
 ## 4. 선택한 아키텍처와 계약
 
-**scientific_runtime**: src/metroflow/v1/의얇은통합표면. PacketNetwork를유일한V1수송계보로선택해노드T02–T04에서수정한다. 새별도cityengine증식금지.
+**scientific_runtime**: Rust-owned calculation, preparation, measurement and headless execution; Python UI/serialization and explicit opt-in scientific oracle tests only. Original native physical lineage and acceptance unchanged; research projection is not V03 acceptance.
 
 **map**: terrain_city.Atlas + typed restored structures + v1 access/activity adapters
 
@@ -2103,7 +2103,10 @@ V03에서samecity traffic성능으로연결
 
 **실행·수용시험 명령**
 
-- python tools/run_v1_local_acceptance.py --run-local --matrix scenarios/v1/release_matrix.json
+- cargo test --offline -p metroflow-headless
+- cargo test --offline -p metroflow-rust --no-default-features --features native-cli --lib
+- metroflow-native-run declared-input fixture/checkpoint replay (scoped only); full original Rust V03 campaign runner and city declarations BLOCKED_IMPLEMENTATION_DEPENDENCY
+- Historical opt-in oracle only: METROFLOW_ENABLE_PYTHON_ORACLE=1 METROFLOW_V1_ROUTING_BACKEND=python_oracle python tools/run_v1_local_acceptance.py --run-local --matrix scenarios/v1/release_matrix.json (not production acceptance)
 
 **완료조건**
 
@@ -2118,7 +2121,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-Preserve the original release matrix, 8 GiB RSS/7200 s limits and strict experimental policy. Both receiving interval split and service finish have passed on the original 25720 s checkpoint, including journey finish; strict tick 25730 still rolls back at checkpointability. Target bounded streamed per-class/global validation, audit actual uninterned decoded road owner and reconstruct canonical exact shared keys directly from packet-wise wire input. With measured owner terms held fixed, decoder scratch must be <=487931679 B; never remove guard-only credit or assume sharing across a fresh decoder. Require a completed strict tick, bit-exact full wire/ledger against independently bound reference, actual fresh save/load/replay and sustained loaded 30/60/300 s windows. For physical research retain exact finite access marginals, compare common-rank with independent/countermonotone couplings, native access/signal/density feedback, passenger boarding and partial versus whole-head receiving, second original city, and matched departure meshes. Fixed-route projection full days are not native acceptance; original full days 0/9. Re-read historical PRD/spec/constitution each turn.
+Rust-only migration is mandatory before further original-city research. Port B01 city/map validation, B02 activity/portal geometry, B03 demand and inventory, B06 fleet/freight declarations, B10 causal routing/lagged land-use, B15 original campaign/acceptance. Remove PyO3 error/runtime linkage from the five original core functions. Rust must prepare and bind all three original 100k declarations, then reproduce the historical 25720 s checkpoint, solve 25730 s checkpointability with bounded decoder workspace and actual wire replay, and run 30/60/300 s loaded horizons under unchanged 8 GiB RSS and 7200 s original acceptance limits. No projected-day credit. Python only UI/serialization and explicitly opted-in tests; no Python or C++ scientific execution.
 
 **예산·종료조건**
 
@@ -2302,11 +2305,11 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "V03"
   ],
   "native_subagent": "NOT_RUN_NO_TOOL",
-  "scope": "10 interleaved research stages; original strict receiving and service/journey phase closures, 4 mixed-class access horizons (2 projected full days), fresh 3/3 original calendar preparations; original full days 0/9.",
+  "scope": "10 scoped coding stages: restore Rust-only contract, standalone Rust projection/preparation, original native Rust host and replay, streaming reductions, measured Rayon/AVX, opt-in Python boundaries. 9/15 scoped Rust implementations, 4/15 dependency-free Rust scoped; original 100k Rust city preparation 0/3 and native days 0/9.",
   "full_repository_ci": "DEFERRED_BY_USER",
-  "full_day_100k": "BLOCKED_RESOURCE_0_OF_9",
+  "full_day_100k": "BLOCKED_RUST_PREPARATION_AND_RESOURCE_0_OF_9",
   "main_modified": false,
-  "evidence": "artifacts/v03_owner_access_20261126/S10_RESEARCH_RECEIPT.json",
+  "evidence": "artifacts/v03_rust_only_backend_20261126/C10_RESEARCH_RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
@@ -2315,16 +2318,19 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "status": "success"
   },
   "parallel_agents": [],
-  "active_branch": "research/v03-owner-access-20261126",
-  "production_commit": "253464d41a5a7c5919d4d7c78f9b29c1f99b1561",
+  "active_branch": "research/v03-rust-only-backend-20261126",
+  "production_commit": "55e8dc106b13c32127cfa653b2e994811e11601f",
   "research_stages_completed": 10,
   "research_stages_total": 10,
-  "source_commit": "253464d41a5a7c5919d4d7c78f9b29c1f99b1561",
-  "native_source_sha256": "4d5f1b78742d9ebc2fe48362ac5b18aed524db7bc3871ba15170a6c219587238",
-  "native_binary_sha256": "9a680f55d0ee71daa3c3749d5fd8a8d072a7352064fc0961b232226ee6112109",
+  "source_commit": "97a933cfde436d11160ddfc27690148464fbf80c",
+  "native_source_sha256": "92d87fd41af1f0b20e1f3f3b3952b87a694a7aa2eabeb2ff5fff470a03c6bc63",
+  "native_binary_sha256": "8216e9b3394b2b45120ce26c60e77d9d9ee5e9910070b144159b65a9fbd9d480",
   "current_loop_stages_completed": 10,
   "current_loop_stages_total": 10,
-  "current_loop_native_subagent": "NOT_RUN_NO_TOOL"
+  "current_loop_native_subagent": "NOT_RUN_NO_TOOL",
+  "native_source_hash_method": "SHA256 of C10_tracked_rust_sources.sha256; distinct from historical Python runner source digest",
+  "native_binary_feature": "native-cli, original engine host, links libpython",
+  "rust_backend_scoped": "9/15; pure Rust scoped 4/15; see functional census"
 }
 ```
 

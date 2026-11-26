@@ -1,0 +1,335 @@
+{
+  "schema": "metroflow_rust_only_migration_receipt_v1",
+  "baseline_commit": "569633fc2a3b402d5998ea0a2950fe32f54add2f",
+  "implementation_head_before_C10": "97a933cfde436d11160ddfc27690148464fbf80c",
+  "native_host_code_commit": "55e8dc106b13c32127cfa653b2e994811e11601f",
+  "native_host_sha256": "8216e9b3394b2b45120ce26c60e77d9d9ee5e9910070b144159b65a9fbd9d480",
+  "tracked_rust_source_manifest_sha256": "92d87fd41af1f0b20e1f3f3b3952b87a694a7aa2eabeb2ff5fff470a03c6bc63",
+  "source_hash_method": "SHA256 of C10_tracked_rust_sources.sha256; distinct from historical Python runner source digest",
+  "scope": "10 scoped coding stages: restore Rust-only contract, standalone Rust projection/preparation, original native Rust host and replay, streaming reductions, measured Rayon/AVX, opt-in Python boundaries. 9/15 scoped Rust implementations, 4/15 dependency-free Rust scoped; original 100k Rust city preparation 0/3 and native days 0/9.",
+  "backend_coverage": {
+    "baseline_rust_core": 5,
+    "denominator": 15,
+    "method": "unweighted, fixed C01 functional inventory; scoped evidence reviewed; not LOC, full-city completeness or release acceptance",
+    "native_host_linked_python_scoped": 5,
+    "original_dag_accepted": 5,
+    "original_dag_scoped_or_accepted": 19,
+    "original_dag_total": 21,
+    "original_v03_direct_dependencies_ready": 3,
+    "original_v03_direct_dependencies_total": 3,
+    "original_v03_full_days": 0,
+    "original_v03_rust_only_city_preparations_verified": 0,
+    "original_v03_total": 9,
+    "pure_rust_percent": 26.666666666666668,
+    "pure_rust_verified_scoped": 4,
+    "remaining_functions": 6,
+    "rows": [
+      {
+        "baseline": "PYTHON",
+        "component": "city geometry generation and map validation",
+        "evidence": "-",
+        "evidence_sha256": null,
+        "id": "B01",
+        "status": "REMAINING"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "activity geometry and finite access-law construction",
+        "evidence": "-",
+        "evidence_sha256": null,
+        "id": "B02",
+        "status": "REMAINING"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "factorized demand declarations and inventory",
+        "evidence": "-",
+        "evidence_sha256": null,
+        "id": "B03",
+        "status": "REMAINING"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "native factorized OD enumeration",
+        "evidence": "native_c08_120_8.json",
+        "evidence_sha256": "98ee319e7074835ae0f35b3fcb3dc5c08dcc5cc5a7aec69d97692f8d2898e391",
+        "id": "B04",
+        "status": "RUST_HOST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "legal graph route search and cache",
+        "evidence": "native_c08_120_8.json",
+        "evidence_sha256": "98ee319e7074835ae0f35b3fcb3dc5c08dcc5cc5a7aec69d97692f8d2898e391",
+        "id": "B05",
+        "status": "RUST_HOST_SCOPED"
+      },
+      {
+        "baseline": "MIXED",
+        "component": "fleet and freight route preparation",
+        "evidence": "-",
+        "evidence_sha256": null,
+        "id": "B06",
+        "status": "REMAINING"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "road kinetic transport and node allocation",
+        "evidence": "native_c08_120_8.json",
+        "evidence_sha256": "98ee319e7074835ae0f35b3fcb3dc5c08dcc5cc5a7aec69d97692f8d2898e391",
+        "id": "B07",
+        "status": "RUST_HOST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "service and journey coupling",
+        "evidence": "native_c08_120_8.json",
+        "evidence_sha256": "98ee319e7074835ae0f35b3fcb3dc5c08dcc5cc5a7aec69d97692f8d2898e391",
+        "id": "B08",
+        "status": "RUST_HOST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "whole engine orchestration and checkpoint",
+        "evidence": "native_c07_resume.json",
+        "evidence_sha256": "04ebd37cb88bb2be2441d7022dba68650397372a8caa4731413fb0829e4e31a9",
+        "id": "B09",
+        "status": "RUST_HOST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "causal routing adaptation and delayed land-use",
+        "evidence": "-",
+        "evidence_sha256": null,
+        "id": "B10",
+        "status": "REMAINING"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "access-coupling research preprocessing",
+        "evidence": "C03_test.log",
+        "evidence_sha256": "41b47ea4c68ff1f201d6a9d71c5c9e736ec68ce0b508c9458023a751dd3509ff",
+        "id": "B11",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "route passage generation and validation",
+        "evidence": "C04_test.log",
+        "evidence_sha256": "07791a61eaf987cc0e20c00354b3645a8ade3817d68c57a4bb3134fbd9047638",
+        "id": "B12",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "CPP",
+        "component": "multiclass shared-access projection solver",
+        "evidence": "C09_parity.json",
+        "evidence_sha256": "1015116457d11089f1df668a3ef26e0f7c8cb0d896a33abb35de65ec1b75d377",
+        "id": "B13",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "research execution receipt and metrics",
+        "evidence": "C09_parity.json",
+        "evidence_sha256": "1015116457d11089f1df668a3ef26e0f7c8cb0d896a33abb35de65ec1b75d377",
+        "id": "B14",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "original V03 campaign runner and acceptance",
+        "evidence": "-",
+        "evidence_sha256": null,
+        "id": "B15",
+        "status": "REMAINING"
+      }
+    ],
+    "rust_implemented_percent": 60,
+    "rust_implemented_scoped": 9,
+    "schema": "metroflow_backend_functional_census_v1"
+  },
+  "original_V03": "BLOCKED_RUST_CITY_PREPARATION_AND_HISTORICAL_RESOURCE_GATE",
+  "full_day_original_accepted": 0,
+  "historical_original_strict_frontier_s": 25720,
+  "historical_blocker": "25730 checkpointability; not rerun on current Rust-only path",
+  "historical_python_preparations": "3/3 prior turn; not Rust-only proof",
+  "actual_full_day_projection_runs": 2,
+  "projection_receipts": {
+    "historical_sha256": "5bfe25203451cdc2afc64a1edb72528f813af92fd8e01f12488defc0cab54dc9",
+    "runs": [
+      {
+        "events": 2339324,
+        "historical_tolerance_match": true,
+        "horizon_s": 25720,
+        "identical_adjacent_repeat": false,
+        "mesh_s": 600,
+        "receipt": "rust_600_25720_1.json",
+        "sha256": "856c6c6b82d3776ee223b9d95c7affa42c08841e0d88e8fe94cc9d823187bb36",
+        "threads": 1
+      },
+      {
+        "events": 2339324,
+        "historical_tolerance_match": true,
+        "horizon_s": 25720,
+        "identical_adjacent_repeat": true,
+        "mesh_s": 600,
+        "receipt": "rust_600_25720_8.json",
+        "sha256": "eae6e224ba98be56aacbd543042ea5df57111938460f00612f57265dd7c12d96",
+        "threads": 8
+      },
+      {
+        "events": 55255017,
+        "historical_tolerance_match": true,
+        "horizon_s": 28800,
+        "identical_adjacent_repeat": false,
+        "mesh_s": 600,
+        "receipt": "rust_600_28800_8.json",
+        "sha256": "fa58bade9db46ab1583626411f655ae10a1485c61d42eb7bcd1822c970711107",
+        "threads": 8
+      },
+      {
+        "events": 256004489,
+        "historical_tolerance_match": true,
+        "horizon_s": 86400,
+        "identical_adjacent_repeat": false,
+        "mesh_s": 1200,
+        "receipt": "rust_1200_86400_8.json",
+        "sha256": "41fd1eaa9d02740b74990dcc6e0eaae091ff8a7b1a7690d3e65091f9b9a94912",
+        "threads": 8
+      },
+      {
+        "events": 511105880,
+        "historical_tolerance_match": true,
+        "horizon_s": 86400,
+        "identical_adjacent_repeat": false,
+        "mesh_s": 600,
+        "receipt": "rust_600_86400_8.json",
+        "sha256": "68960e8ae451ba5d18bdb157d1147c4cc659fb0fea7c3f31524346169ba7034f",
+        "threads": 8
+      }
+    ],
+    "scope": "historical projected scenario parity only; not original V03 acceptance",
+    "status": "PASS"
+  },
+  "native_fixture_checkpoint_sha256": "934ee5da2dd3003ebda551a1e8c09bad4384827edff1e401e5bcc9c189ae8f28",
+  "simd": {
+    "avx": true,
+    "groups": 796098,
+    "network_sha256": "af8a0c16e2bd31d4a42282e83d076ea10075e6cbe0bb3982dfb5978cfa9f72a5",
+    "passages_sha256": "a310ee706ae3eb64ba35eef2c9275da38141dbd32eb89f86bcb6a90c89bd73c1",
+    "results": [
+      {
+        "scalar_median_s": 0.00554747,
+        "scalar_s": [
+          0.0055033,
+          0.005511495,
+          0.005515733,
+          0.005530099,
+          0.00554747,
+          0.005597401,
+          0.005601398,
+          0.005693545,
+          0.007601091
+        ],
+        "speedup": 0.8810948347471693,
+        "threads": 1,
+        "vector_median_s": 0.00629611,
+        "vector_s": [
+          0.006247552,
+          0.006264603,
+          0.006282436,
+          0.006287605,
+          0.00629611,
+          0.006319653,
+          0.006327588,
+          0.006525027,
+          0.006638683
+        ]
+      },
+      {
+        "scalar_median_s": 0.00118332,
+        "scalar_s": [
+          0.001120326,
+          0.001134281,
+          0.00114455,
+          0.001182118,
+          0.00118332,
+          0.00122154,
+          0.001237289,
+          0.00162395,
+          0.002321108
+        ],
+        "speedup": 0.9635905253283302,
+        "threads": 8,
+        "vector_median_s": 0.001228032,
+        "vector_s": [
+          0.001134161,
+          0.001168222,
+          0.001195763,
+          0.001215929,
+          0.001228032,
+          0.001238851,
+          0.001275928,
+          0.001328624,
+          0.001421543
+        ]
+      }
+    ]
+  },
+  "tests": {
+    "native_rust_passed": 208,
+    "native_ignored": 2,
+    "headless_rust_passed": 9,
+    "opt_in_python_boundary_passed": 3,
+    "full_ci": "NOT_RUN_USER_DEFERRED"
+  },
+  "native_subagents": "NOT_RUN_NO_TOOL",
+  "limitations": [
+    "original raw city manifests not ported",
+    "existing native executable links libpython despite no interpreter initialization in successful fixture",
+    "no full-city original native run in this turn",
+    "legacy Python/C++ source retained for provenance and explicit oracle; three public entrypoints fenced; not all direct imports or historical scripts are fenced",
+    "AVX slower; retained opt-in; faer not used because event queue and scalar capacity checks not matrix algebra",
+    "old and current wall timing not controlled cross-language benchmark"
+  ],
+  "stages": [
+    {
+      "commit": "968572f7c434db3f45ecd50726c8684d72a6e118",
+      "title": "C01 Restore Rust-only execution contract and freeze backend migration inventory"
+    },
+    {
+      "commit": "06eed310e6f6a199b11cbe9a98a3a68c69a3e2fd",
+      "title": "C02 Port shared-access execution and receipts to standalone Rust"
+    },
+    {
+      "commit": "0b5df56e38d1b907618509f6e4f051bffb1a17c7",
+      "title": "C03 Port exact access-law coupling and its oracle checks to Rust"
+    },
+    {
+      "commit": "31135e2468eba12e4090a4c7643c90d37779fd22",
+      "title": "C04 Port finite-response passage generation with deterministic Rayon route parallelism"
+    },
+    {
+      "commit": "ba6b19990dd6db4ee61fbc806b2e8d702665a182",
+      "title": "C05 Wire Rust-only declared input preparation through standalone execution"
+    },
+    {
+      "commit": "8be22417a30343f95e1286a78e124d550f25bd53",
+      "title": "C06 Extract direct Rust calendar and whole-engine entry methods from Python adapters"
+    },
+    {
+      "commit": "d4e2c9d073e7ded89da3266069fc75b9d8cd4141",
+      "title": "C07 Add original-engine Rust host with checkpoint replay and native receipts"
+    },
+    {
+      "commit": "55e8dc106b13c32127cfa653b2e994811e11601f",
+      "title": "C08 Stream native reductions and benchmark opt-in AVX preflight"
+    },
+    {
+      "commit": "97a933cfde436d11160ddfc27690148464fbf80c",
+      "title": "C09 Verify archived projection parity in Rust and fence Python oracle entrypoints"
+    }
+  ],
+  "next_action": "Rust-only migration is mandatory before further original-city research. Port B01 city/map validation, B02 activity/portal geometry, B03 demand and inventory, B06 fleet/freight declarations, B10 causal routing/lagged land-use, B15 original campaign/acceptance. Remove PyO3 error/runtime linkage from the five original core functions. Rust must prepare and bind all three original 100k declarations, then reproduce the historical 25720 s checkpoint, solve 25730 s checkpointability with bounded decoder workspace and actual wire replay, and run 30/60/300 s loaded horizons under unchanged 8 GiB RSS and 7200 s original acceptance limits. No projected-day credit. Python only UI/serialization and explicitly opted-in tests; no Python or C++ scientific execution."
+}

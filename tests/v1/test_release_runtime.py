@@ -172,6 +172,7 @@ def test_shared_endpoint_compilation_reuses_exact_search_and_access(monkeypatch)
     import metroflow.v1.routing_backend as routing_backend
 
     city, leg = fixture()
+    monkeypatch.setenv('METROFLOW_ENABLE_PYTHON_ORACLE', '1')
     monkeypatch.setenv('METROFLOW_V1_ROUTING_BACKEND', 'python_oracle')
     original_search, original_access = routing_backend.candidate_paths, module.activity_access
     calls = {'search': 0, 'access': 0}

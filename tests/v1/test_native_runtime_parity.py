@@ -12,6 +12,7 @@ from test_joint_release_runtime import fixture
 
 
 def test_native_shared_runtime_state_and_cross_backend_checkpoint_parity(monkeypatch, tmp_path):
+    monkeypatch.setenv("METROFLOW_ENABLE_PYTHON_ORACLE", "1")
     monkeypatch.setenv("METROFLOW_V1_ROUTING_BACKEND", "python_oracle")
     oracle_city, oracle_legs, oracle_plan = fixture()
     oracle = JointReleaseRuntime(oracle_city, oracle_legs, oracle_plan)

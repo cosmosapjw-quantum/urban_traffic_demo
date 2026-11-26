@@ -212,7 +212,7 @@ def test_cli_input_json_returns_a_typed_report(tmp_path):
     source.write_text(json.dumps(compile_city(bridge_city()).to_dict()))
     result = subprocess.run(
         [sys.executable, "-m", "metroflow.v1", "validate-city", "--input", str(source)],
-        env=dict(os.environ),
+        env=dict(os.environ, METROFLOW_ENABLE_PYTHON_ORACLE="1"),
         capture_output=True,
         text=True,
     )
@@ -221,6 +221,7 @@ def test_cli_input_json_returns_a_typed_report(tmp_path):
     source.write_text("{}")
     bad = subprocess.run(
         [sys.executable, "-m", "metroflow.v1", "validate-city", "--input", str(source)],
+        env=dict(os.environ, METROFLOW_ENABLE_PYTHON_ORACLE="1"),
         capture_output=True,
         text=True,
     )

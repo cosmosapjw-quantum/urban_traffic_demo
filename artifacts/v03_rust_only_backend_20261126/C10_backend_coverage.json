@@ -1,0 +1,142 @@
+{
+  "baseline_rust_core": 5,
+  "denominator": 15,
+  "method": "unweighted, fixed C01 functional inventory; scoped evidence reviewed; not LOC, full-city completeness or release acceptance",
+  "native_host_linked_python_scoped": 5,
+  "original_dag_accepted": 5,
+  "original_dag_scoped_or_accepted": 19,
+  "original_dag_total": 21,
+  "original_v03_direct_dependencies_ready": 3,
+  "original_v03_direct_dependencies_total": 3,
+  "original_v03_full_days": 0,
+  "original_v03_rust_only_city_preparations_verified": 0,
+  "original_v03_total": 9,
+  "pure_rust_percent": 26.666666666666668,
+  "pure_rust_verified_scoped": 4,
+  "remaining_functions": 6,
+  "rows": [
+    {
+      "baseline": "PYTHON",
+      "component": "city geometry generation and map validation",
+      "evidence": "-",
+      "evidence_sha256": null,
+      "id": "B01",
+      "status": "REMAINING"
+    },
+    {
+      "baseline": "PYTHON",
+      "component": "activity geometry and finite access-law construction",
+      "evidence": "-",
+      "evidence_sha256": null,
+      "id": "B02",
+      "status": "REMAINING"
+    },
+    {
+      "baseline": "PYTHON",
+      "component": "factorized demand declarations and inventory",
+      "evidence": "-",
+      "evidence_sha256": null,
+      "id": "B03",
+      "status": "REMAINING"
+    },
+    {
+      "baseline": "RUST_PYO3",
+      "component": "native factorized OD enumeration",
+      "evidence": "native_c08_120_8.json",
+      "evidence_sha256": "98ee319e7074835ae0f35b3fcb3dc5c08dcc5cc5a7aec69d97692f8d2898e391",
+      "id": "B04",
+      "status": "RUST_HOST_SCOPED"
+    },
+    {
+      "baseline": "RUST_PYO3",
+      "component": "legal graph route search and cache",
+      "evidence": "native_c08_120_8.json",
+      "evidence_sha256": "98ee319e7074835ae0f35b3fcb3dc5c08dcc5cc5a7aec69d97692f8d2898e391",
+      "id": "B05",
+      "status": "RUST_HOST_SCOPED"
+    },
+    {
+      "baseline": "MIXED",
+      "component": "fleet and freight route preparation",
+      "evidence": "-",
+      "evidence_sha256": null,
+      "id": "B06",
+      "status": "REMAINING"
+    },
+    {
+      "baseline": "RUST_PYO3",
+      "component": "road kinetic transport and node allocation",
+      "evidence": "native_c08_120_8.json",
+      "evidence_sha256": "98ee319e7074835ae0f35b3fcb3dc5c08dcc5cc5a7aec69d97692f8d2898e391",
+      "id": "B07",
+      "status": "RUST_HOST_SCOPED"
+    },
+    {
+      "baseline": "RUST_PYO3",
+      "component": "service and journey coupling",
+      "evidence": "native_c08_120_8.json",
+      "evidence_sha256": "98ee319e7074835ae0f35b3fcb3dc5c08dcc5cc5a7aec69d97692f8d2898e391",
+      "id": "B08",
+      "status": "RUST_HOST_SCOPED"
+    },
+    {
+      "baseline": "RUST_PYO3",
+      "component": "whole engine orchestration and checkpoint",
+      "evidence": "native_c07_resume.json",
+      "evidence_sha256": "04ebd37cb88bb2be2441d7022dba68650397372a8caa4731413fb0829e4e31a9",
+      "id": "B09",
+      "status": "RUST_HOST_SCOPED"
+    },
+    {
+      "baseline": "PYTHON",
+      "component": "causal routing adaptation and delayed land-use",
+      "evidence": "-",
+      "evidence_sha256": null,
+      "id": "B10",
+      "status": "REMAINING"
+    },
+    {
+      "baseline": "PYTHON",
+      "component": "access-coupling research preprocessing",
+      "evidence": "C03_test.log",
+      "evidence_sha256": "41b47ea4c68ff1f201d6a9d71c5c9e736ec68ce0b508c9458023a751dd3509ff",
+      "id": "B11",
+      "status": "PURE_RUST_SCOPED"
+    },
+    {
+      "baseline": "PYTHON",
+      "component": "route passage generation and validation",
+      "evidence": "C04_test.log",
+      "evidence_sha256": "07791a61eaf987cc0e20c00354b3645a8ade3817d68c57a4bb3134fbd9047638",
+      "id": "B12",
+      "status": "PURE_RUST_SCOPED"
+    },
+    {
+      "baseline": "CPP",
+      "component": "multiclass shared-access projection solver",
+      "evidence": "C09_parity.json",
+      "evidence_sha256": "1015116457d11089f1df668a3ef26e0f7c8cb0d896a33abb35de65ec1b75d377",
+      "id": "B13",
+      "status": "PURE_RUST_SCOPED"
+    },
+    {
+      "baseline": "PYTHON",
+      "component": "research execution receipt and metrics",
+      "evidence": "C09_parity.json",
+      "evidence_sha256": "1015116457d11089f1df668a3ef26e0f7c8cb0d896a33abb35de65ec1b75d377",
+      "id": "B14",
+      "status": "PURE_RUST_SCOPED"
+    },
+    {
+      "baseline": "PYTHON",
+      "component": "original V03 campaign runner and acceptance",
+      "evidence": "-",
+      "evidence_sha256": null,
+      "id": "B15",
+      "status": "REMAINING"
+    }
+  ],
+  "rust_implemented_percent": 60.0,
+  "rust_implemented_scoped": 9,
+  "schema": "metroflow_backend_functional_census_v1"
+}
