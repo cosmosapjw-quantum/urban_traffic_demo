@@ -45,6 +45,8 @@ def load_release_city(case, root=ROOT):
 
 
 def preflight(case, root=ROOT):
+    from metroflow.oracle_policy import require_python_oracle
+    require_python_oracle()
     city, row = load_release_city(case, root)
     homes = tuple(compile_activity(city, b.id) for b in city.face_graph.blocks if b.residents)
     jobs = tuple(compile_activity(city, b.id, 'job') for b in city.face_graph.blocks if b.jobs)
@@ -83,6 +85,8 @@ def preflight(case, root=ROOT):
 
 
 def main():
+    from metroflow.oracle_policy import require_python_oracle
+    require_python_oracle()
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--matrix', type=Path, default=ROOT/'scenarios/v1/release_matrix.json')
     p.add_argument('--repeat', type=int, default=3)

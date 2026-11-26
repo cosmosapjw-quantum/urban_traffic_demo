@@ -92,6 +92,8 @@ class InformationModel:
     """
 
     def __init__(self, priors, channels, *, record_budget=10000):
+        from ..oracle_policy import require_python_oracle
+        require_python_oracle()
         self.priors, self.channels = tuple(priors), tuple(channels)
         if (not self.priors or len({p.key for p in self.priors}) != len(self.priors)
                 or len({c.id for c in self.channels}) != len(self.channels)

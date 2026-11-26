@@ -242,6 +242,8 @@ class GrowthModel:
     def __init__(self, city, sites, *, budget_m, slow_epoch_s=3600.0, max_access_s=1800.0):
         import hashlib
 
+        from ..oracle_policy import require_python_oracle
+        require_python_oracle()
         self.city, self.sites = city, tuple(sites)
         self.budget_m, self.slow_epoch_s, self.max_access_s = budget_m, slow_epoch_s, max_access_s
         blocks = {b.id: b for b in city.face_graph.blocks}

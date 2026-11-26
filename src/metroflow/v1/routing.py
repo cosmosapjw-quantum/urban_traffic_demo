@@ -166,6 +166,8 @@ class RoutingModel:
     def __init__(self, links, allowed_turns, *, topology_version, k=3,
                  expansion_budget=2000, frontier_budget=10000, graph_budget=10000,
                  cache_budget=32):
+        from ..oracle_policy import require_python_oracle
+        require_python_oracle()
         self.links = tuple(links)
         self.turns = frozenset(allowed_turns)
         budgets = (k, expansion_budget, frontier_budget, graph_budget, cache_budget)

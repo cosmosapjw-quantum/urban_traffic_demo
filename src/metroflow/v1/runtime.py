@@ -53,6 +53,8 @@ class Runtime:
     def __init__(self, transport, information, routing, preference, *, city_identity,
                  demand_identity, origin, destination, medium_s=5.0, slow_s=10.0,
                  record_budget=10000, city_snapshot=None, trip_schedule=None, growth_model=None):
+        from ..oracle_policy import require_python_oracle
+        require_python_oracle()
         if (any(not math.isfinite(x) or x <= 0 for x in (medium_s, slow_s))
                 or not city_identity or not demand_identity or not origin or not destination
                 or isinstance(record_budget, bool) or not isinstance(record_budget, int)

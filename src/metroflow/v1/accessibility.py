@@ -31,6 +31,8 @@ def compile_accessibility(city_identity, observations, completed_epoch_s):
     Unobserved blocks remain unsupported; no present-truth or zero-time fallback.
     This is a synthetic development indicator, not a population-wide ETA.
     """
+    from ..oracle_policy import require_python_oracle
+    require_python_oracle()
     from collections import defaultdict
 
     groups = defaultdict(list)

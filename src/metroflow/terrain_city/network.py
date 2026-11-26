@@ -299,6 +299,8 @@ def _blocks(roadmap, land, center_xy, population):
 def generate(
     style="polycentric", terrain="river", size_m=8000.0, resolution=42, seed=17, population=100000
 ):
+    from ..oracle_policy import require_python_oracle
+    require_python_oracle()
     if style not in STYLES:
         raise ValueError("unsupported city style")
     if (

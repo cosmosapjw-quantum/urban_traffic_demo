@@ -40,6 +40,8 @@ STYLES = ("grid_core", "organic", "superblock_mixed", "ring_radial")
 
 
 def generate(style="grid_core", n=12, seed=17, interchanges=True):
+    from .oracle_policy import require_python_oracle
+    require_python_oracle()
     from .restored_grammar import build
 
     return build(style, n, seed, interchanges)
