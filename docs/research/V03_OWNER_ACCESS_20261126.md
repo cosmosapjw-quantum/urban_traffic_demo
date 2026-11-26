@@ -1,0 +1,9 @@
+# V03 lifetime-local receiving and access-resolved shared-space transport
+
+## S01 — binding and historical drift watchdog
+
+Parent 97395e3d8835517e6b0c060110fbbc49be762f93 equals remote. PLAN 1.1.34: 19/21 scoped or accepted, 5/21 accepted, 3/3 direct prerequisites, previous current calendar 3/3, strict native frontier 25720 s, 0/9 original 24 h runs. Old 7.5 GiB diagnostic frontier 25740 s remains separate. Previous S06 27 indexed sweeps passed, 64,925 split checks passed, 2,146,592 route-key row references reused; next entry interval split 3470 B above 4,881,896,463 B limit. First refusal deficit is not the full remaining memory demand.
+
+Re-read original PRD/spec at 0492364 and constitution at 6524500: 100k persistent residents, mesoscopic legal paths, generalized cost/rerouting, bridge/IC bottleneck, bypass/induced demand, accessibility and delayed land-use feedback, deterministic immutable state, SI multirate, no same-tick feedback explosion. The original target remains coupled transport, not car-only speed. Historical 1d3de56b introduced a broad 32 B/old-row scratch allowance, still present throughout receiving after the source/junction frame's raw row observers die. Investigate a phase-specific bound retaining actual old/candidate owners and explicit live receiving arrays, not a global cap increase. Use opt-in research path, original checkpoint and same 6 GiB internal / 8 GiB process address cap. No main/release merge.
+
+Physical branch: exact product pushforward of departure and finite access atoms, then class-aware physical road length and rate accounting. First construct a bounded original-city car access projection, distinguish approximations in the mixed-class experiment, and quantify against midpoint/mean access and native onset. Multi-class fixed-route queue is not native wire equivalence. Native subagents absent in current inventory; direct work and independently executable experiments. Ten interleaved scoped stages.
