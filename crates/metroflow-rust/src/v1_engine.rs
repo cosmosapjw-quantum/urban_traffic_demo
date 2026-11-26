@@ -2112,10 +2112,19 @@ impl NativeWholeEngine {
 #[cfg(feature="native-cli")]
 pub fn run_native_declaration(
     manifest: serde_json::Value,
+    threads:usize,end_s:f64,resume:Option<&str>,checkpoint:&str,
+)->CoreResult<serde_json::Value>{
+    run_native_declaration_with_plan(manifest,threads,end_s,resume,checkpoint,None,None)
+}
+
+#[cfg(feature="native-cli")]
+pub fn run_native_declaration_with_plan(
+    manifest: serde_json::Value,
     threads:usize,
     end_s:f64,
     resume:Option<&str>,
     checkpoint:&str,
+    segment_s:Option<f64>,replay_at_s:Option<f64>,
 )->CoreResult<serde_json::Value>{
     use serde_json::json;
     let start=Instant::now();
@@ -2133,6 +2142,7 @@ pub fn run_native_declaration(
     let s:Static=serde_json::from_value(raw).map_err(|e|bad(format!("static declaration: {e}")))?;
     let calendar=calendar.compile(budget)?;
     let calendar_legs=calendar.owned_legs().len();
+    let calendar_totals=calendar.totals();
     let parallel=ParallelPolicy::new(threads).map_err(bad)?;
     let mut engine=NativeWholeEngine::build(&calendar,s,budget,parallel,"bounded_bytes_v1".to_owned())?;
     drop(calendar);
@@ -2140,9 +2150,38 @@ pub fn run_native_declaration(
     let initial=if let Some(path)=resume{engine.load(path.to_owned())?}else{engine.initial()};
     let begin=initial.time_s();
     let clock=Instant::now();
-    let state=engine.advance_owned(&initial,end_s)?;
+    let mut state=initial;
+    let mut ticks=Vec::new();let mut peak=0usize;let mut segments=0usize;let mut replay_verified=false;let mut failure=None;let mut prefix=None;
+    if !end_s.is_finite()||end_s<begin||((end_s-begin)/engine.step-((end_s-begin)/engine.step).round()).abs()>1e-8{return Err(bad("invalid aligned execution horizon"))}
+    if let Some(chunk)=segment_s{
+        if !chunk.is_finite()||chunk<=0.||((chunk/engine.step)-(chunk/engine.step).round()).abs()>1e-8{return Err(bad("segment must align with native step"))}
+        if replay_at_s.is_some_and(|x|!x.is_finite()||x<=begin||x>end_s||((x-begin)/engine.step-((x-begin)/engine.step).round()).abs()>1e-8){return Err(bad("replay must align within execution horizon"))}
+        save_atomic_native(&mut engine,checkpoint,&state)?;
+        while state.time_s()<end_s{
+            let mut target=(state.time_s()+chunk).min(end_s);
+            if let Some(x)=replay_at_s{if state.time_s()<x{target=target.min(x)}}
+            if state.time_s()<28800.&&end_s>=28800.{target=target.min(28800.)}
+            let previous=state.time_s();
+            match engine.advance_owned(&state,target){
+                Ok(next)=>{
+                    let (t,n)=engine.advance_metrics();let expected=((target-previous)/engine.step).round() as usize;
+                    if t.len()!=expected||t.iter().any(|x|!x.is_finite()||*x<0.){return Err(bad("native tick timing census differs"))}
+                    ticks.extend(t);peak=peak.max(n);state=next;segments+=1;
+                    save_atomic_native(&mut engine,checkpoint,&state)?;
+                    if state.time_s()==28800.{prefix=Some(ledger_json(&engine,&state)?);}
+                    if replay_at_s==Some(state.time_s()){
+                        let before=state.time_s();drop(state);state=engine.load(checkpoint.to_owned())?;
+                        if state.time_s()!=before{return Err(bad("replay clock differs"))}replay_verified=true;
+                    }
+                }
+                Err(e)=>{failure=Some(e);break;}
+            }
+        }
+    }else{
+        state=engine.advance_owned(&state,end_s)?;
+        let (t,n)=engine.advance_metrics();ticks=t;peak=n;segments=1;
+    }
     let advance_s=clock.elapsed().as_secs_f64();
-    drop(initial);
     let values=engine.ledger_values(&state)?;
     let mut ledger=serde_json::Map::new();
     for (name,v) in ["persons","vehicles","cargo_kg"].into_iter().zip(values){
@@ -2153,16 +2192,51 @@ pub fn run_native_declaration(
             "pending":v[0]-v[1],"active":v[1]-v[2],"released_intent_first_moment":v[3]}));
     }
     let (totals,classes)=state.value.road.summary();
-    let (tick_times,peak_records)=engine.advance_metrics();
+    let tick_times=ticks;let peak_records=peak;
     let mut result=json!({"schema":"metroflow_native_rust_host_v1","scope":"original native engine from typed declared input; not original city construction or V03 acceptance",
         "city_identity":engine.city,"schedule_identity":engine.schedule,"native_identity":engine.identity,
         "start_s":begin,"time_s":state.time_s(),"calendar_legs":calendar_legs,"threads":threads,"byte_budget":budget,
         "build_s":build_s,"advance_s":advance_s,"ledger":ledger,"road_totals":totals,"road_class_ledgers":classes,
         "class_names":engine.class_names,"events":state.value.service.1.len(),
         "tick_times_s":tick_times,"peak_records":peak_records,"unique_paths":engine.unique_paths,
-        "unsupported_legs":engine.unsupported});
+        "unsupported_legs":engine.unsupported,"calendar_totals":[calendar_totals.0,calendar_totals.1,calendar_totals.2],"native_route_latency":route_metrics_json(&engine.route_metrics),"segments":segments,"resume_verified":replay_verified,"refinement_prefix":prefix,"status":if failure.is_none(){"EXECUTED_FOR_REVIEW"}else{"BLOCKED"},"failure":failure.as_ref().map(|e|json!({"kind":format!("{:?}",e.kind),"message":e.message}))});
     let clock=Instant::now();
-    engine.save(checkpoint.to_owned(),&state)?;
+    if segment_s.is_none(){save_atomic_native(&mut engine,checkpoint,&state)?;}
     result["save_s"]=json!(clock.elapsed().as_secs_f64());
     Ok(result)
+}
+
+#[cfg(feature="native-cli")]
+fn ledger_json(engine:&NativeWholeEngine,state:&NativeWholeState)->CoreResult<serde_json::Value>{
+    use serde_json::json;
+    let values=engine.ledger_values(state)?;
+    let mut out=serde_json::Map::new();
+    for (name,v) in ["persons","vehicles","cargo_kg"].into_iter().zip(values){
+        let tol=1e-9*v[0].abs().max(v[1].abs()).max(v[2].abs()).max(1.);
+        if v.iter().any(|x|!x.is_finite())||v[0]< -tol||v[1]< -tol||v[2]< -tol||v[1]>v[0]+tol||v[2]>v[1]+tol{return Err(bad("invalid conserved ledger"))}
+        out.insert(name.into(),json!({"requested":v[0],"released":v[1],"completed":v[2],"pending":v[0]-v[1],"active":v[1]-v[2],"released_intent_first_moment":v[3]}));
+    }
+    Ok(json!({"time_s":state.time_s(),"ledger":out}))
+}
+#[cfg(feature="native-cli")]
+fn route_metrics_json(m:&NativeRouteMetrics)->serde_json::Value{
+    use serde_json::json;
+    let p99=if m.calls==0{None}else{
+        let rank=(99u128*m.calls as u128+99)/100;
+        let mut cumulative=0u128;
+        let i=m.counts.iter().position(|&n|{cumulative+=n as u128;cumulative>=rank}).unwrap();
+        let (lo,hi)=if i<256{(i as u128,i as u128)}else if i==ROUTE_OVERFLOW_BIN{(1u128<<64,m.maximum_ns.unwrap())}else{let shift=(i-256)/128+1;let off=(i-256)%128;(((128+off)as u128)<<shift,(((129+off)as u128)<<shift)-1)};
+        Some(json!({"lower":lo.max(m.minimum_ns.unwrap()),"upper":hi.min(m.maximum_ns.unwrap())}))
+    };
+    json!({"status":if m.calls==0{"NOT_MEASURED"}else{"MEASURED_INTERVAL"},"observed_calls":m.calls,"failed_calls":m.failed,"pair_cache_hits":m.cache_hits,"search_calls":m.calls-m.cache_hits,"min_ns":m.minimum_ns,"max_ns":m.maximum_ns,"p99_ns":p99,"source":"native_whole_router.route","scope":"native whole-engine OD requests including pair-cache hits"})
+}
+#[cfg(feature="native-cli")]
+fn save_atomic_native(engine:&mut NativeWholeEngine,path:&str,state:&NativeWholeState)->CoreResult<()>{
+    // Unique scratch path, same filesystem as destination. A failed save
+    // never replaces the last known-valid checkpoint.
+    let tmp=format!("{path}.stage-{}",std::process::id());
+    if std::path::Path::new(&tmp).exists(){return Err(CoreError::io("checkpoint staging path exists"))}
+    let result=(||{engine.save(tmp.clone(),state)?;std::fs::File::open(&tmp).map_err(io)?.sync_all().map_err(io)?;std::fs::rename(&tmp,path).map_err(io)?;Ok(())})();
+    if result.is_err(){let _=std::fs::remove_file(&tmp);}
+    result
 }

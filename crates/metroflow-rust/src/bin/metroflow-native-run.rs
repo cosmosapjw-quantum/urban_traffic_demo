@@ -1,4 +1,4 @@
-use _metroflow_rust::run_native_declaration;
+use _metroflow_rust::run_native_declaration_with_plan;
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::{
@@ -74,12 +74,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
     let input: Value = serde_json::from_reader(BufReader::new(File::open(&a[1])?))?;
-    let mut out = run_native_declaration(
+    let segment = std::env::var("METROFLOW_NATIVE_SEGMENT_S").ok().map(|x|x.parse::<f64>()).transpose()?;
+    let replay = std::env::var("METROFLOW_NATIVE_REPLAY_AT_S").ok().map(|x|x.parse::<f64>()).transpose()?;
+    let mut out = run_native_declaration_with_plan(
         input,
         a[3].parse()?,
         a[2].parse()?,
         a.get(7).map(String::as_str),
         &a[5],
+        segment,replay,
     )
     .map_err(|e| e.to_string())?;
     if digest(Path::new(&a[1]))? != manifest_hash {
@@ -101,5 +104,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         &out,
     )?;
     println!("{}", serde_json::to_string(&out)?);
+    if out["status"]=="BLOCKED"{std::process::exit(2)}
     Ok(())
 }
