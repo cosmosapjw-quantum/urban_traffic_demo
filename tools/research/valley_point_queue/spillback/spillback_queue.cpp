@@ -36,6 +36,23 @@ struct Link {
     std::deque<Request> requests;
     bool scheduled=false, wake=false;
 };
+// Each cohort retains one equal-mass atom per rank stratum. The mirrored
+// strata share complementary phases, so total mass and first rank moment
+// are unchanged in real arithmetic. Seed 0 is the historical midpoint arm.
+static std::uint64_t mix64(std::uint64_t x) {
+    x+=0x9e3779b97f4a7c15ULL;
+    x=(x^(x>>30))*0xbf58476d1ce4e5b9ULL;
+    x=(x^(x>>27))*0x94d049bb133111ebULL;
+    return x^(x>>31);
+}
+static double rank_phase(int group,int j,int n,std::uint64_t seed) {
+    if(seed==0 || j==n-1-j) return (j+0.5)/n;
+    int k=std::min(j,n-1-j);
+    auto z=mix64(seed^mix64(static_cast<std::uint64_t>(group))^mix64(static_cast<std::uint64_t>(k)+0x58e4e3ULL));
+    double u=(static_cast<double>(z>>12)+0.5)*0x1p-52;
+    double q=(k+u)/n;
+    return j==k?q:1.-q;
+}
 static double tick(double t) { return 10.*std::ceil(t/10.-1e-12); }
 struct Later {
     bool operator()(const Event& a,const Event& b) const {
@@ -47,8 +64,9 @@ struct Ledger {
     long double released=0, admitted=0, exited=0, completed=0, vehicle_trip_seconds=0;
 };
 int main(int argc,char** argv) {
-    if (argc!=7 && argc!=8) throw std::runtime_error("input bin shocked_link factor passages storage [horizon]");
-    const double horizon_limit=argc==8 ? std::stod(argv[7]) : 86400.;
+    if (argc<7 || argc>9) throw std::runtime_error("input bin shocked_link factor passages storage [horizon] [phase_seed]");
+    const double horizon_limit=argc>=8 ? std::stod(argv[7]) : 86400.;
+    const std::uint64_t phase_seed=argc==9?std::stoull(argv[8]):0;
     std::ifstream f(argv[1]);
     int link_count, path_count, group_count, profiles;
     double dwell;
@@ -99,7 +117,7 @@ int main(int argc,char** argv) {
     auto first_departure=[&](int i,int j) {
         const auto& g=groups[i]; const auto& w=windows[g.purpose];
         const auto bins=cohort_bins[i];
-        const double q=(j+0.5)/bins;
+        const double q=rank_phase(i,j,bins,phase_seed);
         // Every group gets an independent stable key range, also with lazy departures.
         queue.push({w[0]+q*(w[1]-w[0]),g.mass/bins,q,0,cohort_offset[i]+j,i,0,Release,false});
     };
@@ -111,6 +129,16 @@ int main(int argc,char** argv) {
             if(g.mass/bins > links[j].storage) throw std::runtime_error("batch exceeds link storage; refine bin");
         daily_out+=g.mass;
         cohort_bins[i]=bins; cohort_offset[i]=next_key; next_key+=bins;
+        if(phase_seed) {
+            // Validate a complementary pair and both strata at each cohort
+            // (the exhaustive independent fixture covers every rank).
+            for(int j:{0,bins/2,bins-1}) {
+                double q=rank_phase(i,j,bins,phase_seed);
+                if(!(q>=double(j)/bins && q<=double(j+1)/bins) ||
+                   std::abs(q+rank_phase(i,bins-1-j,bins,phase_seed)-1.)>4e-16)
+                    throw std::runtime_error("departure rank outside mirrored stratum");
+            }
+        }
         first_departure(i,0);
     }
     const auto initial_batches=next_key;
@@ -237,4 +265,5 @@ int main(int argc,char** argv) {
     for(int i=0;i<link_count;++i){auto& l=links[i];wait+=l.wait_veh_s;spill+=l.blocked_veh_s;if(l.blocked_veh_s>links[worst].blocked_veh_s)worst=i;}
     std::cout<<"end "<<daily_out<<" "<<initial_batches<<" "<<event_count<<" "<<wait<<" "<<spill<<" "<<worst<<" "<<links[worst].blocked_veh_s<<" "<<transfers<<" "<<book[0].vehicle_trip_seconds+book[1].vehicle_trip_seconds<<std::endl;
     for(int k=0;k<profiles;++k) std::cout<<"purpose "<<k<<" "<<completions[k][0]<<" "<<completions[k][1]<<"\n";
+    return 0;
 }
