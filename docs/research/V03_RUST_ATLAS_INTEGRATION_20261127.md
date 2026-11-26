@@ -1,0 +1,2 @@
+# Native atlas/integration continuation
+Preserve original city generator and physical admissibility, exact discrete stock and route bindings. Parent 84056393b21cfa512cf0a7c6dfcba67d77e97dcc. All measurements and scientific executions Rust, Python only explicitly opted-in tests; no new physics. Continue loaded Valley checkpoint with original resource caps. No main merge or full-day credit without actual evidence. Same 15 group census.
