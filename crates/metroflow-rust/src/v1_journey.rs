@@ -336,6 +336,43 @@ fn check_stage_census_actual_scratch(actual:usize,upper:usize)->PyResult<()> {
     Ok(())
 }
 
+/// The whole-engine snapshot census has a source-exact Clone target.
+#[derive(Default,Clone,Copy)]
+pub(crate) struct SnapshotJourneyArcWitness {
+    pub(crate) input_current_stage_payload_bytes:usize,
+    pub(crate) clone_stage_payload_bytes:usize,
+    pub(crate) clone_history_bytes:usize,
+    pub(crate) actual_census_bytes:usize,
+}
+pub(crate) fn snapshot_journey_census_upper_bytes(target:&Journey)->usize {
+    stage_census_scratch_upper_bytes(target)
+}
+pub(crate) fn snapshot_journey_arc_witness(
+    target:&Journey,other:&Journey,
+)->PyResult<SnapshotJourneyArcWitness> {
+    let pair=journey_shared_stage_payload_census(target,other);
+    check_stage_census_actual_scratch(
+        pair.temporary_census_scratch_bytes,stage_census_table_upper_bytes(target))?;
+    let mut cloned_stages=0usize;
+    for queue in [&target.1,&target.2,&target.3] {
+        queue.visit_immutable_row_payloads(|_,bytes|{
+            cloned_stages=cloned_stages.saturating_add(bytes);
+        });
+    }
+    // StageQueue::clone shares immutable blocks but allocates its registry:
+    // credit only row payloads, conservatively retaining every block header.
+    // ReceiptHistory::clone is exactly an Option<Arc<Block>> clone. All its
+    // measured dynamic storage stays in the same persistent chain; the outer
+    // Vec<ReceiptHistory> is already in the fixed dense reserve. No credit
+    // for cross-source history prefixes is inferred from equal values.
+    Ok(SnapshotJourneyArcWitness{
+        input_current_stage_payload_bytes:pair.shared_payload_bytes,
+        clone_stage_payload_bytes:cloned_stages,
+        clone_history_bytes:target.6.iter().map(ReceiptHistory::storage_bytes).sum(),
+        actual_census_bytes:pair.temporary_census_scratch_bytes,
+    })
+}
+
 #[derive(Default,Clone,Copy)]
 struct RoadPhaseJourneyOwners {
     uncredited_bytes:usize,
@@ -786,6 +823,9 @@ impl NativeServiceCore {
     }
     pub(crate) fn event_storage_bytes(&self) -> usize {
         self.last_events.storage_bytes()
+    }
+    pub(crate) fn shares_event_arc(&self,other:&Arc<ChunkedEvents>)->bool {
+        Arc::ptr_eq(&self.last_events,other)
     }
     /// Fixed-count source preparation workspace: one offer per bus/source,
     /// generated labels, geometric offer-buffer growth/physical conversion,

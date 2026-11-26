@@ -3,7 +3,9 @@
 use crate::v1_calendar::NativeCalendar;
 use crate::v1_journey::{
     advance_owned_joint, fsum, journey_debug, journey_dense_storage_bytes, journey_storage_bytes,
-    service_dense_storage_bytes, service_event_storage_bytes, Journey, NativeJourneyCore,
+    service_dense_storage_bytes, service_event_storage_bytes,
+    snapshot_journey_arc_witness, snapshot_journey_census_upper_bytes,
+    Journey, NativeJourneyCore,
     NativeServiceCore, ServiceCheckpoint, SharedBusMeta, SharedFreightMeta, SharedJourneyLeg,
     SharedLaw,
 };
@@ -547,6 +549,22 @@ fn restore_source_owner_phase_bytes(
         .saturating_add(current_journey)
         .saturating_add(input_events)
         .saturating_add(current_events)
+}
+
+/// Concrete source owners for capture()/restore(). Census workspace dies
+/// before the planned clone and validation; retain the maximum phase.
+#[derive(Default)]
+struct SnapshotSourceOwners {
+    phase_bytes:usize,
+    census_required_bytes:usize,
+    census_upper_bytes:usize,
+    census_actual_bytes:usize,
+    road_pair_credit:usize,
+    road_clone_credit:usize,
+    stage_pair_credit:usize,
+    stage_clone_credit:usize,
+    history_clone_credit:usize,
+    event_pair_credit:usize,
 }
 
 /// A checkpoint reload decodes ONE new road, ONE new event Vec, and then
@@ -1227,6 +1245,72 @@ impl NativeWholeEngine {
         self.journey
             .whole_validation_scratch_bytes(j, road_rows, self.tags.len())
     }
+    /// input/current are live now. The prospective clone is current for a
+    /// return capture, and input for restore. Every capacity is measured from
+    /// its actual source before cloning, so spare input capacity is retained.
+    fn snapshot_source_owners(
+        &self,input:&Bundle,clone_from_input:bool,
+    )->PyResult<SnapshotSourceOwners> {
+        let accounting=self.runtime_storage.as_ref().expect("bounded snapshot");
+        let ri=input.road.retained_storage_bytes();
+        let rc=self.road.owned_storage_bytes();
+        let ji=journey_storage_bytes(&input.journey);
+        let jc=journey_storage_bytes(self.journey.state());
+        let ei=service_event_storage_bytes(&input.service);
+        let ec=self.service.event_storage_bytes();
+        let (target_journey,other_journey)=if clone_from_input {
+            (&input.journey,self.journey.state())
+        } else {(self.journey.state(),&input.journey)};
+        let road_upper=self.road.snapshot_arc_census_upper_bytes(&input.road,clone_from_input);
+        let stage_upper=snapshot_journey_census_upper_bytes(target_journey);
+        let census_upper=road_upper.max(stage_upper);
+        let uncredited_live=ri.saturating_add(rc)
+            .saturating_add(ji).saturating_add(jc)
+            .saturating_add(ei).saturating_add(ec);
+        // Do not use prospective pointer savings to finance the census.
+        // Only the two already live owners exist; no future clone yet.
+        let census_required=accounting.base().saturating_add(accounting.call_binding)
+            .saturating_add(uncredited_live).saturating_add(census_upper);
+        crate::v1_trace::guard("engine_snapshot_census","two live source owners",
+            census_required,self.byte_budget,&[
+                ("road_input",ri),("road_current",rc),
+                ("journey_input",ji),("journey_current",jc),
+                ("events_input",ei),("events_current",ec),
+                ("census_scratch_upper",census_upper),
+                ("clone_from_input",usize::from(clone_from_input)),
+            ]);
+        if census_required>self.byte_budget {
+            return Err(PyMemoryError::new_err(format!(
+                "native snapshot Arc census preflight budget exceeded: required_bytes={census_required}, budget_bytes={}",
+                self.byte_budget
+            )));
+        }
+        // Each map is gone before the next is constructed; neither survives
+        // into the snapshot clone or bundle-validation scratch lifetime.
+        let road=self.road.snapshot_arc_witness(&input.road,clone_from_input)?;
+        let journey=snapshot_journey_arc_witness(target_journey,other_journey)?;
+        let (rt,jt)=if clone_from_input {(ri,ji)}else{(rc,jc)};
+        let road_pair=road.input_current_payload_bytes.min(ri).min(rc);
+        let road_clone=road.clone_target_payload_bytes.min(rt);
+        let stage_pair=journey.input_current_stage_payload_bytes.min(ji).min(jc);
+        let stage_clone=journey.clone_stage_payload_bytes.min(jt);
+        let history_clone=journey.clone_history_bytes.min(jt.saturating_sub(stage_clone));
+        let event_pair=if self.service.shares_event_arc(&input.service.1) && ei==ec {ei}else{0};
+        let roads=road.source_owner_bytes(ri,rc,clone_from_input);
+        let journeys=ji.saturating_add(jc).saturating_add(jt)
+            .saturating_sub(stage_pair).saturating_sub(stage_clone)
+            .saturating_sub(history_clone);
+        let events=ei.saturating_add(ec).saturating_sub(event_pair);
+        Ok(SnapshotSourceOwners {
+            phase_bytes:roads.saturating_add(journeys).saturating_add(events),
+            census_required_bytes:census_required,
+            census_upper_bytes:census_upper,
+            census_actual_bytes:road.actual_census_bytes.max(journey.actual_census_bytes),
+            road_pair_credit:road_pair,road_clone_credit:road_clone,
+            stage_pair_credit:stage_pair,stage_clone_credit:stage_clone,
+            history_clone_credit:history_clone,event_pair_credit:event_pair,
+        })
+    }
     fn storage_admission(
         &self,
         j: &Journey,
@@ -1252,53 +1336,18 @@ impl NativeWholeEngine {
         } else {
             0
         };
-        let captured_arc_credit=capture_road_clone_credit(
-            self.road.owned_storage_bytes(),
-            if validate && input.is_some() {
-                self.road.owned_unique_immutable_arc_payload_bytes()
-            }else{0},
-            validate,input.is_some(),
-        );
-        crate::v1_trace::add("engine_admission.verified_future_capture_arc_credit",
-            captured_arc_credit as u64);
-        // Source-visible phases have distinct, non-overlapping ownership:
-        // post-advance capture() clones the current states, while restore()
-        // clones the supplied already-completed Bundle. In both cases the
-        // original immutable Part and service EventRow Arc data are shared
-        // as proved by the original checkpoint() and rollback() source.
-        // Keep old 3*max for decoder/unknown generic admission.
         let source_capture = validate && input.is_some();
         let source_restore = !validate && input.is_some();
-        // Only NativeWholeEngine::load calls validation with no supplied
-        // Bundle; it has the old native owners and ONE fully decoded candidate.
         let source_loaded_validation = validate && input.is_none();
-        let restore_arc_credit=if source_restore {
-            input.map_or(0,|source|
-                source.road.arc_backing_census().unique_payload_bytes
-                    .min(source.road.retained_storage_bytes()))
-        } else {0};
-        let phase_owners=if let Some(source)=input {
-            if validate {
-                capture_validation_real_owner_phase_bytes(
-                    source.road.retained_storage_bytes(),
-                    road_bytes.max(self.road.owned_storage_bytes()),
-                    captured_arc_credit,
-                    journey_storage_bytes(&source.journey),
-                    journey_storage_bytes(j).max(journey_storage_bytes(self.journey.state())),
-                    service_event_storage_bytes(&source.service),
-                    event_bytes.max(self.service.event_storage_bytes()),
-                )
-            } else {
-                restore_source_owner_phase_bytes(
-                    source.road.retained_storage_bytes(),
-                    self.road.owned_storage_bytes(),
-                    restore_arc_credit,
-                    journey_storage_bytes(&source.journey),
-                    journey_storage_bytes(self.journey.state()),
-                    service_event_storage_bytes(&source.service),
-                    self.service.event_storage_bytes(),
-                )
-            }
+        let source_owners=if let Some(source)=input {
+            Some(self.snapshot_source_owners(source,!validate)?)
+        } else {None};
+        let captured_arc_credit=source_owners.as_ref().filter(|_|source_capture)
+            .map_or(0,|o|o.road_clone_credit);
+        let restore_arc_credit=source_owners.as_ref().filter(|_|source_restore)
+            .map_or(0,|o|o.road_clone_credit);
+        let phase_owners=if let Some(source)=&source_owners {
+            source.phase_bytes
         } else if source_loaded_validation {
             loaded_bundle_validation_owners_bytes(
                 self.road.owned_storage_bytes(),road_bytes,
@@ -1311,9 +1360,11 @@ impl NativeWholeEngine {
                 .saturating_add(d.saturating_mul(3))
                 .saturating_add(e.saturating_mul(3))
         };
-        let required = accounting.base()
+        let snapshot_required = accounting.base()
             .saturating_add(accounting.call_binding.max(scratch))
             .saturating_add(phase_owners);
+        let required=snapshot_required.max(source_owners.as_ref()
+            .map_or(0,|o|o.census_required_bytes));
         let observed = crate::v1_trace::guard(
             "engine_admission",
             if validate {
@@ -1334,6 +1385,15 @@ impl NativeWholeEngine {
                 ("source_loader_two_real_bundle_validation",usize::from(source_loaded_validation)),
                 ("source_restore_verified_future_arc_credit",restore_arc_credit),
                 ("source_capture_live_owner_bytes",phase_owners),
+                ("snapshot_phase_required",snapshot_required),
+                ("snapshot_census_required",source_owners.as_ref().map_or(0,|o|o.census_required_bytes)),
+                ("snapshot_census_upper",source_owners.as_ref().map_or(0,|o|o.census_upper_bytes)),
+                ("snapshot_census_actual",source_owners.as_ref().map_or(0,|o|o.census_actual_bytes)),
+                ("snapshot_road_input_current_credit",source_owners.as_ref().map_or(0,|o|o.road_pair_credit)),
+                ("snapshot_stage_input_current_credit",source_owners.as_ref().map_or(0,|o|o.stage_pair_credit)),
+                ("snapshot_stage_target_clone_credit",source_owners.as_ref().map_or(0,|o|o.stage_clone_credit)),
+                ("snapshot_history_target_clone_credit",source_owners.as_ref().map_or(0,|o|o.history_clone_credit)),
+                ("snapshot_events_input_current_credit",source_owners.as_ref().map_or(0,|o|o.event_pair_credit)),
                 ("road_3max_without_credit",r.saturating_mul(3)),
                 ("journey", d),
                 ("events", e),
@@ -2436,5 +2496,206 @@ mod paged_service_decode_budget_20261123_tests {
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod v03_snapshot_owner_c8c_20261123_tests {
+    use super::*;
+    use crate::v1_history::ReceiptHistory;
+    use crate::v1_road::ChunkedEvents;
+    use crate::v1_stage::StageQueue;
+
+    fn fixture()->NativeWholeEngine {
+        const N:usize=8192;
+        let identity="snapshot-owner-c8c".to_string();
+        let profile=Arc::new(vec![(0.0,1.0,1.0)]);
+        let zero=Arc::new(vec![(0.0,1.0)]);
+        let mut legs=vec![(
+            "internal".into(),1.0,None,0.0,profile.clone(),2,
+            Arc::new(vec![(0.0,0.25),(100.0,0.75)]),zero.clone(),
+        )];
+        let tags=(0..N).map(|i|format!("car-{i}")).collect::<Vec<_>>();
+        for tag in &tags {
+            legs.push((tag.clone(),1.0/N as f64,None,0.0,profile.clone(),1,
+                zero.clone(),zero.clone()));
+        }
+        let mut road=V1Road::new(identity.clone(),1.0,
+            vec![vec![1.0,1.0,100_000.0,100_000.0,100_000.0,1.0]],
+            vec![None],(0..N).map(|_|(vec![0],0)).collect(),
+            vec![vec![1.0;13];3],vec![vec![0]],vec![],100_000,Some(100_000),true,
+        ).unwrap();
+        let initial_road=road.checkpoint();
+        road.owned_step(1.0,vec![]).unwrap();
+        road.owned_step(1.0,(0..N).map(|i|
+            (i,1.0/N as f64,0.5/N as f64,None,None)).collect()).unwrap();
+        let mut rows=vec![];
+        for _ in 0..20 {
+            rows=road.owned_step(1.0,vec![]).unwrap();
+            if rows.len()>=N {break;}
+        }
+        let clock=road.checkpoint().time();
+        let active=road.checkpoint().active_by_tag();
+        assert!(rows.len()>=N,"fixture must contain actual road event payloads");
+        let mut service=NativeServiceCore::new(vec![],vec![],vec![],vec![]).unwrap();
+        let initial_service=service.checkpoint();
+        let mut events=ChunkedEvents::new(true);
+        for row in rows {events.push_checked(row).unwrap();}
+        service.rollback((service.checkpoint().0,Arc::new(events)));
+        let mut journey=NativeJourneyCore::new_shared(legs,vec![],vec![],100_000).unwrap();
+        let initial_journey=journey.checkpoint();
+        let mut state=journey.checkpoint();
+        state.0=clock;
+        state.4.fill(1.0/N as f64);
+        state.7.fill(0.5/N as f64);
+        state.4[0]=1.0;
+        state.5[0]=0.25;
+        state.7[0]=0.5;
+        state.3=StageQueue::new();
+        for _ in 0..4096 {state.3.push((0,0.75/4096.0,0.0,100.0));}
+        state.6[0]=ReceiptHistory::new();
+        for _ in 0..4096 {state.6[0].push((1.0,0.25/4096.0)).unwrap();}
+        for tag in 0..N {
+            let completed=1.0/N as f64-active.get(&tag).copied().unwrap_or(0.0);
+            state.5[tag+1]=completed;
+            if completed>0.0 {state.6[tag+1].push((clock,completed*N as f64)).unwrap();}
+        }
+        journey.rollback(state);
+        let mut accounting=RuntimeStorage {
+            owned_static:road.static_storage_bytes()+journey.static_storage_bytes()
+                +service.static_storage_bytes()+1_000_000,
+            initial_road:initial_road.retained_storage_bytes(),
+            journey_dense:journey_dense_storage_bytes(journey.state()),
+            service_dense:service_dense_storage_bytes(service.state()),
+            call_binding:65_536,worker_scratch:65_536,service_prepare_scratch:0,
+            fixed_charge:0,
+        };
+        accounting.fixed_charge=accounting.base()+accounting.call_binding;
+        let mut engine=NativeWholeEngine {
+            parallel:ParallelPolicy::new(1).unwrap(),
+            route_metrics:NativeRouteMetrics::new(),
+            storage_policy:"bounded_bytes_v1".into(),
+            road_storage_bytes:None,journey_storage_bytes:None,
+            runtime_storage:Some(accounting),
+            identity:identity.clone(),city:"fixture".into(),schedule:"fixture".into(),
+            step:1.0,road,service,journey,tags,
+            amounts:std::iter::once([1.0,0.0,0.0])
+                .chain((0..N).map(|_|[1.0/N as f64,1.0/N as f64,0.0])).collect(),
+            profile_ids:vec![0;N+1],profiles:vec![profile],
+            totals:[2.0,1.0,0.0],unassigned:[0.0;3],unsupported:0,supported:[0;3],
+            passenger_available:vec![],freight_cargo:vec![],freight_vehicles:vec![],
+            class_names:vec!["car".into(),"freight".into(),"scheduled_bus".into()],
+            initial_state:Arc::new(Bundle{road:initial_road,
+                service:initial_service,journey:initial_journey}),
+            estimated_bytes:0,byte_budget:256*1024*1024,unique_paths:1,
+            event_limit:100_000,group_count:1,
+            car_tag_legs:(0..N).map(|i|Some(i+1)).collect(),
+        };
+        let initial_capture=engine.capture();
+        engine.validate_bundle(&initial_capture.value).unwrap();
+        set_budget(&mut engine,256*1024*1024);
+        engine
+    }
+    fn set_budget(engine:&mut NativeWholeEngine,bytes:usize) {
+        let fixed=engine.runtime_storage.as_ref().unwrap().fixed_charge;
+        assert!(bytes>fixed);
+        engine.byte_budget=bytes;
+        engine.road_storage_bytes=Some(bytes-fixed);
+        engine.journey_storage_bytes=Some(bytes-fixed);
+        engine.reset_phase_ceilings().unwrap();
+    }
+    fn same_owner_limit(engine:&NativeWholeEngine,validate:bool)->usize {
+        let a=engine.runtime_storage.as_ref().unwrap();
+        let scratch=if validate {engine.validation_scratch(
+            engine.journey.state(),engine.road.owned_record_count())}else{0};
+        let j=journey_storage_bytes(engine.journey.state());
+        a.base()+a.call_binding.max(scratch)
+            +(2*engine.road.owned_storage_bytes()+2*j
+                +engine.service.event_storage_bytes()+65_536).max(3*j+65_536)
+    }
+
+    #[test]
+    fn changed_clock_uses_live_pointer_intersection_and_different_events_stay_charged() {
+        pyo3::prepare_freethreaded_python();
+        let mut engine=fixture();
+        let input=engine.capture();
+        let output=Python::with_gil(|py|engine.advance(py,&input,input.time_s()+1.0)).unwrap();
+        assert_eq!(output.time_s(),input.time_s()+1.0);
+        let w=engine.snapshot_source_owners(&input.value,false).unwrap();
+        assert!(w.stage_pair_credit>0);
+        assert!(w.history_clone_credit>0);
+        assert_eq!(w.event_pair_credit,0);
+        assert!(w.census_actual_bytes<=w.census_upper_bytes);
+        engine.validate_bundle(&output.value).unwrap();
+    }
+    #[test]
+    fn independent_equal_payloads_receive_no_cross_source_credit() {
+        pyo3::prepare_freethreaded_python();
+        let engine=fixture();
+        let separate=fixture().capture();
+        let w=engine.snapshot_source_owners(&separate.value,false).unwrap();
+        assert_eq!(w.road_pair_credit,0);
+        assert_eq!(w.stage_pair_credit,0);
+        assert_eq!(w.event_pair_credit,0);
+        assert!(w.stage_clone_credit>0 && w.history_clone_credit>0);
+        // The exact target->clone Arc sharing still exists even though the
+        // supplied equal-valued state's allocations are completely different.
+    }
+    #[test]
+    fn census_rejects_before_pointer_tables_and_unknown_source_keeps_legacy_floor() {
+        pyo3::prepare_freethreaded_python();
+        let mut engine=fixture();
+        let input=engine.capture();
+        let w=engine.snapshot_source_owners(&input.value,false).unwrap();
+        engine.byte_budget=w.census_required_bytes-1;
+        let error=engine.snapshot_source_owners(&input.value,false).err().unwrap();
+        assert!(error.to_string().contains("snapshot Arc census preflight"));
+        assert_eq!(engine.journey.state().0,input.time_s());
+        let r=engine.road.owned_storage_bytes();
+        let j=journey_storage_bytes(engine.journey.state());
+        let e=engine.service.event_storage_bytes();
+        let a=engine.runtime_storage.as_ref().unwrap();
+        let old_floor=a.base()+a.call_binding+3*(r+j+e);
+        engine.byte_budget=old_floor-1;
+        assert!(engine.storage_admission(engine.journey.state(),r,0,e,None,false).is_err());
+        engine.byte_budget=old_floor;
+        engine.storage_admission(engine.journey.state(),r,0,e,None,false).unwrap();
+    }
+
+    #[test]
+    fn actual_capture_of_shared_stage_history_and_events_fits_same_cap() {
+        pyo3::prepare_freethreaded_python();
+        let mut engine=fixture();
+        let input=engine.capture();
+        let cap=same_owner_limit(&engine,true);
+        set_budget(&mut engine,cap);
+        let result=Python::with_gil(|py|engine.advance(py,&input,input.time_s()));
+        assert!(result.is_ok(),"actual zero-step return must charge shared immutable clone payloads once: cap={cap}, error={:?}",result.as_ref().err());
+        let output=result.unwrap();
+        engine.validate_bundle(&output.value).unwrap();
+        assert_eq!(output.time_s(),input.time_s());
+        println!("capture behavioral cap={cap} journey={} events={}",
+            journey_storage_bytes(engine.journey.state()),engine.service.event_storage_bytes());
+    }
+
+    #[test]
+    fn actual_save_restore_of_shared_stage_history_and_events_keeps_full_wire() {
+        pyo3::prepare_freethreaded_python();
+        let mut engine=fixture();
+        let input=engine.capture();
+        let base=std::env::temp_dir().join(format!("metroflow-c8c-save-{}",std::process::id()));
+        let before=base.with_extension("before.bin");
+        let after=base.with_extension("after.bin");
+        engine.save(before.to_str().unwrap().into(),&input).unwrap();
+        let cap=same_owner_limit(&engine,false);
+        set_budget(&mut engine,cap);
+        let result=engine.save(after.to_str().unwrap().into(),&input);
+        assert!(result.is_ok(),"actual save/restore must share snapshot payloads at same cap: cap={cap}, error={result:?}");
+        assert_eq!(std::fs::read(&before).unwrap(),std::fs::read(&after).unwrap());
+        assert_eq!(engine.journey.state().0,input.time_s());
+        println!("save/restore behavioral cap={cap} wire_bytes={}",
+            std::fs::metadata(&after).unwrap().len());
+        std::fs::remove_file(before).unwrap();
+        std::fs::remove_file(after).unwrap();
     }
 }
