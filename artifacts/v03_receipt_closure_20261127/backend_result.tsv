@@ -1,0 +1,16 @@
+id	status	evidence
+B01	PURE_RUST_SCOPED	../v03_rust_atlas_integration_20261127/C06_all8.json
+B02	PURE_RUST_SCOPED	../v03_pure_rust_core_20261127/C06_oracle.log
+B03	PURE_RUST_SCOPED	../v03_rust_atlas_integration_20261127/valley_next.engine10.json
+B04	PURE_RUST_SCOPED	river_weekday_s17.engine10.json
+B05	PURE_RUST_SCOPED	../v03_pure_rust_core_20261127/C07-c07-2.json
+B06	PURE_RUST_SCOPED	../v03_pure_rust_core_20261127/C06_oracle.log
+B07	PURE_RUST_SCOPED	../v03_marked_owner_20261127/S03_25740.json
+B08	PURE_RUST_SCOPED	../v03_marked_owner_20261127/S03_25740.json
+B09	PURE_RUST_SCOPED	../v03_marked_owner_20261127/S04_recovery.json
+B10	PARTIAL	../v03_marked_owner_20261127/S09_phase_parity.json
+B11	PURE_RUST_SCOPED	../v03_rust_only_backend_20261126/C03_test.log
+B12	PURE_RUST_SCOPED	../v03_rust_only_backend_20261126/C04_test.log
+B13	PURE_RUST_SCOPED	../v03_rust_only_backend_20261126/C09_parity.json
+B14	PURE_RUST_SCOPED	S09_original25380.json
+B15	PARTIAL	../v03_span_measure_20261127/S04_25750.json

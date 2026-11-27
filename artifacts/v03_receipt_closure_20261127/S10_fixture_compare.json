@@ -1,0 +1,153 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "candidate_checkpoint_sha256": "85f4f93a7943b3df00b53a8ad248acf1ba17788f6a3bc9afb402f55662d94d69",
+  "candidate_identity": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3:mature-receipt-v1:10:group-outlets-v1:receipt-grid-v1:1",
+  "candidate_manifest_sha256": "64bb791f6d4e1dbbc82081a4e933276902409cf5f378bf8e2f7cb38cce848cb3",
+  "cells": {
+    "active_veh": {
+      "bit_different_entries": 0,
+      "entries": 2,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 0.0,
+      "relative_l1": null
+    },
+    "cumulative_entry_veh": {
+      "bit_different_entries": 0,
+      "entries": 2,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 14.9,
+      "relative_l1": 0.0
+    },
+    "cumulative_exit_veh": {
+      "bit_different_entries": 0,
+      "entries": 2,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 14.9,
+      "relative_l1": 0.0
+    },
+    "distance_veh_m": {
+      "bit_different_entries": 0,
+      "entries": 2,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 1490.0000000000002,
+      "relative_l1": 0.0
+    },
+    "occupied_lane_m": {
+      "bit_different_entries": 0,
+      "entries": 2,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 0.0,
+      "relative_l1": null
+    },
+    "speed_m_s": {
+      "bit_different_entries": 0,
+      "entries": 2,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 0.0,
+      "relative_l1": null
+    }
+  },
+  "executable_sha256": "b713a182d3b180567398bbfbca9912b9cbe3890eaa6184161df4114aacfbc7d2",
+  "journey_legs": {
+    "completed_persons": {
+      "bit_different_entries": 0,
+      "entries": 5,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 20.0,
+      "relative_l1": 0.0
+    },
+    "completed_veh": {
+      "bit_different_entries": 0,
+      "entries": 5,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 13.06,
+      "relative_l1": 0.0
+    },
+    "since_completion_person_s": {
+      "bit_different_entries": 0,
+      "entries": 5,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 1524.6522365923192,
+      "relative_l1": 0.0
+    },
+    "since_completion_veh_s": {
+      "bit_different_entries": 0,
+      "entries": 5,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 1043.9817892738554,
+      "relative_l1": 0.0
+    }
+  },
+  "last_tick_outlet": {
+    "birth_to_exit_veh_s": {
+      "bit_different_entries": 0,
+      "entries": 5,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 0.0,
+      "relative_l1": null
+    },
+    "outlet_veh": {
+      "bit_different_entries": 0,
+      "entries": 5,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 0.0,
+      "relative_l1": null
+    }
+  },
+  "peak_rss_bytes": 7712768,
+  "reference_checkpoint_sha256": "0f4e219882ae0d1e4ab2c7de6baef69b4e11ed674854e9f9e903c5b8949557f6",
+  "reference_identity": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3:mature-receipt-v1:10:group-outlets-v1",
+  "reference_manifest_sha256": "69a2ee563652f55f61950fac0b285b82ac5588311748d97d02e9bbaefd2c9f29",
+  "road_tags": {
+    "active_veh": {
+      "bit_different_entries": 0,
+      "entries": 5,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 0.0,
+      "relative_l1": null
+    },
+    "birth_veh_s": {
+      "bit_different_entries": 0,
+      "entries": 5,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 0.0,
+      "relative_l1": null
+    },
+    "entry_clock_veh_s": {
+      "bit_different_entries": 0,
+      "entries": 5,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 0.0,
+      "relative_l1": null
+    },
+    "route_offset_veh": {
+      "bit_different_entries": 0,
+      "entries": 5,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 0.0,
+      "relative_l1": null
+    }
+  },
+  "schema": "metroflow_rank_state_compare_v1",
+  "scope": "strict loaded snapshots same physical declaration/time/tag registry; numerical observable differences, not global error theorem or release acceptance",
+  "status": "EXECUTED_FOR_REVIEW",
+  "tag_order_sha256": "133d106ee0c5ad48bd141a8a61f99a3f5e36733c8bcd0bdaa1c43e817d4f9d25",
+  "time_s": 120.0,
+  "wall_s": 0.004928766
+}

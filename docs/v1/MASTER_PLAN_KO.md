@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.46**, 2026-11-27. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.47**, 2026-11-27. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -2122,7 +2122,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-V03/B15: no guard shaving or conflation of identities. Diagnose remaining peak transient records and event/checkpoint write growth. For distinct causal-rank research model, implement supply-sensitive partition refinement using marked FIFO prefix e_j=m_j(1-p_j) and footprint bound, protect service and reroute clocks and graph-boundary discontinuities. Use robust supply bracket and per-link error budget, compare matched exact observable errors, per-leg completion and outlet clocks, test convergence and nonlinear propagation; profile non-ready resident cohorts and route-tag support across epochs rather than ready500 (zero merges). Extend to 3600s and 8h/24h, River/Coastal nonzero demand with strict caps, original acceptance only by original contract or explicit approved change. B10 actual link-entry/outlet marks, endogenous ready-head suffix and graph edit drain, native Rust. Keep frozen 100k graph/calendar, finite response, legal K routes, accessibility/growth, 6GiB/8GiB/7200s, 3x3 full days and 8h refinement.
+V03/B15: preserve original identity and strict caps. For distinct receipt-grid research model, replace repeated sort/rebuild sweeps with bounded incremental eligibility bucket accumulators (mass, first moment, boundary key proof and rollback). Profile egress/access stages (~3.15M/~2.33M rows) and apply release-tick quotient before law expansion only after proving every future production predicate and carried birth/wait moment; preserve raw history where observations require it. Investigate schedule-aware quotient for private child departures: where fraction(profile,t)=0, eligibility is unobservable to release and already-released mass is zero; protect bus service eligibility queries and validators, mixed dwell, protected service/reroute boundaries. Validate actual post-dwell returns, matched 10/5s and longer 3600s/8h/24h, River/Coastal, before any separate acceptance proposal. Supply-sensitive adaptive rank deferred by measured journey bottleneck; resume with per-link error budget after profiling. B10 actual link-entry/outlet marks, endogenous ready-head suffix and graph edit drain still partial. Keep frozen original city/calendar, finite response, legal routes, accessibility/growth, 6GiB/8GiB/7200s, 3x3 full days and 8h refinement; no guard shaving or identity conflation.
 
 **예산·종료조건**
 
@@ -2306,11 +2306,11 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "V03"
   ],
   "native_subagent": "NOT_RUN_NO_TOOL",
-  "scope": "Integrated S01-S10: original exact recovery 25740 unchanged; direct all-atom causal rank projection, FIFO prefix and storage error brackets; rank4 independently recovered 25800, rank1 26220 (900s), rank1-ready500 continuation recovered 27000 (1680s ancestral horizon, no ready merges). Actual matched observables, reusable scratch, measured zero-heap accumulator; 13/15 pure Rust scoped; 0/9 original full days.",
+  "scope": "Integrated S01-S10: original exact computed/recovered 25740 unchanged; journey-history bottleneck identified; maturity-only and exact-clock grouping negative in actual Valley; fixed-tick eligibility quotient and first-moment closure removed 19860324 receipts at 27120, independently recovered 28020 research seconds (2700s ancestry); same-clock matched physical observable parity; exact original 60s wire replay; zero-allocation scoped grouping/writer; 13/15 pure Rust scoped; 0/9 original full days.",
   "full_repository_ci": "DEFERRED_BY_USER",
   "full_day_100k": "BLOCKED_RESOURCE_AND_MIGRATION_0_OF_9",
   "main_modified": false,
-  "evidence": "artifacts/v03_causal_rank_20261127/S10_RESEARCH_RECEIPT.json",
+  "evidence": "artifacts/v03_receipt_closure_20261127/S10_RESEARCH_RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
@@ -2319,20 +2319,20 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "status": "success"
   },
   "parallel_agents": [],
-  "active_branch": "research/v03-causal-rank-20261127",
-  "production_commit": "b351f9b0270487de26df9972f9066ad7d7323275",
+  "active_branch": "research/v03-receipt-closure-20261127",
+  "production_commit": "7dfea08745e3d793d63d1acb6435e47235fa789d",
   "research_stages_completed": 10,
   "research_stages_total": 10,
-  "source_commit": "b351f9b0270487de26df9972f9066ad7d7323275",
-  "native_source_sha256": "7d8f4f334ba76cae6316d1ed5c4b2a63e873212158172167586a25391a6fd721",
-  "native_binary_sha256": "ad34d3c8f2f267ae8d30455797ed0977523218167244a62b170296115e884e06",
+  "source_commit": "7dfea08745e3d793d63d1acb6435e47235fa789d",
+  "native_source_sha256": "f5e51aacab75bc3c63ae989cf512fd6466c6fbd43cdf93b73e913fa8e9a99ece",
+  "native_binary_sha256": "b713a182d3b180567398bbfbca9912b9cbe3890eaa6184161df4114aacfbc7d2",
   "current_loop_stages_completed": 10,
   "current_loop_stages_total": 10,
   "current_loop_native_subagent": "NOT_RUN_NO_TOOL",
-  "native_source_hash_method": "SHA256 of tracked source manifest at S09; experiment binaries individually bound",
-  "native_binary_feature": "native-cli no Python; S04/S07/S09 separately bound",
+  "native_source_hash_method": "SHA256 of tracked source manifest at S09 source commit; experiment binaries separately bound",
+  "native_binary_feature": "native-cli no Python; S04/S06/S07/S09 separately bound",
   "rust_backend_scoped": "13/15 pure Rust scoped; 2 partial; zero unported; original recovered 25740",
-  "theory_loop_scope": "S01-S10 causal rank projection, local FIFO/footprint bounds and ready-stock negative result; original release unchanged"
+  "theory_loop_scope": "S01-S10 fixed-dwell maturity and eligibility-grid sufficient statistics, exact-clock convolution, measured actual receipt reduction and negative results; original release unchanged"
 }
 ```
 

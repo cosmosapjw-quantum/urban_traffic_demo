@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.46",
+  "version": "1.1.47",
   "date": "2026-11-27",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -371,11 +371,11 @@
       "V03"
     ],
     "native_subagent": "NOT_RUN_NO_TOOL",
-    "scope": "Integrated S01-S10: original exact recovery 25740 unchanged; direct all-atom causal rank projection, FIFO prefix and storage error brackets; rank4 independently recovered 25800, rank1 26220 (900s), rank1-ready500 continuation recovered 27000 (1680s ancestral horizon, no ready merges). Actual matched observables, reusable scratch, measured zero-heap accumulator; 13/15 pure Rust scoped; 0/9 original full days.",
+    "scope": "Integrated S01-S10: original exact computed/recovered 25740 unchanged; journey-history bottleneck identified; maturity-only and exact-clock grouping negative in actual Valley; fixed-tick eligibility quotient and first-moment closure removed 19860324 receipts at 27120, independently recovered 28020 research seconds (2700s ancestry); same-clock matched physical observable parity; exact original 60s wire replay; zero-allocation scoped grouping/writer; 13/15 pure Rust scoped; 0/9 original full days.",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "BLOCKED_RESOURCE_AND_MIGRATION_0_OF_9",
     "main_modified": false,
-    "evidence": "artifacts/v03_causal_rank_20261127/S10_RESEARCH_RECEIPT.json",
+    "evidence": "artifacts/v03_receipt_closure_20261127/S10_RESEARCH_RECEIPT.json",
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
@@ -384,20 +384,20 @@
       "status": "success"
     },
     "parallel_agents": [],
-    "active_branch": "research/v03-causal-rank-20261127",
-    "production_commit": "b351f9b0270487de26df9972f9066ad7d7323275",
+    "active_branch": "research/v03-receipt-closure-20261127",
+    "production_commit": "7dfea08745e3d793d63d1acb6435e47235fa789d",
     "research_stages_completed": 10,
     "research_stages_total": 10,
-    "source_commit": "b351f9b0270487de26df9972f9066ad7d7323275",
-    "native_source_sha256": "7d8f4f334ba76cae6316d1ed5c4b2a63e873212158172167586a25391a6fd721",
-    "native_binary_sha256": "ad34d3c8f2f267ae8d30455797ed0977523218167244a62b170296115e884e06",
+    "source_commit": "7dfea08745e3d793d63d1acb6435e47235fa789d",
+    "native_source_sha256": "f5e51aacab75bc3c63ae989cf512fd6466c6fbd43cdf93b73e913fa8e9a99ece",
+    "native_binary_sha256": "b713a182d3b180567398bbfbca9912b9cbe3890eaa6184161df4114aacfbc7d2",
     "current_loop_stages_completed": 10,
     "current_loop_stages_total": 10,
     "current_loop_native_subagent": "NOT_RUN_NO_TOOL",
-    "native_source_hash_method": "SHA256 of tracked source manifest at S09; experiment binaries individually bound",
-    "native_binary_feature": "native-cli no Python; S04/S07/S09 separately bound",
+    "native_source_hash_method": "SHA256 of tracked source manifest at S09 source commit; experiment binaries separately bound",
+    "native_binary_feature": "native-cli no Python; S04/S06/S07/S09 separately bound",
     "rust_backend_scoped": "13/15 pure Rust scoped; 2 partial; zero unported; original recovered 25740",
-    "theory_loop_scope": "S01-S10 causal rank projection, local FIFO/footprint bounds and ready-stock negative result; original release unchanged"
+    "theory_loop_scope": "S01-S10 fixed-dwell maturity and eligibility-grid sufficient statistics, exact-clock convolution, measured actual receipt reduction and negative results; original release unchanged"
   },
   "nodes": [
     {
@@ -1902,7 +1902,7 @@
       "failure_classification": [
         "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
       ],
-      "positive_next_action": "V03/B15: no guard shaving or conflation of identities. Diagnose remaining peak transient records and event/checkpoint write growth. For distinct causal-rank research model, implement supply-sensitive partition refinement using marked FIFO prefix e_j=m_j(1-p_j) and footprint bound, protect service and reroute clocks and graph-boundary discontinuities. Use robust supply bracket and per-link error budget, compare matched exact observable errors, per-leg completion and outlet clocks, test convergence and nonlinear propagation; profile non-ready resident cohorts and route-tag support across epochs rather than ready500 (zero merges). Extend to 3600s and 8h/24h, River/Coastal nonzero demand with strict caps, original acceptance only by original contract or explicit approved change. B10 actual link-entry/outlet marks, endogenous ready-head suffix and graph edit drain, native Rust. Keep frozen 100k graph/calendar, finite response, legal K routes, accessibility/growth, 6GiB/8GiB/7200s, 3x3 full days and 8h refinement.",
+      "positive_next_action": "V03/B15: preserve original identity and strict caps. For distinct receipt-grid research model, replace repeated sort/rebuild sweeps with bounded incremental eligibility bucket accumulators (mass, first moment, boundary key proof and rollback). Profile egress/access stages (~3.15M/~2.33M rows) and apply release-tick quotient before law expansion only after proving every future production predicate and carried birth/wait moment; preserve raw history where observations require it. Investigate schedule-aware quotient for private child departures: where fraction(profile,t)=0, eligibility is unobservable to release and already-released mass is zero; protect bus service eligibility queries and validators, mixed dwell, protected service/reroute boundaries. Validate actual post-dwell returns, matched 10/5s and longer 3600s/8h/24h, River/Coastal, before any separate acceptance proposal. Supply-sensitive adaptive rank deferred by measured journey bottleneck; resume with per-link error budget after profiling. B10 actual link-entry/outlet marks, endogenous ready-head suffix and graph edit drain still partial. Keep frozen original city/calendar, finite response, legal routes, accessibility/growth, 6GiB/8GiB/7200s, 3x3 full days and 8h refinement; no guard shaving or identity conflation.",
       "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
       "contracts": [
         "C_RUNTIME",
@@ -2055,6 +2055,11 @@
           "path": "artifacts/v03_causal_rank_20261127/S10_RESEARCH_RECEIPT.json",
           "sha256": "15113621b90c1afcbf8e9f322ae52a0c8e7006b4e7c5a6bf1b4c02f3df6309e8",
           "scope": "Actual direct rank reduction and independently recovered 1680s ancestral horizon, matched observables, scratch reuse and scoped zero-heap; original gates unchanged"
+        },
+        {
+          "path": "artifacts/v03_receipt_closure_20261127/S10_RESEARCH_RECEIPT.json",
+          "sha256": "2ba8db7f5f105fbfba86c2f39548307dff05ea887550f10989b9b3fe6af6e405",
+          "scope": "Actual fixed-grid receipt quotient reduced history by 75% at 27120; independently recovered longer research horizon; same-clock physical parity; original wire replay; original gates unchanged"
         }
       ],
       "historical_blocked_evidence": [
@@ -2096,14 +2101,14 @@
         }
       ],
       "current_research_evidence": {
-        "path": "artifacts/v03_causal_rank_20261127/S10_RESEARCH_RECEIPT.json",
-        "sha256": "15113621b90c1afcbf8e9f322ae52a0c8e7006b4e7c5a6bf1b4c02f3df6309e8",
-        "status": "S01-S10 integrated; original recovered 25740; causal rank research recovered 27000; 13/15 pure Rust scoped; V03 blocked",
-        "baseline_commit": "8da61e9f0a26303449796260b7822a5e502a7908",
-        "source_sha256": "7d8f4f334ba76cae6316d1ed5c4b2a63e873212158172167586a25391a6fd721",
-        "native_sha256": "ad34d3c8f2f267ae8d30455797ed0977523218167244a62b170296115e884e06",
-        "source_hash_method": "SHA256 of tracked source manifest at S09; experiment binaries individually bound",
-        "theory_path": "docs/research/V03_CAUSAL_RANK_20261127.md"
+        "path": "artifacts/v03_receipt_closure_20261127/S10_RESEARCH_RECEIPT.json",
+        "sha256": "2ba8db7f5f105fbfba86c2f39548307dff05ea887550f10989b9b3fe6af6e405",
+        "status": "S01-S10 integrated; original recovered 25740; receipt-grid research recovered 28020; 13/15 pure Rust scoped; V03 blocked",
+        "baseline_commit": "bc88cbe29e113e484d58d9fe609c2c8ae24fd2fa",
+        "source_sha256": "f5e51aacab75bc3c63ae989cf512fd6466c6fbd43cdf93b73e913fa8e9a99ece",
+        "native_sha256": "b713a182d3b180567398bbfbca9912b9cbe3890eaa6184161df4114aacfbc7d2",
+        "source_hash_method": "SHA256 of tracked source manifest at S09 source commit; experiment binaries separately bound",
+        "theory_path": "docs/research/V03_RECEIPT_CLOSURE_20261127.md"
       },
       "historical_research_evidence": [
         {
@@ -2271,6 +2276,16 @@
           "native_sha256": "6833a3f1cc19997cb5c12cc7644b2d845a13f1fa1e3b717bf2e88d9e4a5b670c",
           "source_hash_method": "SHA256 of tracked source manifest at S09 source commit; measured binaries individually bound to receipts",
           "theory_path": "docs/research/V03_SPAN_MEASURE_20261127.md"
+        },
+        {
+          "path": "artifacts/v03_causal_rank_20261127/S10_RESEARCH_RECEIPT.json",
+          "sha256": "15113621b90c1afcbf8e9f322ae52a0c8e7006b4e7c5a6bf1b4c02f3df6309e8",
+          "status": "S01-S10 integrated; original recovered 25740; causal rank research recovered 27000; 13/15 pure Rust scoped; V03 blocked",
+          "baseline_commit": "8da61e9f0a26303449796260b7822a5e502a7908",
+          "source_sha256": "7d8f4f334ba76cae6316d1ed5c4b2a63e873212158172167586a25391a6fd721",
+          "native_sha256": "ad34d3c8f2f267ae8d30455797ed0977523218167244a62b170296115e884e06",
+          "source_hash_method": "SHA256 of tracked source manifest at S09; experiment binaries individually bound",
+          "theory_path": "docs/research/V03_CAUSAL_RANK_20261127.md"
         }
       ],
       "secondary_blocked_evidence": {
@@ -2494,7 +2509,7 @@
     "authorized_on": "2026-11-16",
     "supersedes": "pure Python core restriction in PLAN v1.1.17 and AGENTS.md",
     "target": "Rust-owned backend, input preparation, measurement, headless execution and acceptance; Python frontend serialization or explicit opt-in test oracle only",
-    "mode": "Pure Rust native CLI; optional Python frontend; exact packed references/events, distinct causal rank research identities; B10/B15 partial.",
+    "mode": "Pure Rust native CLI; optional Python frontend; exact packed references/events, exact batched journey wire, distinct causal-rank and receipt-grid identities; B10/B15 partial.",
     "current_scope": [
       "Persistent f64 legal-turn routing in V1 preparation",
       "Direct factorized Rust calendar construction without Python per-leg objects",
@@ -2524,11 +2539,12 @@
       "Sequential decode/install owner accounting, streaming source scratch and route successor support, phase world v2 outlet window, isolated zero-allocation probes, causal finite FIFO shadow with frozen projected demand; current independently recovered 25730 s.",
       "Verified 25740 same-identity compute/recovery, 25750 install closure, actual nonzero loaded 60/120/180s slices, marked FIFO birth-moment network shadow and bounded zero-alloc kernels; native phase wire unchanged.",
       "Integrated S01-S10: original exact frontier computed 25740 and independently recovered 25740; packed integer receiving references and exact event-bit pages; conservative time-bin measure closure under distinct identity; 4-bin 25800 recovered (480s); 1-bin 25860 recovered (540s); 13/15 pure Rust scoped; 0/9 original full days.",
-      "Integrated S01-S10: original exact recovery 25740 unchanged; direct all-atom causal rank projection, FIFO prefix and storage error brackets; rank4 independently recovered 25800, rank1 26220 (900s), rank1-ready500 continuation recovered 27000 (1680s ancestral horizon, no ready merges). Actual matched observables, reusable scratch, measured zero-heap accumulator; 13/15 pure Rust scoped; 0/9 original full days."
+      "Integrated S01-S10: original exact recovery 25740 unchanged; direct all-atom causal rank projection, FIFO prefix and storage error brackets; rank4 independently recovered 25800, rank1 26220 (900s), rank1-ready500 continuation recovered 27000 (1680s ancestral horizon, no ready merges). Actual matched observables, reusable scratch, measured zero-heap accumulator; 13/15 pure Rust scoped; 0/9 original full days.",
+      "Integrated S01-S10: original exact computed/recovered 25740 unchanged; journey-history bottleneck identified; maturity-only and exact-clock grouping negative in actual Valley; fixed-tick eligibility quotient and first-moment closure removed 19860324 receipts at 27120, independently recovered 28020 research seconds (2700s ancestry); same-clock matched physical observable parity; exact original 60s wire replay; zero-allocation scoped grouping/writer; 13/15 pure Rust scoped; 0/9 original full days."
     ],
     "remaining": [
-      "V03/B15: no guard shaving or conflation of identities. Diagnose remaining peak transient records and event/checkpoint write growth. For distinct causal-rank research model, implement supply-sensitive partition refinement using marked FIFO prefix e_j=m_j(1-p_j) and footprint bound, protect service and reroute clocks and graph-boundary discontinuities. Use robust supply bracket and per-link error budget, compare matched exact observable errors, per-leg completion and outlet clocks, test convergence and nonlinear propagation; profile non-ready resident cohorts and route-tag support across epochs rather than ready500 (zero merges). Extend to 3600s and 8h/24h, River/Coastal nonzero demand with strict caps, original acceptance only by original contract or explicit approved change. B10 actual link-entry/outlet marks, endogenous ready-head suffix and graph edit drain, native Rust. Keep frozen 100k graph/calendar, finite response, legal K routes, accessibility/growth, 6GiB/8GiB/7200s, 3x3 full days and 8h refinement.",
-      "Original exact recovered 25740; original full days and refinement remain. Distinct research horizon 27000 not release credit.",
+      "V03/B15: preserve original identity and strict caps. For distinct receipt-grid research model, replace repeated sort/rebuild sweeps with bounded incremental eligibility bucket accumulators (mass, first moment, boundary key proof and rollback). Profile egress/access stages (~3.15M/~2.33M rows) and apply release-tick quotient before law expansion only after proving every future production predicate and carried birth/wait moment; preserve raw history where observations require it. Investigate schedule-aware quotient for private child departures: where fraction(profile,t)=0, eligibility is unobservable to release and already-released mass is zero; protect bus service eligibility queries and validators, mixed dwell, protected service/reroute boundaries. Validate actual post-dwell returns, matched 10/5s and longer 3600s/8h/24h, River/Coastal, before any separate acceptance proposal. Supply-sensitive adaptive rank deferred by measured journey bottleneck; resume with per-link error budget after profiling. B10 actual link-entry/outlet marks, endogenous ready-head suffix and graph edit drain still partial. Keep frozen original city/calendar, finite response, legal routes, accessibility/growth, 6GiB/8GiB/7200s, 3x3 full days and 8h refinement; no guard shaving or identity conflation.",
+      "Original exact recovered 25740; original full days and refinement remain. Distinct research horizon 28020 not release credit.",
       "Integrate source-aligned rank/span views into the actual ordered interval consumer and checkpoint expansion; retain finite response and commodity/birth observables. Separate bit-exact event sharing, real-arithmetic rank equivalence and explicitly approximate block closure; require complete-tick, ledger and checkpoint evidence.",
       "Frozen candidate3cases x3 full-day completion, matched refinement and full-day checkpoint replay; current completion0/9",
       "Separate final review, RLS01 packaging/fresh-install acceptance and full repository CI/integration deferred by user"
@@ -2537,13 +2553,13 @@
     "historical_local_patch_sha256": "7d89e8be20339709a9c0dc894a26dc7db75bdc0d857637ffb30f7bc7fe4a1326",
     "last_completed_work": {
       "date": "2026-11-27",
-      "scope": "Integrated S01-S10: original exact recovery 25740 unchanged; direct all-atom causal rank projection, FIFO prefix and storage error brackets; rank4 independently recovered 25800, rank1 26220 (900s), rank1-ready500 continuation recovered 27000 (1680s ancestral horizon, no ready merges). Actual matched observables, reusable scratch, measured zero-heap accumulator; 13/15 pure Rust scoped; 0/9 original full days.",
-      "evidence": "artifacts/v03_causal_rank_20261127/S10_RESEARCH_RECEIPT.json"
+      "scope": "Integrated S01-S10: original exact computed/recovered 25740 unchanged; journey-history bottleneck identified; maturity-only and exact-clock grouping negative in actual Valley; fixed-tick eligibility quotient and first-moment closure removed 19860324 receipts at 27120, independently recovered 28020 research seconds (2700s ancestry); same-clock matched physical observable parity; exact original 60s wire replay; zero-allocation scoped grouping/writer; 13/15 pure Rust scoped; 0/9 original full days.",
+      "evidence": "artifacts/v03_receipt_closure_20261127/S10_RESEARCH_RECEIPT.json"
     },
-    "active_work": "V03/B15: no guard shaving or conflation of identities. Diagnose remaining peak transient records and event/checkpoint write growth. For distinct causal-rank research model, implement supply-sensitive partition refinement using marked FIFO prefix e_j=m_j(1-p_j) and footprint bound, protect service and reroute clocks and graph-boundary discontinuities. Use robust supply bracket and per-link error budget, compare matched exact observable errors, per-leg completion and outlet clocks, test convergence and nonlinear propagation; profile non-ready resident cohorts and route-tag support across epochs rather than ready500 (zero merges). Extend to 3600s and 8h/24h, River/Coastal nonzero demand with strict caps, original acceptance only by original contract or explicit approved change. B10 actual link-entry/outlet marks, endogenous ready-head suffix and graph edit drain, native Rust. Keep frozen 100k graph/calendar, finite response, legal K routes, accessibility/growth, 6GiB/8GiB/7200s, 3x3 full days and 8h refinement.",
+    "active_work": "V03/B15: preserve original identity and strict caps. For distinct receipt-grid research model, replace repeated sort/rebuild sweeps with bounded incremental eligibility bucket accumulators (mass, first moment, boundary key proof and rollback). Profile egress/access stages (~3.15M/~2.33M rows) and apply release-tick quotient before law expansion only after proving every future production predicate and carried birth/wait moment; preserve raw history where observations require it. Investigate schedule-aware quotient for private child departures: where fraction(profile,t)=0, eligibility is unobservable to release and already-released mass is zero; protect bus service eligibility queries and validators, mixed dwell, protected service/reroute boundaries. Validate actual post-dwell returns, matched 10/5s and longer 3600s/8h/24h, River/Coastal, before any separate acceptance proposal. Supply-sensitive adaptive rank deferred by measured journey bottleneck; resume with per-link error budget after profiling. B10 actual link-entry/outlet marks, endogenous ready-head suffix and graph edit drain still partial. Keep frozen original city/calendar, finite response, legal routes, accessibility/growth, 6GiB/8GiB/7200s, 3x3 full days and 8h refinement; no guard shaving or identity conflation.",
     "backend_census": {
-      "path": "artifacts/v03_causal_rank_20261127/S10_backend_coverage.json",
-      "sha256": "8ca40715e7a264cce891d7477610d0428dc24fc459746348398d2f75d20336c1",
+      "path": "artifacts/v03_receipt_closure_20261127/S10_backend_coverage.json",
+      "sha256": "bb870a58cd5ddf0e6bf21ea1dc75fb97dc33a594ab0acdb69fa16f11a9d978db",
       "denominator": 15,
       "implemented_scoped": 13,
       "pure_rust_scoped": 13,

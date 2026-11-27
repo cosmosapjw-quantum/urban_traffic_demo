@@ -1,0 +1,6 @@
+S08_grid27120 exit=0
+S08_grid27120_recover exit=0
+S08_grid27420 exit=0
+S08_grid27420_recover exit=0
+S08_grid28020 exit=0
+S08_grid28020_recover exit=0

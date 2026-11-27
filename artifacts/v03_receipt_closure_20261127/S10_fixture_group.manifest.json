@@ -1,0 +1,318 @@
+{
+  "schema": "metroflow_native_declaration_v1",
+  "byte_budget": 268435456,
+  "calendar": {
+    "city_identity": "rust-host-fixture-city",
+    "schedule_identity": "rust-host-fixture-schedule",
+    "labels": [
+      "null",
+      "\"home\"",
+      "\"job\"",
+      "\"work\"",
+      "\"car\"",
+      "\"bus\"",
+      "\"scheduled_bus\"",
+      "\"return_home\"",
+      "\"interzonal\"",
+      "\"intrazonal\"",
+      "\"external\"",
+      "\"delivery\"",
+      "\"freight\""
+    ],
+    "profiles": [
+      [
+        [
+          0,
+          10,
+          1
+        ]
+      ],
+      [
+        [
+          40,
+          50,
+          1
+        ]
+      ],
+      [
+        [
+          5,
+          10,
+          1
+        ]
+      ]
+    ],
+    "homes": [
+      [
+        1,
+        1000,
+        0
+      ]
+    ],
+    "targets": [
+      [
+        3,
+        0,
+        1,
+        10,
+        1000,
+        false,
+        [
+          [
+            2,
+            1000
+          ]
+        ]
+      ]
+    ],
+    "modes": [
+      [
+        4,
+        4,
+        0.8,
+        1.25,
+        false
+      ],
+      [
+        5,
+        6,
+        0.2,
+        25,
+        false
+      ]
+    ],
+    "laws": [],
+    "freight": [
+      [
+        "freight:job",
+        2,
+        100
+      ]
+    ],
+    "config": [
+      1000,
+      0,
+      0,
+      10,
+      1000
+    ],
+    "constants": [
+      0,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      12
+    ],
+    "freight_profile": 2
+  },
+  "static": {
+    "schema": "native_calendar_static_v1",
+    "identity": "rust-host-fixture-static",
+    "city_identity": "rust-host-fixture-city",
+    "schedule_identity": "rust-host-fixture-schedule",
+    "step_s": 1,
+    "record_budget": 20000,
+    "max_service_runs": 2000,
+    "event_budget": 20000,
+    "preserve_entry_intervals": true,
+    "activities": [
+      [
+        "\"home\"",
+        "home",
+        "a",
+        "a",
+        [
+          [
+            0,
+            1
+          ]
+        ],
+        [
+          [
+            0,
+            1
+          ]
+        ],
+        0
+      ],
+      [
+        "\"job\"",
+        "job",
+        "b",
+        "b",
+        [
+          [
+            0,
+            1
+          ]
+        ],
+        [
+          [
+            0,
+            1
+          ]
+        ],
+        0
+      ]
+    ],
+    "intrazonal_laws": [],
+    "groups": [
+      [
+        100,
+        10,
+        2,
+        2,
+        200,
+        1
+      ],
+      [
+        100,
+        10,
+        2,
+        2,
+        200,
+        1
+      ]
+    ],
+    "signals": [
+      null,
+      null
+    ],
+    "classes": [
+      [
+        10,
+        2,
+        2,
+        4,
+        2,
+        1,
+        5,
+        1,
+        0.2,
+        0.3,
+        10,
+        0,
+        5
+      ],
+      [
+        10,
+        2,
+        2,
+        4,
+        2,
+        1,
+        10,
+        1,
+        0.2,
+        0.3,
+        10,
+        0,
+        10
+      ],
+      [
+        10,
+        2,
+        2,
+        4,
+        2,
+        1,
+        12,
+        1,
+        0.2,
+        0.3,
+        10,
+        0,
+        12
+      ]
+    ],
+    "class_names": [
+      "car",
+      "freight",
+      "scheduled_bus"
+    ],
+    "incoming": [
+      [
+        1
+      ],
+      [
+        0
+      ]
+    ],
+    "windows": [],
+    "link_ids": [
+      "ab",
+      "ba"
+    ],
+    "route_arcs": [
+      [
+        "ab",
+        "a",
+        "b"
+      ],
+      [
+        "ba",
+        "b",
+        "a"
+      ]
+    ],
+    "route_costs": [
+      [
+        "ab",
+        10
+      ],
+      [
+        "ba",
+        10
+      ]
+    ],
+    "allowed_turns": [
+      [
+        "ab",
+        "ba"
+      ],
+      [
+        "ba",
+        "ab"
+      ]
+    ],
+    "corridors": [
+      [
+        "out",
+        "home",
+        "job",
+        30,
+        25,
+        0
+      ],
+      [
+        "back",
+        "job",
+        "home",
+        60,
+        25,
+        0
+      ]
+    ],
+    "corridor_routes": [
+      [
+        "out",
+        [
+          "ab"
+        ]
+      ],
+      [
+        "back",
+        [
+          "ba"
+        ]
+      ]
+    ],
+    "depot_block_id": "home",
+    "depot_node_or_None": "a"
+  },
+  "research_receipt_period_s": 10,
+  "research_group_outlets": true
+}
