@@ -5033,6 +5033,20 @@ impl V1Road {
             work.require(0,"receiving phase actual candidate owner")?;
             floor
         } else {full_consumer_base.saturating_sub(work.transfer_exclusive_cell_scratch)};
+        // One exact-size rank ordinal scratch for the largest receiving cell.
+        // All smaller cells reuse it; its whole lifetime stays in base charge.
+        let mut rank_workspace:Vec<(u64,u32)>=Vec::new();
+        let rank_bytes=if self.research_rank_bins.is_some(){
+            let max=if use_timed_incoming{timed_rows.iter().map(TimedIncomingRows::len).max().unwrap_or(0)}else{incoming.iter().map(ChunkedParts::len).max().unwrap_or(0)};
+            let bytes=max.checked_mul(std::mem::size_of::<(u64,u32)>()).ok_or_else(||budget("rank workspace bytes overflow"))?;
+            work.require(bytes,"rank reusable ordinal workspace")?;
+            rank_workspace=checkpoint_vec(max)?;
+            if rank_workspace.capacity()!=max{return Err(budget("rank reusable capacity differs"))}
+            crate::v1_trace::add("rank.workspace_reserved_bytes",bytes as u64);
+            bytes
+        }else{0};
+        let consumer_floor=consumer_floor.saturating_add(rank_bytes);
+        if !local_consumer{work.base=work.base.saturating_add(rank_bytes);}
         for i in 0..n {
             if local_consumer { work.base = consumer_floor; }
             let raw_rows=if use_timed_incoming {timed_rows[i].len()}else{incoming[i].len()};
@@ -5103,7 +5117,7 @@ impl V1Road {
                 let source=std::mem::take(&mut timed_rows[i]);
                 let get=|index|source.get_with_events(index,&timed_controls,&events).0;
                 let parts=if let Some(bins)=self.research_rank_bins {
-                    projected=Some(v1_rank_projection::project(source.len(),get,target,bins,dt,self.record_budget,local_peak,&mut work)?);
+                    projected=Some(v1_rank_projection::project_with(source.len(),get,target,bins,dt,self.record_budget,local_peak,&mut work,&mut rank_workspace)?);
                     Vec::new()
                 }else if local_consumer {
                     combine_compact_indexed_parts(source.len(),get,|index_bytes,groups|{
@@ -5117,7 +5131,7 @@ impl V1Road {
             } else {
                 let source=std::mem::take(&mut incoming[i]);
                 let parts=if let Some(bins)=self.research_rank_bins{
-                    projected=Some(v1_rank_projection::project(source.len(),|index|source.get(index),target,bins,dt,self.record_budget,local_peak,&mut work)?);
+                    projected=Some(v1_rank_projection::project_with(source.len(),|index|source.get(index),target,bins,dt,self.record_budget,local_peak,&mut work,&mut rank_workspace)?);
                     Vec::new()
                 }else{combine_chunked_parts(&source)?};
                 let expired_marks=std::mem::take(&mut marks[i]);
@@ -5201,6 +5215,7 @@ impl V1Road {
             if local_consumer{work.base=consumer_floor;}
             for cell in &mut out.cells{v1_ready_rank::coalesce(&mut cell.packets,cell.v[0],milli as f64/1000.,60.,&mut work)?;}
         }
+        drop(rank_workspace);
         work.base = full_consumer_base;
         // No timed source/control owner survives into validation or the
         // persistent candidate. Legacy state/checkpoint representation stays.
@@ -9164,3 +9179,25 @@ impl PackedRankProbe{
 
 #[cfg(feature="native-cli")]
 pub fn allocation_probe_rank_moments(values:&[(f64,f64)])->CoreResult<[f64;2]>{v1_rank_projection::moment_probe(values)}
+
+#[cfg(feature="native-cli")]
+impl V1Road{
+    pub(crate) fn audit_rank_observables(&self,s:&RoadState)->CoreResult<(Vec<[f64;6]>,Vec<[f64;4]>)>{
+        use v1_rank_projection::Acc;
+        let n=self.routes.len();let c=s.cells.len();
+        let bytes=n.saturating_mul(std::mem::size_of::<[Acc;4]>()+std::mem::size_of::<[f64;4]>()).saturating_add(c.saturating_mul(48));
+        if bytes>64*1024*1024{return Err(budget("rank audit summary exceeds 64MiB"))}
+        let mut tags=checkpoint_vec(n)?;tags.resize(n,[Acc::default();4]);
+        let mut cells=checkpoint_vec(c)?;
+        for cell in &s.cells{
+            cells.push([self.occupancy(cell),self.occupied(cell),cell.v[7],cell.v[2],cell.v[3],cell.v[6]]);
+            for p in cell.packets.iter().flat_map(|p|p.parts.iter()){
+                let a=tags.get_mut(p.tag).ok_or_else(||val("rank audit tag outside registry"))?;
+                a[0].add(p.mass)?;a[1].add(p.birth)?;a[2].add(p.mass*p.offset as f64)?;
+                let t=p.a.unwrap_or(0.)+0.5*(p.b.unwrap_or(0.)-p.a.unwrap_or(0.));a[3].add(p.mass*t)?;
+            }
+        }
+        let mut out=checkpoint_vec(n)?;out.extend(tags.into_iter().map(|a|a.map(|x|x.value())));
+        Ok((cells,out))
+    }
+}

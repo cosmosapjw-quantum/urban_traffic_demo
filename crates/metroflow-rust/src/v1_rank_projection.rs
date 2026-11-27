@@ -2,9 +2,9 @@
 use super::*;
 const MAX_BINS:usize=16;
 #[derive(Clone,Copy,Default)]
-struct Acc { hi:f64,lo:f64 }
+pub(super) struct Acc { hi:f64,lo:f64 }
 impl Acc{
-    fn add(&mut self,x:f64)->CoreResult<()>{
+    pub(super) fn add(&mut self,x:f64)->CoreResult<()>{
         if !finite_nonnegative(x){return Err(arithmetic("rank remap nonfinite or negative summand"))}
         let t=self.hi+x;
         if !t.is_finite(){return Err(arithmetic("rank remap sum overflow"))}
@@ -12,7 +12,7 @@ impl Acc{
         if !self.lo.is_finite(){return Err(arithmetic("rank remap correction overflow"))}
         self.hi=t;Ok(())
     }
-    fn value(self)->f64{self.hi+self.lo}
+    pub(super) fn value(self)->f64{self.hi+self.lo}
 }
 #[derive(Clone,Copy)]
 struct Grid{lo:f64,ends:[f64;MAX_BINS],n:usize,sparse:bool}
@@ -59,20 +59,27 @@ fn grid(len:usize,get:&impl Fn(usize)->Part,bins:usize,dt:f64)->CoreResult<Grid>
 // Explicit two-pass count and emit. Cached integer keys avoid repeated packed
 // payload decoding in the sort comparator; source ordinal resolves ties.
 // All output vectors reserved once with actual cardinality. No per-row maps.
+#[cfg(test)]
 pub(super) fn project(len:usize,get:impl Fn(usize)->Part,target:f64,bins:usize,dt:f64,record_budget:usize,scratch:usize,work:&mut RoadWorkBudget)->CoreResult<(Vec<Packet>,f64)>{
+    let bytes=len.saturating_mul(std::mem::size_of::<(u64,u32)>());
+    work.interval(scratch.saturating_add(bytes))?;
+    let mut workspace=checkpoint_vec(len)?;
+    project_with(len,get,target,bins,dt,record_budget,scratch.saturating_add(bytes),work,&mut workspace)
+}
+pub(super) fn project_with(len:usize,get:impl Fn(usize)->Part,target:f64,bins:usize,dt:f64,record_budget:usize,scratch:usize,work:&mut RoadWorkBudget,order:&mut Vec<(u64,u32)>)->CoreResult<(Vec<Packet>,f64)>{
     let grid=grid(len,&get,bins,dt)?;
     if len==0{return Ok((vec![],0.))}
     if len>u32::MAX as usize{return Err(budget("rank source ordinal overflow"))}
-    let key_bytes=len.checked_mul(std::mem::size_of::<(u64,u32)>()).ok_or_else(||budget("rank source length overflow"))?;
+    if order.capacity()<len{return Err(budget("rank workspace capacity too small"))}
     let shell=grid.n*std::mem::size_of::<Packet>()+grid.n*96;
-    let base=scratch.saturating_add(key_bytes).saturating_add(shell).saturating_add(128*1024);
+    let base=scratch.saturating_add(shell).saturating_add(128*1024);
     work.interval(base)?;
-    let mut order=checkpoint_vec(len)?;
-    if order.capacity()!=len{return Err(budget("rank source exact allocation differs"))}
+    order.clear();
     for i in 0..len{let p=get(i);let (tag,offset)=compact_indices(p.tag,p.offset).unwrap();order.push((((tag as u64)<<32)|offset as u64,i as u32));}
     order.sort_unstable();
     let mut counts=[0usize;MAX_BINS];
     for group in order.chunk_by(|a,b|a.0==b.0){
+        if grid.n==1{counts[0]+=1;continue}
         let mut mask=0u32;
         for &(_,i) in group{
             let p=get(i as usize);
@@ -111,7 +118,7 @@ pub(super) fn project(len:usize,get:impl Fn(usize)->Part,target:f64,bins:usize,d
         let close=|a:f64,b:f64|(a-b).abs()<=1e-10*a.max(b)+4.*f64::from_bits(1);
         if !close(old_m.value(),new_m.value())||!close(old_b.value(),new_b.value()){return Err(arithmetic("rank per-mark conservation differs"))}
     }
-    drop(order);
+    order.clear();
     let mut out=checkpoint_vec(grid.n)?;
     if out.capacity()!=grid.n{return Err(budget("rank packet exact allocation differs"))}
     let mut actual=0;

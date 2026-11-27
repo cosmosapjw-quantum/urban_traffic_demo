@@ -1364,3 +1364,5 @@ pub mod marked_fifo;
 pub use v1_road::PackedRankProbe;
 #[cfg(feature="native-cli")]
 pub use v1_road::allocation_probe_rank_moments;
+#[cfg(feature="native-cli")]
+pub use v1_engine::compare_native_rank_states;

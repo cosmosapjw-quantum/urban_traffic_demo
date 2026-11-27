@@ -1,0 +1,3 @@
+S09_compare_exact_rank1 exit=0
+S09_compare_exact_rank4 exit=0
+S09_compare_ready500 exit=0

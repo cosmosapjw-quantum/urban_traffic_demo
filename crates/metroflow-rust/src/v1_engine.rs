@@ -2642,3 +2642,58 @@ mod canonical_variant_fixture_tests{
         engine.validate_bundle(&state.value).unwrap();
     }
 }
+
+#[cfg(feature="native-cli")]
+pub fn compare_native_rank_states(left:serde_json::Value,right:serde_json::Value,threads:usize,left_path:&str,right_path:&str)->CoreResult<serde_json::Value>{
+    use serde_json::json;
+    use sha2::{Digest,Sha256};
+    fn physical(mut m:serde_json::Value)->serde_json::Value{
+        if let Some(o)=m.as_object_mut(){for k in ["research_rank_bins","research_interval_bins","research_ready_mass_milli"]{o.remove(k);}}
+        m
+    }
+    if physical(left.clone())!=physical(right.clone()){return Err(bad("rank audit physical declarations differ"))}
+    struct Obs{clock:f64,identity:String,tags_hash:String,cells:Vec<[f64;6]>,tags:Vec<[f64;4]>,legs:Vec<[f64;4]>,outlet:Vec<[f64;2]>}
+    fn extract(m:serde_json::Value,threads:usize,path:&str)->CoreResult<Obs>{
+        let (mut e,_,_)=build_native_input(m,threads)?;
+        let s=e.load(path.to_owned())?;
+        let clock=s.time_s();let n=e.amounts.len();let k=e.tags.len();
+        if n.saturating_mul(32).saturating_add(k.saturating_mul(48))>64*1024*1024{return Err(CoreError::resource("rank audit retained summary exceeds 64MiB"))}
+        let (cells,tags)=e.road.audit_rank_observables(&s.value.road)?;
+        let mut h=Sha256::new();for name in &e.tags{h.update((name.len()as u64).to_le_bytes());h.update(name.as_bytes());}
+        let mut legs=Vec::new();legs.try_reserve_exact(n).map_err(|_|CoreError::resource("rank audit leg allocation"))?;
+        for (i,a) in e.amounts.iter().enumerate(){
+            let carrier=e.journey.legs()[i].1;let done=s.value.journey.5[i];
+            let frac=if carrier>0.{done/carrier}else{0.};
+            // Time since recorded completion, not travel time. Receipts use
+            // fractional completed mass; weight by original carrier amounts.
+            let age=fsum(s.value.journey.6[i].iter().map(|&(t,f)|f*(clock-t)));
+            legs.push([a[0]*frac,a[1]*frac,a[0]*age,a[1]*age]);
+        }
+        let mut outlet=Vec::new();outlet.try_reserve_exact(k).map_err(|_|CoreError::resource("rank audit outlet allocation"))?;outlet.resize(k,[0.;2]);
+        for e in s.value.service.1.iter(){if e.2.is_none(){
+            let a=outlet.get_mut(e.0).ok_or_else(||bad("rank audit outlet tag"))?;
+            a[0]+=e.3;a[1]+=e.3*(e.4+0.5*(e.5-e.4))-e.6;
+        }}
+        let id=e.identity.clone();Ok(Obs{clock,identity:id,tags_hash:format!("{:x}",h.finalize()),cells,tags,legs,outlet})
+    }
+    fn metrics<const N:usize>(a:&[[f64;N]],b:&[[f64;N]],names:[&str;N])->CoreResult<serde_json::Value>{
+        if a.len()!=b.len(){return Err(bad("rank audit vector lengths differ"))}
+        let mut v=serde_json::Map::new();
+        for (j,name) in names.into_iter().enumerate(){
+            if a.iter().chain(b).any(|r|!r[j].is_finite()){return Err(bad("rank audit nonfinite observable"))}
+            let l1=fsum(a.iter().zip(b).map(|(x,y)|(x[j]-y[j]).abs()));
+            let norm=fsum(a.iter().map(|r|r[j].abs()));
+            let linf=a.iter().zip(b).map(|(x,y)|(x[j]-y[j]).abs()).fold(0.,f64::max);
+            let changed=a.iter().zip(b).filter(|(x,y)|x[j].to_bits()!=y[j].to_bits()).count();
+            v.insert(name.into(),json!({"l1":l1,"linf":linf,"reference_l1":norm,"relative_l1":if norm>0.{Some(l1/norm)}else{None},"bit_different_entries":changed,"entries":a.len()}));
+        }
+        Ok(json!(v))
+    }
+    let a=extract(left,threads,left_path)?;let b=extract(right,threads,right_path)?;
+    if a.clock.to_bits()!=b.clock.to_bits()||a.tags_hash!=b.tags_hash{return Err(bad("rank audit time or tag order differs"))}
+    Ok(json!({"schema":"metroflow_rank_state_compare_v1","status":"EXECUTED_FOR_REVIEW","scope":"strict loaded snapshots same physical declaration/time/tag registry; numerical observable differences, not global error theorem or release acceptance","time_s":a.clock,"reference_identity":a.identity,"candidate_identity":b.identity,"tag_order_sha256":a.tags_hash,
+        "cells":metrics(&a.cells,&b.cells,["active_veh","occupied_lane_m","speed_m_s","cumulative_entry_veh","cumulative_exit_veh","distance_veh_m"])?,
+        "road_tags":metrics(&a.tags,&b.tags,["active_veh","birth_veh_s","route_offset_veh","entry_clock_veh_s"])?,
+        "journey_legs":metrics(&a.legs,&b.legs,["completed_persons","completed_veh","since_completion_person_s","since_completion_veh_s"])?,
+        "last_tick_outlet":metrics(&a.outlet,&b.outlet,["outlet_veh","birth_to_exit_veh_s"])?}))
+}

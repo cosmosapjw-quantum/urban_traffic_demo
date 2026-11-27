@@ -1,4 +1,4 @@
-use _metroflow_rust::{run_native_declaration_with_plan,recover_native_checkpoint,run_native_phase,run_native_suffix,migrate_native_time_bins};
+use _metroflow_rust::{run_native_declaration_with_plan,recover_native_checkpoint,run_native_phase,run_native_suffix,migrate_native_time_bins,compare_native_rank_states};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::{
@@ -56,6 +56,18 @@ fn address_cap() -> std::io::Result<u64> {
 }
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let a: Vec<_> = std::env::args().collect();
+    if a.get(1).is_some_and(|x|x=="--compare-rank-states"){
+        if a.len()!=10{return Err("usage: --compare-rank-states MANIFEST_A RECEIPT_A CHECKPOINT_A MANIFEST_B RECEIPT_B CHECKPOINT_B OUTPUT THREADS".into())}
+        let start=Instant::now();let cap=address_cap()?;
+        if Path::new(&a[8]).exists(){return Err("output exists".into())}
+        let ma=digest(Path::new(&a[2]))?;let ca=digest(Path::new(&a[4]))?;let mb=digest(Path::new(&a[5]))?;let cb=digest(Path::new(&a[7]))?;
+        for (i,m,c) in [(3,&ma,&ca),(6,&mb,&cb)]{let r:Value=serde_json::from_reader(BufReader::new(File::open(&a[i])?))?;if r["manifest_sha256"]!=*m||r["checkpoint_sha256"]!=*c{return Err("comparison source binding differs".into())}}
+        let left=serde_json::from_reader(BufReader::new(File::open(&a[2])?))?;let right=serde_json::from_reader(BufReader::new(File::open(&a[5])?))?;
+        let mut r=compare_native_rank_states(left,right,a[9].parse()?,&a[4],&a[7])?;
+        if ma!=digest(Path::new(&a[2]))?||ca!=digest(Path::new(&a[4]))?||mb!=digest(Path::new(&a[5]))?||cb!=digest(Path::new(&a[7]))?{return Err("comparison source changed".into())}
+        r["reference_manifest_sha256"]=json!(ma);r["reference_checkpoint_sha256"]=json!(ca);r["candidate_manifest_sha256"]=json!(mb);r["candidate_checkpoint_sha256"]=json!(cb);r["address_space_limit_bytes"]=json!(cap);r["peak_rss_bytes"]=json!(rss());r["wall_s"]=json!(start.elapsed().as_secs_f64());r["executable_sha256"]=json!(digest(&std::env::current_exe()?)?);
+        serde_json::to_writer_pretty(OpenOptions::new().write(true).create_new(true).open(&a[8])?,&r)?;println!("{}",serde_json::to_string(&r)?);return Ok(())
+    }
     if a.get(1).is_some_and(|x|x=="--migrate-time-bins"){
         if a.len()!=9{return Err("usage: --migrate-time-bins SOURCE_MANIFEST TARGET_MANIFEST PRIOR_RECEIPT PRIOR_CHECKPOINT OUTPUT_RECEIPT OUTPUT_CHECKPOINT THREADS".into())}
         let start=Instant::now();let cap=address_cap()?;
