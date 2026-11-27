@@ -53,6 +53,11 @@ mod probe {
         for _ in 0..n{answer=black_box(_metroflow_rust::allocation_probe_rank_moments(black_box(&values)).unwrap());}
         let(a5,r5,w5)=finish(t);assert_eq!(answer,[1.,3.]);assert_eq!((a5,r5),(0,0));
         println!("{}",json!({"kernel":"rank_positive_mass_birth_accumulation","iterations":n,"allocation_calls":a5,"reallocation_calls":r5,"wall_s":w5,"answer":answer,"scope":"actual compensated per-mark accumulator; excludes sort and packet output allocations"}));
+        let mut bucket=_metroflow_rust::ReceiptBucketProbe::new().unwrap();
+        let t=start();let mut bucket_result=[0.;4];
+        for _ in 0..n{bucket_result=black_box(bucket.run().unwrap());}
+        let(ba,br,bw)=finish(t);assert_eq!(bucket_result,[0.5,4.75,0.5,10.375]);assert_eq!((ba,br),(0,0));
+        println!("{}",json!({"kernel":"warmed_receipt_grid_bucket","iterations":n,"allocation_calls":ba,"reallocation_calls":br,"wall_s":bw,"answer":bucket_result,"scope":"actual warmed bucket insertion and inline positive mass/moment sums; output history and source visitor excluded"}));
         let t=start();let mut x=[0;2];for _ in 0..n{x=black_box(_metroflow_rust::allocation_probe_outlet_and_wire().unwrap());}let(a6,r6,w6)=finish(t);assert_eq!(x[0],3);assert_eq!((a6,r6),(0,0));println!("{}",json!({"kernel":"outlet_group_and_stack_wire","iterations":n,"allocation_calls":a6,"reallocation_calls":r6,"wall_s":w6,"checksum":x,"scope":"actual fixed-slice grouped outlet and stack word writer; no allocation for tested small fsum; full histories may spill"}));
 
     }

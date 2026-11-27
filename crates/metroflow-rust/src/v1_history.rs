@@ -158,6 +158,13 @@ impl GridWorkspace{
         std::mem::size_of::<Self>().saturating_add(128)
             .saturating_add(self.buckets.capacity().saturating_mul(std::mem::size_of::<GridBucket>()))
     }
+    fn accumulate(&mut self,j:usize,t:f64,f:f64)->CoreResult<bool>{
+        if self.slots[j]==GRID_EMPTY{
+            if self.buckets.len()==self.buckets.capacity(){return Err(CoreError::resource("grid bucket capacity differs"))}
+            self.slots[j]=self.buckets.len() as u16;self.buckets.push(GridBucket::default());
+        }
+        Ok(self.buckets[self.slots[j]as usize].add(t,f).is_ok())
+    }
     fn prepare(&mut self,span:usize,n:usize,scratch:usize)->bool{
         let requested=span.min(n);let old=self.retained_bytes();
         let growth=if self.buckets.capacity()<requested{
@@ -518,8 +525,16 @@ impl ReceiptHistory {
     /// and same ascending key output order. No row-sized sorting array.
     /// The bounded direct map is reused; only actual occupied cells get sums.
     pub(crate) fn compact_grid_buckets(&self,now:f64,dwell:f64,dt:f64,scratch:usize,work:&mut GridWorkspace)->CoreResult<Option<Self>>{
-        let fallback=|w:&GridWorkspace|self.compact_grid(now,dwell,dt,
-            scratch.checked_sub(w.retained_bytes()).ok_or_else(||CoreError::resource("receipt grid retained workspace"))?);
+        let fallback=|w:&mut GridWorkspace|{
+            let result=scratch.checked_sub(w.retained_bytes())
+                .ok_or_else(||CoreError::resource("receipt grid retained workspace"))
+                .and_then(|available|self.compact_grid(now,dwell,dt,available));
+            if matches!(&result,Err(e) if e.kind==crate::core_error::ErrorKind::Resource)&&w.buckets.capacity()>0{
+                *w=GridWorkspace::default();
+                return self.compact_grid(now,dwell,dt,scratch.checked_sub(w.retained_bytes()).ok_or_else(||CoreError::resource("receipt grid retained workspace"))?)
+            }
+            result
+        };
         if !now.is_finite()||now<0.||!dwell.is_finite()||dwell<0.||!dt.is_finite()||dt<1.||dt.fract()!=0.||now%dt!=0.{
             return Err(CoreError::value("receipt grid domain"))
         }
@@ -539,12 +554,7 @@ impl ReceiptHistory {
             let k=Self::grid_key(t,dwell,dt,now)?;
             let j=if k==0{0}else{usize::try_from(k.checked_sub(base).ok_or_else(||CoreError::arithmetic("grid slot below clock"))?).map_err(|_|CoreError::arithmetic("grid slot overflow"))?};
             if j>=span||(k!=0&&j==0){return Err(CoreError::arithmetic("grid slot exceeds horizon"))}
-            if work.slots[j]==GRID_EMPTY{
-                if work.buckets.len()==work.buckets.capacity(){return Err(CoreError::resource("grid bucket capacity differs"))}
-                work.slots[j]=work.buckets.len() as u16;work.buckets.push(GridBucket::default());
-            }
-            let b=&mut work.buckets[work.slots[j] as usize];
-            if b.add(t,f).is_err(){inline_overflow=true;}
+            if !work.accumulate(j,t,f)?{inline_overflow=true;}
             Ok(())
         })?;
         if inline_overflow{return fallback(work)}
@@ -821,5 +831,26 @@ mod bucket_grid_tests{
         let mut work=GridWorkspace::default();
         assert_eq!(bits(h.compact_grid(10.,3600.,10.,1_000_000).unwrap()),bits(h.compact_grid_buckets(10.,3600.,10.,1_000_000,&mut work).unwrap()));
         assert!(h.compact_grid_buckets(10.,3600.,10.,1,&mut work).is_err());
+    }
+}
+
+/// Isolated, warmed production accumulator probe (not output-history allocation).
+#[cfg(feature="native-cli")]
+pub struct ReceiptBucketProbe(GridWorkspace);
+#[cfg(feature="native-cli")]
+impl ReceiptBucketProbe{
+    pub fn new()->CoreResult<Self>{
+        let mut work=GridWorkspace::default();
+        if !work.prepare(4,8,1_000_000){return Err(CoreError::resource("probe init"))}
+        Ok(Self(work))
+    }
+    pub fn run(&mut self)->CoreResult<[f64;4]>{
+        if !self.0.prepare(4,8,1_000_000){return Err(CoreError::resource("probe reset"))}
+        for (key,t,f) in [(2,20.,0.125),(1,9.,0.25),(2,21.,0.375),(1,10.,0.25)]{
+            if !self.0.accumulate(key,t,f)?{return Err(CoreError::arithmetic("probe expansion capacity"))}
+        }
+        let a=&self.0.buckets[self.0.slots[1]as usize];
+        let b=&self.0.buckets[self.0.slots[2]as usize];
+        Ok([a.mass.total(),a.moment.total(),b.mass.total(),b.moment.total()])
     }
 }

@@ -4,7 +4,7 @@
 #[cfg(feature="python-extension")]
 use pyo3::prelude::*;
 use crate::core_error::{CoreError,CoreResult};
-use crate::v1_history::ReceiptHistory;
+use crate::v1_history::{ReceiptHistory,GridWorkspace};
 use crate::v1_parallel::ordered_map;
 use crate::v1_road::{
     checkpoint_vec, read_exact_len, read_f64, read_len, read_u64, write_f64, write_len, write_u64,
@@ -2632,13 +2632,19 @@ impl NativeJourneyCore {
             let mut flags:Vec<u8>=checkpoint_vec(n)?;if flags.capacity()!=n{return Err(CoreError::resource("receipt child flags capacity differs"))}flags.resize(n,0);
             for leg in &self.legs{if let Some(p)=leg.2{if flags[p]!=0&&dwell[p].to_bits()!=leg.3.to_bits(){flags[p]=2;}else if flags[p]==0{flags[p]=1;}dwell[p]=dwell[p].max(leg.3);}}
             let mut grid_touched=0usize;let mut grid_removed=0usize;
+            let mut grid_workspace=GridWorkspace::default();
             let old_history_bytes=history_bytes;let mut touched=0usize;
             for (i,h) in s.6.iter_mut().enumerate(){
                 if h.len()<2{continue}
                 let base=stage_bytes.saturating_add(history_bytes).max(self.retained_input_bytes).saturating_mul(WORKING_COPIES).saturating_add(STORAGE_SCRATCH_RESERVE).saturating_add(dwell_bytes);
                 let scratch=self.storage_budget.unwrap_or(usize::MAX).checked_sub(base).ok_or_else(||CoreError::resource("receipt sweep owner budget"))?;
                 let grid=self.research_receipt_grid_step.filter(|_|flags[i]!=2);
-                let next=if let Some(dt)=grid{h.compact_grid(end,dwell[i],dt,scratch)?}else{h.compact_mature(end,dwell[i],scratch)?};
+                let next=if let Some(dt)=grid{
+                    h.compact_grid_buckets(end,dwell[i],dt,scratch,&mut grid_workspace)?
+                }else{
+                    let available=scratch.checked_sub(grid_workspace.retained_bytes()).ok_or_else(||CoreError::resource("receipt sweep retained grid workspace"))?;
+                    h.compact_mature(end,dwell[i],available)?
+                };
                 if let Some(next)=next{
                     if grid.is_some(){grid_touched+=1;grid_removed=grid_removed.saturating_add(h.len()-next.len());}
                     removed=removed.checked_add(h.len()-next.len()).ok_or_else(||CoreError::resource("receipt removed count overflow"))?;
