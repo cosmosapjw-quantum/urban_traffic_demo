@@ -1740,7 +1740,7 @@ fn budget(s: &str) -> CoreError {
 }
 // Streaming the same expansion, with no vector of raw class observations.
 #[derive(Default)]
-struct RoadExpansion { p: Vec<f64> }
+struct RoadExpansion { p: smallvec::SmallVec<[f64; 4]> }
 impl RoadExpansion {
     fn add(&mut self, mut x: f64) {
         let p = &mut self.p;
@@ -8473,5 +8473,38 @@ mod direct_wire_decode_tests {
         let mut actual=vec![];road.write_packets(&mut actual,&q).unwrap();
         assert_eq!(wire,actual);
         assert_eq!(w.decoded,std::mem::size_of::<Packet>()+32+n*std::mem::size_of::<Part>());
+    }
+}
+
+#[cfg(test)]
+mod inline_expansion_storage_tests {
+    use super::*;
+    #[test]
+    fn inline_and_spill_preserve_original_expansion_bits() {
+        fn reference(xs:&[f64])->f64 {
+            let mut p:Vec<f64>=vec![];
+            for &v in xs {let mut x=v;let mut i=0;for j in 0..p.len(){
+                let mut y=p[j];if x.abs()<y.abs(){std::mem::swap(&mut x,&mut y)}
+                let hi=x+y;let lo=y-(hi-x);if lo!=0.{p[i]=lo;i+=1;}x=hi;
+            }p.truncate(i);if x!=0.{p.push(x)}}
+            let mut hi=0.;let mut lo=0.;
+            if let Some(x)=p.pop(){hi=x;while let Some(x)=p.pop(){let y=hi;hi=y+x;lo=x-(hi-y);if lo!=0.{break}}
+                if !p.is_empty()&&((lo<0.&&p[p.len()-1]<0.)||(lo>0.&&p[p.len()-1]>0.)){let y=lo*2.;let x=hi+y;if y==x-hi{hi=x}}
+            }hi
+        }
+        let mut seed=7u64;let mut spill=0usize;
+        for len in [0,1,2,3,16,64,257] {
+            for _ in 0..128 {
+                let xs:Vec<_>=(0..len).map(|_|{seed=seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+                    let x=f64::from_bits((seed&0x800f_ffff_ffff_ffff)|(((seed>>53)%2046+1)<<52));x
+                }).collect();
+                let mut a=RoadExpansion::default();for &x in &xs {a.add(x);}
+                spill+=usize::from(a.p.spilled());
+                let x=a.finish();let y=reference(&xs);
+                assert!(x.to_bits()==y.to_bits()||x.is_nan()&&y.is_nan());
+            }
+        }
+        let mut a=RoadExpansion::default();for x in [1.,0.5,0.25,-0.]{a.add(x);}
+        assert!(!a.p.spilled());assert_eq!(a.finish().to_bits(),1.75f64.to_bits());assert!(spill>0);
     }
 }
