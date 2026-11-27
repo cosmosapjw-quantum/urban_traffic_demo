@@ -280,6 +280,7 @@ fn check_storage_limit(
 struct CheckpointabilityTerms {
     input_road:usize,
     current_road:usize,
+    road_pair_credit:usize,
     candidate_road:usize,
     decoded_road:usize,
     journey_input:usize,
@@ -1753,6 +1754,7 @@ pub(crate) fn advance_owned_joint(
                 let lifetime=CheckpointabilityTerms {
                     input_road:input_road_bytes,
                     current_road:current_road_bytes,
+                    road_pair_credit:0,
                     candidate_road:candidate_road_bytes,
                     decoded_road,
                     journey_input:journey.retained_input_bytes,
@@ -2282,7 +2284,7 @@ mod exact_checkpointability_lifetime_phase_tests {
 
     fn original_valley_100k_terms()->CheckpointabilityTerms {
         CheckpointabilityTerms {
-            input_road:545136024,current_road:545136024,
+            input_road:545136024,current_road:545136024,road_pair_credit:0,
             candidate_road:635238976,decoded_road:635282176,
             journey_input:228929368,journey_old:228929368,
             journey_new:260270208,journey_decoded:263109816,
@@ -2298,6 +2300,15 @@ mod exact_checkpointability_lifetime_phase_tests {
         assert_eq!(checkpointability_phase_lifetime_bytes(t),5534961208);
         assert_eq!(6040190408-checkpointability_phase_lifetime_bytes(t),505229200);
         assert_eq!(5789366871-checkpointability_phase_lifetime_bytes(t),254405663);
+    }
+    #[test]
+    fn verified_input_current_road_pair_must_not_be_charged_twice(){
+        let mut t=original_valley_100k_terms();
+        let full=checkpointability_phase_lifetime_bytes(t);
+        t.road_pair_credit=300_000_000;
+        assert_eq!(checkpointability_phase_lifetime_bytes(t),full-300_000_000);
+        t.road_pair_credit=usize::MAX;
+        assert_eq!(checkpointability_phase_lifetime_bytes(t),full-t.input_road.min(t.current_road));
     }
     #[test]
     fn individually_real_three_owner_cases_are_still_charged_not_aliased() {
