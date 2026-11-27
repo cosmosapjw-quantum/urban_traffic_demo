@@ -129,6 +129,48 @@ impl GridExpansion {
     }
 }
 
+// One reusable workspace per serial sweep. Key slots are relative to the
+// committed tick; distant horizons or expansion overflow take the old sort.
+const GRID_SLOTS:usize=1024;
+const GRID_EMPTY:u16=u16::MAX;
+#[derive(Default)]
+struct GridBucket{
+    count:usize,lo:f64,hi:f64,first:f64,
+    mass:GridExpansion,moment:GridExpansion,
+}
+impl GridBucket{
+    fn add(&mut self,t:f64,f:f64)->Result<(), &'static str>{
+        if self.count==0{self.lo=t;self.hi=t;self.first=t;}else{
+            self.lo=self.lo.min(t);self.hi=self.hi.max(t);
+        }
+        self.mass.add(f)?;self.moment.add(t*f)?;
+        self.count+=1;Ok(())
+    }
+}
+pub(crate) struct GridWorkspace{
+    slots:[u16;GRID_SLOTS], buckets:Vec<GridBucket>,
+}
+impl Default for GridWorkspace{
+    fn default()->Self{Self{slots:[GRID_EMPTY;GRID_SLOTS],buckets:Vec::new()}}
+}
+impl GridWorkspace{
+    pub(crate) fn retained_bytes(&self)->usize{
+        std::mem::size_of::<Self>().saturating_add(128)
+            .saturating_add(self.buckets.capacity().saturating_mul(std::mem::size_of::<GridBucket>()))
+    }
+    fn prepare(&mut self,span:usize,n:usize,scratch:usize)->bool{
+        let requested=span.min(n);let old=self.retained_bytes();
+        let growth=if self.buckets.capacity()<requested{
+            requested.saturating_mul(std::mem::size_of::<GridBucket>())
+        }else{0};
+        if old.saturating_add(growth)>scratch{return false}
+        self.buckets.clear();
+        if self.buckets.capacity()<requested&&self.buckets.try_reserve_exact(requested).is_err(){return false}
+        if self.retained_bytes()>scratch{return false}
+        self.slots[..span].fill(GRID_EMPTY);true
+    }
+}
+
 struct Block {
     previous: Option<Arc<Block>>,
     rows: Vec<Receipt>,
@@ -471,6 +513,59 @@ impl ReceiptHistory {
         let total=self.total();if (out.total()-total).abs()>1e-11*total+4.*f64::from_bits(1){return Err(CoreError::arithmetic("receipt grid total differs"))}
         Ok(Some(out))
     }
+
+    /// Same grid quotient as compact_grid, same input order within each key,
+    /// and same ascending key output order. No row-sized sorting array.
+    /// The bounded direct map is reused; only actual occupied cells get sums.
+    pub(crate) fn compact_grid_buckets(&self,now:f64,dwell:f64,dt:f64,scratch:usize,work:&mut GridWorkspace)->CoreResult<Option<Self>>{
+        let fallback=|w:&GridWorkspace|self.compact_grid(now,dwell,dt,
+            scratch.checked_sub(w.retained_bytes()).ok_or_else(||CoreError::resource("receipt grid retained workspace"))?);
+        if !now.is_finite()||now<0.||!dwell.is_finite()||dwell<0.||!dt.is_finite()||dt<1.||dt.fract()!=0.||now%dt!=0.{
+            return Err(CoreError::value("receipt grid domain"))
+        }
+        if self.len()<2{return Ok(None)}
+        let max_key=Self::grid_key(self.0.as_ref().unwrap().max_time,dwell,dt,now)?;
+        if max_key==0||now/dt>1e9{return fallback(work)}
+        let base=(now/dt) as u64;
+        let Some(span)=max_key.checked_sub(base).and_then(|v|v.checked_add(1)).and_then(|v|usize::try_from(v).ok())else{return fallback(work)};
+        if span>GRID_SLOTS||span<2{return fallback(work)}
+        let pointer=self.block_count().saturating_mul(4*std::mem::size_of::<&Block>()).saturating_add(128);
+        let fixed=pointer.saturating_add(128*1024);
+        let Some(remaining)=scratch.checked_sub(fixed)else{return fallback(work)};
+        if !work.prepare(span,self.len(),remaining){return fallback(work)}
+        let mut inline_overflow=false;
+        self.visit_ordered(|(t,f)|{
+            if inline_overflow{return Ok(())}
+            let k=Self::grid_key(t,dwell,dt,now)?;
+            let j=if k==0{0}else{usize::try_from(k.checked_sub(base).ok_or_else(||CoreError::arithmetic("grid slot below clock"))?).map_err(|_|CoreError::arithmetic("grid slot overflow"))?};
+            if j>=span||(k!=0&&j==0){return Err(CoreError::arithmetic("grid slot exceeds horizon"))}
+            if work.slots[j]==GRID_EMPTY{
+                if work.buckets.len()==work.buckets.capacity(){return Err(CoreError::resource("grid bucket capacity differs"))}
+                work.slots[j]=work.buckets.len() as u16;work.buckets.push(GridBucket::default());
+            }
+            let b=&mut work.buckets[work.slots[j] as usize];
+            if b.add(t,f).is_err(){inline_overflow=true;}
+            Ok(())
+        })?;
+        if inline_overflow{return fallback(work)}
+        if work.buckets.len()==self.len(){return Ok(None)}
+        let available=remaining.checked_sub(work.retained_bytes()).ok_or_else(||CoreError::resource("grid bucket output budget"))?;
+        let mut out=Self::new();
+        for j in 0..span{
+            if work.slots[j]==GRID_EMPTY{continue}
+            let g=&work.buckets[work.slots[j]as usize];let m=g.mass.total();let b=g.moment.total();
+            if m<=0.||!m.is_finite()||!b.is_finite(){return Err(CoreError::arithmetic("receipt grid moment overflow"))}
+            let t=if g.count==1{g.first}else{(b/m).clamp(g.lo,g.hi)};
+            let k=if j==0{0}else{base+j as u64};
+            if Self::grid_key(t,dwell,dt,now)?!=k||(t*m-b).abs()>1e-11*b.abs()+4.*f64::from_bits(1){return Err(CoreError::arithmetic("receipt grid centroid predicate/moment differs"))}
+            if out.append_upper_bytes()>available{return Err(CoreError::resource("receipt grid output budget"))}
+            out.push((t,m)).map_err(CoreError::value)?;
+            if out.storage_bytes()>available{return Err(CoreError::resource("receipt grid output bytes"))}
+        }
+        let total=self.total();
+        if (out.total()-total).abs()>1e-11*total+4.*f64::from_bits(1){return Err(CoreError::arithmetic("receipt grid total differs"))}
+        Ok(Some(out))
+    }
     fn block_count(&self) -> usize {
         self.len().div_ceil(BLOCK_ROWS)
     }
@@ -692,5 +787,39 @@ mod inline_grid_expansion_tests{
             if b.add(2f64.powi(-60*i)).is_err(){overflow=true;break}
         }
         assert!(overflow);
+    }
+}
+
+#[cfg(test)]
+mod bucket_grid_tests{
+    use super::*;
+    fn bits(h:Option<ReceiptHistory>)->Option<Vec<(u64,u64)>>{
+        h.map(|h|h.iter().map(|r|(r.0.to_bits(),r.1.to_bits())).collect())
+    }
+    #[test]
+    fn direct_buckets_match_stable_sorted_reference(){
+        let mut work=GridWorkspace::default();
+        let mut seed=17u64;
+        for n in [2,63,64,65,511,4096,8192]{
+            let mut rows=Vec::new();
+            for i in 0..n{
+                seed=seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+                let t=(seed%36000)as f64/10.;
+                let f=(1.+(seed%17)as f64/32.)*2f64.powi(-((i%40)as i32));
+                rows.push((t,f));
+            }
+            let h=ReceiptHistory::from_rows(rows).unwrap();
+            for d in [0.,10.,120.,3600.,12000.]{
+                assert_eq!(bits(h.compact_grid(3600.,d,10.,32_000_000).unwrap()),
+                    bits(h.compact_grid_buckets(3600.,d,10.,32_000_000,&mut work).unwrap()),"n={n} d={d}");
+            }
+        }
+    }
+    #[test]
+    fn fallback_for_inline_overflow_and_budget_preserves_reference(){
+        let h=ReceiptHistory::from_rows((0..12).map(|i|(1.,2f64.powi(-60*i))).collect()).unwrap();
+        let mut work=GridWorkspace::default();
+        assert_eq!(bits(h.compact_grid(10.,3600.,10.,1_000_000).unwrap()),bits(h.compact_grid_buckets(10.,3600.,10.,1_000_000,&mut work).unwrap()));
+        assert!(h.compact_grid_buckets(10.,3600.,10.,1,&mut work).is_err());
     }
 }
