@@ -3085,7 +3085,7 @@ pub fn allocation_probe_delay_cell()->CoreResult<[f64;3]>{
 // immutable clock partitions. Only the append tail is sorted thereafter.
 const DELAY_CALENDAR_KEYS:usize=4096;
 #[derive(Default,Debug)]
-struct DelayMergeStats{sorted:usize,shared:usize,removed:usize,rebuild:bool,scratch:usize}
+struct DelayMergeStats{sorted:usize,partitioned:usize,shared:usize,removed:usize,rebuild:bool,scratch:usize}
 fn delay_calendar_key(r:f64,t:f64,dt:f64)->Option<u32>{
     entry_key(r,t,dt).filter(|&k|(k as usize)<DELAY_CALENDAR_KEYS)
 }
@@ -3111,18 +3111,36 @@ fn merge_delay_calendar(old:&StageQueue,combined:&StageQueue,t:f64,dt:f64,birth_
     let Some((canonical,n,scratch))=delay_calendar_workspace(old,combined,t,dt)else{return Ok(None)};
     if scratch>available{return Ok(None)}
     if combined.is_empty(){return Ok(None)}
+    let skip=if canonical{old.len()}else{0};
     let mut refs=checkpoint_vec(n)?;
     if refs.capacity()!=n{return Ok(None)}
-    for (ordinal,a) in combined.iter_from(if canonical{old.len()}else{0}).enumerate(){
+    // A canonical generation is already ordered by leg. Stable counting
+    // scatter on the bounded clock key gives exactly (clock,leg,ordinal).
+    // The nonmonotone generation (including service tail) retains sort.
+    let mut counts=[0usize;DELAY_CALENDAR_KEYS];
+    let mut last=None;let mut monotone=true;
+    for (ordinal,a) in combined.iter_from(skip).enumerate(){
         let Some(k)=delay_calendar_key(a.2+a.3,t,dt)else{return Ok(None)};
         if !a.1.is_finite()||a.1<=0.||!a.2.is_finite()||a.2<0.||a.2>birth_max||!a.3.is_finite()||a.3<0.{return Ok(None)}
+        monotone &= last.is_none_or(|l|l<=a.0);last=Some(a.0);
+        counts[k as usize]+=1;
         refs.push((k,ordinal,a));
     }
     if refs.len()!=n{return Err(bad("delay calendar append census differs"))}
-    refs.sort_unstable_by_key(|x|(x.0,x.2.0,x.1));
+    if monotone&&n>1{
+        let mut cursor=[0usize;DELAY_CALENDAR_KEYS];let mut pos=0usize;
+        for i in 0..DELAY_CALENDAR_KEYS{cursor[i]=pos;pos=pos.checked_add(counts[i]).ok_or_else(||bad("delay calendar count overflow"))?;}
+        if pos!=n{return Err(bad("delay calendar scatter census"))}
+        for (ordinal,a) in combined.iter_from(skip).enumerate(){
+            let k=delay_calendar_key(a.2+a.3,t,dt).ok_or_else(||bad("delay calendar scatter key"))?;
+            let ix=cursor[k as usize];cursor[k as usize]+=1;
+            if ix>=n{return Err(bad("delay calendar scatter index"))}
+            refs[ix]=(k,ordinal,a);
+        }
+    }else if !monotone{refs.sort_unstable_by_key(|x|(x.0,x.2.0,x.1));}
     let blocks=if canonical{old.blocks()}else{&[]};
     let mut result=StageQueue::with_partition_capacity(combined.len(),DELAY_CALENDAR_KEYS)?;
-    let mut st=DelayMergeStats{sorted:n,rebuild:!canonical,scratch,..Default::default()};
+    let mut st=DelayMergeStats{sorted:if monotone{0}else{n},partitioned:if monotone{n}else{0},rebuild:!canonical,scratch,..Default::default()};
     let (mut oi,mut ni)=(0,0);
     while oi<blocks.len()||ni<refs.len(){
         let ok=blocks.get(oi).and_then(|b|delay_calendar_key(b.min_ready,t,dt));
@@ -3185,6 +3203,7 @@ fn admitted_delay_calendar(old:&StageQueue,combined:&StageQueue,t:f64,dt:f64,bir
     check_storage_limit(budget,retained,dynamic,other_scratch.saturating_add(need))?;
     let Some((next,st))=merge_delay_calendar(old,combined,t,dt,birth_max,horizon,available)?else{crate::v1_trace::add(fallback,1);return Ok(None)};
     crate::v1_trace::add(sorted,st.sorted as u64);crate::v1_trace::add(shared,st.shared as u64);
+    crate::v1_trace::add(if stage=="entry"{"delay_calendar.entry_partitioned"}else{"delay_calendar.egress_partitioned"},st.partitioned as u64);
     crate::v1_trace::add(removed,st.removed as u64);crate::v1_trace::add(rebuild,u64::from(st.rebuild));crate::v1_trace::add(workspace,st.scratch as u64);
     Ok(Some(next))
 }
@@ -3204,7 +3223,7 @@ mod persistent_delay_calendar_tests{
         assert!(s.rebuild);assert_eq!(s.sorted,4);assert_eq!(s.removed,1);assert_eq!(ledger(&old,10.),ledger(&q,10.));
         let mut c=q.clone();c.push((1,0.5,10.,6.));c.push((4,1.,10.,6.));
         let (d,s)=merge_delay_calendar(&q,&c,10.,10.,10.,None,usize::MAX).unwrap().unwrap();
-        assert!(!s.rebuild);assert_eq!(s.sorted,2);assert_eq!(s.shared,2);assert_eq!(s.removed,1);
+        assert!(!s.rebuild);assert_eq!(s.sorted,0);assert_eq!(s.partitioned,2);assert_eq!(s.shared,2);assert_eq!(s.removed,1);
         assert_eq!(ledger(&c,10.),ledger(&d,10.));assert_eq!(q.len(),3);
         assert!(merge_delay_calendar(&q,&c,10.,10.,10.,None,1).unwrap().is_none());
         let mut next=d.clone();next.retire_due_mode(20.+1e-10,true,|_|{});
