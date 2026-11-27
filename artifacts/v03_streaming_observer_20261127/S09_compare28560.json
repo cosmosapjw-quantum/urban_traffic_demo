@@ -1,0 +1,153 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "candidate_checkpoint_sha256": "9d445ba44c9faa1c4c3fa372f15d863c2ebe3dfae240256fbc922bf10cc2fe18",
+  "candidate_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1",
+  "candidate_manifest_sha256": "a5f0ab6eb169ae61d3e3c745c1900dfc513325826bb45e259fe7f3a0c644d574",
+  "cells": {
+    "active_veh": {
+      "bit_different_entries": 0,
+      "entries": 1586,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 1361.8086932931137,
+      "relative_l1": 0.0
+    },
+    "cumulative_entry_veh": {
+      "bit_different_entries": 0,
+      "entries": 1586,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 141880.28709483336,
+      "relative_l1": 0.0
+    },
+    "cumulative_exit_veh": {
+      "bit_different_entries": 0,
+      "entries": 1586,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 140518.47840154025,
+      "relative_l1": 0.0
+    },
+    "distance_veh_m": {
+      "bit_different_entries": 0,
+      "entries": 1586,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 27255103.874831747,
+      "relative_l1": 0.0
+    },
+    "occupied_lane_m": {
+      "bit_different_entries": 0,
+      "entries": 1586,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 6809.043466465569,
+      "relative_l1": 0.0
+    },
+    "speed_m_s": {
+      "bit_different_entries": 0,
+      "entries": 1586,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 8754.856782078423,
+      "relative_l1": 0.0
+    }
+  },
+  "executable_sha256": "a99209dac662da6f4219559b24951ba3e3046609714b1fe9949434491d562067",
+  "journey_legs": {
+    "completed_persons": {
+      "bit_different_entries": 1267,
+      "entries": 918450,
+      "l1": 6.489513787455436e-14,
+      "linf": 1.3322676295501878e-15,
+      "reference_l1": 8576.98522156303,
+      "relative_l1": 7.566194437575137e-18
+    },
+    "completed_veh": {
+      "bit_different_entries": 1366,
+      "entries": 918450,
+      "l1": 5.132005931329786e-14,
+      "linf": 8.881784197001252e-16,
+      "reference_l1": 6847.5659496841445,
+      "relative_l1": 7.49464257670495e-18
+    },
+    "since_completion_person_s": {
+      "bit_different_entries": 37581,
+      "entries": 918450,
+      "l1": 3.401307813177823e-8,
+      "linf": 5.093170329928398e-11,
+      "reference_l1": 11185820.81442261,
+      "relative_l1": 3.0407315382634187e-15
+    },
+    "since_completion_veh_s": {
+      "bit_different_entries": 37418,
+      "entries": 918450,
+      "l1": 2.7160489857180892e-8,
+      "linf": 4.0472514228895307e-11,
+      "reference_l1": 8925623.387921408,
+      "relative_l1": 3.0429795966896612e-15
+    }
+  },
+  "last_tick_outlet": {
+    "birth_to_exit_veh_s": {
+      "bit_different_entries": 0,
+      "entries": 304856,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 17658.7519438647,
+      "relative_l1": 0.0
+    },
+    "outlet_veh": {
+      "bit_different_entries": 0,
+      "entries": 304856,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 26.434658202754182,
+      "relative_l1": 0.0
+    }
+  },
+  "peak_rss_bytes": 725950464,
+  "reference_checkpoint_sha256": "89ca8bf6a7ac255009f90c9f42d7f932cac4ff760e528660cb8afbd2757c2742",
+  "reference_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1",
+  "reference_manifest_sha256": "a8df78fd4f2e71b177819d3b4968fe7fd7705d9b77e572966dc7758195d66ae0",
+  "road_tags": {
+    "active_veh": {
+      "bit_different_entries": 0,
+      "entries": 304856,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 1361.8086932931137,
+      "relative_l1": 0.0
+    },
+    "birth_veh_s": {
+      "bit_different_entries": 0,
+      "entries": 304856,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 38241859.33533672,
+      "relative_l1": 0.0
+    },
+    "entry_clock_veh_s": {
+      "bit_different_entries": 0,
+      "entries": 304856,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 38878651.273248985,
+      "relative_l1": 0.0
+    },
+    "route_offset_veh": {
+      "bit_different_entries": 0,
+      "entries": 304856,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 14987.110637859494,
+      "relative_l1": 0.0
+    }
+  },
+  "schema": "metroflow_rank_state_compare_v1",
+  "scope": "strict loaded snapshots same physical declaration/time/tag registry; numerical observable differences, not global error theorem or release acceptance",
+  "status": "EXECUTED_FOR_REVIEW",
+  "tag_order_sha256": "1afae786b6800f1e8705b0a64cedd6b4d018fa440176937d9ad919c758a25eb8",
+  "time_s": 28560.0,
+  "wall_s": 17.235064005
+}

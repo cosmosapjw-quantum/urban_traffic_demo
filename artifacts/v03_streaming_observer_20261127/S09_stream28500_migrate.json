@@ -1,0 +1,44 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "checkpoint_bytes": 514687815,
+  "checkpoint_sha256": "8a38435bc12af2ffc8046ccce88106e55d5e83c7ffe165a8f34606c13cede73a",
+  "executable_sha256": "a99209dac662da6f4219559b24951ba3e3046609714b1fe9949434491d562067",
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 2607.5769039460392,
+      "completed": 8376.667373208209,
+      "pending": 7349.089056178695,
+      "released": 10984.244277154248,
+      "released_intent_first_moment": 294872037.6202073,
+      "requested": 18333.333333332943
+    },
+    "vehicles": {
+      "active": 2085.76521087292,
+      "completed": 6687.5681224602595,
+      "pending": 210.0000000000564,
+      "released": 8773.33333333318,
+      "released_intent_first_moment": 235520133.3333355,
+      "requested": 8983.333333333236
+    }
+  },
+  "manifest_sha256": "885b0ef9a13d159e1544176b487afb69fcea644369171fb0a59ccf05728f5b60",
+  "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1",
+  "peak_rss_bytes": 713912320,
+  "python_runtime_dependency": "none",
+  "schema": "metroflow_stream_receipt_migration_v1",
+  "scope": "same initial owners; transactional streaming completion quotient; distinct research identity",
+  "source_checkpoint_sha256": "a1f20b19ef8b39021b5d623492f777a8c1d8f779dad30bf6d68580965f21f5e8",
+  "source_manifest_sha256": "a8df78fd4f2e71b177819d3b4968fe7fd7705d9b77e572966dc7758195d66ae0",
+  "source_native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1",
+  "status": "EXECUTED_FOR_REVIEW",
+  "time_s": 28500.0,
+  "wall_s": 52.194851787
+}

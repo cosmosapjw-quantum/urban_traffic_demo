@@ -1,0 +1,1 @@
+compact original exact restart, 10s target, preserved caps, exit=2

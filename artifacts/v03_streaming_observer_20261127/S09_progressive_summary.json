@@ -1,0 +1,104 @@
+[
+  {
+    "start_s": 28500.0,
+    "recovered_s": 28560,
+    "advanced_s": 60.0,
+    "wall_s": 75.357549771,
+    "advance_s": 16.657811486,
+    "peak_rss_bytes": 1453993984,
+    "max_traced_guard_required_bytes": 1796539885,
+    "guard_exceedances": 0,
+    "checkpoint_bytes": 504271064,
+    "history_rows": 51230,
+    "history_bytes": 20082160,
+    "journey_records": {
+      "dynamic_bytes": 192246592,
+      "egress": 2834764,
+      "enter": 2330693,
+      "history": 51230,
+      "history_bytes": 20082160,
+      "internal": 73212,
+      "nonempty_histories": 51230,
+      "stage_bytes": [
+        76609104,
+        93148704,
+        2406624
+      ]
+    },
+    "peak_records": 8306578,
+    "raw_products": 1310368,
+    "stored_products": 986552,
+    "raw_receipt_contributions": 1338759,
+    "avoided_raw_receipt_rows": 1338759,
+    "execution": "artifacts/v03_streaming_observer_20261127/S09_egress28560.json",
+    "recovery": "artifacts/v03_streaming_observer_20261127/S09_egress28560_recovery.json"
+  },
+  {
+    "start_s": 28560.0,
+    "recovered_s": 28740,
+    "advanced_s": 180.0,
+    "wall_s": 113.826439197,
+    "advance_s": 45.683043853,
+    "peak_rss_bytes": 1413468160,
+    "max_traced_guard_required_bytes": 1752940861,
+    "guard_exceedances": 0,
+    "checkpoint_bytes": 491906904,
+    "history_rows": 51230,
+    "history_bytes": 20082160,
+    "journey_records": {
+      "dynamic_bytes": 179180288,
+      "egress": 2436523,
+      "enter": 2330693,
+      "history": 51230,
+      "history_bytes": 20082160,
+      "internal": 73212,
+      "nonempty_histories": 51230,
+      "stage_bytes": [
+        76609104,
+        80082400,
+        2406624
+      ]
+    },
+    "peak_records": 8002798,
+    "raw_products": 3933344,
+    "stored_products": 2959528,
+    "raw_receipt_contributions": 3473401,
+    "avoided_raw_receipt_rows": 3473401,
+    "execution": "artifacts/v03_streaming_observer_20261127/S09_egress28740.json",
+    "recovery": "artifacts/v03_streaming_observer_20261127/S09_egress28740_recovery.json"
+  },
+  {
+    "start_s": 28740.0,
+    "recovered_s": 29340,
+    "advanced_s": 600.0,
+    "wall_s": 363.338535376,
+    "advance_s": 307.445255889,
+    "peak_rss_bytes": 1954553856,
+    "max_traced_guard_required_bytes": 2297891117,
+    "guard_exceedances": 0,
+    "checkpoint_bytes": 840857776,
+    "history_rows": 69899,
+    "history_bytes": 27400408,
+    "journey_records": {
+      "dynamic_bytes": 285559688,
+      "egress": 3057215,
+      "enter": 4652561,
+      "history": 69899,
+      "history_bytes": 27400408,
+      "internal": 145649,
+      "nonempty_histories": 69899,
+      "stage_bytes": [
+        152925104,
+        100446256,
+        4787920
+      ]
+    },
+    "peak_records": 12706951,
+    "raw_products": 15175960,
+    "stored_products": 11191961,
+    "raw_receipt_contributions": 11224744,
+    "avoided_raw_receipt_rows": 11206075,
+    "execution": "artifacts/v03_streaming_observer_20261127/S09_egress29340.json",
+    "recovery": "artifacts/v03_streaming_observer_20261127/S09_egress29340_recovery.json"
+  }
+]

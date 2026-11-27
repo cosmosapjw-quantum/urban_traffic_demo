@@ -1,0 +1,14 @@
+{
+  "status": "PASS_EXACT_FINITE_ASSERTIONS",
+  "positive_atoms": 14,
+  "three_atom_mass_cases": 4480,
+  "hidden_release_sequence_cases": 13440,
+  "streaming_moment_cases": 4480,
+  "lipschitz_cells": 9032,
+  "unprotected_query_counterexample": {
+    "raw": "1/2",
+    "centroid": "1"
+  },
+  "seconds": 4.6453882090281695,
+  "scope": "rational finite test with dt=2, eps=0; proof in research note, not binary64 or full-city proof"
+}
