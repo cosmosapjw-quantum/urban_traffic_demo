@@ -226,10 +226,55 @@ fn stage_sums_dense_n<const N:usize>(j:&Journey,legs:usize)->CoreResult<Option<V
     crate::v1_trace::add("stage_validation.dense_scratch",sums.capacity().saturating_mul(std::mem::size_of::<FixedStageSum<N>>()) as u64);
     Ok(Some(mass))
 }
+// Stable counting partition: preserve exactly the source-order sequence
+// of each reference (leg, ordinal) group, with no per-key heap vectors.
+// Both dense u32 tables and the f64 payload fit the old 16N scratch.
+fn stage_sums_partitioned(j:&Journey,legs:usize)->CoreResult<Option<Vec<f64>>>{
+    let rows=j.1.len().saturating_add(j.2.len()).saturating_add(j.3.len());
+    if rows==0||rows>u32::MAX as usize||legs>u32::MAX as usize{return Ok(None)}
+    let allowed=rows.saturating_mul(STAGE_SUM_ROW_BYTES);
+    let scratch=rows.saturating_mul(8).saturating_add(legs.saturating_mul(8));
+    if scratch>allowed{return Ok(None)}
+    let mut ends=Vec::<u32>::new();let mut cursor=Vec::<u32>::new();let mut values=Vec::<f64>::new();
+    if ends.try_reserve_exact(legs).is_err()||cursor.try_reserve_exact(legs).is_err()||values.try_reserve_exact(rows).is_err(){return Ok(None)}
+    if ends.capacity().saturating_add(cursor.capacity()).saturating_mul(4).saturating_add(values.capacity().saturating_mul(8))>allowed{return Ok(None)}
+    ends.resize(legs,0);cursor.resize(legs,0);values.resize(rows,0.);
+    for part in [&j.1,&j.2,&j.3]{for a in part{
+        let v=ends.get_mut(a.0).ok_or_else(||bad("native stage row leg index differs"))?;
+        *v=v.checked_add(1).ok_or_else(||bad("native stage partition count overflow"))?;
+    }}
+    let mut n=0u32;
+    for (e,c) in ends.iter_mut().zip(&mut cursor){
+        *c=n;n=n.checked_add(*e).ok_or_else(||bad("native stage partition prefix overflow"))?;*e=n;
+    }
+    if n as usize!=rows{return Err(bad("native stage partition census differs"))}
+    for part in [&j.1,&j.2,&j.3]{for a in part{
+        let c=&mut cursor[a.0];
+        if *c>=ends[a.0]{return Err(bad("native stage partition cursor exceeds group"))}
+        values[*c as usize]=a.1;*c+=1;
+    }}
+    if cursor!=ends{return Err(bad("native stage partition cursor census differs"))}
+    let mut mass=Vec::new();
+    mass.try_reserve_exact(legs).map_err(|_|CoreError::resource("native stage validation allocation failed"))?;
+    let mut start=0usize;
+    for &end in &ends{
+        let mut sum=Sum::default();
+        for &x in &values[start..end as usize]{sum.add(x);}
+        mass.push(sum.finish());start=end as usize;
+    }
+    crate::v1_trace::add("stage_validation.partitioned_rows",rows as u64);
+    crate::v1_trace::add("stage_validation.partitioned_scratch",scratch as u64);
+    Ok(Some(mass))
+}
 fn stage_sums(j:&Journey,legs:usize)->CoreResult<Vec<f64>>{
     if legs>u32::MAX as usize||j.1.len()+j.2.len()+j.3.len()>u32::MAX as usize{return Err(bad("native stage validation index exceeds u32"))}
+    // At city scale avoid probing dense inline paths that repeatedly spill.
+    if j.1.len()+j.2.len()+j.3.len()>=65536{
+        if let Some(mass)=stage_sums_partitioned(j,legs)?{return Ok(mass)}
+    }
     if let Some(mass)=stage_sums_dense(j,legs)?{return Ok(mass)}
     if let Some(mass)=stage_sums_dense_n::<8>(j,legs)?{return Ok(mass)}
+    if let Some(mass)=stage_sums_partitioned(j,legs)?{return Ok(mass)}
     crate::v1_trace::add("stage_validation.sorted_fallback",1);
     stage_sums_sorted(j,legs)
 }
@@ -2150,6 +2195,22 @@ mod stage_sum_tests {
         assert!(stage_sums_dense(&j,1).unwrap().is_none());
         assert_eq!(stage_sums_dense_n::<8>(&j,1).unwrap().unwrap()[0].to_bits(),stage_sums_sorted(&j,1).unwrap()[0].to_bits());
         assert_eq!(stage_sums(&j,1).unwrap(),stage_sums_sorted(&j,1).unwrap());
+    }
+    #[test]
+    fn stable_count_partition_keeps_reference_order_and_wide_expansions(){
+        let legs=17;let mut q=[StageQueue::new(),StageQueue::new(),StageQueue::new()];
+        for (k,s) in q.iter_mut().enumerate(){for i in 0..257{
+            let l=(7*i+k)%11;
+            let x=2f64.powi(-((i%24)as i32)*40)*(if i%7==0{-1.}else{1.});
+            s.push((l,x,0.,1.));
+        }}
+        let [a,b,c]=q;
+        let j:Journey=(0.,a,b,c,vec![],vec![],vec![],vec![]);
+        let got=stage_sums_partitioned(&j,legs).unwrap().unwrap();
+        let want=stage_sums_sorted(&j,legs).unwrap();
+        assert_eq!(got.iter().map(|x|x.to_bits()).collect::<Vec<_>>(),want.iter().map(|x|x.to_bits()).collect::<Vec<_>>());
+        assert!(stage_sums_partitioned(&j,10000).unwrap().is_none());
+        assert!(stage_sums_partitioned(&j,10).is_err());
     }
     #[test]
     fn stage_sums_empty_journey_is_all_zero() {
