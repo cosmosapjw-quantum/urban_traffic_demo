@@ -2963,6 +2963,42 @@ impl EntryWorkspace{
         true
     }
 }
+// Periodic cross-generation entry quotient. Sort only compact references
+// and original ordinals; old queue remains immutable until replacement.
+fn entry_sweep_scratch(rows:usize)->usize{
+    rows.saturating_mul(std::mem::size_of::<(u64,usize,&Access)>())
+        .saturating_add(StageQueue::new().append_upper_bytes(rows))
+        .saturating_add(64*1024)
+}
+fn compact_entry_queue(q:&StageQueue,t:f64,dt:f64,available:usize)->CoreResult<Option<StageQueue>>{
+    let n=q.len();
+    if n<2||entry_sweep_scratch(n)>available{return Ok(None)}
+    let mut refs=checkpoint_vec(n)?;
+    if refs.capacity()!=n{return Ok(None)}
+    for (ord,a) in q.iter().enumerate(){
+        if a.0>u32::MAX as usize||!a.1.is_finite()||a.1<=0.||!a.2.is_finite()||a.2<0.||a.2>t||!a.3.is_finite()||a.3<0.{return Ok(None)}
+        let Some(key)=entry_key(a.2+a.3,t,dt)else{return Ok(None)};
+        refs.push((((a.0 as u64)<<32)|key as u64,ord,a));
+    }
+    if refs.len()!=n{return Err(bad("entry sweep source census"))}
+    refs.sort_unstable_by_key(|a|(a.0,a.1));
+    let mut result=StageQueue::new();
+    for chunk in refs.chunk_by(|a,b|a.0==b.0){
+        if chunk.len()==1{result.push(*chunk[0].2);continue}
+        let mut group=EntryGroup::new(chunk[0].0 as u32,*chunk[0].2);
+        let valid=chunk.iter().all(|r|group.add(*r.2,t,dt));
+        if let Some(a)=valid.then(||group.representative(t,dt)).flatten(){
+            result.push(a);
+        }else{
+            for r in chunk{result.push(*r.2);}
+        }
+    }
+    if result.len()>=n{return Ok(None)}
+    if result.storage_bytes().saturating_add(n.saturating_mul(std::mem::size_of::<(u64,usize,&Access)>())).saturating_add(64*1024)>available{
+        return Err(CoreError::resource("entry sweep realized workspace exceeds preflight"))
+    }
+    Ok(Some(result))
+}
 #[cfg(test)]
 mod entry_projection_tests{
     use super::*;
@@ -2981,6 +3017,31 @@ mod entry_projection_tests{
         assert_eq!(ledger(&raw),ledger(&w.out));
         assert!(!w.project(3,2.,11.,9.,&law,10.,10.));
         assert!(!w.project(3,2.,1.,9.,&[(3.,0.5),(13.,0.5)],10.,10.));
+    }
+    #[test]
+    fn sweep_projects_across_generations_without_losing_tag_or_due_tick(){
+        let mut q=StageQueue::new();
+        for row in [(1,0.25,1.,12.),(2,0.5,4.,10.),(1,0.75,3.,13.),(1,0.5,1.,21.),(2,0.25,6.,9.),(1,0.5,7.,17.)]{q.push(row);}
+        let before=q.iter().copied().collect::<Vec<_>>();
+        let cap=entry_sweep_scratch(q.len());
+        assert!(compact_entry_queue(&q,10.,10.,cap-1).unwrap().is_none());
+        let out=compact_entry_queue(&q,10.,10.,cap).unwrap().unwrap();
+        assert_eq!(out.len(),3);
+        let ledger=|q:&StageQueue|{
+            let mut d=std::collections::BTreeMap::<(usize,u32),[f64;2]>::new();
+            for a in q.iter(){let k=entry_key(a.2+a.3,10.,10.).unwrap();let x=d.entry((a.0,k)).or_default();x[0]+=a.1;x[1]+=a.1*a.2;}
+            d
+        };
+        assert_eq!(ledger(&q),ledger(&out));
+        assert_eq!(before,q.iter().copied().collect::<Vec<_>>());
+        for u in [10.,20.,30.,40.]{
+            let mut raw=q.clone();let mut reduced=out.clone();
+            let by_due=|q:&mut StageQueue|{
+                let mut d=std::collections::BTreeMap::<usize,[f64;2]>::new();
+                q.retire_due(u+1e-10,|a|{let x=d.entry(a.0).or_default();x[0]+=a.1;x[1]+=a.1*a.2;});d
+            };
+            assert_eq!(by_due(&mut raw),by_due(&mut reduced));
+        }
     }
     #[test]
     fn entry_key_matches_original_rounded_readiness(){
