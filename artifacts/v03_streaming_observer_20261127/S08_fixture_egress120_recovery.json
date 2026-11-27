@@ -1,0 +1,120 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "build_s": 0.00053731,
+  "byte_budget": 268435456,
+  "calendar_legs": 5,
+  "calendar_totals": [
+    20.0,
+    13.06,
+    100.0
+  ],
+  "checkpoint_bytes": 1223,
+  "checkpoint_sha256": "b0496f836e841c8d479dfdeb26a1b4f60aee90076df8b3f4a5317fd80d54db40",
+  "city_identity": "rust-host-fixture-city",
+  "class_names": [
+    "car",
+    "freight",
+    "scheduled_bus"
+  ],
+  "completed_event_rows": 0,
+  "decode_envelopes": {
+    "compact_owner_bytes": 1264,
+    "compact_validation_scratch_bytes": 2097216,
+    "historical_legacy_owner_estimate_bytes": 1264,
+    "historical_legacy_validation_scratch_bytes": 64
+  },
+  "executable_sha256": "a99209dac662da6f4219559b24951ba3e3046609714b1fe9949434491d562067",
+  "journey_records": {
+    "dynamic_bytes": 1960,
+    "egress": 0,
+    "enter": 0,
+    "history": 5,
+    "history_bytes": 1960,
+    "internal": 0,
+    "nonempty_histories": 5,
+    "stage_bytes": [
+      0,
+      0,
+      0
+    ]
+  },
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 100.0,
+      "pending": 0.0,
+      "released": 100.0,
+      "released_intent_first_moment": 750.0,
+      "requested": 100.0
+    },
+    "persons": {
+      "active": -3.552713678800501e-15,
+      "completed": 20.000000000000004,
+      "pending": 0.0,
+      "released": 20.0,
+      "released_intent_first_moment": 500.00000000000006,
+      "requested": 20.0
+    },
+    "vehicles": {
+      "active": -1.7763568394002505e-15,
+      "completed": 13.060000000000002,
+      "pending": 0.0,
+      "released": 13.06,
+      "released_intent_first_moment": 324.75000000000006,
+      "requested": 13.06
+    }
+  },
+  "load_s": 0.000078254,
+  "manifest_sha256": "06db4b536d59b00dece8837150fa09804367bf48dabd9f74eded4ac2b04b6314",
+  "native_identity": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3:mature-receipt-v1:10:group-outlets-v1:receipt-grid-v1:1:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1",
+  "peak_rss_bytes": 6594560,
+  "python_runtime_dependency": "none",
+  "road_class_ledgers": [
+    [
+      12.800000000000002,
+      12.800000000000006,
+      12.800000000000002,
+      3.2806052142577564,
+      0.0
+    ],
+    [
+      0.1,
+      0.1,
+      0.1,
+      0.018500000000000016,
+      0.0
+    ],
+    [
+      2.0,
+      2.0,
+      2.0,
+      0.5,
+      0.0
+    ]
+  ],
+  "road_records": {
+    "cell_packets": 0,
+    "cell_parts": 0,
+    "mixed_parts": 0,
+    "pending_packets": 0,
+    "pending_parts": 0,
+    "retained_storage_bytes": 1264,
+    "uniform_parts": 0
+  },
+  "road_totals": [
+    14.900000000000004,
+    14.9,
+    411.00000000000006,
+    628.4033409529547,
+    14.900000000000004,
+    0.0,
+    6.400000000000011
+  ],
+  "schedule_identity": "rust-host-fixture-schedule",
+  "schema": "metroflow_native_recovery_v1",
+  "scope": "strict complete decode, cross-owner ledger validation and original identity; no execution or elapsed-horizon claim",
+  "status": "RECOVERED_CHECKPOINT_ONLY",
+  "threads": 4,
+  "time_s": 120.0,
+  "wall_s": 0.005015922
+}
