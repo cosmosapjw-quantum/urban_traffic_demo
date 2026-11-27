@@ -1,0 +1,16 @@
+All original lean arms use same source 25740 and target 25750; original manifest and checkpoint SHA checked by native CLI; no research flags. 8 threads, original 6GiB accounting/8GiB address limit.
+METROFLOW_BUDGET_TRACE=record
+METROFLOW_TRACE_SOURCE_ATTRIBUTION=off
+METROFLOW_NATIVE_EXACT_RESTART=1
+METROFLOW_NATIVE_SEGMENT_S=10
+METROFLOW_NATIVE_LINK_RESUME=1
+METROFLOW_NATIVE_COMPACT_WIRE=1
+METROFLOW_NATIVE_EVENT_WIRE=1
+METROFLOW_EXPERIMENTAL_RECEIVING_LIFETIMES=1
+METROFLOW_EXPERIMENTAL_EVENT_INDEX_INCOMING=1
+METROFLOW_EXPERIMENTAL_ARC_PAIR_BUDGET=source_pair_only
+METROFLOW_NATIVE_STREAM_SINKS=1
+METROFLOW_NATIVE_STREAM_SOURCE=1
+METROFLOW_NATIVE_PACKED_REF=1
+METROFLOW_NATIVE_PACKED_EVENTS=1
+First arm previous backup binary, timeout 240s; S03 binary timeout 300s; final release binary timeout 300s. Independent recovery uses exact restart, compact/event and packed-events flags and record trace with attribution off. All share host/I/O with independent research runs; no isolated speed comparison. Earlier checkpoints remain immutable and hardlink target replaced only by atomic rename.

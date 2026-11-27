@@ -1,0 +1,9 @@
+{
+  "status": "PASS_EXACT_FINITE_ASSERTIONS",
+  "atom_types": 16,
+  "three_atom_cases": 6528,
+  "boundary_checks": 32640,
+  "fifo_cases": 6528,
+  "scope": "fixed dt=2, eps=0, canonical source packet and proportional FIFO service; not full MetroFlow proof or binary64 test",
+  "elapsed_s": 1.3048592309933156
+}

@@ -1,0 +1,44 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "checkpoint_bytes": 840857792,
+  "checkpoint_sha256": "6e511feaefbd19585a27834f9d54b8efba01939723f36450a8324998c47dd22a",
+  "executable_sha256": "ef3425597917182abb8fc30155695eab52db62e98dc47986e2681de7dbc4ec6e",
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 3023.9525545546403,
+      "completed": 11207.154202700429,
+      "pending": 9518.893242744502,
+      "released": 14231.10675725507,
+      "released_intent_first_moment": 388807399.9797455,
+      "requested": 23749.99999999957
+    },
+    "vehicles": {
+      "active": 2418.7916627388167,
+      "completed": 8947.875003927767,
+      "pending": 270.8333333336286,
+      "released": 11366.666666666584,
+      "released_intent_first_moment": 310548166.6666753,
+      "requested": 11637.500000000213
+    }
+  },
+  "manifest_sha256": "7dadbdef803fe778e492505ee87ef5787d2fb91d18e0eeca13cf1aec31caacf6",
+  "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1",
+  "peak_rss_bytes": 930856960,
+  "python_runtime_dependency": "none",
+  "schema": "metroflow_entry_bucket_migration_v1",
+  "scope": "same initial owners; fixed-grid entry source mass/birth quotient, separate research identity",
+  "source_checkpoint_sha256": "7887d1801a0c8a532c2305dee2b1b2f07eb496db32086080becba6d2d63fc5aa",
+  "source_manifest_sha256": "a5f0ab6eb169ae61d3e3c745c1900dfc513325826bb45e259fe7f3a0c644d574",
+  "source_native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1",
+  "status": "EXECUTED_FOR_REVIEW",
+  "time_s": 29340.0,
+  "wall_s": 43.064875409
+}

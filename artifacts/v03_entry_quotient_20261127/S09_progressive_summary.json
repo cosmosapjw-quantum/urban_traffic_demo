@@ -1,0 +1,136 @@
+{
+  "runs": [
+    {
+      "start_s": 29340.0,
+      "recovered_s": 29400,
+      "advanced_s": 60.0,
+      "wall_s": 98.813351665,
+      "advance_s": 19.978478829,
+      "peak_rss_bytes": 1989156864,
+      "max_traced_guard_required_bytes": 2152702365,
+      "guard_exceedances": 0,
+      "checkpoint_bytes": 814546920,
+      "journey_records": {
+        "dynamic_bytes": 235472864,
+        "egress": 3218633,
+        "enter": 2924498,
+        "history": 73564,
+        "history_bytes": 28837088,
+        "internal": 145962,
+        "nonempty_histories": 73564,
+        "stage_bytes": [
+          96092800,
+          105744400,
+          4798576
+        ]
+      },
+      "peak_records": 11324579,
+      "entry_raw_products": 1896000,
+      "entry_stored_products": 1856952,
+      "entry_products_avoided": 39048,
+      "entry_sweep_removed": 2900379,
+      "entry_sweep_raw": 4652561,
+      "entry_sweep_retained": 1752182,
+      "entry_sweep_scratch_max": 264696344,
+      "stage_sorted_fallback": 2,
+      "execution": "artifacts/v03_entry_quotient_20261127/S09_entry29400.json",
+      "recovery": "artifacts/v03_entry_quotient_20261127/S09_entry29400_recovery.json"
+    },
+    {
+      "start_s": 29400.0,
+      "recovered_s": 29580,
+      "advanced_s": 180.0,
+      "wall_s": 182.475369438,
+      "advance_s": 80.636425276,
+      "peak_rss_bytes": 2076835840,
+      "max_traced_guard_required_bytes": 2135548309,
+      "guard_exceedances": 0,
+      "checkpoint_bytes": 894920480,
+      "journey_records": {
+        "dynamic_bytes": 255375184,
+        "egress": 3696739,
+        "enter": 2924498,
+        "history": 84280,
+        "history_bytes": 33037760,
+        "internal": 146353,
+        "nonempty_histories": 84280,
+        "stage_bytes": [
+          96092800,
+          121431504,
+          4813120
+        ]
+      },
+      "peak_records": 12214387,
+      "entry_raw_products": 5688000,
+      "entry_stored_products": 5570856,
+      "entry_products_avoided": 117144,
+      "entry_sweep_removed": 3516948,
+      "entry_sweep_raw": 8773494,
+      "entry_sweep_retained": 5256546,
+      "entry_sweep_scratch_max": 166406416,
+      "stage_sorted_fallback": 2,
+      "execution": "artifacts/v03_entry_quotient_20261127/S09_entry29580.json",
+      "recovery": "artifacts/v03_entry_quotient_20261127/S09_entry29580_recovery.json"
+    },
+    {
+      "start_s": 29580.0,
+      "recovered_s": 29940,
+      "advanced_s": 360.0,
+      "wall_s": 249.369500041,
+      "advance_s": 170.169455665,
+      "peak_rss_bytes": 2211311616,
+      "max_traced_guard_required_bytes": 2285850549,
+      "guard_exceedances": 0,
+      "checkpoint_bytes": 955606680,
+      "journey_records": {
+        "dynamic_bytes": 288072840,
+        "egress": 4495809,
+        "enter": 2924498,
+        "history": 100469,
+        "history_bytes": 39383848,
+        "internal": 146424,
+        "nonempty_histories": 100469,
+        "stage_bytes": [
+          96092800,
+          147783072,
+          4813120
+        ]
+      },
+      "peak_records": 13266110,
+      "entry_raw_products": 11376000,
+      "entry_stored_products": 11141712,
+      "entry_products_avoided": 234288,
+      "entry_sweep_removed": 7033896,
+      "entry_sweep_raw": 17546988,
+      "entry_sweep_retained": 10513092,
+      "entry_sweep_scratch_max": 166406416,
+      "stage_sorted_fallback": 2,
+      "execution": "artifacts/v03_entry_quotient_20261127/S09_entry29940.json",
+      "recovery": "artifacts/v03_entry_quotient_20261127/S09_entry29940_recovery.json"
+    }
+  ],
+  "last_recovered_s": 29940,
+  "new_horizon_s": 600,
+  "ancestral_horizon_s": 4620,
+  "target": {
+    "target_s": 29940,
+    "status": "RECOVERED",
+    "execution_receipt_exists": true,
+    "recovery_receipt_exists": true,
+    "log_bytes": 17844
+  },
+  "entry_sweep_removed_total": 13451223,
+  "entry_products_avoided_total": 390480,
+  "original_timeout": {
+    "status": "TIMEOUT_DURING_ATOMIC_SAVE_NOT_RECOVERED",
+    "exit_code": 124,
+    "target_s": 25750,
+    "source_recovered_s": 25740,
+    "final_path_is_original_source_inode": true,
+    "source_sha256": "4d7c86f0d5921865330f7a0671c1c8c100a51af6f5a30d38bc2121f22fc1f6c5",
+    "partial_stage_path": "/home/cosmosapjw/research_backups/metroflow_v03_entry_quotient_20261127/original_final25750.bin.stage-3910964",
+    "partial_stage_bytes": 1750065154,
+    "complete_execution_receipt_exists": false,
+    "scope": "Observed partial checkpoint writer after capture/validation path; no complete receipt, no frontier advance, partial file not valid recovery evidence."
+  }
+}

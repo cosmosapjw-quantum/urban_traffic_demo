@@ -1,0 +1,12 @@
+{
+  "status": "TIMEOUT_DURING_ATOMIC_SAVE_NOT_RECOVERED",
+  "exit_code": 124,
+  "target_s": 25750,
+  "source_recovered_s": 25740,
+  "final_path_is_original_source_inode": true,
+  "source_sha256": "4d7c86f0d5921865330f7a0671c1c8c100a51af6f5a30d38bc2121f22fc1f6c5",
+  "partial_stage_path": "/home/cosmosapjw/research_backups/metroflow_v03_entry_quotient_20261127/original_final25750.bin.stage-3910964",
+  "partial_stage_bytes": 1750065154,
+  "complete_execution_receipt_exists": false,
+  "scope": "Observed partial checkpoint writer after capture/validation path; no complete receipt, no frontier advance, partial file not valid recovery evidence."
+}
