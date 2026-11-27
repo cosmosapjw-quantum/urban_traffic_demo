@@ -1,0 +1,93 @@
+{
+  "time_s": 25800.0,
+  "events": 5560080,
+  "peak_records": 17813455,
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 1794.3323743093777,
+      "completed": 175.48650821977807,
+      "pending": 1363.5144508042224,
+      "released": 1969.8188825291556,
+      "released_intent_first_moment": 50220532.41008134,
+      "requested": 3333.333333333378
+    },
+    "vehicles": {
+      "active": 1435.1695983127124,
+      "completed": 138.16373502063894,
+      "pending": 59.999999999992724,
+      "released": 1573.3333333333514,
+      "released_intent_first_moment": 40112133.33333303,
+      "requested": 1633.3333333333442
+    }
+  },
+  "projection": {
+    "projection.cells": [
+      28080,
+      28080,
+      1
+    ],
+    "projection.exact_fallback_cells": [
+      4439,
+      4439,
+      1
+    ],
+    "projection.in_rows": [
+      28080,
+      28176316,
+      63968
+    ],
+    "projection.local_mass_time_bound_veh_s_ceil": [
+      28080,
+      69850,
+      30
+    ],
+    "projection.out_packets": [
+      28080,
+      39467,
+      2
+    ],
+    "projection.out_rows": [
+      28080,
+      17991563,
+      6372
+    ],
+    "split.out_packets": [
+      4439,
+      32643,
+      245
+    ],
+    "split.out_rows": [
+      4439,
+      24092793,
+      739264
+    ],
+    "tick.cell_packets": [
+      30,
+      169601,
+      10847
+    ],
+    "tick.cell_parts": [
+      30,
+      93725919,
+      10361347
+    ],
+    "xfer.serve_incoming_rows": [
+      71296,
+      49056818,
+      6097
+    ],
+    "xfer.serve_rows": [
+      71296,
+      50119425,
+      6193
+    ]
+  }
+}
