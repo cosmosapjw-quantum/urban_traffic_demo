@@ -1349,3 +1349,5 @@ pub mod next_epoch;
 pub mod restored_atlas;
 #[cfg(feature="native-cli")]
 pub mod phase_runtime;
+#[cfg(feature="native-cli")]
+mod extended_cost_wire;

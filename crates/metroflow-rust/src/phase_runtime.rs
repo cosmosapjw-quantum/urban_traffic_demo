@@ -142,15 +142,6 @@ impl Runtime {
         {
             return Err(bad("invalid native phase configuration"));
         }
-        // JSON phase receipts carry finite observation costs. Infinity in the
-        // internal destination potential is preserved separately by u64 bits.
-        if cfg.priors.iter().any(|p| !p.seconds.is_finite())
-            || cfg.channels.iter().any(|c| !c.radius_m.is_finite())
-        {
-            return Err(bad(
-                "native phase wire requires finite declared costs/radii",
-            ));
-        }
         let graph_budget = links
             .len()
             .checked_add(turns.len())
@@ -306,12 +297,6 @@ impl Runtime {
     }
     pub fn restore(&self, w: Wire, physical_time: f64) -> CoreResult<World> {
         self.check_wire(&w, physical_time)?;
-        if w.information_reports
-            .iter()
-            .any(|r| !r.observation.seconds.is_finite())
-        {
-            return Err(bad("nonfinite report wire"));
-        }
         let information = self.information.advance(
             &self.information.initial(),
             w.info_time_s,
@@ -339,10 +324,7 @@ impl Runtime {
             || !p.snapshot.stamp_s.is_finite()
             || p.snapshot.stamp_s < 0.
             || p.snapshot.stamp_s > w.wire.time_s
-            || p.snapshot
-                .costs
-                .iter()
-                .any(|(_, x)| !x.is_finite() || *x < 0.)
+            || p.snapshot.costs.iter().any(|(_, x)| x.is_nan() || *x < 0.)
         {
             return Err(bad("invalid frozen growth publication"));
         }
@@ -354,11 +336,10 @@ impl Runtime {
         if !aligned(end, self.step)
             || end < w.wire.time_s
             || inputs.reports.len() > self.cfg.record_budget
-            || inputs.reports.iter().any(|r| {
-                r.observation.validate().is_err()
-                    || !r.observation.seconds.is_finite()
-                    || r.observation.stamp_s > end
-            })
+            || inputs
+                .reports
+                .iter()
+                .any(|r| r.observation.validate().is_err() || r.observation.stamp_s > end)
         {
             return Err(bad("future/invalid phase reports or horizon"));
         }
@@ -483,11 +464,11 @@ impl Runtime {
         self.count(&w.wire)?;
         Ok(())
     }
-    pub(crate) fn growth_stock_identity(&self,w:&Wire)->CoreResult<Option<String>>{
-        match (&self.growth,&w.growth_state){
-            (Some(g),Some(s))=>Ok(Some(g.materialized_identity(s)?)),
-            (None,None)=>Ok(None),
-            _=>Err(bad("growth identity mismatch")),
+    pub(crate) fn growth_stock_identity(&self, w: &Wire) -> CoreResult<Option<String>> {
+        match (&self.growth, &w.growth_state) {
+            (Some(g), Some(s)) => Ok(Some(g.materialized_identity(s)?)),
+            (None, None) => Ok(None),
+            _ => Err(bad("growth identity mismatch")),
         }
     }
     pub fn finalize(&self, mut w: World, pending: &[Report]) -> CoreResult<Wire> {

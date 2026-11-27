@@ -1,0 +1,672 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "advance_s": 0.00166429,
+  "build_s": 0.000405469,
+  "byte_budget": 268435456,
+  "calendar_legs": 5,
+  "calendar_totals": [
+    20.0,
+    13.06,
+    100.0
+  ],
+  "checkpoint_bytes": 1848,
+  "checkpoint_sha256": "f1deb1395a48d6cb6b837c0c52c6aac4ab82924e5fe6690d640fd69f246fdf4b",
+  "city_identity": "rust-host-fixture-city",
+  "executable_sha256": "24497d99c9bbb67ca50f78d9869ebee122553d822c8e980e09e66269a073f7a7",
+  "growth_stock_identity": null,
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 100.0,
+      "pending": 0.0,
+      "released": 100.0,
+      "released_intent_first_moment": 750.0,
+      "requested": 100.0
+    },
+    "persons": {
+      "active": 3.1999999999999993,
+      "completed": 14.8,
+      "pending": 2.0,
+      "released": 18.0,
+      "released_intent_first_moment": 410.00000000000006,
+      "requested": 20.0
+    },
+    "vehicles": {
+      "active": 2.5600000000000005,
+      "completed": 10.42,
+      "pending": 0.08000000000000007,
+      "released": 12.98,
+      "released_intent_first_moment": 321.15000000000003,
+      "requested": 13.06
+    }
+  },
+  "manifest_sha256": "2dbedc0ab2720529b71ef1377f9def399bb40e6e400ac22a6073e33bbf4f6a21",
+  "native_identity": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3",
+  "peak_rss_bytes": 7979008,
+  "phase_config_sha256": "1538c03e469ae542c18ccc178e043cd34d1110d021e5ff1febdf4640001b5719",
+  "phase_inputs_sha256": "d819effac9906fa07bb30b96a1f0edce99c28d6d93a0d54dbd21513b66b851a2",
+  "phase_model_identity": "54940f94b3d6bc82b0711edd8d8d87df78e51cf08bfaae7e83da1e3d1c8c0e3a",
+  "phase_wire": {
+    "accessibility": {
+      "completed_veh": 11.34,
+      "stamp_s": 60.0
+    },
+    "city_identity": "rust-host-fixture-city",
+    "completed_costs": [
+      {
+        "end_s": 19.745998999557308,
+        "key": {
+          "class": "car",
+          "id": "c0:out",
+          "kind": "route"
+        },
+        "mass_veh": 1.3091576176471094,
+        "measure": "completed conditional birth-to-exit mean; includes all recorded holds",
+        "population": "05512088dff6e7721f2dbd30d684508e463f0f499f179490c8e92aae0013815a",
+        "seconds": 14.405389510282932,
+        "sensor_xy": [
+          0.0,
+          0.0
+        ],
+        "source": "T04_completed_outlet",
+        "stamp_s": 20.0,
+        "start_s": 19.0,
+        "version": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3"
+      },
+      {
+        "end_s": 44.41611942198812,
+        "key": {
+          "class": "scheduled_bus",
+          "id": "bus:out:0",
+          "kind": "route"
+        },
+        "mass_veh": 0.8322388439762405,
+        "measure": "completed conditional birth-to-exit mean; includes all recorded holds",
+        "population": "5bf36e20af46ab5ded972f400ba4bdf183d5feaa87a085c25fde467c5137a253",
+        "seconds": 14.208059710994064,
+        "sensor_xy": [
+          0.0,
+          0.0
+        ],
+        "source": "T04_completed_outlet",
+        "stamp_s": 45.0,
+        "start_s": 44.0,
+        "version": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3"
+      },
+      {
+        "end_s": 59.709536856585586,
+        "key": {
+          "class": "car",
+          "id": "c0:home",
+          "kind": "route"
+        },
+        "mass_veh": 1.2471087169937314,
+        "measure": "completed conditional birth-to-exit mean; includes all recorded holds",
+        "population": "7bd3f3e6f19a7b379a54e922204c615124bebb4fd09b5d30669acf07316a3a65",
+        "seconds": 14.342715265678189,
+        "sensor_xy": [
+          0.0,
+          0.0
+        ],
+        "source": "T04_completed_outlet",
+        "stamp_s": 60.0,
+        "start_s": 59.0,
+        "version": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3"
+      }
+    ],
+    "decisions": [
+      {
+        "alternatives": [],
+        "cache_hit": false,
+        "cost_epoch": "b028f423d5164152a002af7b115802e3364285055fafc20cb922c81c4c428303",
+        "expanded": 0,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "NO_PERCEIVED_PATH",
+        "time_s": 5.0
+      },
+      {
+        "alternatives": [],
+        "cache_hit": true,
+        "cost_epoch": "b028f423d5164152a002af7b115802e3364285055fafc20cb922c81c4c428303",
+        "expanded": 0,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "NO_PERCEIVED_PATH",
+        "time_s": 10.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "d228317db875b8235d1e49407c3aed62f531f1c71abd618f7c0ef7e2028662c7",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 15.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "64fa4f68117f66f58cf9831f5e687111fb14e034ef0516ccecd18efa3bff06ec",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 20.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "f79a529378e3a43cc09b1b9df9aa83633d5bb98dad327a8b7afb7303d9fbb186",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 25.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "655e5b69683d95349ce553f8868f4850a5325c2b905b4db37df3d34690f33a99",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 30.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "735b213ccb97bd516aebeed57815a8ca395ff793b94aba0555812a4226c1de90",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 35.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "4510e611b3024c889640d1df50d643ab08f147a9b9af61b166a99c428358c762",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 40.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "1b082d52bd9afa7a5c618f5102163d11470cbd5574c10705dd5599c1c52ca569",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 45.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "003c497831d197d64f1f567b9a4de1e247ef34562cf31a4e3502e776082bebad",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 50.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "9ef76bd2b4e6c7e44b3a49aa7ac2b668ed5556f2468b9d72b1c237960010cb92",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 55.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "c4e7063673ae6314c516f1eff34652e9b05641f8fea26e591526551e74369bff",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 60.0
+      }
+    ],
+    "demand_identity": "rust-host-fixture-schedule",
+    "growth_increment": 0,
+    "growth_snapshot": null,
+    "growth_state": null,
+    "info_time_s": 60.0,
+    "information_reports": [
+      {
+        "channel": "fixture_direct",
+        "observation": {
+          "end_s": 10.0,
+          "key": {
+            "class": "car",
+            "id": "ab",
+            "kind": "link"
+          },
+          "mass_veh": 1.0,
+          "measure": "conditional link mean",
+          "population": "fixture-link-measurement",
+          "seconds": 30.0,
+          "sensor_xy": [
+            0.0,
+            0.0
+          ],
+          "source": "completed_declared_link_fixture",
+          "stamp_s": 10.0,
+          "start_s": 0.0,
+          "version": "fixture-v1"
+        }
+      }
+    ],
+    "journal": [
+      {
+        "input_stamp_s": 0.0,
+        "phase": "medium",
+        "time_s": 5.0
+      },
+      {
+        "input_stamp_s": 5.0,
+        "phase": "medium",
+        "time_s": 10.0
+      },
+      {
+        "input_stamp_s": 5.0,
+        "phase": "slow",
+        "time_s": 10.0
+      },
+      {
+        "input_stamp_s": 10.0,
+        "phase": "medium",
+        "time_s": 15.0
+      },
+      {
+        "input_stamp_s": 15.0,
+        "phase": "medium",
+        "time_s": 20.0
+      },
+      {
+        "input_stamp_s": 15.0,
+        "phase": "slow",
+        "time_s": 20.0
+      },
+      {
+        "input_stamp_s": 20.0,
+        "phase": "medium",
+        "time_s": 25.0
+      },
+      {
+        "input_stamp_s": 25.0,
+        "phase": "medium",
+        "time_s": 30.0
+      },
+      {
+        "input_stamp_s": 25.0,
+        "phase": "slow",
+        "time_s": 30.0
+      },
+      {
+        "input_stamp_s": 30.0,
+        "phase": "medium",
+        "time_s": 35.0
+      },
+      {
+        "input_stamp_s": 35.0,
+        "phase": "medium",
+        "time_s": 40.0
+      },
+      {
+        "input_stamp_s": 35.0,
+        "phase": "slow",
+        "time_s": 40.0
+      },
+      {
+        "input_stamp_s": 40.0,
+        "phase": "medium",
+        "time_s": 45.0
+      },
+      {
+        "input_stamp_s": 45.0,
+        "phase": "medium",
+        "time_s": 50.0
+      },
+      {
+        "input_stamp_s": 45.0,
+        "phase": "slow",
+        "time_s": 50.0
+      },
+      {
+        "input_stamp_s": 50.0,
+        "phase": "medium",
+        "time_s": 55.0
+      },
+      {
+        "input_stamp_s": 55.0,
+        "phase": "medium",
+        "time_s": 60.0
+      },
+      {
+        "input_stamp_s": 55.0,
+        "phase": "slow",
+        "time_s": 60.0
+      }
+    ],
+    "model_id": "54940f94b3d6bc82b0711edd8d8d87df78e51cf08bfaae7e83da1e3d1c8c0e3a",
+    "next_medium_s": 65.0,
+    "next_slow_s": 70.0,
+    "observation_cursor_s": 60.0,
+    "routing": {
+      "cache": [
+        [
+          "db8dc0cd4e02bd2fcdcfcadda2e7fb6479dcbff7787dc9e29384a1c4afcabbd6",
+          [
+            4629137466983448576,
+            4630826316843712512
+          ]
+        ],
+        [
+          "301af343226fa66ade1c5fa9e45b0d7551bae31a5edec35120510f1d5c9bbd2a",
+          [
+            4629137466983448576,
+            4630826316843712512
+          ]
+        ],
+        [
+          "fbb6661fc4f1ada98c93f12a16709384691f5f51b3b0bfefa47f5f8a5676e164",
+          [
+            4629137466983448576,
+            4630826316843712512
+          ]
+        ],
+        [
+          "991abff66a14a840c55bd1649f92f144f7d2714887f014dc935c91fd9de406e7",
+          [
+            4629137466983448576,
+            4630826316843712512
+          ]
+        ]
+      ],
+      "hits": 1,
+      "misses": 11,
+      "model": "72c86b40621519d37094ea6ac86085ed161d90e1095f394e106dda5ac6dd72ce"
+    },
+    "slow_input": {
+      "completed_veh": 7.500000000000001,
+      "stamp_s": 55.0
+    },
+    "time_s": 60.0,
+    "traffic_identity": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3"
+  },
+  "phase_wire_sha256": "0c1d59600a0a813b04f539cbb54109f2b493b78c59777e32df2a57c943be4467",
+  "physical_suffix_applied": false,
+  "python_runtime_dependency": "none",
+  "schedule_identity": "rust-host-fixture-schedule",
+  "schema": "metroflow_native_world_v1",
+  "scope": "C01 proposal-only phase semantics on actual native T04 state; explicit growth publications; no occupied suffix mutation",
+  "start_s": 0.0,
+  "status": "EXECUTED_FOR_REVIEW",
+  "threads": 8,
+  "tick_times_s": [
+    0.000035138,
+    0.000047712,
+    0.000032693,
+    0.000013396,
+    0.000011562,
+    0.000035689,
+    0.000013085,
+    0.00001004,
+    0.000010089,
+    0.000013215,
+    0.000021852,
+    0.000011512,
+    9.789e-6,
+    9.228e-6,
+    8.927e-6,
+    0.000017073,
+    9.759e-6,
+    0.000035198,
+    0.00003652,
+    0.000016802,
+    0.000026,
+    0.000027453,
+    0.000013246,
+    5.711e-6,
+    4.769e-6,
+    0.000010159,
+    8.426e-6,
+    8.416e-6,
+    4.869e-6,
+    4.549e-6,
+    0.000024127,
+    9.458e-6,
+    6.072e-6,
+    5.761e-6,
+    5.701e-6,
+    0.000011863,
+    0.000010731,
+    9.067e-6,
+    5.892e-6,
+    5.691e-6,
+    0.000011532,
+    0.000019748,
+    0.000010681,
+    0.000021702,
+    0.000018866,
+    0.00003113,
+    0.000011893,
+    0.0000102,
+    0.000010169,
+    0.00001054,
+    0.000022182,
+    0.000011543,
+    8.736e-6,
+    8.516e-6,
+    8.396e-6,
+    0.000017383,
+    0.000013165,
+    0.000018886,
+    0.000024157,
+    0.000014147
+  ],
+  "time_s": 60.0,
+  "wall_s": 0.022345849
+}

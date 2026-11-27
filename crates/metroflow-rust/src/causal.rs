@@ -35,6 +35,7 @@ impl Key {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Prior {
     pub key: Key,
+    #[serde(with = "crate::extended_cost_wire")]
     pub seconds: f64,
     pub version: String,
     pub measure: String,
@@ -44,6 +45,7 @@ pub struct Channel {
     pub id: String,
     pub kind: String,
     pub coverage: Vec<Key>,
+    #[serde(with = "crate::extended_cost_wire")]
     pub radius_m: f64,
     pub latency_s: f64,
     pub propagation_mps: f64,
@@ -52,6 +54,7 @@ pub struct Channel {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Observation {
     pub key: Key,
+    #[serde(with = "crate::extended_cost_wire")]
     pub seconds: f64,
     pub stamp_s: f64,
     pub start_s: f64,
@@ -102,6 +105,7 @@ impl InfoState {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Delivered {
     pub key: Key,
+    #[serde(with = "crate::extended_cost_wire")]
     pub seconds: f64,
     pub source: String,
     pub version: String,

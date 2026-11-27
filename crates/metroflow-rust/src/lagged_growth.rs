@@ -21,6 +21,7 @@ fn digest<T: Serialize>(x: &T) -> CoreResult<String> {
 pub struct Accessibility {
     pub city_identity: String,
     pub stamp_s: f64,
+    #[serde(with = "crate::extended_cost_wire::pairs")]
     pub costs: Vec<(String, f64)>,
     pub source_version: String,
 }
@@ -52,8 +53,18 @@ pub fn compile_accessibility(
         .par_iter()
         .map(|(block, rs)| {
             let mass = fsum(rs.iter().map(|r| r.mass_veh));
-            let elapsed = fsum(rs.iter().map(|r| r.mass_veh * r.seconds));
-            if !mass.is_finite() || mass <= 0. || elapsed.is_nan() || elapsed < 0. {
+            let has_infinity = rs.iter().any(|r| r.seconds == f64::INFINITY);
+            let elapsed = if has_infinity {
+                f64::INFINITY
+            } else {
+                fsum(rs.iter().map(|r| r.mass_veh * r.seconds))
+            };
+            if !mass.is_finite()
+                || mass <= 0.
+                || elapsed.is_nan()
+                || elapsed < 0.
+                || !has_infinity && !elapsed.is_finite()
+            {
                 return Err(CoreError::arithmetic("accessibility moment overflow"));
             }
             Ok((block.to_string(), elapsed / mass))
