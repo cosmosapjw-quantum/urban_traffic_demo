@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.45**, 2026-11-27. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.46**, 2026-11-27. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -2122,7 +2122,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-V03/B15: retain original exact identity and strict caps; resume last verified 25740s only after profiling actual packed event and road cardinality, not guard shaving. Separate marked-time-bin model: prove and test adaptive boundary selection, avoid bin splitting when exact edge count is already lower, retain protected atoms, quantify per-route cumulative/arrival-time, readiness, travel-time and queue errors against exact matched horizons, quantify error propagation for nonlinear junction and kinetic-memory response. Evaluate 300/900/3600s and original 8h/24h on separately approved physical model; no substitution without acceptance amendment. B10 actual link-entry/outlet marks, endogenous ready-head suffix and graph edit drain; keep original frozen graph, calendar, finite response, legal K routes, accessibility/growth and 6GiB/8GiB/7200s, 3x3 matrix, 8h refinement. Prioritize reducing logical fragmentation and exact single-pass reconstruction/workspaces; packed read zero heap does not prove full-engine zero heap.
+V03/B15: no guard shaving or conflation of identities. Diagnose remaining peak transient records and event/checkpoint write growth. For distinct causal-rank research model, implement supply-sensitive partition refinement using marked FIFO prefix e_j=m_j(1-p_j) and footprint bound, protect service and reroute clocks and graph-boundary discontinuities. Use robust supply bracket and per-link error budget, compare matched exact observable errors, per-leg completion and outlet clocks, test convergence and nonlinear propagation; profile non-ready resident cohorts and route-tag support across epochs rather than ready500 (zero merges). Extend to 3600s and 8h/24h, River/Coastal nonzero demand with strict caps, original acceptance only by original contract or explicit approved change. B10 actual link-entry/outlet marks, endogenous ready-head suffix and graph edit drain, native Rust. Keep frozen 100k graph/calendar, finite response, legal K routes, accessibility/growth, 6GiB/8GiB/7200s, 3x3 full days and 8h refinement.
 
 **예산·종료조건**
 
@@ -2306,11 +2306,11 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "V03"
   ],
   "native_subagent": "NOT_RUN_NO_TOOL",
-  "scope": "Integrated S01-S10: original exact frontier computed 25740 and independently recovered 25740; packed integer receiving references and exact event-bit pages; conservative time-bin measure closure under distinct identity; 4-bin 25800 recovered (480s); 1-bin 25860 recovered (540s); 13/15 pure Rust scoped; 0/9 original full days.",
+  "scope": "Integrated S01-S10: original exact recovery 25740 unchanged; direct all-atom causal rank projection, FIFO prefix and storage error brackets; rank4 independently recovered 25800, rank1 26220 (900s), rank1-ready500 continuation recovered 27000 (1680s ancestral horizon, no ready merges). Actual matched observables, reusable scratch, measured zero-heap accumulator; 13/15 pure Rust scoped; 0/9 original full days.",
   "full_repository_ci": "DEFERRED_BY_USER",
   "full_day_100k": "BLOCKED_RESOURCE_AND_MIGRATION_0_OF_9",
   "main_modified": false,
-  "evidence": "artifacts/v03_span_measure_20261127/S10_RESEARCH_RECEIPT.json",
+  "evidence": "artifacts/v03_causal_rank_20261127/S10_RESEARCH_RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
@@ -2319,20 +2319,20 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "status": "success"
   },
   "parallel_agents": [],
-  "active_branch": "research/v03-span-measure-20261127",
-  "production_commit": "518e0f989bd4c58128eecbc335ab6519b3350ede",
+  "active_branch": "research/v03-causal-rank-20261127",
+  "production_commit": "b351f9b0270487de26df9972f9066ad7d7323275",
   "research_stages_completed": 10,
   "research_stages_total": 10,
-  "source_commit": "518e0f989bd4c58128eecbc335ab6519b3350ede",
-  "native_source_sha256": "04c18fa43176dde530f3bcf4d05e8b61b06918d43af4ad75496174e974fc098b",
-  "native_binary_sha256": "6833a3f1cc19997cb5c12cc7644b2d845a13f1fa1e3b717bf2e88d9e4a5b670c",
+  "source_commit": "b351f9b0270487de26df9972f9066ad7d7323275",
+  "native_source_sha256": "7d8f4f334ba76cae6316d1ed5c4b2a63e873212158172167586a25391a6fd721",
+  "native_binary_sha256": "ad34d3c8f2f267ae8d30455797ed0977523218167244a62b170296115e884e06",
   "current_loop_stages_completed": 10,
   "current_loop_stages_total": 10,
   "current_loop_native_subagent": "NOT_RUN_NO_TOOL",
-  "native_source_hash_method": "SHA256 of tracked source manifest at S09 source commit; measured binaries individually bound to receipts",
-  "native_binary_feature": "native-cli no Python; measured S03/S06/S09 binaries individually bound",
+  "native_source_hash_method": "SHA256 of tracked source manifest at S09; experiment binaries individually bound",
+  "native_binary_feature": "native-cli no Python; S04/S07/S09 separately bound",
   "rust_backend_scoped": "13/15 pure Rust scoped; 2 partial; zero unported; original recovered 25740",
-  "theory_loop_scope": "S01-S10 integrated exact rank and event compression and new conservative marked time-bin measure proposition; no original release acceptance"
+  "theory_loop_scope": "S01-S10 causal rank projection, local FIFO/footprint bounds and ready-stock negative result; original release unchanged"
 }
 ```
 
