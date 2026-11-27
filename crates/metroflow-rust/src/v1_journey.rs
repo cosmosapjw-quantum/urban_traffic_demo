@@ -4,7 +4,7 @@
 #[cfg(feature="python-extension")]
 use pyo3::prelude::*;
 use crate::core_error::{CoreError,CoreResult};
-use crate::v1_history::{ReceiptHistory,GridWorkspace};
+use crate::v1_history::{ReceiptHistory,GridWorkspace,ReceiptAccumulator};
 use crate::v1_parallel::ordered_map;
 use crate::v1_road::{
     checkpoint_vec, read_exact_len, read_f64, read_len, read_u64, write_f64, write_len, write_u64,
@@ -941,6 +941,7 @@ pub struct NativeJourneyCore {
     research_group_outlets:bool,
     research_receipt_grid_step:Option<f64>,
     research_schedule_receipts:bool,
+    research_stream_receipts:bool,
     history_bytes: usize,
     history_decoded_final: usize,
     history_decode_extra_max: usize,
@@ -1206,6 +1207,11 @@ impl NativeJourneyCore {
     pub(crate) fn enable_research_schedule_receipts(&mut self)->CoreResult<()>{
         if self.research_receipt_grid_step.is_none(){return Err(bad("schedule receipt closure requires fixed receipt grid"))}
         self.research_schedule_receipts=true;Ok(())
+    }
+    #[cfg(feature="native-cli")]
+    pub(crate) fn enable_research_stream_receipts(&mut self)->CoreResult<()>{
+        if !self.research_schedule_receipts{return Err(bad("streaming receipts require schedule receipt identity"))}
+        self.research_stream_receipts=true;Ok(())
     }
     pub(crate) fn owned_time(&self) -> f64 {
         self.state.0
@@ -2285,6 +2291,7 @@ impl NativeJourneyCore {
             research_group_outlets:false,
             research_receipt_grid_step:None,
             research_schedule_receipts:false,
+            research_stream_receipts:false,
             history_bytes: 0,
             history_decoded_final: 0,
             history_decode_extra_max: 0,
@@ -2605,6 +2612,37 @@ impl NativeJourneyCore {
         let mut history_bytes = self.history_bytes;
         let mut history_decoded_final = self.history_decoded_final;
         let mut history_decode_extra_max = self.history_decode_extra_max;
+        // Candidate-only workspace. Bound scratch before allocation by the
+        // number of due rows and legs; no raw receipt array per due event.
+        let mut stream_hidden:Vec<u8>=Vec::new();
+        let mut stream_slots:Vec<u32>=Vec::new();
+        let mut stream_acc:Vec<(usize,ReceiptAccumulator)>=Vec::new();
+        let mut stream_scratch=0usize;
+        if self.research_stream_receipts{
+            let n=self.legs.len();
+            if n>=u32::MAX as usize{return Err(bad("streaming receipt leg count"))}
+            let due=s.2.due_count(end+1e-10).saturating_add(s.3.due_count(end+1e-10));
+            let cap=n.min(due);
+            stream_scratch=n.saturating_mul(std::mem::size_of::<u8>()+std::mem::size_of::<u32>())
+                .saturating_add(cap.saturating_mul(std::mem::size_of::<(usize,ReceiptAccumulator)>()))
+                .saturating_add(3*RETAINED_ALLOCATION_PADDING);
+            check_storage_limit(self.storage_budget,self.retained_input_bytes,before_retirement_bytes.saturating_add(history_bytes),stream_scratch)?;
+            stream_hidden=checkpoint_vec(n)?;stream_slots=checkpoint_vec(n)?;stream_acc=checkpoint_vec(cap)?;
+            if stream_hidden.capacity()!=n||stream_slots.capacity()!=n||stream_acc.capacity()!=cap{return Err(CoreError::resource("streaming receipt workspace capacity differs"))}
+            stream_hidden.resize(n,1);stream_slots.resize(n,u32::MAX);
+            for child in &self.legs{
+                if let Some(p)=child.2{
+                    if p>=n{return Err(bad("invalid parent receipt index"))}
+                    if !private_profile_hides_old_history(end,child.3,child.5,&child.4){stream_hidden[p]=0;}
+                }
+            }
+            for i in self.bus.iter().map(|b|b.0).chain(self.freight.iter().map(|f|f.0)){
+                if let Some(p)=self.legs[i].2{
+                    if p>=n{return Err(bad("invalid service parent receipt index"))}
+                    stream_hidden[p]=0;
+                }
+            }
+        }
         for (kind, stage) in [&mut s.2, &mut s.3].into_iter().enumerate() {
             let mut receipt_error = None;
             retired[kind] = stage.retire_due(end + 1e-10, |a| {
@@ -2612,6 +2650,23 @@ impl NativeJourneyCore {
                     return;
                 }
                 let history = &mut s.6[a.0];
+                if self.research_stream_receipts&&stream_hidden[a.0]!=0{
+                    let result=(||->CoreResult<()>{
+                        let mut slot=stream_slots[a.0];
+                        if slot==u32::MAX{
+                            if stream_acc.len()==stream_acc.capacity(){return Err(CoreError::resource("streaming receipt slot capacity"))}
+                            slot=stream_acc.len() as u32;
+                            let mut acc=ReceiptAccumulator::default();
+                            acc.seed(history,end)?;
+                            stream_acc.push((a.0,acc));stream_slots[a.0]=slot;
+                        }
+                        stream_acc[slot as usize].1.add(t.max(a.2+a.3),a.1/self.legs[a.0].1,end)?;
+                        s.5[a.0]+=a.1;
+                        Ok(())
+                    })();
+                    if let Err(error)=result{receipt_error=Some(error)}
+                    return
+                }
                 let previous_bytes = history.storage_bytes();
                 let previous_decoded = history.decoded_final_storage_upper_bytes();
                 let projected = before_retirement_bytes
@@ -2621,7 +2676,7 @@ impl NativeJourneyCore {
                     self.storage_budget,
                     self.retained_input_bytes,
                     projected,
-                    0,
+                    stream_scratch,
                 ) {
                     receipt_error = Some(error);
                     return;
@@ -2648,8 +2703,32 @@ impl NativeJourneyCore {
             }
         }
         let added = retired[0] + retired[1];
+        let mut stream_removed=0usize;
+        if self.research_stream_receipts{
+            let touched=stream_acc.len();
+            let mut raw=0usize;
+            for (i,acc) in stream_acc{
+                let h=&mut s.6[i];
+                let prior_bytes=h.storage_bytes();
+                let prior_decoded=h.decoded_final_storage_upper_bytes();
+                raw=raw.checked_add(acc.count().checked_sub(h.len()).ok_or_else(||bad("streaming receipt seed count differs"))?).ok_or_else(||CoreError::resource("streaming receipt count overflow"))?;
+                stream_removed=stream_removed.checked_add(acc.count()-1).ok_or_else(||CoreError::resource("streaming receipt removal overflow"))?;
+                let mut next=ReceiptHistory::new();
+                check_storage_limit(self.storage_budget,self.retained_input_bytes,before_retirement_bytes.saturating_add(history_bytes).saturating_add(next.append_upper_bytes()),stream_scratch)?;
+                next.push(acc.representative()?).map_err(bad)?;
+                history_bytes=history_bytes.checked_sub(prior_bytes).and_then(|v|v.checked_add(next.storage_bytes())).ok_or_else(||CoreError::resource("streaming receipt byte census overflow"))?;
+                history_decoded_final=history_decoded_final.checked_sub(prior_decoded).and_then(|v|v.checked_add(next.decoded_final_storage_upper_bytes())).ok_or_else(||CoreError::resource("streaming receipt decoded census overflow"))?;
+                history_decode_extra_max=history_decode_extra_max.max(next.decoded_storage_upper_bytes().saturating_sub(next.decoded_final_storage_upper_bytes()));
+                *h=next;
+            }
+            crate::v1_trace::add("receipt_stream.raw",raw as u64);
+            crate::v1_trace::add("receipt_stream.touched",touched as u64);
+            crate::v1_trace::add("receipt_stream.removed_rows",stream_removed as u64);
+            crate::v1_trace::add("receipt_stream.scratch_bytes",stream_scratch as u64);
+        }
+        drop(stream_slots);drop(stream_hidden);
         if let Some(dt)=self.research_receipt_grid_step{if t%dt!=0.||end%dt!=0.||end-t!=dt{return Err(bad("receipt grid requires fixed aligned ticks"))}}
-        let mut removed=0usize;
+        let mut removed=stream_removed;
         if self.research_receipt_period_s.is_some_and(|p|(end/p as f64).floor()>(t/p as f64).floor()){
             let n=self.legs.len();let dwell_bytes=n.saturating_mul(std::mem::size_of::<f64>()+(2+usize::from(self.research_schedule_receipts))*std::mem::size_of::<u8>());
             let stage_bytes=stage_storage_bytes(&s);
@@ -2711,7 +2790,7 @@ impl NativeJourneyCore {
             crate::v1_trace::add("receipt_schedule.removed_rows",schedule_removed as u64);
             crate::v1_trace::add("receipt_grid.touched",grid_touched as u64);crate::v1_trace::add("receipt_grid.removed_rows",grid_removed as u64);
             crate::v1_trace::add("receipt_closure.touched",touched as u64);
-            crate::v1_trace::add("receipt_closure.removed_rows",removed as u64);
+            crate::v1_trace::add("receipt_closure.removed_rows",(removed-stream_removed) as u64);
             crate::v1_trace::add("receipt_closure.saved_owner_bytes",old_history_bytes.saturating_sub(history_bytes) as u64);
         }
         let final_history_rows=self.history_rows.checked_add(added).and_then(|v|v.checked_sub(removed)).ok_or_else(||CoreError::resource("receipt history row census overflow"))?;
