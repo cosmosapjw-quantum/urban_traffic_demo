@@ -17,6 +17,8 @@ mod lineage_shadow;
 mod v1_ref_blocks;
 #[path = "v1_event_blocks.rs"]
 mod v1_event_blocks;
+#[path = "v1_rank_projection.rs"]
+mod v1_rank_projection;
 #[path = "v1_timed_incoming.rs"]
 mod timed_incoming;
 use timed_incoming::{TimedIncomingControls, TimedIncomingRows};
