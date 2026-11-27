@@ -1,0 +1,2461 @@
+{
+  "schema": "metroflow_v03_rust_event_owner_research_v1",
+  "scope": "R1-R10 scoped original V03 research and C01-C10 Rust coding; exact MFWHOLE3 event runs, immutable event-index incoming/lifetime opt-in, direct borrowed sinks and cached exact head/class work; strict 25730 calculated twice and saved byte-identically, independent reload fails journey guard; 25720 independently recoverable; explicit canonical journey suffix with actual CLI replay, 13/15 pure Rust scoped, 2 partial, 0 unported; 0/9 full days.",
+  "baseline_commit": "f2995086877d6c1d4a379beb7604010724ab8d23",
+  "implementation_head_before_C10": "45e7a5df483581bb37ebd5c84fa678b2b93d77f1",
+  "native_host_code_commit": "2967ac3245711bc969ed8a478103cd331a934d56",
+  "native_host_sha256": "868445eaaf3211cf1ffbbc6eac1386d97af1544815ceac2f731ac108971286de",
+  "final_native_build_sha256": "868445eaaf3211cf1ffbbc6eac1386d97af1544815ceac2f731ac108971286de",
+  "tracked_rust_source_manifest_sha256": "a829582346592ee409033cc238d9300aaf007f879df9b186850063d1b00b9d4f",
+  "source_hash_method": "SHA256 of C10_tracked_rust_sources.sha256; executable is byte-identical to measured C07 build; fixture declaration added C09",
+  "stages": [
+    {
+      "commit": "dcc788d2b6164daf53df5266372ca14f596ba182",
+      "description": "C01 Bind V03 event-owner continuation and original research scope"
+    },
+    {
+      "commit": "154c12f8a2f279cb5ccb8a21352ba13bd56e77d6",
+      "description": "C02 Recover actual 25720 checkpoint and bind physical identity"
+    },
+    {
+      "commit": "257529edd56cd9bc39f96390539ee8a9bb7477df",
+      "description": "C03 Encode exact service-event source/time runs in versioned native whole checkpoint"
+    },
+    {
+      "commit": "c65f25099f010241149fd2b81b9aeac31cdee0a0",
+      "description": "C05 Consume road outlets directly for service and journey; avoid sink copies"
+    },
+    {
+      "commit": "123582429afd722de5bb54f39cfcf76f406236a6",
+      "description": "C04 Verify loaded event-run wire roundtrip; preserve baseline strict transfer refusal"
+    },
+    {
+      "commit": "01a1ed3fab42b5bf5cbbf3104a54592d94b1ab26",
+      "description": "C06 Bind explicit car route variants to canonical journey and actual ready-head transaction"
+    },
+    {
+      "commit": "2967ac3245711bc969ed8a478103cd331a934d56",
+      "description": "C07 Reuse exact per-event head masses and class midpoint marks; keep Rayon parity"
+    },
+    {
+      "commit": "716ccb17662f30b741cb9e5566380ddb07dbb7ee",
+      "description": "C08 Measure strict boundary clearance and compare optimized loaded tick"
+    },
+    {
+      "commit": "45e7a5df483581bb37ebd5c84fa678b2b93d77f1",
+      "description": "C09 Verify canonical variant CLI replay and isolate strict checkpoint reload blocker"
+    }
+  ],
+  "C10": "Closure receipt, plan projection, and audit; own commit excluded from self-reference.",
+  "theory_path": "docs/research/V03_RUST_EVENT_OWNER_20261127.md",
+  "theory_scope": "R1-R10 bounded construction and evidence, not proof of full-day acceptance",
+  "backend_coverage": {
+    "baseline_rust_core": 5,
+    "denominator": 15,
+    "method": "unweighted, fixed C01 functional inventory; scoped evidence reviewed; not LOC, full-city completeness or release acceptance",
+    "native_host_linked_python_scoped": 0,
+    "original_dag_accepted": 5,
+    "original_dag_scoped_or_accepted": 19,
+    "original_dag_total": 21,
+    "original_v03_direct_dependencies_ready": 3,
+    "original_v03_direct_dependencies_total": 3,
+    "original_v03_full_days": 0,
+    "original_v03_rust_only_city_preparations_verified": 3,
+    "original_v03_total": 9,
+    "partial_functions": 2,
+    "pure_rust_percent": 86.66666666666667,
+    "pure_rust_verified_scoped": 13,
+    "remaining_functions": 2,
+    "rows": [
+      {
+        "baseline": "PYTHON",
+        "component": "city geometry generation and map validation",
+        "evidence": "../v03_rust_atlas_integration_20261127/C06_all8.json",
+        "evidence_sha256": "857d457e5c32a58630e1918c69416806eab30c3551acdedd76a2e32dd205f5f2",
+        "id": "B01",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "activity geometry and finite access-law construction",
+        "evidence": "../v03_pure_rust_core_20261127/C06_oracle.log",
+        "evidence_sha256": "0b533f343de868b64ed7e4f0cd8eada19f1bd3a00ec176032214d89509726f79",
+        "id": "B02",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "factorized demand declarations and inventory",
+        "evidence": "../v03_rust_atlas_integration_20261127/valley_next.engine10.json",
+        "evidence_sha256": "7fc1f9f20b108e9686eb2a91aa8333b6f21a0ebe97534e3bb20c9775d3d354ea",
+        "id": "B03",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "native factorized OD enumeration",
+        "evidence": "river_weekday_s17.engine10.json",
+        "evidence_sha256": "f9d331a4accf22e08fc6aa5b09483b9f759234f7a9828dbea905e99f84796dcf",
+        "id": "B04",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "legal graph route search and cache",
+        "evidence": "../v03_pure_rust_core_20261127/C07-c07-2.json",
+        "evidence_sha256": "3cfd20377ae0cf444cf30c049fd9518a1fc8bcad2b524edb06c91d9aba13b077",
+        "id": "B05",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "MIXED",
+        "component": "fleet and freight route preparation",
+        "evidence": "../v03_pure_rust_core_20261127/C06_oracle.log",
+        "evidence_sha256": "0b533f343de868b64ed7e4f0cd8eada19f1bd3a00ec176032214d89509726f79",
+        "id": "B06",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "road kinetic transport and node allocation",
+        "evidence": "C08_matched25730.json",
+        "evidence_sha256": "14176fe8ba45672059136efe3c3af36fcea00485777f53ed76d09208bbe80cbd",
+        "id": "B07",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "service and journey coupling",
+        "evidence": "C08_matched25730.json",
+        "evidence_sha256": "14176fe8ba45672059136efe3c3af36fcea00485777f53ed76d09208bbe80cbd",
+        "id": "B08",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "whole engine orchestration and checkpoint",
+        "evidence": "C08_matched25730.json",
+        "evidence_sha256": "14176fe8ba45672059136efe3c3af36fcea00485777f53ed76d09208bbe80cbd",
+        "id": "B09",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "causal routing adaptation and delayed land-use",
+        "evidence": "C09_suffix49.json",
+        "evidence_sha256": "cab959b5b0d8638c2cfa67ef5713e43f18d248599b37c949d83226a2d8a21f3d",
+        "id": "B10",
+        "status": "PARTIAL"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "access-coupling research preprocessing",
+        "evidence": "../v03_rust_only_backend_20261126/C03_test.log",
+        "evidence_sha256": "41b47ea4c68ff1f201d6a9d71c5c9e736ec68ce0b508c9458023a751dd3509ff",
+        "id": "B11",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "route passage generation and validation",
+        "evidence": "../v03_rust_only_backend_20261126/C04_test.log",
+        "evidence_sha256": "07791a61eaf987cc0e20c00354b3645a8ade3817d68c57a4bb3134fbd9047638",
+        "id": "B12",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "CPP",
+        "component": "multiclass shared-access projection solver",
+        "evidence": "../v03_rust_only_backend_20261126/C09_parity.json",
+        "evidence_sha256": "1015116457d11089f1df668a3ef26e0f7c8cb0d896a33abb35de65ec1b75d377",
+        "id": "B13",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "research execution receipt and metrics",
+        "evidence": "C08_matched25730.json",
+        "evidence_sha256": "14176fe8ba45672059136efe3c3af36fcea00485777f53ed76d09208bbe80cbd",
+        "id": "B14",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "original V03 campaign runner and acceptance",
+        "evidence": "C09_recover25730_process.txt",
+        "evidence_sha256": "2db1596250cd6cb157303a9eabc7b6ea08fc4c3377a952820c2e16cf8095bb98",
+        "id": "B15",
+        "status": "PARTIAL"
+      }
+    ],
+    "rust_implemented_percent": 86.66666666666667,
+    "rust_implemented_scoped": 13,
+    "schema": "metroflow_backend_functional_census_v1",
+    "unimplemented_functions": 0
+  },
+  "computed_frontier": {
+    "evidence": "C08_matched25730.json",
+    "address_space_limit_bytes": 8589934592,
+    "advance_s": 42.625918959,
+    "budget_trace": {
+      "alloc_counting": false,
+      "counters": {
+        "arc.default_pointer_verified_credit": [
+          1,
+          808388627,
+          808388627
+        ],
+        "arc.experimental_paired_credit": [
+          1,
+          0,
+          0
+        ],
+        "engine_admission.verified_future_capture_arc_credit": [
+          3,
+          935775680,
+          935775680
+        ],
+        "entry.combined_rows": [
+          1085,
+          23309165,
+          1132287
+        ],
+        "entry.raw_rows": [
+          1085,
+          23983145,
+          1158987
+        ],
+        "event_history.retained_rows": [
+          1,
+          24322678,
+          24322678
+        ],
+        "event_history.retained_storage_bytes": [
+          1,
+          594947232,
+          594947232
+        ],
+        "event_time.exact_time_runs": [
+          1,
+          280279,
+          280279
+        ],
+        "event_time.physical_payload_bytes": [
+          1,
+          594077184,
+          594077184
+        ],
+        "event_time.saved_payload_bytes": [
+          1,
+          573577728,
+          573577728
+        ],
+        "event_time.source_rows": [
+          1,
+          24322678,
+          24322678
+        ],
+        "event_time.source_time_runs": [
+          1,
+          335851,
+          335851
+        ],
+        "incoming_timed.control_rows": [
+          1,
+          298570,
+          298570
+        ],
+        "incoming_timed.event_referenced_rows": [
+          1,
+          23932417,
+          23932417
+        ],
+        "incoming_timed.expired_source_payload_bytes": [
+          1085,
+          291027968,
+          13908480
+        ],
+        "incoming_timed.legacy_part_mark_payload_bytes": [
+          1,
+          1347584000,
+          1347584000
+        ],
+        "incoming_timed.local_consumer_scratch_bytes": [
+          1085,
+          711065600,
+          655360
+        ],
+        "incoming_timed.logical_rows": [
+          1,
+          23983145,
+          23983145
+        ],
+        "incoming_timed.physical_payload_bytes": [
+          1,
+          300583936,
+          300583936
+        ],
+        "incoming_timed.saved_payload_bytes": [
+          1,
+          1047000064,
+          1047000064
+        ],
+        "keyset.continuous_converted": [
+          1,
+          278891,
+          278891
+        ],
+        "keyset.continuous_saved_bytes": [
+          1,
+          56994784,
+          56994784
+        ],
+        "merge.adjacent_rows": [
+          311620,
+          17684113,
+          868
+        ],
+        "merge.equal_density_rows": [
+          311620,
+          208637,
+          328
+        ],
+        "merge.same_key_rows": [
+          311620,
+          17128185,
+          627
+        ],
+        "pending.rows": [
+          516,
+          50728,
+          464
+        ],
+        "receiving.expired_source_observation_bytes": [
+          1,
+          1531360896,
+          1531360896
+        ],
+        "receiving.initial_candidate_owner_bytes": [
+          1,
+          590613264,
+          590613264
+        ],
+        "road_work.expired_source_rows": [
+          1085,
+          23983145,
+          1158987
+        ],
+        "split.edges": [
+          1085,
+          364335,
+          6880
+        ],
+        "split.in_rows": [
+          1085,
+          23309165,
+          1132287
+        ],
+        "split.out_packets": [
+          1085,
+          445743,
+          8882
+        ],
+        "split.out_rows": [
+          1085,
+          24311161,
+          1152644
+        ],
+        "split.shared_adjacent_key_rows": [
+          130848,
+          16901307,
+          627
+        ],
+        "tick.cell_packets": [
+          1,
+          859335,
+          859335
+        ],
+        "tick.cell_parts": [
+          1,
+          47855028,
+          47855028
+        ],
+        "tick.offers": [
+          1,
+          156606,
+          156606
+        ],
+        "tick.pending_packets": [
+          1,
+          0,
+          0
+        ],
+        "tick.pending_parts": [
+          1,
+          0,
+          0
+        ],
+        "xfer.head_rows": [
+          355086,
+          24322678,
+          876
+        ],
+        "xfer.new_head_rows": [
+          301537,
+          15646131,
+          876
+        ],
+        "xfer.partial_rows": [
+          53586,
+          8681357,
+          454
+        ],
+        "xfer.partial_serve": [
+          355086,
+          53586,
+          1
+        ],
+        "xfer.rate_change_contiguous_rows": [
+          115,
+          17819,
+          223
+        ],
+        "xfer.same_head_gap_rows": [
+          6444,
+          1024952,
+          442
+        ],
+        "xfer.same_rate_contiguous_rows": [
+          46990,
+          7633776,
+          454
+        ],
+        "xfer.serve_incoming_rows": [
+          355086,
+          23932417,
+          876
+        ],
+        "xfer.serve_rows": [
+          355086,
+          24322678,
+          876
+        ],
+        "xfer.sink_rows": [
+          355086,
+          390261,
+          12
+        ],
+        "xfer.substep_heads": [
+          301605,
+          355086,
+          3
+        ]
+      },
+      "mode": "record",
+      "sites": {
+        "engine_admission:capture": {
+          "calls": 2,
+          "exceeded": 0,
+          "limit_at_max": 6442450944,
+          "live_at_max": null,
+          "max_ratio": 0.8835916595223049,
+          "max_required": 5692495921,
+          "terms_at_max": {
+            "call_binding": 82704900,
+            "events": 495980736,
+            "fixed_base": 570952981,
+            "journey": 302394480,
+            "road": 881237464,
+            "road_3max_without_credit": 2643712392,
+            "validation_scratch": 0,
+            "verified_future_capture_arc_credit": 0
+          }
+        },
+        "engine_admission:capture/validation": {
+          "calls": 1,
+          "exceeded": 0,
+          "limit_at_max": 6442450944,
+          "live_at_max": null,
+          "max_ratio": 0.9253860930912197,
+          "max_required": 5961754509,
+          "terms_at_max": {
+            "call_binding": 82704900,
+            "events": 594947232,
+            "fixed_base": 570952981,
+            "journey": 335338792,
+            "road": 1025397200,
+            "road_3max_without_credit": 3076191600,
+            "validation_scratch": 459527536,
+            "verified_future_capture_arc_credit": 935775680
+          }
+        },
+        "engine_admission:load validation": {
+          "calls": 1,
+          "exceeded": 0,
+          "limit_at_max": 6442450944,
+          "live_at_max": null,
+          "max_ratio": 0.41677705897018313,
+          "max_required": 2685065757,
+          "terms_at_max": {
+            "call_binding": 82704900,
+            "current_dynamic": 723888,
+            "decoded_dynamic": 1679612680,
+            "fixed_base": 570952981,
+            "validation_scratch": 433776208
+          }
+        },
+        "journey_commit:checkpointability": {
+          "calls": 1,
+          "exceeded": 0,
+          "limit_at_max": 5788793063,
+          "live_at_max": null,
+          "max_ratio": 0.9880222363720035,
+          "max_required": 5719456268,
+          "terms_at_max": {
+            "call_binding_reserve": 82704900,
+            "candidate_event": 594947232,
+            "candidate_road": 1025397200,
+            "current_event": 495980736,
+            "current_road": 881237464,
+            "decoded_journey": 354019848,
+            "decoded_road": 1034763016,
+            "input_event": 495980736,
+            "input_road": 881237464,
+            "journey_retained_input": 302233568,
+            "new_journey": 335338792,
+            "old_journey": 302233568,
+            "phase_event_charge": 1586908704,
+            "phase_journey_charge": 958486984,
+            "phase_road_charge": 2797237944,
+            "road_decode_scratch": 66376896,
+            "validation_scratch": 459527536
+          }
+        },
+        "journey_owner:road step input/current/pending census": {
+          "calls": 1,
+          "exceeded": 0,
+          "limit_at_max": 5788793063,
+          "live_at_max": null,
+          "max_ratio": 0.15676331803951377,
+          "max_required": 907470408,
+          "terms_at_max": {
+            "argmax_input0_current1_pending2": 2,
+            "clock_bits": 4672799073722434000,
+            "current": 302233568,
+            "current_egress": 169892176,
+            "current_enter": 76185016,
+            "current_internal": 2375496,
+            "history_bytes": 53780880,
+            "input": 302233568,
+            "max_owner": 302490136,
+            "pending": 302490136,
+            "pending_egress": 169892176,
+            "pending_enter": 76229320,
+            "pending_internal": 2587760,
+            "working_copies": 3
+          }
+        },
+        "journey_store:stored/working": {
+          "calls": 10454020,
+          "exceeded": 0,
+          "limit_at_max": 1414012231,
+          "live_at_max": null,
+          "max_ratio": 0.7311410420183275,
+          "max_required": 1033842376,
+          "terms_at_max": {
+            "dynamic": 344592280,
+            "retained": 302233568,
+            "scratch": 0
+          }
+        },
+        "phase_allowance:journey finish": {
+          "calls": 1,
+          "exceeded": 0,
+          "limit_at_max": 5788793063,
+          "live_at_max": null,
+          "max_ratio": 0.7557328072343981,
+          "max_required": 4374780832,
+          "terms_at_max": {}
+        },
+        "phase_allowance:journey prepare": {
+          "calls": 1,
+          "exceeded": 0,
+          "limit_at_max": 5788793063,
+          "live_at_max": null,
+          "max_ratio": 0.47582222581170197,
+          "max_required": 2754436400,
+          "terms_at_max": {}
+        },
+        "phase_allowance:road step": {
+          "calls": 1,
+          "exceeded": 0,
+          "limit_at_max": 5788793063,
+          "live_at_max": null,
+          "max_ratio": 0.15676331803951377,
+          "max_required": 907470408,
+          "terms_at_max": {}
+        },
+        "road_base:components": {
+          "calls": 1,
+          "exceeded": 0,
+          "limit_at_max": 4881322655,
+          "live_at_max": null,
+          "max_ratio": 0.7373069775081279,
+          "max_required": 3599033253,
+          "terms_at_max": {
+            "classes": 3,
+            "default_pointer_verified_credit": 808388627,
+            "experimental_pointer_verified_credit": 0,
+            "groups": 1586,
+            "input_retained": 881237464,
+            "max_cell_parts": 1948063,
+            "offers": 156606,
+            "paired_arc_credit": 808388627,
+            "rows": 47855028,
+            "state_retained": 881237464
+          }
+        },
+        "road_candidate:candidate and immutable snapshot": {
+          "calls": 1,
+          "exceeded": 0,
+          "limit_at_max": 4881322655,
+          "live_at_max": null,
+          "max_ratio": 0.6652246084724346,
+          "max_required": 3247175952,
+          "terms_at_max": {
+            "retained": 1082391984
+          }
+        },
+        "road_decode:checkpoint decode preflight": {
+          "calls": 894688,
+          "exceeded": 0,
+          "limit_at_max": 5788792103,
+          "live_at_max": null,
+          "max_ratio": 0.4665667185733445,
+          "max_required": 2700857736,
+          "terms_at_max": {
+            "decoded": 881237464,
+            "retained_input": 723568,
+            "validation": 57145344
+          }
+        },
+        "road_post:continuous keyset allocation": {
+          "calls": 1,
+          "exceeded": 0,
+          "limit_at_max": 4881322655,
+          "live_at_max": null,
+          "max_ratio": 0.8095198681350024,
+          "max_required": 3951527672,
+          "terms_at_max": {
+            "candidate_event_storage_bytes": 594947232,
+            "candidate_existing_shared_rows": 49001215,
+            "candidate_keyset_allocation_rows": 7523653,
+            "candidate_packets": 1003578,
+            "candidate_road_retained": 1082391984,
+            "candidate_uniform_rows": 56524868,
+            "committed_road_retained": 881237464,
+            "old_event_bytes": 495980736,
+            "peak_cell_keyset_allocation_rows": 304169,
+            "peak_cell_packets": 16470,
+            "road_owner_sum": 2844866912,
+            "supplied_input_road_retained": 881237464
+          }
+        },
+        "road_work:cell packet reservation": {
+          "calls": 1085,
+          "exceeded": 0,
+          "limit_at_max": 4881322655,
+          "live_at_max": null,
+          "max_ratio": 0.7189254415307648,
+          "max_required": 3509307045,
+          "terms_at_max": {
+            "base": 1880658309,
+            "event_bytes": 1091437464,
+            "event_candidate_live_bound": 595456728,
+            "extra": 411936,
+            "full_source_base": 1880658309,
+            "incoming_actual_descriptor_bytes": 96,
+            "incoming_actual_page_charge": 16546896,
+            "incoming_descriptors_frozen": 1,
+            "incoming_live_pages": 1,
+            "incoming_rows": 117,
+            "interval_retained": 520252440,
+            "interval_transient": 0,
+            "timed_incoming_control_bytes": 9830592,
+            "transfer_exclusive_cell_scratch": 0
+          }
+        },
+        "road_work:entry interval split": {
+          "calls": 727585,
+          "exceeded": 0,
+          "limit_at_max": 4881322655,
+          "live_at_max": null,
+          "max_ratio": 0.7240116703574064,
+          "max_required": 3534134569,
+          "terms_at_max": {
+            "base": 1902044949,
+            "event_bytes": 1091437464,
+            "event_candidate_live_bound": 595456728,
+            "extra": 0,
+            "full_source_base": 1902044949,
+            "incoming_actual_descriptor_bytes": 6912,
+            "incoming_actual_page_charge": 16802436,
+            "incoming_descriptors_frozen": 1,
+            "incoming_live_pages": 154,
+            "incoming_rows": 19395,
+            "interval_retained": 519178320,
+            "interval_transient": 4671400,
+            "timed_incoming_control_bytes": 9830592,
+            "transfer_exclusive_cell_scratch": 0
+          }
+        },
+        "road_work:indexed sweep preflight": {
+          "calls": 1085,
+          "exceeded": 0,
+          "limit_at_max": 4881322655,
+          "live_at_max": null,
+          "max_ratio": 0.7221016568920089,
+          "max_required": 3524811177,
+          "terms_at_max": {
+            "base": 1902044949,
+            "event_bytes": 1091437464,
+            "event_candidate_live_bound": 595456728,
+            "extra": 4216976,
+            "full_source_base": 1902044949,
+            "incoming_actual_descriptor_bytes": 6912,
+            "incoming_actual_page_charge": 16802436,
+            "incoming_descriptors_frozen": 1,
+            "incoming_live_pages": 154,
+            "incoming_rows": 19395,
+            "interval_retained": 510309352,
+            "interval_transient": 0,
+            "timed_incoming_control_bytes": 9830592,
+            "transfer_exclusive_cell_scratch": 0
+          }
+        },
+        "road_work:interval edges and indexed sweep": {
+          "calls": 1085,
+          "exceeded": 0,
+          "limit_at_max": 4881322655,
+          "live_at_max": null,
+          "max_ratio": 0.7221042709376072,
+          "max_required": 3524823937,
+          "terms_at_max": {
+            "base": 1902044949,
+            "event_bytes": 1091437464,
+            "event_candidate_live_bound": 595456728,
+            "extra": 4229736,
+            "full_source_base": 1902044949,
+            "incoming_actual_descriptor_bytes": 6912,
+            "incoming_actual_page_charge": 16802436,
+            "incoming_descriptors_frozen": 1,
+            "incoming_live_pages": 154,
+            "incoming_rows": 19395,
+            "interval_retained": 510309352,
+            "interval_transient": 0,
+            "timed_incoming_control_bytes": 9830592,
+            "transfer_exclusive_cell_scratch": 0
+          }
+        },
+        "road_work:packet interval packing": {
+          "calls": 516,
+          "exceeded": 0,
+          "limit_at_max": 4881322655,
+          "live_at_max": null,
+          "max_ratio": 0.840320830830225,
+          "max_required": 4101877109,
+          "terms_at_max": {
+            "base": 3599033253,
+            "event_bytes": 495980912,
+            "event_candidate_live_bound": 0,
+            "extra": 11136,
+            "full_source_base": 3599033253,
+            "incoming_actual_descriptor_bytes": 0,
+            "incoming_actual_page_charge": 6851808,
+            "incoming_descriptors_frozen": 0,
+            "incoming_live_pages": 0,
+            "incoming_rows": 0,
+            "interval_retained": 0,
+            "interval_transient": 0,
+            "timed_incoming_control_bytes": 101664,
+            "transfer_exclusive_cell_scratch": 0
+          }
+        },
+        "road_work:receiving phase actual candidate owner": {
+          "calls": 1,
+          "exceeded": 0,
+          "limit_at_max": 4881322655,
+          "live_at_max": null,
+          "max_ratio": 0.6745547700329184,
+          "max_required": 3292719481,
+          "terms_at_max": {
+            "base": 1880658309,
+            "event_bytes": 1091437464,
+            "event_candidate_live_bound": 595456728,
+            "extra": 0,
+            "full_source_base": 1880658309,
+            "incoming_actual_descriptor_bytes": 6665376,
+            "incoming_actual_page_charge": 320623708,
+            "incoming_descriptors_frozen": 1,
+            "incoming_live_pages": 188000,
+            "incoming_rows": 23983145,
+            "interval_retained": 0,
+            "interval_transient": 0,
+            "timed_incoming_control_bytes": 9830592,
+            "transfer_exclusive_cell_scratch": 0
+          }
+        },
+        "road_work:source remainder packing": {
+          "calls": 53586,
+          "exceeded": 0,
+          "limit_at_max": 4881322655,
+          "live_at_max": null,
+          "max_ratio": 0.9889860609921104,
+          "max_required": 4827560065,
+          "terms_at_max": {
+            "base": 3412019205,
+            "event_bytes": 1090459088,
+            "event_candidate_live_bound": 594478352,
+            "extra": 4416,
+            "full_source_base": 3599033253,
+            "incoming_actual_descriptor_bytes": 0,
+            "incoming_actual_page_charge": 325077356,
+            "incoming_descriptors_frozen": 0,
+            "incoming_live_pages": 187277,
+            "incoming_rows": 23899211,
+            "interval_retained": 0,
+            "interval_transient": 0,
+            "timed_incoming_control_bytes": 9748032,
+            "transfer_exclusive_cell_scratch": 187014048
+          }
+        },
+        "road_work:tick preflight": {
+          "calls": 1,
+          "exceeded": 0,
+          "limit_at_max": 4881322655,
+          "live_at_max": null,
+          "max_ratio": 0.8403185494813393,
+          "max_required": 4101865973,
+          "terms_at_max": {
+            "base": 3599033253,
+            "event_bytes": 495980912,
+            "event_candidate_live_bound": 0,
+            "extra": 0,
+            "full_source_base": 3599033253,
+            "incoming_actual_descriptor_bytes": 0,
+            "incoming_actual_page_charge": 6851808,
+            "incoming_descriptors_frozen": 0,
+            "incoming_live_pages": 0,
+            "incoming_rows": 0,
+            "interval_retained": 0,
+            "interval_transient": 0,
+            "timed_incoming_control_bytes": 101664,
+            "transfer_exclusive_cell_scratch": 0
+          }
+        },
+        "road_work:timed incoming direct combine": {
+          "calls": 1085,
+          "exceeded": 0,
+          "limit_at_max": 4881322655,
+          "live_at_max": null,
+          "max_ratio": 0.7189857235528307,
+          "max_required": 3509601301,
+          "terms_at_max": {
+            "base": 1880658309,
+            "event_bytes": 1091437464,
+            "event_candidate_live_bound": 595456728,
+            "extra": 655360,
+            "full_source_base": 1880658309,
+            "incoming_actual_descriptor_bytes": 96,
+            "incoming_actual_page_charge": 16546896,
+            "incoming_descriptors_frozen": 1,
+            "incoming_live_pages": 1,
+            "incoming_rows": 117,
+            "interval_retained": 520303272,
+            "interval_transient": 0,
+            "timed_incoming_control_bytes": 9830592,
+            "transfer_exclusive_cell_scratch": 0
+          }
+        },
+        "road_work:timed incoming exact group allocation": {
+          "calls": 2170,
+          "exceeded": 0,
+          "limit_at_max": 4881322655,
+          "live_at_max": null,
+          "max_ratio": 0.7229045261708889,
+          "max_required": 3528730241,
+          "terms_at_max": {
+            "base": 1880658309,
+            "event_bytes": 1091437464,
+            "event_candidate_live_bound": 595456728,
+            "extra": 23858064,
+            "full_source_base": 1880658309,
+            "incoming_actual_descriptor_bytes": 105312,
+            "incoming_actual_page_charge": 22467052,
+            "incoming_descriptors_frozen": 1,
+            "incoming_live_pages": 3701,
+            "incoming_rows": 473411,
+            "interval_retained": 510309352,
+            "interval_transient": 0,
+            "timed_incoming_control_bytes": 9830592,
+            "transfer_exclusive_cell_scratch": 0
+          }
+        },
+        "road_work:timed incoming local consumer preflight": {
+          "calls": 1085,
+          "exceeded": 0,
+          "limit_at_max": 4881322655,
+          "live_at_max": null,
+          "max_ratio": 0.7189857235528307,
+          "max_required": 3509601301,
+          "terms_at_max": {
+            "base": 1880658309,
+            "event_bytes": 1091437464,
+            "event_candidate_live_bound": 595456728,
+            "extra": 655360,
+            "full_source_base": 1880658309,
+            "incoming_actual_descriptor_bytes": 96,
+            "incoming_actual_page_charge": 16546896,
+            "incoming_descriptors_frozen": 1,
+            "incoming_live_pages": 1,
+            "incoming_rows": 117,
+            "interval_retained": 520303272,
+            "interval_transient": 0,
+            "timed_incoming_control_bytes": 9830592,
+            "transfer_exclusive_cell_scratch": 0
+          }
+        },
+        "road_work:transfer candidates": {
+          "calls": 355602,
+          "exceeded": 0,
+          "limit_at_max": 4881322655,
+          "live_at_max": null,
+          "max_ratio": 0.9896885345310164,
+          "max_required": 4830989065,
+          "terms_at_max": {
+            "base": 3412019205,
+            "event_bytes": 1091437464,
+            "event_candidate_live_bound": 595456728,
+            "extra": 0,
+            "full_source_base": 3599033253,
+            "incoming_actual_descriptor_bytes": 0,
+            "incoming_actual_page_charge": 327532396,
+            "incoming_descriptors_frozen": 0,
+            "incoming_live_pages": 188000,
+            "incoming_rows": 23983145,
+            "interval_retained": 0,
+            "interval_transient": 0,
+            "timed_incoming_control_bytes": 9830592,
+            "transfer_exclusive_cell_scratch": 187014048
+          }
+        },
+        "service_sinks:service finish": {
+          "calls": 1,
+          "exceeded": 0,
+          "limit_at_max": 5788793063,
+          "live_at_max": null,
+          "max_ratio": 0.9125074685710872,
+          "max_required": 5282316904,
+          "terms_at_max": {
+            "event_candidate": 594947232,
+            "event_current": 495980736,
+            "event_input": 495980736,
+            "event_live": 1586908704,
+            "exact_owner_sum": 1,
+            "exit_rows": 390261,
+            "journey_live": 907470408,
+            "road_candidate": 1025397200,
+            "road_current": 881237464,
+            "road_input": 881237464,
+            "road_live": 2787872128,
+            "sink_envelope": 128
+          }
+        }
+      },
+      "source_attribution": false
+    },
+    "build_s": 3.636769636,
+    "byte_budget": 6442450944,
+    "calendar_legs": 918450,
+    "calendar_totals": [
+      120000,
+      58801,
+      1000
+    ],
+    "checkpoint_bytes": 1920247102,
+    "checkpoint_sha256": "bda4cc15df455e548aa80900af8b0ed3ecc037141cc83305f767e4fb700ee6d7",
+    "checkpoint_write_s": 7.1635421500000005,
+    "checkpoint_writer": "immutable_snapshot",
+    "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+    "class_names": [
+      "car",
+      "freight",
+      "scheduled_bus"
+    ],
+    "events": 24322678,
+    "executable_sha256": "868445eaaf3211cf1ffbbc6eac1386d97af1544815ceac2f731ac108971286de",
+    "failure": null,
+    "initial_checkpoint_method": "immutable_hardlink",
+    "ledger": {
+      "cargo_kg": {
+        "active": 0,
+        "completed": 0,
+        "pending": 0,
+        "released": 0,
+        "released_intent_first_moment": 0,
+        "requested": 0
+      },
+      "persons": {
+        "active": 1621.6342620685925,
+        "completed": 114.47729541474556,
+        "pending": 1208.3328869610702,
+        "released": 1736.1115574833382,
+        "released_intent_first_moment": 44201400.25352674,
+        "requested": 2944.4444444444084
+      },
+      "vehicles": {
+        "active": 1297.0111432026974,
+        "completed": 89.65552346398982,
+        "pending": 56.1111111110738,
+        "released": 1386.6666666666872,
+        "released_intent_first_moment": 35304533.33333389,
+        "requested": 1442.777777777761
+      }
+    },
+    "manifest_sha256": "2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3",
+    "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3",
+    "native_route_latency": {
+      "failed_calls": 0,
+      "max_ns": 5898102,
+      "min_ns": 50,
+      "observed_calls": 304601,
+      "p99_ns": {
+        "lower": 109568,
+        "upper": 110079
+      },
+      "pair_cache_hits": 265684,
+      "scope": "native whole-engine OD requests including pair-cache hits",
+      "search_calls": 38917,
+      "source": "native_whole_router.route",
+      "status": "MEASURED_INTERVAL"
+    },
+    "peak_records": 67343590,
+    "peak_rss_bytes": 3797204992,
+    "python_runtime_dependency": "none",
+    "refinement_prefix": null,
+    "resume_verified": false,
+    "road_class_ledgers": [
+      [
+        996.9118548413554,
+        165.6741441467783,
+        9969.118548400587,
+        2877.244389518504,
+        36891.935614120935
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        4,
+        4,
+        40,
+        42.546830484469325,
+        619.9681412956854
+      ]
+    ],
+    "road_totals": [
+      1000.9118548401027,
+      169.67414414841522,
+      25408862.343763255,
+      4330949.116309225,
+      10009.118548401217,
+      37511.90376428475,
+      122811.52020663668
+    ],
+    "save_s": 1e-7,
+    "schedule_identity": "61bf90204d22e3442c565f3f62b8ef4cba7d7be3e74b1d33e6c8bcf96208c920",
+    "schema": "metroflow_native_rust_host_v1",
+    "scope": "original native engine from typed declared input; not original city construction or V03 acceptance",
+    "segments": 1,
+    "start_s": 25720,
+    "status": "EXECUTED_FOR_REVIEW",
+    "threads": 8,
+    "tick_times_s": [
+      32.787559102
+    ],
+    "time_s": 25730,
+    "unique_paths": 38916,
+    "unsupported_legs": 610820,
+    "wall_s": 61.03243943,
+    "wire_writer": "compact_v3_events"
+  },
+  "independent_recovery_frontier": {
+    "evidence": "C01_boundary_recovered.json",
+    "address_space_limit_bytes": 8589934592,
+    "budget_trace": {
+      "alloc_counting": false,
+      "counters": {
+        "engine_admission.verified_future_capture_arc_credit": [
+          1,
+          0,
+          0
+        ]
+      },
+      "mode": "record",
+      "sites": {
+        "engine_admission:capture": {
+          "calls": 1,
+          "exceeded": 0,
+          "limit_at_max": 6442450944,
+          "live_at_max": null,
+          "max_ratio": 0.8835916595223049,
+          "max_required": 5692495921,
+          "terms_at_max": {
+            "call_binding": 82704900,
+            "events": 495980736,
+            "fixed_base": 570952981,
+            "journey": 302394480,
+            "road": 881237464,
+            "road_3max_without_credit": 2643712392,
+            "validation_scratch": 0,
+            "verified_future_capture_arc_credit": 0
+          }
+        },
+        "engine_admission:load validation": {
+          "calls": 1,
+          "exceeded": 0,
+          "limit_at_max": 6442450944,
+          "live_at_max": null,
+          "max_ratio": 0.41677705897018313,
+          "max_required": 2685065757,
+          "terms_at_max": {
+            "call_binding": 82704900,
+            "current_dynamic": 723888,
+            "decoded_dynamic": 1679612680,
+            "fixed_base": 570952981,
+            "validation_scratch": 433776208
+          }
+        },
+        "journey_store:stored/working": {
+          "calls": 9728457,
+          "exceeded": 0,
+          "limit_at_max": 1657138463,
+          "live_at_max": null,
+          "max_ratio": 0.5474818165511375,
+          "max_required": 907253176,
+          "terms_at_max": {
+            "dynamic": 302395880,
+            "retained": 0,
+            "scratch": 0
+          }
+        },
+        "road_decode:checkpoint decode preflight": {
+          "calls": 894688,
+          "exceeded": 0,
+          "limit_at_max": 5788792103,
+          "live_at_max": null,
+          "max_ratio": 0.4665667185733445,
+          "max_required": 2700857736,
+          "terms_at_max": {
+            "decoded": 881237464,
+            "retained_input": 723568,
+            "validation": 57145344
+          }
+        }
+      },
+      "source_attribution": false
+    },
+    "build_s": 3.661407502,
+    "byte_budget": 6442450944,
+    "calendar_legs": 918450,
+    "calendar_totals": [
+      120000,
+      58801,
+      1000
+    ],
+    "checkpoint_bytes": 2443804818,
+    "checkpoint_sha256": "fe9d44203e8016dd9e28de7438ce80d61e866fda209f9f94b5b28f7f18950661",
+    "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+    "class_names": [
+      "car",
+      "freight",
+      "scheduled_bus"
+    ],
+    "completed_event_rows": 20270113,
+    "decode_envelopes": {
+      "compact_owner_bytes": 881237464,
+      "compact_validation_scratch_bytes": 57145344,
+      "historical_legacy_owner_estimate_bytes": 881279896,
+      "historical_legacy_validation_scratch_bytes": 793229920
+    },
+    "executable_sha256": "278536bb09b0d2002012b09be262d1f1e0d4437393b48378c748d63e4026b4e7",
+    "ledger": {
+      "cargo_kg": {
+        "active": 0,
+        "completed": 0,
+        "pending": 0,
+        "released": 0,
+        "released_intent_first_moment": 0,
+        "requested": 0
+      },
+      "persons": {
+        "active": 1595.7424970521938,
+        "completed": 106.98229971031708,
+        "pending": 1186.164092126368,
+        "released": 1702.7247967625108,
+        "released_intent_first_moment": 43342859.70158951,
+        "requested": 2888.8888888888787
+      },
+      "vehicles": {
+        "active": 1276.2977393574754,
+        "completed": 83.70226064250168,
+        "pending": 55.55555555561364,
+        "released": 1359.999999999977,
+        "released_intent_first_moment": 34618800.00000041,
+        "requested": 1415.5555555555907
+      }
+    },
+    "load_s": 11.460167623,
+    "manifest_sha256": "2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3",
+    "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3",
+    "peak_rss_bytes": 2161348608,
+    "python_runtime_dependency": "none",
+    "road_class_ledgers": [
+      [
+        970.6658507567996,
+        156.66177945676205,
+        9706.658507555945,
+        2678.8812174947534,
+        35138.10459768227
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        4,
+        4,
+        40,
+        42.546830484469325,
+        619.9681412956854
+      ]
+    ],
+    "road_records": {
+      "cell_packets": 859335,
+      "cell_parts": 47855028,
+      "mixed_parts": 0,
+      "pending_packets": 0,
+      "pending_parts": 0,
+      "retained_storage_bytes": 881237464,
+      "uniform_parts": 47855028
+    },
+    "road_totals": [
+      974.6658507556117,
+      160.66177945804435,
+      24737625.152306095,
+      4099110.8310179645,
+      9746.6585075563,
+      35758.072746337355,
+      119001.4866106798
+    ],
+    "schedule_identity": "61bf90204d22e3442c565f3f62b8ef4cba7d7be3e74b1d33e6c8bcf96208c920",
+    "schema": "metroflow_native_recovery_v1",
+    "scope": "strict complete decode, cross-owner ledger validation and original identity; no execution or elapsed-horizon claim",
+    "status": "RECOVERED_CHECKPOINT_ONLY",
+    "threads": 8,
+    "time_s": 25720,
+    "wall_s": 21.028535152
+  },
+  "restart_blocker": {
+    "recovery": "C09_recover25730_process.txt",
+    "attempted_next": "C09_next25740_failure.txt",
+    "status": "BLOCKED_RESOURCE",
+    "stage": "journey stored/working byte budget",
+    "no_next_receipt": true
+  },
+  "limits": {
+    "address_space_bytes": 8589934592,
+    "accounting_bytes": 6442450944,
+    "original_wall_s_per_case": 7200,
+    "full_day_cases_completed": 0,
+    "full_day_cases_required": 9
+  },
+  "full_day_acceptance": "BLOCKED_RESOURCE_AND_MIGRATION_0_OF_9",
+  "checkpoint_benchmark": {
+    "v2": {
+      "address_space_limit_bytes": 8589934592,
+      "advance_s": 3.149857392,
+      "build_s": 3.923868077,
+      "byte_budget": 6442450944,
+      "calendar_legs": 918450,
+      "calendar_totals": [
+        120000,
+        58801,
+        1000
+      ],
+      "checkpoint_bytes": 2443804818,
+      "checkpoint_sha256": "fe9d44203e8016dd9e28de7438ce80d61e866fda209f9f94b5b28f7f18950661",
+      "checkpoint_write_s": 56.32521825,
+      "checkpoint_writer": "immutable_snapshot",
+      "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+      "class_names": [
+        "car",
+        "freight",
+        "scheduled_bus"
+      ],
+      "events": 20270113,
+      "executable_sha256": "30da5eed32a9369be044b6dd7cd508548c420a525a0b992bae19c1a2d01158e5",
+      "failure": null,
+      "initial_checkpoint_method": "not_applicable",
+      "ledger": {
+        "cargo_kg": {
+          "active": 0,
+          "completed": 0,
+          "pending": 0,
+          "released": 0,
+          "released_intent_first_moment": 0,
+          "requested": 0
+        },
+        "persons": {
+          "active": 1595.7424970521938,
+          "completed": 106.98229971031708,
+          "pending": 1186.164092126368,
+          "released": 1702.7247967625108,
+          "released_intent_first_moment": 43342859.70158951,
+          "requested": 2888.8888888888787
+        },
+        "vehicles": {
+          "active": 1276.2977393574754,
+          "completed": 83.70226064250168,
+          "pending": 55.55555555561364,
+          "released": 1359.999999999977,
+          "released_intent_first_moment": 34618800.00000041,
+          "requested": 1415.5555555555907
+        }
+      },
+      "manifest_sha256": "2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3",
+      "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3",
+      "native_route_latency": {
+        "failed_calls": 0,
+        "max_ns": 6117635,
+        "min_ns": 60,
+        "observed_calls": 304601,
+        "p99_ns": {
+          "lower": 114176,
+          "upper": 114687
+        },
+        "pair_cache_hits": 265684,
+        "scope": "native whole-engine OD requests including pair-cache hits",
+        "search_calls": 38917,
+        "source": "native_whole_router.route",
+        "status": "MEASURED_INTERVAL"
+      },
+      "peak_records": 0,
+      "peak_rss_bytes": 2313629696,
+      "python_runtime_dependency": "none",
+      "refinement_prefix": null,
+      "resume_verified": false,
+      "road_class_ledgers": [
+        [
+          970.6658507567996,
+          156.66177945676205,
+          9706.658507555945,
+          2678.8812174947534,
+          35138.10459768227
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          4,
+          4,
+          40,
+          42.546830484469325,
+          619.9681412956854
+        ]
+      ],
+      "road_totals": [
+        974.6658507556117,
+        160.66177945804435,
+        24737625.152306095,
+        4099110.8310179645,
+        9746.6585075563,
+        35758.072746337355,
+        119001.4866106798
+      ],
+      "save_s": 56.325218811,
+      "schedule_identity": "61bf90204d22e3442c565f3f62b8ef4cba7d7be3e74b1d33e6c8bcf96208c920",
+      "schema": "metroflow_native_rust_host_v1",
+      "scope": "original native engine from typed declared input; not original city construction or V03 acceptance",
+      "segments": 1,
+      "start_s": 25720,
+      "status": "EXECUTED_FOR_REVIEW",
+      "threads": 8,
+      "tick_times_s": [],
+      "time_s": 25720,
+      "unique_paths": 38916,
+      "unsupported_legs": 610820,
+      "wall_s": 78.279783844,
+      "wire_writer": "compact_v2"
+    },
+    "v3": {
+      "address_space_limit_bytes": 8589934592,
+      "advance_s": 2.125477057,
+      "build_s": 3.579958429,
+      "byte_budget": 6442450944,
+      "calendar_legs": 918450,
+      "calendar_totals": [
+        120000,
+        58801,
+        1000
+      ],
+      "checkpoint_bytes": 1643609562,
+      "checkpoint_sha256": "f2cef256ecaea74733fbbb54d2782b5f485e60a7253c725f8e0e3382167f8146",
+      "checkpoint_write_s": 28.727046483,
+      "checkpoint_writer": "immutable_snapshot",
+      "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+      "class_names": [
+        "car",
+        "freight",
+        "scheduled_bus"
+      ],
+      "events": 20270113,
+      "executable_sha256": "30da5eed32a9369be044b6dd7cd508548c420a525a0b992bae19c1a2d01158e5",
+      "failure": null,
+      "initial_checkpoint_method": "not_applicable",
+      "ledger": {
+        "cargo_kg": {
+          "active": 0,
+          "completed": 0,
+          "pending": 0,
+          "released": 0,
+          "released_intent_first_moment": 0,
+          "requested": 0
+        },
+        "persons": {
+          "active": 1595.7424970521938,
+          "completed": 106.98229971031708,
+          "pending": 1186.164092126368,
+          "released": 1702.7247967625108,
+          "released_intent_first_moment": 43342859.70158951,
+          "requested": 2888.8888888888787
+        },
+        "vehicles": {
+          "active": 1276.2977393574754,
+          "completed": 83.70226064250168,
+          "pending": 55.55555555561364,
+          "released": 1359.999999999977,
+          "released_intent_first_moment": 34618800.00000041,
+          "requested": 1415.5555555555907
+        }
+      },
+      "manifest_sha256": "2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3",
+      "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3",
+      "native_route_latency": {
+        "failed_calls": 0,
+        "max_ns": 6456746,
+        "min_ns": 50,
+        "observed_calls": 304601,
+        "p99_ns": {
+          "lower": 109056,
+          "upper": 109567
+        },
+        "pair_cache_hits": 265684,
+        "scope": "native whole-engine OD requests including pair-cache hits",
+        "search_calls": 38917,
+        "source": "native_whole_router.route",
+        "status": "MEASURED_INTERVAL"
+      },
+      "peak_records": 0,
+      "peak_rss_bytes": 2314330112,
+      "python_runtime_dependency": "none",
+      "refinement_prefix": null,
+      "resume_verified": false,
+      "road_class_ledgers": [
+        [
+          970.6658507567996,
+          156.66177945676205,
+          9706.658507555945,
+          2678.8812174947534,
+          35138.10459768227
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          4,
+          4,
+          40,
+          42.546830484469325,
+          619.9681412956854
+        ]
+      ],
+      "road_totals": [
+        974.6658507556117,
+        160.66177945804435,
+        24737625.152306095,
+        4099110.8310179645,
+        9746.6585075563,
+        35758.072746337355,
+        119001.4866106798
+      ],
+      "save_s": 28.727046853,
+      "schedule_identity": "61bf90204d22e3442c565f3f62b8ef4cba7d7be3e74b1d33e6c8bcf96208c920",
+      "schema": "metroflow_native_rust_host_v1",
+      "scope": "original native engine from typed declared input; not original city construction or V03 acceptance",
+      "segments": 1,
+      "start_s": 25720,
+      "status": "EXECUTED_FOR_REVIEW",
+      "threads": 8,
+      "tick_times_s": [],
+      "time_s": 25720,
+      "unique_paths": 38916,
+      "unsupported_legs": 610820,
+      "wall_s": 47.775579887,
+      "wire_writer": "compact_v3_events"
+    },
+    "byte_identical_v2_expansion": true,
+    "matched_loaded_tick": {
+      "address_space_limit_bytes": 8589934592,
+      "advance_s": 88.839477121,
+      "budget_trace": {
+        "alloc_counting": false,
+        "counters": {
+          "arc.default_pointer_verified_credit": [
+            1,
+            808388627,
+            808388627
+          ],
+          "arc.experimental_paired_credit": [
+            1,
+            0,
+            0
+          ],
+          "engine_admission.verified_future_capture_arc_credit": [
+            3,
+            935775680,
+            935775680
+          ],
+          "entry.combined_rows": [
+            1085,
+            23309165,
+            1132287
+          ],
+          "entry.raw_rows": [
+            1085,
+            23983145,
+            1158987
+          ],
+          "event_history.retained_rows": [
+            1,
+            24322678,
+            24322678
+          ],
+          "event_history.retained_storage_bytes": [
+            1,
+            594947232,
+            594947232
+          ],
+          "event_time.exact_time_runs": [
+            1,
+            280279,
+            280279
+          ],
+          "event_time.physical_payload_bytes": [
+            1,
+            594077184,
+            594077184
+          ],
+          "event_time.saved_payload_bytes": [
+            1,
+            573577728,
+            573577728
+          ],
+          "event_time.source_rows": [
+            1,
+            24322678,
+            24322678
+          ],
+          "event_time.source_time_runs": [
+            1,
+            335851,
+            335851
+          ],
+          "incoming_timed.control_rows": [
+            1,
+            298570,
+            298570
+          ],
+          "incoming_timed.event_referenced_rows": [
+            1,
+            23932417,
+            23932417
+          ],
+          "incoming_timed.expired_source_payload_bytes": [
+            1085,
+            291027968,
+            13908480
+          ],
+          "incoming_timed.legacy_part_mark_payload_bytes": [
+            1,
+            1347584000,
+            1347584000
+          ],
+          "incoming_timed.local_consumer_scratch_bytes": [
+            1085,
+            711065600,
+            655360
+          ],
+          "incoming_timed.logical_rows": [
+            1,
+            23983145,
+            23983145
+          ],
+          "incoming_timed.physical_payload_bytes": [
+            1,
+            300583936,
+            300583936
+          ],
+          "incoming_timed.saved_payload_bytes": [
+            1,
+            1047000064,
+            1047000064
+          ],
+          "keyset.continuous_converted": [
+            1,
+            278891,
+            278891
+          ],
+          "keyset.continuous_saved_bytes": [
+            1,
+            56994784,
+            56994784
+          ],
+          "merge.adjacent_rows": [
+            311620,
+            17684113,
+            868
+          ],
+          "merge.equal_density_rows": [
+            311620,
+            208637,
+            328
+          ],
+          "merge.same_key_rows": [
+            311620,
+            17128185,
+            627
+          ],
+          "pending.rows": [
+            516,
+            50728,
+            464
+          ],
+          "receiving.expired_source_observation_bytes": [
+            1,
+            1531360896,
+            1531360896
+          ],
+          "receiving.initial_candidate_owner_bytes": [
+            1,
+            590613264,
+            590613264
+          ],
+          "road_work.expired_source_rows": [
+            1085,
+            23983145,
+            1158987
+          ],
+          "split.edges": [
+            1085,
+            364335,
+            6880
+          ],
+          "split.in_rows": [
+            1085,
+            23309165,
+            1132287
+          ],
+          "split.out_packets": [
+            1085,
+            445743,
+            8882
+          ],
+          "split.out_rows": [
+            1085,
+            24311161,
+            1152644
+          ],
+          "split.shared_adjacent_key_rows": [
+            130848,
+            16901307,
+            627
+          ],
+          "tick.cell_packets": [
+            1,
+            859335,
+            859335
+          ],
+          "tick.cell_parts": [
+            1,
+            47855028,
+            47855028
+          ],
+          "tick.offers": [
+            1,
+            156606,
+            156606
+          ],
+          "tick.pending_packets": [
+            1,
+            0,
+            0
+          ],
+          "tick.pending_parts": [
+            1,
+            0,
+            0
+          ],
+          "xfer.head_rows": [
+            355086,
+            24322678,
+            876
+          ],
+          "xfer.new_head_rows": [
+            301537,
+            15646131,
+            876
+          ],
+          "xfer.partial_rows": [
+            53586,
+            8681357,
+            454
+          ],
+          "xfer.partial_serve": [
+            355086,
+            53586,
+            1
+          ],
+          "xfer.rate_change_contiguous_rows": [
+            115,
+            17819,
+            223
+          ],
+          "xfer.same_head_gap_rows": [
+            6444,
+            1024952,
+            442
+          ],
+          "xfer.same_rate_contiguous_rows": [
+            46990,
+            7633776,
+            454
+          ],
+          "xfer.serve_incoming_rows": [
+            355086,
+            23932417,
+            876
+          ],
+          "xfer.serve_rows": [
+            355086,
+            24322678,
+            876
+          ],
+          "xfer.sink_rows": [
+            355086,
+            390261,
+            12
+          ],
+          "xfer.substep_heads": [
+            301605,
+            355086,
+            3
+          ]
+        },
+        "mode": "record",
+        "sites": {
+          "engine_admission:capture": {
+            "calls": 2,
+            "exceeded": 0,
+            "limit_at_max": 6442450944,
+            "live_at_max": null,
+            "max_ratio": 0.8835916595223049,
+            "max_required": 5692495921,
+            "terms_at_max": {
+              "call_binding": 82704900,
+              "events": 495980736,
+              "fixed_base": 570952981,
+              "journey": 302394480,
+              "road": 881237464,
+              "road_3max_without_credit": 2643712392,
+              "validation_scratch": 0,
+              "verified_future_capture_arc_credit": 0
+            }
+          },
+          "engine_admission:capture/validation": {
+            "calls": 1,
+            "exceeded": 0,
+            "limit_at_max": 6442450944,
+            "live_at_max": null,
+            "max_ratio": 0.9253860930912197,
+            "max_required": 5961754509,
+            "terms_at_max": {
+              "call_binding": 82704900,
+              "events": 594947232,
+              "fixed_base": 570952981,
+              "journey": 335338792,
+              "road": 1025397200,
+              "road_3max_without_credit": 3076191600,
+              "validation_scratch": 459527536,
+              "verified_future_capture_arc_credit": 935775680
+            }
+          },
+          "engine_admission:load validation": {
+            "calls": 1,
+            "exceeded": 0,
+            "limit_at_max": 6442450944,
+            "live_at_max": null,
+            "max_ratio": 0.41677705897018313,
+            "max_required": 2685065757,
+            "terms_at_max": {
+              "call_binding": 82704900,
+              "current_dynamic": 723888,
+              "decoded_dynamic": 1679612680,
+              "fixed_base": 570952981,
+              "validation_scratch": 433776208
+            }
+          },
+          "journey_commit:checkpointability": {
+            "calls": 1,
+            "exceeded": 0,
+            "limit_at_max": 5788793063,
+            "live_at_max": null,
+            "max_ratio": 0.9880222363720035,
+            "max_required": 5719456268,
+            "terms_at_max": {
+              "call_binding_reserve": 82704900,
+              "candidate_event": 594947232,
+              "candidate_road": 1025397200,
+              "current_event": 495980736,
+              "current_road": 881237464,
+              "decoded_journey": 354019848,
+              "decoded_road": 1034763016,
+              "input_event": 495980736,
+              "input_road": 881237464,
+              "journey_retained_input": 302233568,
+              "new_journey": 335338792,
+              "old_journey": 302233568,
+              "phase_event_charge": 1586908704,
+              "phase_journey_charge": 958486984,
+              "phase_road_charge": 2797237944,
+              "road_decode_scratch": 66376896,
+              "validation_scratch": 459527536
+            }
+          },
+          "journey_owner:road step input/current/pending census": {
+            "calls": 1,
+            "exceeded": 0,
+            "limit_at_max": 5788793063,
+            "live_at_max": null,
+            "max_ratio": 0.15676331803951377,
+            "max_required": 907470408,
+            "terms_at_max": {
+              "argmax_input0_current1_pending2": 2,
+              "clock_bits": 4672799073722434000,
+              "current": 302233568,
+              "current_egress": 169892176,
+              "current_enter": 76185016,
+              "current_internal": 2375496,
+              "history_bytes": 53780880,
+              "input": 302233568,
+              "max_owner": 302490136,
+              "pending": 302490136,
+              "pending_egress": 169892176,
+              "pending_enter": 76229320,
+              "pending_internal": 2587760,
+              "working_copies": 3
+            }
+          },
+          "journey_store:stored/working": {
+            "calls": 10454020,
+            "exceeded": 0,
+            "limit_at_max": 1338898254,
+            "live_at_max": null,
+            "max_ratio": 0.7721590291953581,
+            "max_required": 1033842376,
+            "terms_at_max": {
+              "dynamic": 344592280,
+              "retained": 302233568,
+              "scratch": 0
+            }
+          },
+          "phase_allowance:journey finish": {
+            "calls": 1,
+            "exceeded": 0,
+            "limit_at_max": 5788793063,
+            "live_at_max": null,
+            "max_ratio": 0.7687085650793456,
+            "max_required": 4449894809,
+            "terms_at_max": {}
+          },
+          "phase_allowance:journey prepare": {
+            "calls": 1,
+            "exceeded": 0,
+            "limit_at_max": 5788793063,
+            "live_at_max": null,
+            "max_ratio": 0.47582222581170197,
+            "max_required": 2754436400,
+            "terms_at_max": {}
+          },
+          "phase_allowance:road step": {
+            "calls": 1,
+            "exceeded": 0,
+            "limit_at_max": 5788793063,
+            "live_at_max": null,
+            "max_ratio": 0.15676331803951377,
+            "max_required": 907470408,
+            "terms_at_max": {}
+          },
+          "road_base:components": {
+            "calls": 1,
+            "exceeded": 0,
+            "limit_at_max": 4881322655,
+            "live_at_max": null,
+            "max_ratio": 0.7373069775081279,
+            "max_required": 3599033253,
+            "terms_at_max": {
+              "classes": 3,
+              "default_pointer_verified_credit": 808388627,
+              "experimental_pointer_verified_credit": 0,
+              "groups": 1586,
+              "input_retained": 881237464,
+              "max_cell_parts": 1948063,
+              "offers": 156606,
+              "paired_arc_credit": 808388627,
+              "rows": 47855028,
+              "state_retained": 881237464
+            }
+          },
+          "road_candidate:candidate and immutable snapshot": {
+            "calls": 1,
+            "exceeded": 0,
+            "limit_at_max": 4881322655,
+            "live_at_max": null,
+            "max_ratio": 0.6652246084724346,
+            "max_required": 3247175952,
+            "terms_at_max": {
+              "retained": 1082391984
+            }
+          },
+          "road_decode:checkpoint decode preflight": {
+            "calls": 894688,
+            "exceeded": 0,
+            "limit_at_max": 5788792103,
+            "live_at_max": null,
+            "max_ratio": 0.4665667185733445,
+            "max_required": 2700857736,
+            "terms_at_max": {
+              "decoded": 881237464,
+              "retained_input": 723568,
+              "validation": 57145344
+            }
+          },
+          "road_post:continuous keyset allocation": {
+            "calls": 1,
+            "exceeded": 0,
+            "limit_at_max": 4881322655,
+            "live_at_max": null,
+            "max_ratio": 0.8095198681350024,
+            "max_required": 3951527672,
+            "terms_at_max": {
+              "candidate_event_storage_bytes": 594947232,
+              "candidate_existing_shared_rows": 49001215,
+              "candidate_keyset_allocation_rows": 7523653,
+              "candidate_packets": 1003578,
+              "candidate_road_retained": 1082391984,
+              "candidate_uniform_rows": 56524868,
+              "committed_road_retained": 881237464,
+              "old_event_bytes": 495980736,
+              "peak_cell_keyset_allocation_rows": 304169,
+              "peak_cell_packets": 16470,
+              "road_owner_sum": 2844866912,
+              "supplied_input_road_retained": 881237464
+            }
+          },
+          "road_work:cell packet reservation": {
+            "calls": 1085,
+            "exceeded": 0,
+            "limit_at_max": 4881322655,
+            "live_at_max": null,
+            "max_ratio": 0.7189254415307648,
+            "max_required": 3509307045,
+            "terms_at_max": {
+              "base": 1880658309,
+              "event_bytes": 1091437464,
+              "event_candidate_live_bound": 595456728,
+              "extra": 411936,
+              "full_source_base": 1880658309,
+              "incoming_actual_descriptor_bytes": 96,
+              "incoming_actual_page_charge": 16546896,
+              "incoming_descriptors_frozen": 1,
+              "incoming_live_pages": 1,
+              "incoming_rows": 117,
+              "interval_retained": 520252440,
+              "interval_transient": 0,
+              "timed_incoming_control_bytes": 9830592,
+              "transfer_exclusive_cell_scratch": 0
+            }
+          },
+          "road_work:entry interval split": {
+            "calls": 727585,
+            "exceeded": 0,
+            "limit_at_max": 4881322655,
+            "live_at_max": null,
+            "max_ratio": 0.7240116703574064,
+            "max_required": 3534134569,
+            "terms_at_max": {
+              "base": 1902044949,
+              "event_bytes": 1091437464,
+              "event_candidate_live_bound": 595456728,
+              "extra": 0,
+              "full_source_base": 1902044949,
+              "incoming_actual_descriptor_bytes": 6912,
+              "incoming_actual_page_charge": 16802436,
+              "incoming_descriptors_frozen": 1,
+              "incoming_live_pages": 154,
+              "incoming_rows": 19395,
+              "interval_retained": 519178320,
+              "interval_transient": 4671400,
+              "timed_incoming_control_bytes": 9830592,
+              "transfer_exclusive_cell_scratch": 0
+            }
+          },
+          "road_work:indexed sweep preflight": {
+            "calls": 1085,
+            "exceeded": 0,
+            "limit_at_max": 4881322655,
+            "live_at_max": null,
+            "max_ratio": 0.7221016568920089,
+            "max_required": 3524811177,
+            "terms_at_max": {
+              "base": 1902044949,
+              "event_bytes": 1091437464,
+              "event_candidate_live_bound": 595456728,
+              "extra": 4216976,
+              "full_source_base": 1902044949,
+              "incoming_actual_descriptor_bytes": 6912,
+              "incoming_actual_page_charge": 16802436,
+              "incoming_descriptors_frozen": 1,
+              "incoming_live_pages": 154,
+              "incoming_rows": 19395,
+              "interval_retained": 510309352,
+              "interval_transient": 0,
+              "timed_incoming_control_bytes": 9830592,
+              "transfer_exclusive_cell_scratch": 0
+            }
+          },
+          "road_work:interval edges and indexed sweep": {
+            "calls": 1085,
+            "exceeded": 0,
+            "limit_at_max": 4881322655,
+            "live_at_max": null,
+            "max_ratio": 0.7221042709376072,
+            "max_required": 3524823937,
+            "terms_at_max": {
+              "base": 1902044949,
+              "event_bytes": 1091437464,
+              "event_candidate_live_bound": 595456728,
+              "extra": 4229736,
+              "full_source_base": 1902044949,
+              "incoming_actual_descriptor_bytes": 6912,
+              "incoming_actual_page_charge": 16802436,
+              "incoming_descriptors_frozen": 1,
+              "incoming_live_pages": 154,
+              "incoming_rows": 19395,
+              "interval_retained": 510309352,
+              "interval_transient": 0,
+              "timed_incoming_control_bytes": 9830592,
+              "transfer_exclusive_cell_scratch": 0
+            }
+          },
+          "road_work:packet interval packing": {
+            "calls": 516,
+            "exceeded": 0,
+            "limit_at_max": 4881322655,
+            "live_at_max": null,
+            "max_ratio": 0.840320830830225,
+            "max_required": 4101877109,
+            "terms_at_max": {
+              "base": 3599033253,
+              "event_bytes": 495980912,
+              "event_candidate_live_bound": 0,
+              "extra": 11136,
+              "full_source_base": 3599033253,
+              "incoming_actual_descriptor_bytes": 0,
+              "incoming_actual_page_charge": 6851808,
+              "incoming_descriptors_frozen": 0,
+              "incoming_live_pages": 0,
+              "incoming_rows": 0,
+              "interval_retained": 0,
+              "interval_transient": 0,
+              "timed_incoming_control_bytes": 101664,
+              "transfer_exclusive_cell_scratch": 0
+            }
+          },
+          "road_work:receiving phase actual candidate owner": {
+            "calls": 1,
+            "exceeded": 0,
+            "limit_at_max": 4881322655,
+            "live_at_max": null,
+            "max_ratio": 0.6745547700329184,
+            "max_required": 3292719481,
+            "terms_at_max": {
+              "base": 1880658309,
+              "event_bytes": 1091437464,
+              "event_candidate_live_bound": 595456728,
+              "extra": 0,
+              "full_source_base": 1880658309,
+              "incoming_actual_descriptor_bytes": 6665376,
+              "incoming_actual_page_charge": 320623708,
+              "incoming_descriptors_frozen": 1,
+              "incoming_live_pages": 188000,
+              "incoming_rows": 23983145,
+              "interval_retained": 0,
+              "interval_transient": 0,
+              "timed_incoming_control_bytes": 9830592,
+              "transfer_exclusive_cell_scratch": 0
+            }
+          },
+          "road_work:source remainder packing": {
+            "calls": 53586,
+            "exceeded": 0,
+            "limit_at_max": 4881322655,
+            "live_at_max": null,
+            "max_ratio": 0.9889860609921104,
+            "max_required": 4827560065,
+            "terms_at_max": {
+              "base": 3412019205,
+              "event_bytes": 1090459088,
+              "event_candidate_live_bound": 594478352,
+              "extra": 4416,
+              "full_source_base": 3599033253,
+              "incoming_actual_descriptor_bytes": 0,
+              "incoming_actual_page_charge": 325077356,
+              "incoming_descriptors_frozen": 0,
+              "incoming_live_pages": 187277,
+              "incoming_rows": 23899211,
+              "interval_retained": 0,
+              "interval_transient": 0,
+              "timed_incoming_control_bytes": 9748032,
+              "transfer_exclusive_cell_scratch": 187014048
+            }
+          },
+          "road_work:tick preflight": {
+            "calls": 1,
+            "exceeded": 0,
+            "limit_at_max": 4881322655,
+            "live_at_max": null,
+            "max_ratio": 0.8403185494813393,
+            "max_required": 4101865973,
+            "terms_at_max": {
+              "base": 3599033253,
+              "event_bytes": 495980912,
+              "event_candidate_live_bound": 0,
+              "extra": 0,
+              "full_source_base": 3599033253,
+              "incoming_actual_descriptor_bytes": 0,
+              "incoming_actual_page_charge": 6851808,
+              "incoming_descriptors_frozen": 0,
+              "incoming_live_pages": 0,
+              "incoming_rows": 0,
+              "interval_retained": 0,
+              "interval_transient": 0,
+              "timed_incoming_control_bytes": 101664,
+              "transfer_exclusive_cell_scratch": 0
+            }
+          },
+          "road_work:timed incoming direct combine": {
+            "calls": 1085,
+            "exceeded": 0,
+            "limit_at_max": 4881322655,
+            "live_at_max": null,
+            "max_ratio": 0.7189857235528307,
+            "max_required": 3509601301,
+            "terms_at_max": {
+              "base": 1880658309,
+              "event_bytes": 1091437464,
+              "event_candidate_live_bound": 595456728,
+              "extra": 655360,
+              "full_source_base": 1880658309,
+              "incoming_actual_descriptor_bytes": 96,
+              "incoming_actual_page_charge": 16546896,
+              "incoming_descriptors_frozen": 1,
+              "incoming_live_pages": 1,
+              "incoming_rows": 117,
+              "interval_retained": 520303272,
+              "interval_transient": 0,
+              "timed_incoming_control_bytes": 9830592,
+              "transfer_exclusive_cell_scratch": 0
+            }
+          },
+          "road_work:timed incoming exact group allocation": {
+            "calls": 2170,
+            "exceeded": 0,
+            "limit_at_max": 4881322655,
+            "live_at_max": null,
+            "max_ratio": 0.7229045261708889,
+            "max_required": 3528730241,
+            "terms_at_max": {
+              "base": 1880658309,
+              "event_bytes": 1091437464,
+              "event_candidate_live_bound": 595456728,
+              "extra": 23858064,
+              "full_source_base": 1880658309,
+              "incoming_actual_descriptor_bytes": 105312,
+              "incoming_actual_page_charge": 22467052,
+              "incoming_descriptors_frozen": 1,
+              "incoming_live_pages": 3701,
+              "incoming_rows": 473411,
+              "interval_retained": 510309352,
+              "interval_transient": 0,
+              "timed_incoming_control_bytes": 9830592,
+              "transfer_exclusive_cell_scratch": 0
+            }
+          },
+          "road_work:timed incoming local consumer preflight": {
+            "calls": 1085,
+            "exceeded": 0,
+            "limit_at_max": 4881322655,
+            "live_at_max": null,
+            "max_ratio": 0.7189857235528307,
+            "max_required": 3509601301,
+            "terms_at_max": {
+              "base": 1880658309,
+              "event_bytes": 1091437464,
+              "event_candidate_live_bound": 595456728,
+              "extra": 655360,
+              "full_source_base": 1880658309,
+              "incoming_actual_descriptor_bytes": 96,
+              "incoming_actual_page_charge": 16546896,
+              "incoming_descriptors_frozen": 1,
+              "incoming_live_pages": 1,
+              "incoming_rows": 117,
+              "interval_retained": 520303272,
+              "interval_transient": 0,
+              "timed_incoming_control_bytes": 9830592,
+              "transfer_exclusive_cell_scratch": 0
+            }
+          },
+          "road_work:transfer candidates": {
+            "calls": 355602,
+            "exceeded": 0,
+            "limit_at_max": 4881322655,
+            "live_at_max": null,
+            "max_ratio": 0.9896885345310164,
+            "max_required": 4830989065,
+            "terms_at_max": {
+              "base": 3412019205,
+              "event_bytes": 1091437464,
+              "event_candidate_live_bound": 595456728,
+              "extra": 0,
+              "full_source_base": 3599033253,
+              "incoming_actual_descriptor_bytes": 0,
+              "incoming_actual_page_charge": 327532396,
+              "incoming_descriptors_frozen": 0,
+              "incoming_live_pages": 188000,
+              "incoming_rows": 23983145,
+              "interval_retained": 0,
+              "interval_transient": 0,
+              "timed_incoming_control_bytes": 9830592,
+              "transfer_exclusive_cell_scratch": 187014048
+            }
+          },
+          "service_sinks:service finish": {
+            "calls": 1,
+            "exceeded": 0,
+            "limit_at_max": 5788793063,
+            "live_at_max": null,
+            "max_ratio": 0.9491821228020291,
+            "max_required": 5494618888,
+            "terms_at_max": {
+              "event_candidate": 594947232,
+              "event_current": 495980736,
+              "event_input": 495980736,
+              "event_live": 1586908704,
+              "exact_owner_sum": 1,
+              "exit_rows": 390261,
+              "journey_live": 907470408,
+              "road_candidate": 1025397200,
+              "road_current": 881237464,
+              "road_input": 881237464,
+              "road_live": 2787872128,
+              "sink_envelope": 212302112
+            }
+          }
+        },
+        "source_attribution": false
+      },
+      "build_s": 4.16622478,
+      "byte_budget": 6442450944,
+      "calendar_legs": 918450,
+      "calendar_totals": [
+        120000,
+        58801,
+        1000
+      ],
+      "checkpoint_bytes": 1920247102,
+      "checkpoint_sha256": "bda4cc15df455e548aa80900af8b0ed3ecc037141cc83305f767e4fb700ee6d7",
+      "checkpoint_write_s": 49.171902697,
+      "checkpoint_writer": "immutable_snapshot",
+      "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+      "class_names": [
+        "car",
+        "freight",
+        "scheduled_bus"
+      ],
+      "events": 24322678,
+      "executable_sha256": "30da5eed32a9369be044b6dd7cd508548c420a525a0b992bae19c1a2d01158e5",
+      "failure": null,
+      "initial_checkpoint_method": "immutable_hardlink",
+      "ledger": {
+        "cargo_kg": {
+          "active": 0,
+          "completed": 0,
+          "pending": 0,
+          "released": 0,
+          "released_intent_first_moment": 0,
+          "requested": 0
+        },
+        "persons": {
+          "active": 1621.6342620685925,
+          "completed": 114.47729541474556,
+          "pending": 1208.3328869610702,
+          "released": 1736.1115574833382,
+          "released_intent_first_moment": 44201400.25352674,
+          "requested": 2944.4444444444084
+        },
+        "vehicles": {
+          "active": 1297.0111432026974,
+          "completed": 89.65552346398982,
+          "pending": 56.1111111110738,
+          "released": 1386.6666666666872,
+          "released_intent_first_moment": 35304533.33333389,
+          "requested": 1442.777777777761
+        }
+      },
+      "manifest_sha256": "2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3",
+      "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3",
+      "native_route_latency": {
+        "failed_calls": 0,
+        "max_ns": 8511030,
+        "min_ns": 50,
+        "observed_calls": 304601,
+        "p99_ns": {
+          "lower": 114688,
+          "upper": 115199
+        },
+        "pair_cache_hits": 265684,
+        "scope": "native whole-engine OD requests including pair-cache hits",
+        "search_calls": 38917,
+        "source": "native_whole_router.route",
+        "status": "MEASURED_INTERVAL"
+      },
+      "peak_records": 67343590,
+      "peak_rss_bytes": 3797946368,
+      "python_runtime_dependency": "none",
+      "refinement_prefix": null,
+      "resume_verified": false,
+      "road_class_ledgers": [
+        [
+          996.9118548413554,
+          165.6741441467783,
+          9969.118548400587,
+          2877.244389518504,
+          36891.935614120935
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          4,
+          4,
+          40,
+          42.546830484469325,
+          619.9681412956854
+        ]
+      ],
+      "road_totals": [
+        1000.9118548401027,
+        169.67414414841522,
+        25408862.343763255,
+        4330949.116309225,
+        10009.118548401217,
+        37511.90376428475,
+        122811.52020663668
+      ],
+      "save_s": 1e-7,
+      "schedule_identity": "61bf90204d22e3442c565f3f62b8ef4cba7d7be3e74b1d33e6c8bcf96208c920",
+      "schema": "metroflow_native_rust_host_v1",
+      "scope": "original native engine from typed declared input; not original city construction or V03 acceptance",
+      "segments": 1,
+      "start_s": 25720,
+      "status": "EXECUTED_FOR_REVIEW",
+      "threads": 8,
+      "tick_times_s": [
+        37.013660704
+      ],
+      "time_s": 25730,
+      "unique_paths": 38916,
+      "unsupported_legs": 610820,
+      "wall_s": 113.679185723,
+      "wire_writer": "compact_v3_events"
+    }
+  },
+  "phase_evidence": [
+    "C06_test.log",
+    "C09_suffix49.json",
+    "C09_replay250_t1.json",
+    "C09_replay250_t8.json",
+    "C09_suffix_replay.txt"
+  ],
+  "phase_contract": "Explicit native FIFO ready-head canonical variant transaction, not endogenous routing. Native last_events observation window gap remains open.",
+  "validation": {
+    "native_lib_pass": 239,
+    "native_lib_ignored": 2,
+    "campaign_bin_pass": 1,
+    "headless_pass": 9,
+    "optional_extension_check": "PASS",
+    "native_release_bins": "PASS",
+    "native_dependency_tree_no_python": true,
+    "native_ldd_no_libpython": true,
+    "full_repository_ci": "NOT_RUN",
+    "native_subagents": "NOT_RUN_NO_TOOL",
+    "plan_oracle": "See C10_plan_oracle.log after closure; explicit opt-in document-only test"
+  },
+  "limitations": [
+    "25730 computed and saved but independently not recoverable under cap; 25720 recoverable. The historical different identity was not cleared.",
+    "Event-index/lifetime/compact wire and stream sinks are opt-in; no causal attribution of combined switches separately. Single paired run, not robust speed claim.",
+    "Phase medium window can omit earlier exits; no endogenous rerouting/graph-edit or release-scale integration.",
+    "B15 3x3 full days and matched refinement incomplete. No new faer/dense or SIMD kernel justified. No native subagent or complete RED-first history/full CI/main merge."
+  ],
+  "next_action": "B15/V03: separate computed 25730 from independently recoverable 25720; isolate journey read/validate 3-working-copy bound after road+event decode, prove concurrent owner and scratch lifetime bounds, and rerun 25730 recovery then 25740 at original 6 GiB accounting, 8 GiB RSS/AS, 7200 s per-case limits. B10: exact streaming medium-window observation accumulation across committed ticks and resume, bind measured causal link observations and endogenous choice to canonical variants, graph edit and release-scale phase integration. Keep exact physical identity, no cap bypass. Original 3x3 and matched refinement remain. Historical distinct identity not cleared. Python explicit opt-in tests only."
+}

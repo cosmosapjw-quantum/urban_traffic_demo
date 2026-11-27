@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.41",
+  "version": "1.1.42",
   "date": "2026-11-27",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -371,11 +371,11 @@
       "V03"
     ],
     "native_subagent": "NOT_RUN_NO_TOOL",
-    "scope": "Original V03 R1-R10 scoped concurrent research and C01-C10 coding: lossless MFWHOLE2, exact logical/legacy roundtrip on loaded25670, compact owner/scratch bound, finite streaming validation, extended costs, bounded road-level suffix fixture, strict current identity frontier 25710 s; 13/15 scoped pure Rust, 2 partial, 0 unported; original full days 0/9.",
+    "scope": "R1-R10 scoped original V03 research and C01-C10 Rust coding; exact MFWHOLE3 event runs, immutable event-index incoming/lifetime opt-in, direct borrowed sinks and cached exact head/class work; strict 25730 calculated twice and saved byte-identically, independent reload fails journey guard; 25720 independently recoverable; explicit canonical journey suffix with actual CLI replay, 13/15 pure Rust scoped, 2 partial, 0 unported; 0/9 full days.",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "BLOCKED_RESOURCE_AND_MIGRATION_0_OF_9",
     "main_modified": false,
-    "evidence": "artifacts/v03_rust_span_owner_20261127/C10_RESEARCH_RECEIPT.json",
+    "evidence": "artifacts/v03_rust_event_owner_20261127/C10_RESEARCH_RECEIPT.json",
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
@@ -384,20 +384,20 @@
       "status": "success"
     },
     "parallel_agents": [],
-    "active_branch": "research/v03-rust-span-owner-20261127",
-    "production_commit": "80792f8edccd74bee018e4d8da59b1e525806eaa",
+    "active_branch": "research/v03-rust-event-owner-20261127",
+    "production_commit": "2967ac3245711bc969ed8a478103cd331a934d56",
     "research_stages_completed": 10,
     "research_stages_total": 10,
-    "source_commit": "f72552a80a3b20f4c5a44044f37cebfd4f020ca0",
-    "native_source_sha256": "0893eebaed9501a203cf2c58bd64c8bd3979ab6ea60cb8125f455572432ba00d",
-    "native_binary_sha256": "24497d99c9bbb67ca50f78d9869ebee122553d822c8e980e09e66269a073f7a7",
+    "source_commit": "45e7a5df483581bb37ebd5c84fa678b2b93d77f1",
+    "native_source_sha256": "a829582346592ee409033cc238d9300aaf007f879df9b186850063d1b00b9d4f",
+    "native_binary_sha256": "868445eaaf3211cf1ffbbc6eac1386d97af1544815ceac2f731ac108971286de",
     "current_loop_stages_completed": 10,
     "current_loop_stages_total": 10,
     "current_loop_native_subagent": "NOT_RUN_NO_TOOL",
-    "native_source_hash_method": "SHA256 of C10_tracked_rust_sources.sha256; code-only source inventory; frontier executable and final build hashes separately bound",
-    "native_binary_feature": "native-cli no Python; actual frontier binary and final C08 build separately bound",
-    "rust_backend_scoped": "13/15 pure Rust scoped; 2 partial; zero unported; loaded Valley 25710 s",
-    "theory_loop_scope": "R1-R10 scoped exact representation and resource research; no release acceptance"
+    "native_source_hash_method": "SHA256 of C10_tracked_rust_sources.sha256; executable is byte-identical to measured C07 build; fixture declaration added C09",
+    "native_binary_feature": "native-cli no Python; exact measured binary and final build byte identical",
+    "rust_backend_scoped": "13/15 pure Rust scoped; 2 partial; zero unported; computed25730, independently recoverable25720",
+    "theory_loop_scope": "R1-R10 scoped exact representation, owner and restart research; no release acceptance"
   },
   "nodes": [
     {
@@ -1902,7 +1902,7 @@
       "failure_classification": [
         "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
       ],
-      "positive_next_action": "B10: integrate the checked road-ready suffix primitive with canonical journey/service variant ownership, actual causal link observations, graph edit, and release-sized coupled phase replay; retain proposal-only production behavior until integration verified. B15: continue from strict valid25710 s on the current identity, measure shared-state/event/journey lifetimes, exact ordered interval materialization and service-event wire cost, then original 3x3 full days and refinement. Historical25720/25730 distinct identity not replayed. Limits 6 GiB accounting, 8 GiB RSS/address, 7200 s per case unchanged. Python scientific oracle explicit opt-in tests only.",
+      "positive_next_action": "B15/V03: separate computed 25730 from independently recoverable 25720; isolate journey read/validate 3-working-copy bound after road+event decode, prove concurrent owner and scratch lifetime bounds, and rerun 25730 recovery then 25740 at original 6 GiB accounting, 8 GiB RSS/AS, 7200 s per-case limits. B10: exact streaming medium-window observation accumulation across committed ticks and resume, bind measured causal link observations and endogenous choice to canonical variants, graph edit and release-scale phase integration. Keep exact physical identity, no cap bypass. Original 3x3 and matched refinement remain. Historical distinct identity not cleared. Python explicit opt-in tests only.",
       "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
       "contracts": [
         "C_RUNTIME",
@@ -2030,6 +2030,11 @@
           "path": "artifacts/v03_rust_span_owner_20261127/C10_RESEARCH_RECEIPT.json",
           "sha256": "c091601705383ebc64fdad7945b7f75d16c4d75c7b602162c4e3ebf35371137d",
           "scope": "Loaded original Valley current identity; exact 25670 legacy expansion, compact validation at 25690, strict valid frontier 25710 s; no full-day acceptance"
+        },
+        {
+          "path": "artifacts/v03_rust_event_owner_20261127/C10_RESEARCH_RECEIPT.json",
+          "sha256": "772ecfce1343a21b153d718cba5c4b886bc062bc4654b9ddcd2f1456994b635c",
+          "scope": "Loaded current identity 25720 recovery, exact MFWHOLE3 roundtrip, twice identical 25730 computed checkpoint; strict reload refused, no full-day acceptance"
         }
       ],
       "historical_blocked_evidence": [
@@ -2071,14 +2076,14 @@
         }
       ],
       "current_research_evidence": {
-        "path": "artifacts/v03_rust_span_owner_20261127/C10_RESEARCH_RECEIPT.json",
-        "sha256": "c091601705383ebc64fdad7945b7f75d16c4d75c7b602162c4e3ebf35371137d",
-        "status": "R1-R10 scoped and C01-C10; 13/15 pure Rust; 2 partial; V03 blocked",
-        "baseline_commit": "40a5a1d22ca5bbc8825d8bd78c7af288fe6b1396",
-        "source_sha256": "0893eebaed9501a203cf2c58bd64c8bd3979ab6ea60cb8125f455572432ba00d",
-        "native_sha256": "24497d99c9bbb67ca50f78d9869ebee122553d822c8e980e09e66269a073f7a7",
-        "source_hash_method": "SHA256 of C10_tracked_rust_sources.sha256; code-only source inventory; frontier executable and final build hashes separately bound",
-        "theory_path": "docs/research/V03_RUST_SPAN_OWNER_20261127.md"
+        "path": "artifacts/v03_rust_event_owner_20261127/C10_RESEARCH_RECEIPT.json",
+        "sha256": "772ecfce1343a21b153d718cba5c4b886bc062bc4654b9ddcd2f1456994b635c",
+        "status": "R1-R10 scoped and C01-C10; 13/15 pure Rust; 2 partial; computed25730, recoverable25720; V03 blocked",
+        "baseline_commit": "f2995086877d6c1d4a379beb7604010724ab8d23",
+        "source_sha256": "a829582346592ee409033cc238d9300aaf007f879df9b186850063d1b00b9d4f",
+        "native_sha256": "868445eaaf3211cf1ffbbc6eac1386d97af1544815ceac2f731ac108971286de",
+        "source_hash_method": "SHA256 of C10_tracked_rust_sources.sha256; executable is byte-identical to measured C07 build; fixture declaration added C09",
+        "theory_path": "docs/research/V03_RUST_EVENT_OWNER_20261127.md"
       },
       "historical_research_evidence": [
         {
@@ -2196,6 +2201,16 @@
           "native_sha256": "8e0f6851b9b1d9efdd858e3736c6ec2455068ed93b5459efcb60d0c495895e5d",
           "source_hash_method": "SHA256 of C10_tracked_rust_sources.sha256; C09 source inventory, C08 executable used for loaded frontier and byte-identical final native rebuild",
           "theory_path": "docs/research/V03_RUST_PHASE_RUNTIME_20261127.md"
+        },
+        {
+          "path": "artifacts/v03_rust_span_owner_20261127/C10_RESEARCH_RECEIPT.json",
+          "sha256": "c091601705383ebc64fdad7945b7f75d16c4d75c7b602162c4e3ebf35371137d",
+          "status": "R1-R10 scoped and C01-C10; 13/15 pure Rust; 2 partial; V03 blocked",
+          "baseline_commit": "40a5a1d22ca5bbc8825d8bd78c7af288fe6b1396",
+          "source_sha256": "0893eebaed9501a203cf2c58bd64c8bd3979ab6ea60cb8125f455572432ba00d",
+          "native_sha256": "24497d99c9bbb67ca50f78d9869ebee122553d822c8e980e09e66269a073f7a7",
+          "source_hash_method": "SHA256 of C10_tracked_rust_sources.sha256; code-only source inventory; frontier executable and final build hashes separately bound",
+          "theory_path": "docs/research/V03_RUST_SPAN_OWNER_20261127.md"
         }
       ],
       "secondary_blocked_evidence": {
@@ -2419,7 +2434,7 @@
     "authorized_on": "2026-11-16",
     "supersedes": "pure Python core restriction in PLAN v1.1.17 and AGENTS.md",
     "target": "Rust-owned backend, input preparation, measurement, headless execution and acceptance; Python frontend serialization or explicit opt-in test oracle only",
-    "mode": "Pure Rust native CLI; optional Python frontend; exact opt-in compact checkpoint and bounded road suffix, production live suffix and full campaign remain.",
+    "mode": "Pure Rust native CLI; optional Python frontend; exact opt-in compact event checkpoint and explicit canonical ready-head suffix; live causal selection and full campaign remain.",
     "current_scope": [
       "Persistent f64 legal-turn routing in V1 preparation",
       "Direct factorized Rust calendar construction without Python per-leg objects",
@@ -2444,11 +2459,12 @@
       "Original frozen terrain/mask/crossing validation; causal R01/R02 and M04 Rust kernels; 518 actual completed route observations bound to 206 destination blocks; loaded Valley 25320 s restart exact; opt-in AVX bit parity on original manifests.",
       "Independent original atlas: all 38 archived maps, 3 portal patches, restored interchange grammar 8 opt-in comparisons; worker parity; actual completed feedback to native next-epoch city/demand; immutable snapshot serialization and loaded Valley 25620 s.",
       "Native C01 phase and growth checkpoint orchestration, direct exact uniform decode, strict recovered25640 and loaded25660, matched batched wire/optional immutable hardlink evidence, capped campaign failure receipts.",
-      "Exact MFWHOLE2 packet/key codec, fused finite streaming road validation, compact decoded-owner and packet-count workspace, extended-real phase costs, checked actual FIFO head suffix fixture and loaded strict Valley 25710 s."
+      "Exact MFWHOLE2 packet/key codec, fused finite streaming road validation, compact decoded-owner and packet-count workspace, extended-real phase costs, checked actual FIFO head suffix fixture and loaded strict Valley 25710 s.",
+      "MFWHOLE3 exact event run wire; direct sink and cached head/class work; canonical whole-engine route aliases and explicit native suffix replay; computed Valley 25730 s twice bit-identical, independent 25720 s recovery, 25730 reload blocked."
     ],
     "remaining": [
-      "B10: integrate the checked road-ready suffix primitive with canonical journey/service variant ownership, actual causal link observations, graph edit, and release-sized coupled phase replay; retain proposal-only production behavior until integration verified. B15: continue from strict valid25710 s on the current identity, measure shared-state/event/journey lifetimes, exact ordered interval materialization and service-event wire cost, then original 3x3 full days and refinement. Historical25720/25730 distinct identity not replayed. Limits 6 GiB accounting, 8 GiB RSS/address, 7200 s per case unchanged. Python scientific oracle explicit opt-in tests only.",
-      "Current native identity valid at 25710 s; do not conflate with the distinct historical blocked source. Continue ordered interval and simultaneous state/event/journey ownership investigation.",
+      "B15/V03: separate computed 25730 from independently recoverable 25720; isolate journey read/validate 3-working-copy bound after road+event decode, prove concurrent owner and scratch lifetime bounds, and rerun 25730 recovery then 25740 at original 6 GiB accounting, 8 GiB RSS/AS, 7200 s per-case limits. B10: exact streaming medium-window observation accumulation across committed ticks and resume, bind measured causal link observations and endogenous choice to canonical variants, graph edit and release-scale phase integration. Keep exact physical identity, no cap bypass. Original 3x3 and matched refinement remain. Historical distinct identity not cleared. Python explicit opt-in tests only.",
+      "Current identity 25730 calculated and saved, not restart-qualified; independent recovery 25720. Investigate journey decode/read/validate guard and actual owner lifetimes.",
       "Integrate source-aligned rank/span views into the actual ordered interval consumer and checkpoint expansion; retain finite response and commodity/birth observables. Separate bit-exact event sharing, real-arithmetic rank equivalence and explicitly approximate block closure; require complete-tick, ledger and checkpoint evidence.",
       "Frozen candidate3cases x3 full-day completion, matched refinement and full-day checkpoint replay; current completion0/9",
       "Separate final review, RLS01 packaging/fresh-install acceptance and full repository CI/integration deferred by user"
@@ -2457,13 +2473,13 @@
     "historical_local_patch_sha256": "7d89e8be20339709a9c0dc894a26dc7db75bdc0d857637ffb30f7bc7fe4a1326",
     "last_completed_work": {
       "date": "2026-11-27",
-      "scope": "Original V03 R1-R10 scoped concurrent research and C01-C10 coding: lossless MFWHOLE2, exact logical/legacy roundtrip on loaded25670, compact owner/scratch bound, finite streaming validation, extended costs, bounded road-level suffix fixture, strict current identity frontier 25710 s; 13/15 scoped pure Rust, 2 partial, 0 unported; original full days 0/9.",
-      "evidence": "artifacts/v03_rust_span_owner_20261127/C10_RESEARCH_RECEIPT.json"
+      "scope": "R1-R10 scoped original V03 research and C01-C10 Rust coding; exact MFWHOLE3 event runs, immutable event-index incoming/lifetime opt-in, direct borrowed sinks and cached exact head/class work; strict 25730 calculated twice and saved byte-identically, independent reload fails journey guard; 25720 independently recoverable; explicit canonical journey suffix with actual CLI replay, 13/15 pure Rust scoped, 2 partial, 0 unported; 0/9 full days.",
+      "evidence": "artifacts/v03_rust_event_owner_20261127/C10_RESEARCH_RECEIPT.json"
     },
-    "active_work": "B10: integrate the checked road-ready suffix primitive with canonical journey/service variant ownership, actual causal link observations, graph edit, and release-sized coupled phase replay; retain proposal-only production behavior until integration verified. B15: continue from strict valid25710 s on the current identity, measure shared-state/event/journey lifetimes, exact ordered interval materialization and service-event wire cost, then original 3x3 full days and refinement. Historical25720/25730 distinct identity not replayed. Limits 6 GiB accounting, 8 GiB RSS/address, 7200 s per case unchanged. Python scientific oracle explicit opt-in tests only.",
+    "active_work": "B15/V03: separate computed 25730 from independently recoverable 25720; isolate journey read/validate 3-working-copy bound after road+event decode, prove concurrent owner and scratch lifetime bounds, and rerun 25730 recovery then 25740 at original 6 GiB accounting, 8 GiB RSS/AS, 7200 s per-case limits. B10: exact streaming medium-window observation accumulation across committed ticks and resume, bind measured causal link observations and endogenous choice to canonical variants, graph edit and release-scale phase integration. Keep exact physical identity, no cap bypass. Original 3x3 and matched refinement remain. Historical distinct identity not cleared. Python explicit opt-in tests only.",
     "backend_census": {
-      "path": "artifacts/v03_rust_span_owner_20261127/C10_backend_coverage.json",
-      "sha256": "978ea8d252c7d0347ac2a1f447211812b485fe7d84fe698c4863ee837369c76c",
+      "path": "artifacts/v03_rust_event_owner_20261127/C10_backend_coverage.json",
+      "sha256": "581a4f99d306b265a71b3ccc6d66354e00fbc12eeacd6b284b054be112d615d6",
       "denominator": 15,
       "implemented_scoped": 13,
       "pure_rust_scoped": 13,

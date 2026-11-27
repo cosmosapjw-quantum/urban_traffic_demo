@@ -1,0 +1,301 @@
+    Checking metroflow-rust v0.1.0 (/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/crates/metroflow-rust)
+warning: unused import: `BTreeSet`
+ --> crates/metroflow-rust/src/v1_road.rs:7:34
+  |
+7 | use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+  |                                  ^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+warning: unused import: `CoreError`
+  --> crates/metroflow-rust/src/v1_timed_incoming.rs:13:25
+   |
+13 | use crate::core_error::{CoreError,CoreResult};
+   |                         ^^^^^^^^^
+warning: unused import: `pyo3::prelude`
+  --> crates/metroflow-rust/src/v1_timed_incoming.rs:12:5
+   |
+12 | use pyo3::prelude::*;
+   |     ^^^^^^^^^^^^^
+warning: type alias `Point` is never used
+ --> crates/metroflow-rust/src/v1_area.rs:6:17
+  |
+6 | pub(crate) type Point = [f64; 2];
+  |                 ^^^^^
+  |
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+warning: type alias `Law` is never used
+ --> crates/metroflow-rust/src/v1_area.rs:7:17
+  |
+7 | pub(crate) type Law = Vec<(f64, f64)>;
+  |                 ^^^
+warning: function `cross` is never used
+ --> crates/metroflow-rust/src/v1_area.rs:9:15
+  |
+9 | pub(crate) fn cross(a: Point, b: Point, c: Point) -> f64 {
+  |               ^^^^^
+warning: function `dist` is never used
+  --> crates/metroflow-rust/src/v1_area.rs:12:15
+   |
+12 | pub(crate) fn dist(a: Point, b: Point) -> f64 {
+   |               ^^^^
+warning: function `point_segment` is never used
+  --> crates/metroflow-rust/src/v1_area.rs:15:15
+   |
+15 | pub(crate) fn point_segment(p: Point, a: Point, b: Point) -> f64 {
+   |               ^^^^^^^^^^^^^
+warning: function `edges` is never used
+  --> crates/metroflow-rust/src/v1_area.rs:25:4
+   |
+25 | fn edges(p: &[Point]) -> impl Iterator<Item = (Point, Point)> + '_ {
+   |    ^^^^^
+warning: function `inside` is never used
+  --> crates/metroflow-rust/src/v1_area.rs:31:15
+   |
+31 | pub(crate) fn inside(x: Point, p: &[Point]) -> bool {
+   |               ^^^^^^
+warning: function `crossing` is never used
+  --> crates/metroflow-rust/src/v1_area.rs:49:15
+   |
+49 | pub(crate) fn crossing(a: Point, b: Point, c: Point, d: Point) -> Option...
+   |               ^^^^^^^^
+warning: function `segment_inside` is never used
+  --> crates/metroflow-rust/src/v1_area.rs:77:15
+   |
+77 | pub(crate) fn segment_inside(a: Point, b: Point, p: &[Point]) -> bool {
+   |               ^^^^^^^^^^^^^^
+warning: function `point_cmp` is never used
+   --> crates/metroflow-rust/src/v1_area.rs:105:4
+    |
+105 | fn point_cmp(a: &Point, b: &Point) -> std::cmp::Ordering {
+    |    ^^^^^^^^^
+warning: function `canonical` is never used
+   --> crates/metroflow-rust/src/v1_area.rs:108:15
+    |
+108 | pub(crate) fn canonical(mut p: Vec<Point>) -> CoreResult<Vec<Point>> {
+    |               ^^^^^^^^^
+warning: function `triangulate` is never used
+   --> crates/metroflow-rust/src/v1_area.rs:163:15
+    |
+163 | pub(crate) fn triangulate(mut p: Vec<Point>) -> CoreResult<Vec<[Point; ...
+    |               ^^^^^^^^^^^
+warning: struct `Area` is never constructed
+   --> crates/metroflow-rust/src/v1_area.rs:197:19
+    |
+197 | pub(crate) struct Area {
+    |                   ^^^^
+warning: associated items `new`, `tails`, `distance_cached`, `distance`, `access`, and `internal` are never used
+   --> crates/metroflow-rust/src/v1_area.rs:205:19
+    |
+204 | impl Area {
+    | --------- associated items in this implementation
+205 |     pub(crate) fn new(points: Vec<Point>) -> CoreResult<Self> {
+    |                   ^^^
+...
+257 |     fn tails(&self, a: Point) -> Vec<f64> {
+    |        ^^^^^
+...
+269 |     fn distance_cached(&self, a: Point, b: Point, left: &[f64], right: ...
+    |        ^^^^^^^^^^^^^^^
+...
+289 |     pub(crate) fn distance(&self, a: Point, b: Point) -> CoreResult<f64> {
+    |                   ^^^^^^^^
+...
+295 |     pub(crate) fn access(&self, door: Point, stock: f64) -> CoreResult<...
+    |                   ^^^^^^
+...
+351 |     pub(crate) fn internal(&self, a: f64, b: f64) -> CoreResult<Law> {
+    |                   ^^^^^^^^
+warning: method `road_step_bytes` is never used
+   --> crates/metroflow-rust/src/v1_road.rs:500:8
+    |
+495 | impl ServiceEventAccounting {
+    | --------------------------- method in this implementation
+...
+500 |     fn road_step_bytes(self, generated_rows: usize) -> usize {
+    |        ^^^^^^^^^^^^^^^
+warning: fields `start` and `end` are never read
+   --> crates/metroflow-rust/src/v1_road.rs:526:5
+    |
+521 | struct CompactEventRow {
+    |        --------------- fields in this struct
+...
+526 |     start:f64,
+    |     ^^^^^
+527 |     end:f64,
+    |     ^^^
+    |
+    = note: `CompactEventRow` has a derived impl for the trait `Clone`, but this is intentionally ignored during dead code analysis
+warning: method `unpack` is never used
+   --> crates/metroflow-rust/src/v1_road.rs:543:8
+    |
+530 | impl CompactEventRow {
+    | -------------------- method in this implementation
+...
+543 |     fn unpack(self)->EventRow {
+    |        ^^^^^^
+warning: function `postroad_continuous_keyset_peak_bytes` is never used
+   --> crates/metroflow-rust/src/v1_road.rs:789:4
+    |
+789 | fn postroad_continuous_keyset_peak_bytes(
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+warning: method `active_by_tag` is never used
+    --> crates/metroflow-rust/src/v1_road.rs:1293:19
+     |
+1286 | impl RoadState {
+     | -------------- method in this implementation
+...
+1293 |     pub(crate) fn active_by_tag(&self) -> HashMap<usize, f64> {
+     |                   ^^^^^^^^^^^^^
+warning: method `capacity_bytes` is never used
+    --> crates/metroflow-rust/src/v1_road.rs:1968:8
+     |
+1958 | impl ActiveIndexBits {
+     | -------------------- method in this implementation
+...
+1968 |     fn capacity_bytes(&self) -> usize {
+     |        ^^^^^^^^^^^^^^
+warning: method `len` is never used
+    --> crates/metroflow-rust/src/v1_road.rs:2072:8
+     |
+2063 | impl SweepOrdinals {
+     | ------------------ method in this implementation
+...
+2072 |     fn len(&self)->usize {match self {Self::Compact(v)=>v.len(),Self::...
+     |        ^^^
+warning: method `is_empty` is never used
+    --> crates/metroflow-rust/src/v1_road.rs:2360:8
+     |
+2357 | impl ChunkedParts {
+     | ----------------- method in this implementation
+...
+2360 |     fn is_empty(&self)->bool {self.len==0}
+     |        ^^^^^^^^
+warning: function `segmented_incoming_charge` is never used
+    --> crates/metroflow-rust/src/v1_road.rs:2470:4
+     |
+2470 | fn segmented_incoming_charge(rows:usize,cells:usize)->usize {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^
+warning: methods `summary`, `read_state`, `install_state`, and `owned_step` are never used
+    --> crates/metroflow-rust/src/v1_road.rs:3074:19
+     |
+3029 | impl V1Road {
+     | ----------- methods in this implementation
+...
+3074 |     pub(crate) fn summary(&self) -> (&[f64; 7], &[[f64; 5]]) {
+     |                   ^^^^^^^
+...
+3229 |     pub(crate) fn read_state<R: Read>(&self,r:&mut R)->CoreResult<Road...
+     |                   ^^^^^^^^^^
+...
+3327 |     pub(crate) fn install_state(&mut self, state: RoadState) {
+     |                   ^^^^^^^^^^^^^
+...
+3635 |     pub(crate) fn owned_step(&mut self, dt: f64, offers: Vec<Offer>) -...
+     |                   ^^^^^^^^^^
+warning: method `allocated_bytes` is never used
+   --> crates/metroflow-rust/src/v1_timed_incoming.rs:113:8
+    |
+103 | impl<T> Pages<T> {
+    | ---------------- method in this implementation
+...
+113 |     fn allocated_bytes(&self) -> usize {
+    |        ^^^^^^^^^^^^^^^
+warning: methods `capacity`, `descriptor_capacity`, and `allocated_bytes` are never used
+   --> crates/metroflow-rust/src/v1_timed_incoming.rs:177:19
+    |
+168 | impl TimedIncomingControls {
+    | -------------------------- methods in this implementation
+...
+177 |     pub(super) fn capacity(&self) -> usize {
+    |                   ^^^^^^^^
+...
+181 |     pub(super) fn descriptor_capacity(&self) -> usize {
+    |                   ^^^^^^^^^^^^^^^^^^^
+...
+189 |     pub(super) fn allocated_bytes(&self) -> usize {
+    |                   ^^^^^^^^^^^^^^^
+warning: methods `is_empty`, `allocated_bytes`, `projected_append_bytes`, and `iter` are never used
+   --> crates/metroflow-rust/src/v1_timed_incoming.rs:251:19
+    |
+242 | impl TimedIncomingRows {
+    | ---------------------- methods in this implementation
+...
+251 |     pub(super) fn is_empty(&self) -> bool {
+    |                   ^^^^^^^^
+...
+267 |     pub(super) fn allocated_bytes(&self) -> usize {
+    |                   ^^^^^^^^^^^^^^^
+...
+271 |     pub(super) fn projected_append_bytes(&self, additional: usize) -> C...
+    |                   ^^^^^^^^^^^^^^^^^^^^^^
+...
+357 |     pub(super) fn iter<'a>(
+    |                   ^^^^
+warning: function `journey_decoded_storage_upper_bytes` is never used
+   --> crates/metroflow-rust/src/v1_journey.rs:207:15
+    |
+207 | pub(crate) fn journey_decoded_storage_upper_bytes(s: &Journey) -> usize {
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+warning: methods `sources`, `install_state`, and `read_state` are never used
+   --> crates/metroflow-rust/src/v1_journey.rs:469:19
+    |
+407 | impl NativeServiceCore {
+    | ---------------------- methods in this implementation
+...
+469 |     pub(crate) fn sources(&self) -> (&[Source], &[Source]) {
+    |                   ^^^^^^^
+...
+480 |     pub(crate) fn install_state(&mut self, state: ServiceCheckpoint) {
+    |                   ^^^^^^^^^^^^^
+...
+532 |     pub(crate) fn read_state<R: Read>(
+    |                   ^^^^^^^^^^
+warning: methods `owned_time`, `storage_budget`, and `install_state` are never used
+    --> crates/metroflow-rust/src/v1_journey.rs:1156:19
+     |
+ 919 | impl NativeJourneyCore {
+     | ---------------------- methods in this implementation
+...
+1156 |     pub(crate) fn owned_time(&self) -> f64 {
+     |                   ^^^^^^^^^^
+...
+1211 |     pub(crate) fn storage_budget(&self) -> Option<usize> {
+     |                   ^^^^^^^^^^^^^^
+...
+1244 |     pub(crate) fn install_state(&mut self, state: Journey) {
+     |                   ^^^^^^^^^^^^^
+warning: method `is_empty` is never used
+  --> crates/metroflow-rust/src/v1_stage.rs:77:19
+   |
+70 | impl StageQueue {
+   | --------------- method in this implementation
+...
+77 |     pub(crate) fn is_empty(&self) -> bool {
+   |                   ^^^^^^^^
+warning: function `available` is never used
+ --> crates/metroflow-rust/src/geometry_simd.rs:2:15
+  |
+2 | pub(crate) fn available() -> bool {
+  |               ^^^^^^^^^
+warning: function `scalar` is never used
+  --> crates/metroflow-rust/src/geometry_simd.rs:12:15
+   |
+12 | pub(crate) fn scalar(row: &mut [f64], pivot: &[f64], x: f64) {
+   |               ^^^^^^
+warning: function `avx` is never used
+  --> crates/metroflow-rust/src/geometry_simd.rs:19:11
+   |
+19 | unsafe fn avx(row: &mut [f64], pivot: &[f64], x: f64) {
+   |           ^^^
+warning: function `update` is never used
+  --> crates/metroflow-rust/src/geometry_simd.rs:34:15
+   |
+34 | pub(crate) fn update(row: &mut [f64], pivot: &[f64], x: f64, vector: boo...
+   |               ^^^^^^
+warning: function `closure` is never used
+  --> crates/metroflow-rust/src/geometry_simd.rs:45:15
+   |
+45 | pub(crate) fn closure(d: &mut [f64], n: usize, vector: bool) {
+   |               ^^^^^^^
+warning: `metroflow-rust` (lib) generated 39 warnings (run `cargo fix --lib -p metroflow-rust` to apply 2 suggestions)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.00s

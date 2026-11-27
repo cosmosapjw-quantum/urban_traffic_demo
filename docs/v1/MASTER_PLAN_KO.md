@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.41**, 2026-11-27. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.42**, 2026-11-27. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -2122,7 +2122,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-B10: integrate the checked road-ready suffix primitive with canonical journey/service variant ownership, actual causal link observations, graph edit, and release-sized coupled phase replay; retain proposal-only production behavior until integration verified. B15: continue from strict valid25710 s on the current identity, measure shared-state/event/journey lifetimes, exact ordered interval materialization and service-event wire cost, then original 3x3 full days and refinement. Historical25720/25730 distinct identity not replayed. Limits 6 GiB accounting, 8 GiB RSS/address, 7200 s per case unchanged. Python scientific oracle explicit opt-in tests only.
+B15/V03: separate computed 25730 from independently recoverable 25720; isolate journey read/validate 3-working-copy bound after road+event decode, prove concurrent owner and scratch lifetime bounds, and rerun 25730 recovery then 25740 at original 6 GiB accounting, 8 GiB RSS/AS, 7200 s per-case limits. B10: exact streaming medium-window observation accumulation across committed ticks and resume, bind measured causal link observations and endogenous choice to canonical variants, graph edit and release-scale phase integration. Keep exact physical identity, no cap bypass. Original 3x3 and matched refinement remain. Historical distinct identity not cleared. Python explicit opt-in tests only.
 
 **예산·종료조건**
 
@@ -2306,11 +2306,11 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "V03"
   ],
   "native_subagent": "NOT_RUN_NO_TOOL",
-  "scope": "Original V03 R1-R10 scoped concurrent research and C01-C10 coding: lossless MFWHOLE2, exact logical/legacy roundtrip on loaded25670, compact owner/scratch bound, finite streaming validation, extended costs, bounded road-level suffix fixture, strict current identity frontier 25710 s; 13/15 scoped pure Rust, 2 partial, 0 unported; original full days 0/9.",
+  "scope": "R1-R10 scoped original V03 research and C01-C10 Rust coding; exact MFWHOLE3 event runs, immutable event-index incoming/lifetime opt-in, direct borrowed sinks and cached exact head/class work; strict 25730 calculated twice and saved byte-identically, independent reload fails journey guard; 25720 independently recoverable; explicit canonical journey suffix with actual CLI replay, 13/15 pure Rust scoped, 2 partial, 0 unported; 0/9 full days.",
   "full_repository_ci": "DEFERRED_BY_USER",
   "full_day_100k": "BLOCKED_RESOURCE_AND_MIGRATION_0_OF_9",
   "main_modified": false,
-  "evidence": "artifacts/v03_rust_span_owner_20261127/C10_RESEARCH_RECEIPT.json",
+  "evidence": "artifacts/v03_rust_event_owner_20261127/C10_RESEARCH_RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
@@ -2319,20 +2319,20 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "status": "success"
   },
   "parallel_agents": [],
-  "active_branch": "research/v03-rust-span-owner-20261127",
-  "production_commit": "80792f8edccd74bee018e4d8da59b1e525806eaa",
+  "active_branch": "research/v03-rust-event-owner-20261127",
+  "production_commit": "2967ac3245711bc969ed8a478103cd331a934d56",
   "research_stages_completed": 10,
   "research_stages_total": 10,
-  "source_commit": "f72552a80a3b20f4c5a44044f37cebfd4f020ca0",
-  "native_source_sha256": "0893eebaed9501a203cf2c58bd64c8bd3979ab6ea60cb8125f455572432ba00d",
-  "native_binary_sha256": "24497d99c9bbb67ca50f78d9869ebee122553d822c8e980e09e66269a073f7a7",
+  "source_commit": "45e7a5df483581bb37ebd5c84fa678b2b93d77f1",
+  "native_source_sha256": "a829582346592ee409033cc238d9300aaf007f879df9b186850063d1b00b9d4f",
+  "native_binary_sha256": "868445eaaf3211cf1ffbbc6eac1386d97af1544815ceac2f731ac108971286de",
   "current_loop_stages_completed": 10,
   "current_loop_stages_total": 10,
   "current_loop_native_subagent": "NOT_RUN_NO_TOOL",
-  "native_source_hash_method": "SHA256 of C10_tracked_rust_sources.sha256; code-only source inventory; frontier executable and final build hashes separately bound",
-  "native_binary_feature": "native-cli no Python; actual frontier binary and final C08 build separately bound",
-  "rust_backend_scoped": "13/15 pure Rust scoped; 2 partial; zero unported; loaded Valley 25710 s",
-  "theory_loop_scope": "R1-R10 scoped exact representation and resource research; no release acceptance"
+  "native_source_hash_method": "SHA256 of C10_tracked_rust_sources.sha256; executable is byte-identical to measured C07 build; fixture declaration added C09",
+  "native_binary_feature": "native-cli no Python; exact measured binary and final build byte identical",
+  "rust_backend_scoped": "13/15 pure Rust scoped; 2 partial; zero unported; computed25730, independently recoverable25720",
+  "theory_loop_scope": "R1-R10 scoped exact representation, owner and restart research; no release acceptance"
 }
 ```
 
