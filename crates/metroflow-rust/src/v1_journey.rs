@@ -342,6 +342,20 @@ fn bad(message: &str) -> CoreError {
 fn nonnegative(values: impl IntoIterator<Item = f64>) -> bool {
     values.into_iter().all(|x| x.is_finite() && x >= 0.0)
 }
+fn service_egress_rows(
+    stage: &StageQueue,
+    bus: &HashMap<usize, [f64;3]>,
+    freight: &HashMap<usize, [f64;3]>,
+)->HashMap<usize, Vec<f64>>{
+    let mut observed = HashMap::<usize,Vec<f64>>::new();
+    if bus.is_empty() && freight.is_empty(){return observed}
+    for a in stage{
+        if bus.contains_key(&a.0) || freight.contains_key(&a.0){
+            observed.entry(a.0).or_default().push(a.1);
+        }
+    }
+    observed
+}
 // Non-overlapping partials, with the final half-even adjustment of math.fsum.
 pub(crate) fn fsum(values: impl IntoIterator<Item = f64>) -> f64 {
     let mut partials: smallvec::SmallVec<[f64; 4]> = smallvec::SmallVec::new();
@@ -1108,10 +1122,6 @@ impl NativeJourneyCore {
         {
             return Err(bad("native journey service checkpoint shape differs"));
         }
-        let mut egress: HashMap<usize, Vec<f64>> = HashMap::new();
-        for a in &s.2 {
-            egress.entry(a.0).or_default().push(a.1);
-        }
         let mut bus: HashMap<usize, [f64; 3]> = HashMap::new();
         for (k, b) in self.bus.iter().enumerate() {
             let v = service.1[k];
@@ -1131,6 +1141,9 @@ impl NativeJourneyCore {
             }
             row[1] += service.3[k];
         }
+        // Only bus/freight leg egress is observed by these service equations.
+        // Full stage and road conservation is independently checked by validate_bundle.
+        let egress = service_egress_rows(&s.2, &bus, &freight);
         for (i, l) in self.legs.iter().enumerate() {
             let released = s.4[i];
             let completed = s.5[i];
@@ -2866,5 +2879,25 @@ mod schedule_receipt_tests{
         assert!(!private_profile_hides_old_history(20.,10.,0,&profile));
         assert_eq!(h.total(),c.total());
         assert_eq!(h.iter().map(|r|r.0*r.1).sum::<f64>(),c.iter().map(|r|r.0*r.1).sum::<f64>());
+    }
+}
+
+#[cfg(test)]
+mod service_projection_tests{
+    use super::*;
+    #[test]
+    fn service_projection_retains_original_order_and_all_observed_mass(){
+        let mut q=StageQueue::new();
+        for (i,m) in [(0,0.125),(2,1e16),(1,3.),(2,1.),(3,7.),(2,0.5),(1,2.)]{
+            q.push((i,m,0.,1.));
+        }
+        let bus=HashMap::from([(2,[0.;3])]);
+        let freight=HashMap::from([(1,[0.;3]),(2,[0.;3])]);
+        let a=service_egress_rows(&q,&bus,&freight);
+        assert_eq!(a.len(),2);
+        for i in [1,2]{
+            assert_eq!(a[&i],q.iter().filter(|r|r.0==i).map(|r|r.1).collect::<Vec<_>>());
+        }
+        assert!(service_egress_rows(&q,&HashMap::new(),&HashMap::new()).is_empty());
     }
 }
