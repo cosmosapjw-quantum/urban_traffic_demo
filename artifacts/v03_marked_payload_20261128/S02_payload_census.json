@@ -1,0 +1,30 @@
+{
+  "status": "READ_ONLY_ROAD_CENSUS",
+  "source": "/home/cosmosapjw/research_backups/metroflow_v03_delay_state_20261127/original25750.bin",
+  "magic": "MFWHOLE3",
+  "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3",
+  "road_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3",
+  "time_s": 25750.0,
+  "cells": 1586,
+  "pending": 1586,
+  "road_section_end": 1386505298,
+  "counts": {
+    "packets": 1393733,
+    "rows": 79793302,
+    "uniform_rows": 79793302,
+    "eligible_rows": 76877184,
+    "eligible_packets": 627513,
+    "unique_pairs": 45830849,
+    "dictionary_packets": 560536,
+    "dictionary_rows": 74786844,
+    "potential_moment_payload_saved_bytes": 287351176,
+    "runs": 73204170
+  },
+  "rows_by_kind": {
+    "2": 3791488,
+    "3": 73055086,
+    "0": 2946728
+  },
+  "elapsed_s": 28.75863848894369,
+  "scope": "all road packets; potential independent per-packet bit-pair dictionary capacity savings, not measured allocator/RSS; no full validation"
+}

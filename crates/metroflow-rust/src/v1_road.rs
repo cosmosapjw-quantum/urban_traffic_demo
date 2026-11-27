@@ -21,6 +21,8 @@ mod v1_event_blocks;
 mod v1_rank_projection;
 #[path = "v1_ready_rank.rs"]
 mod v1_ready_rank;
+#[path = "v1_moment_dict.rs"]
+mod v1_moment_dict;
 #[path = "v1_timed_incoming.rs"]
 mod timed_incoming;
 use timed_incoming::{TimedIncomingControls, TimedIncomingRows};
