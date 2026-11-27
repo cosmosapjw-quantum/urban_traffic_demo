@@ -1351,3 +1351,5 @@ pub mod restored_atlas;
 pub mod phase_runtime;
 #[cfg(feature="native-cli")]
 mod extended_cost_wire;
+#[cfg(feature="native-cli")]
+pub mod causal_bottleneck;

@@ -1,0 +1,491 @@
+{
+  "baseline": {
+    "admitted": 657.1727712000003,
+    "departed": 657.1727712000003,
+    "on_link": 0.0,
+    "pending": 0.0,
+    "requested": 657.1727712000003,
+    "residence_veh_s": 19715.183135999927
+  },
+  "calendar_legs": 918450,
+  "capacity_scale": 1.0,
+  "dt_s": 30.0,
+  "intended_outward_car_veh": 657.1727711999996,
+  "lag_steps": 1,
+  "link": "s:g26:16>g27:16|1",
+  "max_pending_veh": 0.0,
+  "max_relief_pending_veh": 0.0,
+  "origin": "{\"block_id\":\"130\",\"geometry\":\"frozen_uniform_depth0_v1\",\"kind\":\"residential\"}",
+  "relief": {
+    "admitted": 657.1727712000003,
+    "departed": 657.1727712000003,
+    "on_link": 0.0,
+    "pending": 0.0,
+    "requested": 657.1727712000003,
+    "residence_veh_s": 19715.183135999927
+  },
+  "ring_payload_bytes": 16,
+  "samples": [
+    {
+      "baseline": {
+        "admitted": 0.0,
+        "departed": 0.0,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 0.0,
+        "residence_veh_s": 0.0
+      },
+      "relief": {
+        "admitted": 0.0,
+        "departed": 0.0,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 0.0,
+        "residence_veh_s": 0.0
+      },
+      "time_s": 3600.0
+    },
+    {
+      "baseline": {
+        "admitted": 0.0,
+        "departed": 0.0,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 0.0,
+        "residence_veh_s": 0.0
+      },
+      "relief": {
+        "admitted": 0.0,
+        "departed": 0.0,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 0.0,
+        "residence_veh_s": 0.0
+      },
+      "time_s": 7200.0
+    },
+    {
+      "baseline": {
+        "admitted": 0.0,
+        "departed": 0.0,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 0.0,
+        "residence_veh_s": 0.0
+      },
+      "relief": {
+        "admitted": 0.0,
+        "departed": 0.0,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 0.0,
+        "residence_veh_s": 0.0
+      },
+      "time_s": 10800.0
+    },
+    {
+      "baseline": {
+        "admitted": 0.0,
+        "departed": 0.0,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 0.0,
+        "residence_veh_s": 0.0
+      },
+      "relief": {
+        "admitted": 0.0,
+        "departed": 0.0,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 0.0,
+        "residence_veh_s": 0.0
+      },
+      "time_s": 14400.0
+    },
+    {
+      "baseline": {
+        "admitted": 0.0,
+        "departed": 0.0,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 0.0,
+        "residence_veh_s": 0.0
+      },
+      "relief": {
+        "admitted": 0.0,
+        "departed": 0.0,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 0.0,
+        "residence_veh_s": 0.0
+      },
+      "time_s": 18000.0
+    },
+    {
+      "baseline": {
+        "admitted": 0.0,
+        "departed": 0.0,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 0.0,
+        "residence_veh_s": 0.0
+      },
+      "relief": {
+        "admitted": 0.0,
+        "departed": 0.0,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 0.0,
+        "residence_veh_s": 0.0
+      },
+      "time_s": 21600.0
+    },
+    {
+      "baseline": {
+        "admitted": 0.0,
+        "departed": 0.0,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 0.0,
+        "residence_veh_s": 0.0
+      },
+      "relief": {
+        "admitted": 0.0,
+        "departed": 0.0,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 0.0,
+        "residence_veh_s": 0.0
+      },
+      "time_s": 25200.0
+    },
+    {
+      "baseline": {
+        "admitted": 219.05759040000007,
+        "departed": 217.23211048000007,
+        "on_link": 1.8254799199999923,
+        "pending": 0.0,
+        "requested": 219.05759040000007,
+        "residence_veh_s": 6516.963314400015
+      },
+      "relief": {
+        "admitted": 219.05759040000007,
+        "departed": 217.23211048000007,
+        "on_link": 1.8254799199999923,
+        "pending": 0.0,
+        "requested": 219.05759040000007,
+        "residence_veh_s": 6516.963314400015
+      },
+      "time_s": 28800.0
+    },
+    {
+      "baseline": {
+        "admitted": 492.8795784000001,
+        "departed": 490.59772850000013,
+        "on_link": 2.2818498999999974,
+        "pending": 0.0,
+        "requested": 492.8795784000001,
+        "residence_veh_s": 14717.931854999988
+      },
+      "relief": {
+        "admitted": 492.8795784000001,
+        "departed": 490.59772850000013,
+        "on_link": 2.2818498999999974,
+        "pending": 0.0,
+        "requested": 492.8795784000001,
+        "residence_veh_s": 14717.931854999988
+      },
+      "time_s": 32400.0
+    },
+    {
+      "baseline": {
+        "admitted": 492.8795784000001,
+        "departed": 492.8795784000001,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 492.8795784000001,
+        "residence_veh_s": 14786.387351999987
+      },
+      "relief": {
+        "admitted": 492.8795784000001,
+        "departed": 492.8795784000001,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 492.8795784000001,
+        "residence_veh_s": 14786.387351999987
+      },
+      "time_s": 36000.0
+    },
+    {
+      "baseline": {
+        "admitted": 657.1727712000003,
+        "departed": 655.8036612600002,
+        "on_link": 1.369109940000044,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19674.109837799926
+      },
+      "relief": {
+        "admitted": 657.1727712000003,
+        "departed": 655.8036612600002,
+        "on_link": 1.369109940000044,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19674.109837799926
+      },
+      "time_s": 39600.0
+    },
+    {
+      "baseline": {
+        "admitted": 657.1727712000003,
+        "departed": 657.1727712000003,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19715.183135999927
+      },
+      "relief": {
+        "admitted": 657.1727712000003,
+        "departed": 657.1727712000003,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19715.183135999927
+      },
+      "time_s": 43200.0
+    },
+    {
+      "baseline": {
+        "admitted": 657.1727712000003,
+        "departed": 657.1727712000003,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19715.183135999927
+      },
+      "relief": {
+        "admitted": 657.1727712000003,
+        "departed": 657.1727712000003,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19715.183135999927
+      },
+      "time_s": 46800.0
+    },
+    {
+      "baseline": {
+        "admitted": 657.1727712000003,
+        "departed": 657.1727712000003,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19715.183135999927
+      },
+      "relief": {
+        "admitted": 657.1727712000003,
+        "departed": 657.1727712000003,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19715.183135999927
+      },
+      "time_s": 50400.0
+    },
+    {
+      "baseline": {
+        "admitted": 657.1727712000003,
+        "departed": 657.1727712000003,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19715.183135999927
+      },
+      "relief": {
+        "admitted": 657.1727712000003,
+        "departed": 657.1727712000003,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19715.183135999927
+      },
+      "time_s": 54000.0
+    },
+    {
+      "baseline": {
+        "admitted": 657.1727712000003,
+        "departed": 657.1727712000003,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19715.183135999927
+      },
+      "relief": {
+        "admitted": 657.1727712000003,
+        "departed": 657.1727712000003,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19715.183135999927
+      },
+      "time_s": 57600.0
+    },
+    {
+      "baseline": {
+        "admitted": 657.1727712000003,
+        "departed": 657.1727712000003,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19715.183135999927
+      },
+      "relief": {
+        "admitted": 657.1727712000003,
+        "departed": 657.1727712000003,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19715.183135999927
+      },
+      "time_s": 61200.0
+    },
+    {
+      "baseline": {
+        "admitted": 657.1727712000003,
+        "departed": 657.1727712000003,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19715.183135999927
+      },
+      "relief": {
+        "admitted": 657.1727712000003,
+        "departed": 657.1727712000003,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19715.183135999927
+      },
+      "time_s": 64800.0
+    },
+    {
+      "baseline": {
+        "admitted": 657.1727712000003,
+        "departed": 657.1727712000003,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19715.183135999927
+      },
+      "relief": {
+        "admitted": 657.1727712000003,
+        "departed": 657.1727712000003,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19715.183135999927
+      },
+      "time_s": 68400.0
+    },
+    {
+      "baseline": {
+        "admitted": 657.1727712000003,
+        "departed": 657.1727712000003,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19715.183135999927
+      },
+      "relief": {
+        "admitted": 657.1727712000003,
+        "departed": 657.1727712000003,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19715.183135999927
+      },
+      "time_s": 72000.0
+    },
+    {
+      "baseline": {
+        "admitted": 657.1727712000003,
+        "departed": 657.1727712000003,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19715.183135999927
+      },
+      "relief": {
+        "admitted": 657.1727712000003,
+        "departed": 657.1727712000003,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19715.183135999927
+      },
+      "time_s": 75600.0
+    },
+    {
+      "baseline": {
+        "admitted": 657.1727712000003,
+        "departed": 657.1727712000003,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19715.183135999927
+      },
+      "relief": {
+        "admitted": 657.1727712000003,
+        "departed": 657.1727712000003,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19715.183135999927
+      },
+      "time_s": 79200.0
+    },
+    {
+      "baseline": {
+        "admitted": 657.1727712000003,
+        "departed": 657.1727712000003,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19715.183135999927
+      },
+      "relief": {
+        "admitted": 657.1727712000003,
+        "departed": 657.1727712000003,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19715.183135999927
+      },
+      "time_s": 82800.0
+    },
+    {
+      "baseline": {
+        "admitted": 657.1727712000003,
+        "departed": 657.1727712000003,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19715.183135999927
+      },
+      "relief": {
+        "admitted": 657.1727712000003,
+        "departed": 657.1727712000003,
+        "on_link": 0.0,
+        "pending": 0.0,
+        "requested": 657.1727712000003,
+        "residence_veh_s": 19715.183135999927
+      },
+      "time_s": 86400.0
+    }
+  ],
+  "schema": "metroflow_causal_link_projection_v1",
+  "scope": "fixed outward car intent of busiest origin projected to one representative frozen link; doubled supply/storage intervention; not network assignment, endogenous demand, or V03 acceptance",
+  "simulation_wall_s": 0.000554503,
+  "steps": 2880,
+  "storage_veh": 44.37475413990356
+}

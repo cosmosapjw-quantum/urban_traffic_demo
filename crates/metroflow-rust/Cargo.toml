@@ -73,3 +73,8 @@ required-features = ["native-cli"]
 name = "metroflow-restored-generate"
 path = "src/bin/metroflow-restored-generate.rs"
 required-features = ["native-cli"]
+
+[[bin]]
+name = "metroflow-causal-bottleneck"
+path = "src/bin/metroflow-causal-bottleneck.rs"
+required-features = ["native-cli"]
