@@ -441,8 +441,11 @@ fn receiving_lifetime_floor(full_base:usize,max_cell_scratch:usize,source_rows:u
                             max_old_owner:usize,candidate_owner:usize)->CoreResult<usize> {
     let old_observation=source_rows.checked_mul(4*std::mem::size_of::<f64>())
         .ok_or_else(||budget("source observation envelope overflow"))?;
+    receiving_lifetime_floor_bytes(full_base,max_cell_scratch,old_observation,max_old_owner,candidate_owner)
+}
+fn receiving_lifetime_floor_bytes(full_base:usize,max_cell_scratch:usize,observation_bytes:usize,max_old_owner:usize,candidate_owner:usize)->CoreResult<usize>{
     full_base.checked_sub(max_cell_scratch)
-        .and_then(|x|x.checked_sub(old_observation))
+        .and_then(|x|x.checked_sub(observation_bytes))
         .and_then(|x|x.checked_add(candidate_owner.saturating_sub(max_old_owner)))
         .ok_or_else(||arithmetic("receiving lifetime floor identity differs"))
 }
@@ -3448,6 +3451,39 @@ impl V1Road {
             && self.routes.len() < u32::MAX as usize
             && self.groups.len() < u32::MAX as usize
     }
+    /// Source-phase scratch for the checked streaming native path. Old
+    /// 32B/row reserve covered materialized per-row observations that no
+    /// longer exist here. Keep a separate worst-case key expansion (8B
+    /// per SharedKeys row), packet descriptor/ready storage, pending raw
+    /// remainder, per-destination finite expansion and per-worker sums.
+    fn source_observation_reserve(&self,s:&RoadState,stats:&RoadDebugStats)->usize{
+        let rows=stats.cell_parts.saturating_add(stats.pending_parts);
+        let old=rows.saturating_mul(32);
+        if !cfg!(all(feature="native-cli",not(feature="python-extension")))
+            || std::env::var("METROFLOW_NATIVE_STREAM_SOURCE").as_deref()!=Ok("1")
+            || !receiving_lifetime_enabled() || !self.intervals || !self.can_compact_incoming_parts()
+            || !self.can_compact_candidate_events() || self.checkpoint_event_limit()>u32::MAX as usize
+            || std::env::var("METROFLOW_EXPERIMENTAL_EVENT_INDEX_INCOMING").as_deref()!=Ok("1"){return old}
+        let packets=stats.cell_packets.saturating_add(stats.pending_packets);
+        let cells=self.groups.len();let max_inc=self.incoming.iter().map(Vec::len).max().unwrap_or(0);
+        // The optional new bound is valid for the finite physical domain,
+        // and no raw attribution vectors. Extremely large coefficients use
+        // the established legacy reserve instead of this specialization.
+        if s.t>1e12||self.dt>1e6||s.totals.iter().any(|x|*x>1e12)||self.groups.iter().flatten().chain(self.classes.iter().flatten()).any(|x|*x>1e12)||self.windows.iter().any(|w|w.3>1e6){return old}
+        let shared_rows=s.cells.iter().flat_map(|c|&c.packets).chain(s.pending.iter().flatten()).fold(0usize,|n,p|n.saturating_add(if matches!(&p.parts,PacketParts::SharedKeys{..}){p.parts.len()}else{0}));
+        let workers=rayon::current_num_threads().max(1).min(cells);
+        // Two per-destination moment maps for ONE currently inspected head;
+        // all prior heads retain only scalar beta maps. 128KiB per finite
+        // expansion covers 4096 f64 components and growth overlap.
+        let reductions=128usize.saturating_mul(1024).saturating_mul(2usize.saturating_mul(cells.saturating_add(1)).saturating_add(3*workers).saturating_add(16));
+        let maps=1024usize.saturating_mul(cells.saturating_add(1)).saturating_mul(max_inc.saturating_mul(4).saturating_add(8));
+        let workspace=packets.saturating_mul(64).saturating_add(shared_rows.saturating_mul(8))
+            .saturating_add(stats.pending_parts.saturating_mul(4*std::mem::size_of::<Part>()+std::mem::size_of::<Offer>()))
+            .saturating_add(reductions).saturating_add(maps).saturating_add(2*1024*1024);
+        // Do not change the legacy conservative small-state contract if
+        // this independent envelope would be larger than the old one.
+        workspace.min(old)
+    }
     fn work_budget(
         &self,
         state: &RoadState,
@@ -3490,10 +3526,8 @@ impl V1Road {
         crate::v1_trace::add("arc.experimental_paired_credit",experimental_credit as u64);
         let combine_scratch=stats.max_cell_parts
             .saturating_mul(2*std::mem::size_of::<Part>());
-        let base = maximum_retained
-            .saturating_mul(3)
-            .saturating_sub(paired_credit)
-            .saturating_add(rows.saturating_mul(4 * std::mem::size_of::<f64>()))
+        let source_observation_bytes=self.source_observation_reserve(state,&stats);
+        let base=maximum_retained.saturating_mul(3).saturating_sub(paired_credit).saturating_add(source_observation_bytes)
             .saturating_add(
                 offers
                     .len()
@@ -3510,8 +3544,10 @@ impl V1Road {
                 &[
                     ("state_retained", state.retained_storage_bytes()),
                     ("input_retained", self.retained_input_bytes),
-                    ("rows", rows),
-                    ("offers", offers.len()),
+                    ("rows",rows),
+                    ("source_observation_bytes",source_observation_bytes),
+                    ("legacy_source_observation_bytes",rows.saturating_mul(32)),
+                    ("offers",offers.len()),
                     ("max_cell_parts", stats.max_cell_parts),
                     ("groups", groups),
                     ("classes", self.classes.len()),
@@ -3705,7 +3741,7 @@ impl V1Road {
         let mut counts: BTreeMap<usize, RoadExpansion> = BTreeMap::new();
         for packet in &c.packets {
             for p in &packet.parts {
-                counts.entry(self.class(&p)).or_default().add(p.mass);
+                counts.entry(self.class(&p)).or_default().add_finite(p.mass)?;
             }
         }
         let counts: BTreeMap<usize, f64> = counts.into_iter().map(|(k, v)| (k, v.finish())).collect();
@@ -4301,8 +4337,8 @@ impl V1Road {
                     let mut ds: BTreeMap<usize, RoadExpansion> = BTreeMap::new();
                     for p in &packet.parts {
                         let j = self.dest(&p).unwrap_or(n);
-                        dest.entry(j).or_default().add(p.mass);
-                        ds.entry(j).or_default().add(p.mass * self.footprint(p.tag));
+                        dest.entry(j).or_default().add_finite(p.mass)?;
+                        ds.entry(j).or_default().add_finite(p.mass*self.footprint(p.tag))?;
                     }
                     let pm=mass(packet);heads.insert(i,pm);
                     beta.insert(i, dest.into_iter().map(|(j, v)| (j, v.finish() / pm)).collect());
@@ -4851,10 +4887,9 @@ impl V1Road {
             let rows=stats.cell_parts.saturating_add(stats.pending_parts);
             let old=s.retained_storage_bytes().max(self.retained_input_bytes);
             let candidate=out.retained_storage_bytes();
-            let floor=receiving_lifetime_floor(full_consumer_base,
-                work.transfer_exclusive_cell_scratch,rows,old,candidate)?;
-            crate::v1_trace::add("receiving.expired_source_observation_bytes",
-                rows.saturating_mul(32) as u64);
+            let source_observation_bytes=self.source_observation_reserve(s,&stats);
+            let floor=receiving_lifetime_floor_bytes(full_consumer_base,work.transfer_exclusive_cell_scratch,source_observation_bytes,old,candidate)?;
+            crate::v1_trace::add("receiving.expired_source_observation_bytes",source_observation_bytes as u64);
             crate::v1_trace::add("receiving.initial_candidate_owner_bytes",candidate as u64);
             work.base=floor;
             work.require(0,"receiving phase actual candidate owner")?;
