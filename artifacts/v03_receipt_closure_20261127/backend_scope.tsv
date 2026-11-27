@@ -1,0 +1,16 @@
+id	component	baseline
+B01	city geometry generation and map validation	PYTHON
+B02	activity geometry and finite access-law construction	PYTHON
+B03	factorized demand declarations and inventory	PYTHON
+B04	native factorized OD enumeration	RUST_PYO3
+B05	legal graph route search and cache	RUST_PYO3
+B06	fleet and freight route preparation	MIXED
+B07	road kinetic transport and node allocation	RUST_PYO3
+B08	service and journey coupling	RUST_PYO3
+B09	whole engine orchestration and checkpoint	RUST_PYO3
+B10	causal routing adaptation and delayed land-use	PYTHON
+B11	access-coupling research preprocessing	PYTHON
+B12	route passage generation and validation	PYTHON
+B13	multiclass shared-access projection solver	CPP
+B14	research execution receipt and metrics	PYTHON
+B15	original V03 campaign runner and acceptance	PYTHON

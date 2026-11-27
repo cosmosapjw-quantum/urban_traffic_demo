@@ -1,0 +1,80 @@
+{
+  "time_s": 27000.0,
+  "events": 2042034,
+  "peak_records": 32089001,
+  "checkpoint_bytes": 689856984,
+  "wall_s": 279.354258677,
+  "checkpoint_write_s": 97.72697462600001,
+  "owner": {
+    "calls": 78,
+    "exceeded": 0,
+    "limit_at_max": 5788792959,
+    "live_at_max": null,
+    "max_ratio": 0.36645770111744635,
+    "max_required": 2121347760,
+    "terms_at_max": {
+      "argmax_input0_current1_pending2": 2,
+      "clock_bits": 4673148168664252416,
+      "current": 706899968,
+      "current_egress": 103326040,
+      "current_enter": 76550872,
+      "current_internal": 2615872,
+      "history_bytes": 524407184,
+      "input": 682635576,
+      "max_owner": 707115920,
+      "pending": 707115920,
+      "pending_egress": 103326040,
+      "pending_enter": 76550872,
+      "pending_internal": 2831824,
+      "working_copies": 3
+    }
+  },
+  "commit": {
+    "calls": 78,
+    "exceeded": 0,
+    "limit_at_max": 5788792959,
+    "live_at_max": null,
+    "max_ratio": 0.49649748667060595,
+    "max_required": 2874121155,
+    "terms_at_max": {
+      "call_binding_reserve": 82704900,
+      "candidate_event": 49444416,
+      "candidate_road": 54339944,
+      "current_event": 49246656,
+      "current_road": 54394904,
+      "decoded_journey": 894058680,
+      "decoded_road": 54259400,
+      "event_pointer_verified_credit": 0,
+      "input_event": 49642176,
+      "input_road": 54268408,
+      "journey_retained_input": 682635576,
+      "new_journey": 711505632,
+      "old_journey": 706899968,
+      "phase_event_charge": 148333248,
+      "phase_journey_charge": 2283594224,
+      "phase_road_charge": 155994215,
+      "road_decode_scratch": 2334336,
+      "road_pointer_verified_credit": 7009041,
+      "validation_scratch": 368904368
+    }
+  },
+  "capture": {
+    "calls": 7,
+    "exceeded": 0,
+    "limit_at_max": 6442450944,
+    "live_at_max": null,
+    "max_ratio": 0.5096716578118503,
+    "max_required": 3283534653,
+    "terms_at_max": {
+      "call_binding": 82704900,
+      "event_charge": 99086592,
+      "events": 49642176,
+      "fixed_base": 570953085,
+      "journey": 711505632,
+      "road": 54339944,
+      "road_3max_without_credit": 163019832,
+      "validation_scratch": 368904368,
+      "verified_future_capture_arc_credit": 52946120
+    }
+  }
+}
