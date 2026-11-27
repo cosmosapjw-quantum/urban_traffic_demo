@@ -907,6 +907,7 @@ pub struct NativeJourneyCore {
     peak_records: usize,
     history_rows: usize,
     research_receipt_period_s:Option<u64>,
+    research_group_outlets:bool,
     history_bytes: usize,
     history_decoded_final: usize,
     history_decode_extra_max: usize,
@@ -1158,6 +1159,11 @@ impl NativeJourneyCore {
     pub(crate) fn set_research_receipt_period(&mut self,period:u64)->CoreResult<()>{
         if !(10..=3600).contains(&period)||self.storage_budget.is_none(){return Err(bad("receipt closure period outside supported domain"))}
         self.research_receipt_period_s=Some(period);Ok(())
+    }
+    #[cfg(feature="native-cli")]
+    pub(crate) fn enable_research_group_outlets(&mut self)->CoreResult<()>{
+        if self.research_receipt_period_s.is_none()||self.storage_budget.is_none(){return Err(bad("outlet grouping requires receipt research identity"))}
+        self.research_group_outlets=true;Ok(())
     }
     pub(crate) fn owned_time(&self) -> f64 {
         self.state.0
@@ -2225,6 +2231,7 @@ impl NativeJourneyCore {
             peak_records: 0,
             history_rows: 0,
             research_receipt_period_s:None,
+            research_group_outlets:false,
             history_bytes: 0,
             history_decoded_final: 0,
             history_decode_extra_max: 0,
@@ -2449,6 +2456,24 @@ impl NativeJourneyCore {
         {
             return Err(bad("invalid native journey service shape/clock"));
         }
+        if self.research_group_outlets{
+            let mut rows:Vec<OutletAtom>=Vec::new();
+            let size=std::mem::size_of::<OutletAtom>();
+            for e in events{let e=e?;if !nonnegative([e.1,e.2])||e.2>end+1e-8{return Err(bad("invalid native grouped road sink"))}
+                if let Some(&i)=self.route_indices.get(e.0){
+                    if rows.len()==rows.capacity(){let next=rows.capacity().saturating_mul(2).max(4);let scratch=next.saturating_add(rows.capacity()).saturating_mul(size).saturating_add(128*1024);check_storage_limit(self.storage_budget,self.retained_input_bytes,stage_storage_bytes(&s).saturating_add(self.history_bytes),scratch)?;
+                        let mut v=checkpoint_vec(next)?;if v.capacity()!=next{return Err(CoreError::resource("outlet grouping capacity differs"))}v.append(&mut rows);rows=v;
+                    }
+                    rows.push(OutletAtom{leg:i,stamp:e.2,mass:e.1,ordinal:rows.len()});
+                }
+            }
+            let raw=rows.len();let scratch=rows.capacity().saturating_mul(size).saturating_add(128*1024);
+            group_outlet_atoms(&mut rows)?;
+            crate::v1_trace::add("outlet_group.raw",raw as u64);crate::v1_trace::add("outlet_group.grouped",rows.len()as u64);
+            for e in rows{let i=e.leg;check_storage_limit(self.storage_budget,self.retained_input_bytes,self.history_bytes.saturating_add(s.1.storage_bytes()).saturating_add(s.3.storage_bytes()).saturating_add(s.2.append_upper_bytes(self.legs[i].7.len())),scratch)?;
+                generated_egress+=self.legs[i].7.len();s.2.extend(self.legs[i].7.iter().map(|w|(i,e.mass*w.1,e.stamp,w.0)));
+            }
+        }else{
         for e in events {let e=e?;
             if !nonnegative([e.1, e.2]) || e.2 > end + 1e-8 {
                 return Err(bad("invalid native journey road sink"));
@@ -2466,6 +2491,7 @@ impl NativeJourneyCore {
                 generated_egress += self.legs[i].7.len();
                 s.2.extend(self.legs[i].7.iter().map(|w| (i, e.1 * w.1, e.2, w.0)));
             }
+        }
         }
         for (k, b) in self.bus.iter().enumerate() {
             let before = before_people[k];
@@ -2643,5 +2669,45 @@ impl NativeJourneyCore {
         if !alias.starts_with("__variant__:")||self.legs.get(owner).is_none_or(|l|l.5!=1)||self.route_indices.contains_key(&alias){return Err(bad("invalid canonical journey alias"))}
         self.route_indices.insert(alias,owner);
         Ok(())
+    }
+}
+
+
+// Research-only linear convolution on identical (leg, outlet clock) atoms.
+// Do not change physical last-tick event owner or service sink processing.
+#[derive(Clone,Copy,Debug)]
+struct OutletAtom { leg:usize, stamp:f64, mass:f64, ordinal:usize }
+fn group_outlet_atoms(rows:&mut Vec<OutletAtom>)->CoreResult<()>{
+    if rows.iter().any(|r|!nonnegative([r.stamp,r.mass])){return Err(bad("invalid grouped outlet atom"))}
+    rows.sort_unstable_by_key(|r|(r.leg,r.stamp.to_bits(),r.ordinal));
+    let mut read=0usize;let mut write=0usize;
+    while read<rows.len(){
+        let mut row=rows[read];let mut end=read+1;
+        while end<rows.len()&&rows[end].leg==row.leg&&rows[end].stamp.to_bits()==row.stamp.to_bits(){end+=1}
+        row.mass=fsum(rows[read..end].iter().map(|x|x.mass));
+        if !row.mass.is_finite()||row.mass<0.{return Err(bad("grouped outlet sum overflow"))}
+        rows[write]=row;write+=1;read=end;
+    }
+    rows.truncate(write);Ok(())
+}
+#[cfg(test)]
+mod outlet_group_tests{
+    use super::*;
+    #[test]fn same_clock_convolution_retains_distinct_leg_and_stamp(){
+        let mut a=vec![
+            OutletAtom{leg:1,stamp:4.,mass:0.125,ordinal:0},
+            OutletAtom{leg:2,stamp:4.,mass:0.25,ordinal:1},
+            OutletAtom{leg:1,stamp:5.,mass:0.125,ordinal:2},
+            OutletAtom{leg:1,stamp:4.,mass:0.375,ordinal:3}
+        ];
+        let law=[(1.,0.25),(2.,0.75)];
+        let distribution=|rows:&[OutletAtom]|{
+            let mut d=std::collections::BTreeMap::new();
+            for r in rows{for &(delay,w) in &law{*d.entry((r.leg,(r.stamp+delay).to_bits())).or_insert(0.)+=r.mass*w;}}
+            d
+        };
+        let reference=distribution(&a);group_outlet_atoms(&mut a).unwrap();
+        assert_eq!(a.len(),3);assert_eq!(a[0].mass,0.5);assert_eq!(distribution(&a),reference);
+        a[0].mass=f64::NAN;assert!(group_outlet_atoms(&mut a).is_err());
     }
 }
