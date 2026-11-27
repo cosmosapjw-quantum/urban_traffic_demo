@@ -1,0 +1,44 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "checkpoint_bytes": 711650745,
+  "checkpoint_sha256": "51be42a2c058a519afade0234ac52b58a2e0af1d70bda08aeccfa69a61976d81",
+  "executable_sha256": "f1c6f0dc604df9708a628caf54bdf23143e65cc86536009b566bbb3b9ab7cfbc",
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 2606.8260491345045,
+      "completed": 3569.7246842196773,
+      "pending": 4156.782599978925,
+      "released": 6176.550733354182,
+      "released_intent_first_moment": 161362387.9088754,
+      "requested": 10333.333333333107
+    },
+    "vehicles": {
+      "active": 2085.1645270239032,
+      "completed": 2848.168806309498,
+      "pending": 129.99999999997908,
+      "released": 4933.333333333401,
+      "released_intent_first_moment": 128883333.33333316,
+      "requested": 5063.33333333338
+    }
+  },
+  "manifest_sha256": "e23ed04001651bc5c0bdf130e2f095625c77788f42c8445adc44d45f3ee4deec",
+  "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10",
+  "peak_rss_bytes": 1254993920,
+  "python_runtime_dependency": "none",
+  "schema": "metroflow_receipt_grid_migration_v1",
+  "scope": "same initial owners, fixed-tick future eligibility closure; separate identity",
+  "source_checkpoint_sha256": "eaf23e7e795ed792316b3d60e8968bca5133be4a355ae17ec1eb4ed9d939c699",
+  "source_manifest_sha256": "5381bf2e08225d564493b26235804d8f79eef181c21f448d94572a7cea63ac9e",
+  "source_native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1",
+  "status": "EXECUTED_FOR_REVIEW",
+  "time_s": 27060.0,
+  "wall_s": 40.325146719
+}
