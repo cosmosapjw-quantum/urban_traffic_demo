@@ -1,0 +1,1 @@
+FullSimplify: rank-prefix inequalities, max error bound M/4 -> {True,True,True}; separate hand proof in research note.
