@@ -83,3 +83,8 @@ required-features = ["native-cli"]
 name = "metroflow-zero-alloc-bench"
 path = "src/bin/metroflow-zero-alloc-bench.rs"
 required-features = ["native-cli"]
+
+[[bin]]
+name = "metroflow-marked-diverge"
+path = "src/bin/metroflow-marked-diverge.rs"
+required-features = ["native-cli"]

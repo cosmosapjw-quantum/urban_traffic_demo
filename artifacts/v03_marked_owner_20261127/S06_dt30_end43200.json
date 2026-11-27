@@ -1,0 +1,190 @@
+{
+  "baseline": {
+    "age_identity_residual": [
+      -3.1723175197839737e-9,
+      1.4915713109076023e-10
+    ],
+    "blocked_mixed_ticks": 124,
+    "completed_elapsed_veh_s": [
+      43331.93478900004,
+      14443.978262999999
+    ],
+    "exited": {
+      "birth": [
+        15385236.039755996,
+        5128412.013251998
+      ],
+      "mass": [
+        492.8795784000004,
+        164.29319280000004
+      ]
+    },
+    "max_birth_residual": 1.4711986295878887e-8,
+    "max_mass_residual": 3.694822225952521e-13,
+    "on_link": {
+      "birth": [
+        0.0,
+        0.0
+      ],
+      "mass": [
+        0.0,
+        0.0
+      ]
+    },
+    "peak_pending_veh": 0.0,
+    "peak_queue_rows": [
+      1,
+      6,
+      3,
+      2
+    ],
+    "pending": {
+      "birth": [
+        0.0,
+        0.0
+      ],
+      "mass": [
+        0.0,
+        0.0
+      ]
+    },
+    "requested": {
+      "birth": [
+        15385236.03975601,
+        5128412.013252003
+      ],
+      "mass": [
+        492.87957840000007,
+        164.29319280000007
+      ]
+    },
+    "reserved_queue_payload_bytes": 518560,
+    "residence_veh_s": [
+      43331.93478899687,
+      14443.978263000148
+    ],
+    "time_s": 43200.0
+  },
+  "baseline_links": [
+    {
+      "lag": 1,
+      "receive_veh": 33.0,
+      "send_veh": 33.0,
+      "storage_m": 580.8642484331426
+    },
+    {
+      "lag": 1,
+      "receive_veh": 1.6500000000000001,
+      "send_veh": 1.6500000000000001,
+      "storage_m": 273.861906771735
+    },
+    {
+      "lag": 1,
+      "receive_veh": 13.5,
+      "send_veh": 13.5,
+      "storage_m": 214.69422256559074
+    }
+  ],
+  "branch0_scale": 0.05,
+  "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+  "dt_s": 30.0,
+  "end_s": 43200.0,
+  "intended_car_veh": 657.1727711999996,
+  "links": [
+    "b:g10:20>g10:22|0",
+    "s:g10:22>g10:23|0",
+    "s:g10:22>g11:22|0"
+  ],
+  "origin": "{\"block_id\":\"130\",\"geometry\":\"frozen_uniform_depth0_v1\",\"kind\":\"residential\"}",
+  "relief": {
+    "age_identity_residual": [
+      2.1827872842550278e-11,
+      -1.6370904631912708e-11
+    ],
+    "blocked_mixed_ticks": 0,
+    "completed_elapsed_veh_s": [
+      29572.774704000003,
+      9857.591568000029
+    ],
+    "exited": {
+      "birth": [
+        15385236.03975601,
+        5128412.013252003
+      ],
+      "mass": [
+        492.87957840000007,
+        164.29319280000007
+      ]
+    },
+    "max_birth_residual": 1.673470251262188e-9,
+    "max_mass_residual": 4.263256414560601e-14,
+    "on_link": {
+      "birth": [
+        0.0,
+        0.0
+      ],
+      "mass": [
+        0.0,
+        0.0
+      ]
+    },
+    "peak_pending_veh": 0.0,
+    "peak_queue_rows": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "pending": {
+      "birth": [
+        0.0,
+        0.0
+      ],
+      "mass": [
+        0.0,
+        0.0
+      ]
+    },
+    "requested": {
+      "birth": [
+        15385236.03975601,
+        5128412.013252003
+      ],
+      "mass": [
+        492.87957840000007,
+        164.29319280000007
+      ]
+    },
+    "reserved_queue_payload_bytes": 518560,
+    "residence_veh_s": [
+      29572.774704000025,
+      9857.591568000013
+    ],
+    "time_s": 43200.0
+  },
+  "relief_links": [
+    {
+      "lag": 1,
+      "receive_veh": 33.0,
+      "send_veh": 33.0,
+      "storage_m": 580.8642484331426
+    },
+    {
+      "lag": 1,
+      "receive_veh": 3.3000000000000003,
+      "send_veh": 3.3000000000000003,
+      "storage_m": 273.861906771735
+    },
+    {
+      "lag": 1,
+      "receive_veh": 13.5,
+      "send_veh": 13.5,
+      "storage_m": 214.69422256559074
+    }
+  ],
+  "schedule_identity": "61bf90204d22e3442c565f3f62b8ef4cba7d7be3e74b1d33e6c8bcf96208c920",
+  "schema": "metroflow_marked_diverge_v1",
+  "scope": "actual frozen legal turns and car link coefficients; busiest outward car origin intent projected 75/25 onto two hypothetical branches; common FIFO head and discrete right-endpoint births; no native kinetic equivalence, no actual OD assignment or induced demand",
+  "simulation_wall_s": 0.000668486,
+  "steps": 1440
+}

@@ -1,0 +1,190 @@
+{
+  "baseline": {
+    "age_identity_residual": [
+      -4.3655745685100555e-11,
+      5.4569682106375694e-12
+    ],
+    "blocked_mixed_ticks": 0,
+    "completed_elapsed_veh_s": [
+      19058.010364800022,
+      6352.6701216
+    ],
+    "exited": {
+      "birth": [
+        4283287.829488802,
+        1427762.6098296002
+      ],
+      "mass": [
+        158.81675304000012,
+        52.93891768000002
+      ]
+    },
+    "max_birth_residual": 4.656612873077393e-10,
+    "max_mass_residual": 1.4210854715202004e-14,
+    "on_link": {
+      "birth": [
+        157557.17189519992,
+        52519.05729839999
+      ],
+      "mass": [
+        5.476439759999998,
+        1.8254799199999994
+      ]
+    },
+    "peak_pending_veh": 0.0,
+    "peak_queue_rows": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "pending": {
+      "birth": [
+        0.0,
+        0.0
+      ],
+      "mass": [
+        0.0,
+        0.0
+      ]
+    },
+    "requested": {
+      "birth": [
+        4440845.001384002,
+        1480281.6671280002
+      ],
+      "mass": [
+        164.29319280000013,
+        54.76439760000002
+      ]
+    },
+    "reserved_queue_payload_bytes": 172960,
+    "residence_veh_s": [
+      19222.303557599997,
+      6407.434519200002
+    ],
+    "time_s": 28800.0
+  },
+  "baseline_links": [
+    {
+      "lag": 1,
+      "receive_veh": 66.0,
+      "send_veh": 66.0,
+      "storage_m": 580.8642484331426
+    },
+    {
+      "lag": 1,
+      "receive_veh": 3.3000000000000003,
+      "send_veh": 3.3000000000000003,
+      "storage_m": 273.861906771735
+    },
+    {
+      "lag": 1,
+      "receive_veh": 27.0,
+      "send_veh": 27.0,
+      "storage_m": 214.69422256559074
+    }
+  ],
+  "branch0_scale": 0.05,
+  "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+  "dt_s": 60.0,
+  "end_s": 28800.0,
+  "intended_car_veh": 657.1727711999996,
+  "links": [
+    "b:g10:20>g10:22|0",
+    "s:g10:22>g10:23|0",
+    "s:g10:22>g11:22|0"
+  ],
+  "origin": "{\"block_id\":\"130\",\"geometry\":\"frozen_uniform_depth0_v1\",\"kind\":\"residential\"}",
+  "relief": {
+    "age_identity_residual": [
+      -4.3655745685100555e-11,
+      5.4569682106375694e-12
+    ],
+    "blocked_mixed_ticks": 0,
+    "completed_elapsed_veh_s": [
+      19058.010364800022,
+      6352.6701216
+    ],
+    "exited": {
+      "birth": [
+        4283287.829488802,
+        1427762.6098296002
+      ],
+      "mass": [
+        158.81675304000012,
+        52.93891768000002
+      ]
+    },
+    "max_birth_residual": 4.656612873077393e-10,
+    "max_mass_residual": 1.4210854715202004e-14,
+    "on_link": {
+      "birth": [
+        157557.17189519992,
+        52519.05729839999
+      ],
+      "mass": [
+        5.476439759999998,
+        1.8254799199999994
+      ]
+    },
+    "peak_pending_veh": 0.0,
+    "peak_queue_rows": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "pending": {
+      "birth": [
+        0.0,
+        0.0
+      ],
+      "mass": [
+        0.0,
+        0.0
+      ]
+    },
+    "requested": {
+      "birth": [
+        4440845.001384002,
+        1480281.6671280002
+      ],
+      "mass": [
+        164.29319280000013,
+        54.76439760000002
+      ]
+    },
+    "reserved_queue_payload_bytes": 172960,
+    "residence_veh_s": [
+      19222.303557599997,
+      6407.434519200002
+    ],
+    "time_s": 28800.0
+  },
+  "relief_links": [
+    {
+      "lag": 1,
+      "receive_veh": 66.0,
+      "send_veh": 66.0,
+      "storage_m": 580.8642484331426
+    },
+    {
+      "lag": 1,
+      "receive_veh": 6.6000000000000005,
+      "send_veh": 6.6000000000000005,
+      "storage_m": 273.861906771735
+    },
+    {
+      "lag": 1,
+      "receive_veh": 27.0,
+      "send_veh": 27.0,
+      "storage_m": 214.69422256559074
+    }
+  ],
+  "schedule_identity": "61bf90204d22e3442c565f3f62b8ef4cba7d7be3e74b1d33e6c8bcf96208c920",
+  "schema": "metroflow_marked_diverge_v1",
+  "scope": "actual frozen legal turns and car link coefficients; busiest outward car origin intent projected 75/25 onto two hypothetical branches; common FIFO head and discrete right-endpoint births; no native kinetic equivalence, no actual OD assignment or induced demand",
+  "simulation_wall_s": 0.000207423,
+  "steps": 480
+}

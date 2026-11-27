@@ -1,0 +1,190 @@
+{
+  "baseline": {
+    "age_identity_residual": [
+      -4.1320163290947676e-8,
+      -2.346496330574155e-10
+    ],
+    "blocked_mixed_ticks": 373,
+    "completed_elapsed_veh_s": [
+      38397.639004999866,
+      14442.144929666698
+    ],
+    "exited": {
+      "birth": [
+        15380307.243972002,
+        5126769.081323997
+      ],
+      "mass": [
+        492.8795783999933,
+        164.2931928000001
+      ]
+    },
+    "max_birth_residual": 1.367880031466484e-8,
+    "max_mass_residual": 9.379164112033322e-13,
+    "on_link": {
+      "birth": [
+        0.0,
+        0.0
+      ],
+      "mass": [
+        0.0,
+        0.0
+      ]
+    },
+    "peak_pending_veh": 0.0,
+    "peak_queue_rows": [
+      1,
+      16,
+      5,
+      6
+    ],
+    "pending": {
+      "birth": [
+        0.0,
+        0.0
+      ],
+      "mass": [
+        0.0,
+        0.0
+      ]
+    },
+    "requested": {
+      "birth": [
+        15380307.243972,
+        5126769.081324002
+      ],
+      "mass": [
+        492.8795783999925,
+        164.29319280000007
+      ]
+    },
+    "reserved_queue_payload_bytes": 3110560,
+    "residence_veh_s": [
+      38397.639004958546,
+      14442.144929666463
+    ],
+    "time_s": 86400.0
+  },
+  "baseline_links": [
+    {
+      "lag": 3,
+      "receive_veh": 11.0,
+      "send_veh": 11.0,
+      "storage_m": 580.8642484331426
+    },
+    {
+      "lag": 2,
+      "receive_veh": 0.55,
+      "send_veh": 0.55,
+      "storage_m": 273.861906771735
+    },
+    {
+      "lag": 3,
+      "receive_veh": 4.5,
+      "send_veh": 4.5,
+      "storage_m": 214.69422256559074
+    }
+  ],
+  "branch0_scale": 0.05,
+  "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+  "dt_s": 10.0,
+  "end_s": 86400.0,
+  "intended_car_veh": 657.1727711999996,
+  "links": [
+    "b:g10:20>g10:22|0",
+    "s:g10:22>g10:23|0",
+    "s:g10:22>g11:22|0"
+  ],
+  "origin": "{\"block_id\":\"130\",\"geometry\":\"frozen_uniform_depth0_v1\",\"kind\":\"residential\"}",
+  "relief": {
+    "age_identity_residual": [
+      -4.911271389573812e-10,
+      -6.184563972055912e-11
+    ],
+    "blocked_mixed_ticks": 0,
+    "completed_elapsed_veh_s": [
+      24643.978919999703,
+      9857.59156800001
+    ],
+    "exited": {
+      "birth": [
+        15380307.243972,
+        5126769.081324002
+      ],
+      "mass": [
+        492.8795783999925,
+        164.29319280000007
+      ]
+    },
+    "max_birth_residual": 2.9249349609017372e-9,
+    "max_mass_residual": 1.4210854715202004e-13,
+    "on_link": {
+      "birth": [
+        0.0,
+        0.0
+      ],
+      "mass": [
+        0.0,
+        0.0
+      ]
+    },
+    "peak_pending_veh": 0.0,
+    "peak_queue_rows": [
+      1,
+      3,
+      2,
+      3
+    ],
+    "pending": {
+      "birth": [
+        0.0,
+        0.0
+      ],
+      "mass": [
+        0.0,
+        0.0
+      ]
+    },
+    "requested": {
+      "birth": [
+        15380307.243972,
+        5126769.081324002
+      ],
+      "mass": [
+        492.8795783999925,
+        164.29319280000007
+      ]
+    },
+    "reserved_queue_payload_bytes": 3110560,
+    "residence_veh_s": [
+      24643.978919999212,
+      9857.591567999949
+    ],
+    "time_s": 86400.0
+  },
+  "relief_links": [
+    {
+      "lag": 3,
+      "receive_veh": 11.0,
+      "send_veh": 11.0,
+      "storage_m": 580.8642484331426
+    },
+    {
+      "lag": 2,
+      "receive_veh": 1.1,
+      "send_veh": 1.1,
+      "storage_m": 273.861906771735
+    },
+    {
+      "lag": 3,
+      "receive_veh": 4.5,
+      "send_veh": 4.5,
+      "storage_m": 214.69422256559074
+    }
+  ],
+  "schedule_identity": "61bf90204d22e3442c565f3f62b8ef4cba7d7be3e74b1d33e6c8bcf96208c920",
+  "schema": "metroflow_marked_diverge_v1",
+  "scope": "actual frozen legal turns and car link coefficients; busiest outward car origin intent projected 75/25 onto two hypothetical branches; common FIFO head and discrete right-endpoint births; no native kinetic equivalence, no actual OD assignment or induced demand",
+  "simulation_wall_s": 0.004004462,
+  "steps": 8640
+}
