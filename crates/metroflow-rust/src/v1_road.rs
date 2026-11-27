@@ -184,7 +184,17 @@ enum PacketParts {
         keys: Arc<Vec<(u32,u32)>>,
         moments: Arc<Vec<(f64,f64)>>,
     },
+    DictionaryKeys {
+        a: PackedTime,
+        b: PackedTime,
+        keys: Arc<Vec<(u32,u32)>>,
+        moments: Arc<v1_moment_dict::MomentDict>,
+    },
     Mixed(Arc<Vec<Part>>),
+}
+fn moment_dictionary_enabled()->bool{
+    cfg!(all(feature="native-cli",not(feature="python-extension"))) &&
+        std::env::var_os("METROFLOW_NATIVE_MOMENT_DICT").as_deref()==Some(std::ffi::OsStr::new("1"))
 }
 impl PacketParts {
     fn pack(
@@ -266,6 +276,7 @@ impl PacketParts {
         match self {
             Self::Uniform { rows, .. } => rows.len(),
             Self::SharedKeys { moments, .. } => moments.len(),
+            Self::DictionaryKeys { moments, .. } => moments.len(),
             Self::Mixed(rows) => rows.len(),
         }
     }
@@ -276,11 +287,12 @@ impl PacketParts {
         match self {
             Self::Uniform { rows, .. } => rows.capacity(),
             Self::SharedKeys { moments, .. } => moments.capacity(),
+            Self::DictionaryKeys { moments, .. } => moments.codes.capacity(),
             Self::Mixed(rows) => rows.capacity(),
         }
     }
     fn is_uniform(&self) -> bool {
-        matches!(self, Self::Uniform { .. } | Self::SharedKeys { .. })
+        matches!(self, Self::Uniform { .. } | Self::SharedKeys { .. } | Self::DictionaryKeys { .. })
     }
     fn allocated_bytes(&self) -> usize {
         match self {
@@ -290,6 +302,7 @@ impl PacketParts {
             Self::SharedKeys { keys, moments, .. } => keys.capacity()
                 .saturating_mul(std::mem::size_of::<(u32,u32)>())
                 .saturating_add(moments.capacity().saturating_mul(std::mem::size_of::<(f64,f64)>())),
+            Self::DictionaryKeys{keys,moments,..}=>keys.capacity().saturating_mul(8).saturating_add(moments.bytes()),
             Self::Mixed(rows) => rows.capacity().saturating_mul(std::mem::size_of::<Part>()),
         }
     }
@@ -303,6 +316,7 @@ impl PacketParts {
             Self::SharedKeys { a, b, keys, moments } => PartIter::SharedKeys {
                 a: *a,b: *b, rows: keys.iter().zip(moments.iter()),
             },
+            Self::DictionaryKeys{a,b,keys,moments}=>PartIter::DictionaryKeys{a:*a,b:*b,keys:keys.iter(),codes:moments.codes.iter(),values:&moments.values},
             Self::Mixed(rows) => PartIter::Mixed(rows.iter()),
         }
     }
@@ -317,6 +331,10 @@ enum PartIter<'a> {
         a: PackedTime,
         b: PackedTime,
         rows: std::iter::Zip<std::slice::Iter<'a,(u32,u32)>,std::slice::Iter<'a,(f64,f64)>>,
+    },
+    DictionaryKeys {
+        a:PackedTime,b:PackedTime,keys:std::slice::Iter<'a,(u32,u32)>,
+        codes:std::slice::Iter<'a,u8>,values:&'a[(f64,f64)],
     },
     Mixed(std::slice::Iter<'a, Part>),
 }
@@ -336,6 +354,9 @@ impl Iterator for PartIter<'_> {
                 tag:key.0 as usize,offset:key.1 as usize,
                 mass:moment.0,birth:moment.1,a:*a,b:*b,
             }),
+            Self::DictionaryKeys{a,b,keys,codes,values}=>keys.next().zip(codes.next()).map(|(k,&code)|{
+                let m=values[code as usize];Part{tag:k.0 as usize,offset:k.1 as usize,mass:m.0,birth:m.1,a:*a,b:*b}
+            }),
             Self::Mixed(rows) => rows.next().copied(),
         }
     }
@@ -343,6 +364,7 @@ impl Iterator for PartIter<'_> {
         let n = match self {
             Self::Uniform { rows, .. } => rows.len(),
             Self::SharedKeys { rows, .. } => rows.len(),
+            Self::DictionaryKeys { keys, .. } => keys.len(),
             Self::Mixed(rows) => rows.len(),
         };
         (n, Some(n))
@@ -1370,6 +1392,13 @@ impl RoadState {
                     (PacketParts::SharedKeys { keys: k, moments: m, .. },
                      PacketParts::SharedKeys { keys: l, moments: n, .. }) =>
                         matched_bytes(k, l).saturating_add(matched_bytes(m, n)),
+                    (PacketParts::DictionaryKeys{keys:k,moments:m,..},PacketParts::DictionaryKeys{keys:l,moments:n,..})=>{
+                        let values=if Arc::ptr_eq(m,n){m.values.capacity().saturating_mul(16)/(Arc::strong_count(m)/2).max(1)}else{0};
+                        // Code references may be shared by multiple dictionary owners.
+                        // Count only complete identical dictionary pairs, and no code
+                        // credit: the latter is conservative and avoids alias ambiguity.
+                        matched_bytes(k,l).saturating_add(values)
+                    },
                     _ => 0,
                 };
                 sum.saturating_add(bytes)
@@ -1448,7 +1477,7 @@ impl RoadState {
         self.cells.iter().flat_map(|c|&c.packets).chain(self.pending.iter().flatten())
             .fold(0usize,|total,p|total.saturating_add(match &p.parts {
                 PacketParts::Uniform{rows,..}=>rows.len(),
-                PacketParts::SharedKeys{..}|PacketParts::Mixed(_)=>0,
+                PacketParts::SharedKeys{..}|PacketParts::DictionaryKeys{..}|PacketParts::Mixed(_)=>0,
             }))
     }
     // Nonempty ordered (tag, offset) keys identify the present physical cell
@@ -1508,6 +1537,11 @@ impl RoadState {
                     for k in keys.iter() {k.hash(&mut h);}
                     (keys.len(),h.finish(),(1u8,Arc::as_ptr(moments) as usize))
                 },
+                PacketParts::DictionaryKeys{keys,moments,..}=>{
+                    let mut h=std::collections::hash_map::DefaultHasher::new();
+                    keys.len().hash(&mut h);for k in keys.iter(){k.hash(&mut h);}
+                    (keys.len(),h.finish(),(2u8,Arc::as_ptr(moments) as usize))
+                },
                 PacketParts::Mixed(_)=>{
                     push_checked(&mut assignments,None)?;
                     continue;
@@ -1519,12 +1553,12 @@ impl RoadState {
                 match &packet.parts {
                     PacketParts::Uniform{rows,..}=>rows.len()==key.len()&&
                         rows.iter().zip(key).all(|(r,k)|(r.tag,r.offset)==*k),
-                    PacketParts::SharedKeys{keys,..}=>keys.as_slice()==key,
+                    PacketParts::SharedKeys{keys,..}|PacketParts::DictionaryKeys{keys,..}=>keys.as_slice()==key,
                     PacketParts::Mixed(_)=>false,
                 }
             });
             let id=if let Some(id)=found {
-                if let PacketParts::SharedKeys{keys,..}=&packet.parts {
+                if let PacketParts::SharedKeys{keys,..}|PacketParts::DictionaryKeys{keys,..}=&packet.parts {
                     groups[id].keys=keys.clone();
                 }
                 id
@@ -1538,7 +1572,7 @@ impl RoadState {
                         tmp.extend(rows.iter().map(|r|(r.tag,r.offset)));
                         Arc::new(tmp)
                     },
-                    PacketParts::SharedKeys{keys,..}=>keys.clone(),
+                    PacketParts::SharedKeys{keys,..}|PacketParts::DictionaryKeys{keys,..}=>keys.clone(),
                     PacketParts::Mixed(_)=>unreachable!(),
                 };
                 let id=groups.len();
@@ -1585,7 +1619,7 @@ impl RoadState {
                     };
                     converted+=1;
                 },
-                PacketParts::SharedKeys{keys,..}=>{
+                PacketParts::SharedKeys{keys,..}|PacketParts::DictionaryKeys{keys,..}=>{
                     if !Arc::ptr_eq(keys,&g.keys) {
                         *keys=g.keys.clone();
                         converted+=1;
@@ -1627,6 +1661,11 @@ impl RoadState {
                             keys.capacity().saturating_mul(std::mem::size_of::<(u32,u32)>()));
                         add(3,Arc::as_ptr(moments) as usize,
                             moments.capacity().saturating_mul(std::mem::size_of::<(f64,f64)>()));
+                    },
+                    PacketParts::DictionaryKeys{keys,moments,..}=>{
+                        add(2,Arc::as_ptr(keys) as usize,keys.capacity().saturating_mul(8));
+                        add(4,Arc::as_ptr(&moments.codes) as usize,moments.codes.capacity());
+                        add(5,Arc::as_ptr(moments) as usize,moments.values.capacity().saturating_mul(16));
                     },
                 }
             }
@@ -1674,6 +1713,12 @@ impl RoadState {
                             out.vector_capacity_bytes+=keys.capacity()
                                 .saturating_mul(std::mem::size_of::<(u32,u32)>())
                                 .saturating_add(96); // additional key Arc/control envelope
+                        }
+                    },
+                    PacketParts::DictionaryKeys{keys,moments,..}=>{
+                        out.vector_capacity_bytes+=moments.bytes();
+                        if seen_keys.insert(Arc::as_ptr(keys) as usize){
+                            out.vector_capacity_bytes+=keys.capacity().saturating_mul(8).saturating_add(96);
                         }
                     },
                     _=>out.vector_capacity_bytes+=packet.parts.allocated_bytes(),
@@ -1742,7 +1787,7 @@ impl RoadState {
                 let bytes=match &packet.parts{
                     PacketParts::Uniform{..}=>n.saturating_mul(std::mem::size_of::<CorePart>()),
                     PacketParts::Mixed(_)=>n.saturating_mul(std::mem::size_of::<Part>()),
-                    PacketParts::SharedKeys{keys,..}=>{
+                    PacketParts::SharedKeys{keys,..}|PacketParts::DictionaryKeys{keys,..}=>{
                         let reuse=previous.is_some_and(|p|Arc::ptr_eq(p,keys));previous=Some(keys);
                         n.saturating_mul(16).saturating_add(if reuse{0}else{n.saturating_mul(8).saturating_add(96)})
                     }
@@ -3616,7 +3661,7 @@ impl V1Road {
         // and no raw attribution vectors. Extremely large coefficients use
         // the established legacy reserve instead of this specialization.
         if s.t>1e12||self.dt>1e6||s.totals.iter().any(|x|*x>1e12)||self.groups.iter().flatten().chain(self.classes.iter().flatten()).any(|x|*x>1e12)||self.windows.iter().any(|w|w.3>1e6){return old}
-        let shared_rows=s.cells.iter().flat_map(|c|&c.packets).chain(s.pending.iter().flatten()).fold(0usize,|n,p|n.saturating_add(if matches!(&p.parts,PacketParts::SharedKeys{..}){p.parts.len()}else{0}));
+        let shared_rows=s.cells.iter().flat_map(|c|&c.packets).chain(s.pending.iter().flatten()).fold(0usize,|n,p|n.saturating_add(if matches!(&p.parts,PacketParts::SharedKeys{..}|PacketParts::DictionaryKeys{..}){p.parts.len()}else{0}));
         let workers=rayon::current_num_threads().max(1).min(cells);
         // Two per-destination moment maps for ONE currently inspected head;
         // all prior heads retain only scalar beta maps. 128KiB per finite
@@ -8862,6 +8907,17 @@ impl V1Road{
                     wire_fixed_batch(w,moments.as_slice(),&mut scratch,wire_moment_row)?;
                     previous=Some(keys);
                 }
+                PacketParts::DictionaryKeys{a,b,keys,moments}=>{
+                    let reuse=previous.is_some_and(|old|Arc::ptr_eq(old,keys));
+                    write_u64(w,if reuse{3}else{2})?;write_u64(w,a.0)?;write_u64(w,b.0)?;
+                    if !reuse{wire_fixed_batch(w,keys.as_slice(),&mut scratch,wire_key_row)?;}
+                    let mut used=0usize;
+                    for row in moments.iter(){scratch[used..used+16].copy_from_slice(&wire_moment_row(row));used+=16;
+                        if used==scratch.len(){w.write_all(&scratch).map_err(|e|CoreError::io(e.to_string()))?;used=0;}
+                    }
+                    if used>0{w.write_all(&scratch[..used]).map_err(|e|CoreError::io(e.to_string()))?;}
+                    previous=Some(keys);
+                }
                 PacketParts::Mixed(rows)=>{
                     write_u64(w,1)?;wire_fixed_batch(w,rows.as_slice(),&mut scratch,wire_mixed_row)?;
                 }
@@ -8880,6 +8936,13 @@ impl V1Road{
                     for row in rows.iter(){wire_u32(w,row.tag)?;wire_u32(w,row.offset)?;write_moments(w,row.mass,row.birth)?;}
                 }
                 PacketParts::SharedKeys{a,b,keys,moments}=>{
+                    let reuse=previous.is_some_and(|old|Arc::ptr_eq(old,keys));
+                    write_u64(w,if reuse{3}else{2})?;write_u64(w,a.0)?;write_u64(w,b.0)?;
+                    if !reuse{for &(tag,offset) in keys.iter(){wire_u32(w,tag)?;wire_u32(w,offset)?;}}
+                    for &(m,b) in moments.iter(){write_moments(w,m,b)?;}
+                    previous=Some(keys);
+                }
+                PacketParts::DictionaryKeys{a,b,keys,moments}=>{
                     let reuse=previous.is_some_and(|old|Arc::ptr_eq(old,keys));
                     write_u64(w,if reuse{3}else{2})?;write_u64(w,a.0)?;write_u64(w,b.0)?;
                     if !reuse{for &(tag,offset) in keys.iter(){wire_u32(w,tag)?;wire_u32(w,offset)?;}}
@@ -8943,7 +9006,24 @@ impl V1Road{
                     work.reserve(m.saturating_mul(16),0)?;
                     let mut moments=compact_checkpoint_vec(m)?;for _ in 0..m{moments.push((read_f64(r)?,read_f64(r)?));}
                     previous=Some(keys.clone());
-                    PacketParts::SharedKeys{a,b,keys,moments:Arc::new(moments)}
+                    if moment_dictionary_enabled(){
+                        if let Some(plan)=v1_moment_dict::plan(&moments){
+                            let bytes=plan.bytes();
+                            // Dense temporary and new dictionary coexist; admit
+                            // the actual overlap, then remove only dropped Vec.
+                            let required=work.decoded.saturating_add(bytes).max(work.retained_input).saturating_mul(3).saturating_add(work.validation);
+                            if work.limit.is_none_or(|lim|required<=lim){
+                                work.reserve(bytes,0)?;
+                                let dict=plan.build(&moments)?;
+                                let raw=moments.capacity().saturating_mul(16);
+                                drop(moments);
+                                work.decoded=work.decoded.checked_sub(raw).ok_or_else(||arithmetic("dictionary decode raw credit underflow"))?;
+                                crate::v1_trace::add("moment_dict.decode_saved_bytes",raw.saturating_sub(dict.bytes())as u64);
+                                crate::v1_trace::add("moment_dict.decode_rows",dict.len()as u64);
+                                PacketParts::DictionaryKeys{a,b,keys,moments:Arc::new(dict)}
+                            }else{PacketParts::SharedKeys{a,b,keys,moments:Arc::new(moments)}}
+                        }else{PacketParts::SharedKeys{a,b,keys,moments:Arc::new(moments)}}
+                    }else{PacketParts::SharedKeys{a,b,keys,moments:Arc::new(moments)}}
                 }
                 _=>return Err(val("compact wire packet kind")),
             };
