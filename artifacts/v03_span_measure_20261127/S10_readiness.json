@@ -1,0 +1,50 @@
+{
+  "schema": "metroflow_v03_readiness_scoped_v1",
+  "definition": "Receipt-bound original plan status; distinct approximate identities never advance original release gates",
+  "nodes_total": 21,
+  "nodes_accepted": 5,
+  "nodes_verified_scoped": 14,
+  "nodes_blocked": 1,
+  "nodes_planned": 1,
+  "direct_dependencies": [
+    {
+      "id": "P01",
+      "status": "VERIFIED_SCOPED"
+    },
+    {
+      "id": "V01",
+      "status": "VERIFIED_SCOPED"
+    },
+    {
+      "id": "V02",
+      "status": "VERIFIED_SCOPED"
+    }
+  ],
+  "direct_scoped_or_accepted": 3,
+  "direct_accepted": 0,
+  "original_cases_prepared": 3,
+  "prior_60s_prefixes_validated": 3,
+  "original_cases_total": 3,
+  "original_full_days_accepted": 0,
+  "original_full_days_required": 9,
+  "original_8h_refinement_completed": 0,
+  "original_8h_refinement_required": 3,
+  "computed_frontier_s": 25740,
+  "independently_recovered_frontier_s": 25740,
+  "research_frontiers": [
+    {
+      "bins": 4,
+      "start_s": 25320,
+      "recovered_s": 25800,
+      "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:marked-time-bin-v1:4",
+      "evidence": "artifacts/v03_span_measure_20261127/S08_b4_recover25800.json"
+    },
+    {
+      "bins": 1,
+      "start_s": 25320,
+      "recovered_s": 25860,
+      "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:marked-time-bin-v1:1",
+      "evidence": "artifacts/v03_span_measure_20261127/S08_b1_partial26220.json"
+    }
+  ]
+}

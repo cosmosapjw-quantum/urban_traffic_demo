@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.44",
+  "version": "1.1.45",
   "date": "2026-11-27",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -371,11 +371,11 @@
       "V03"
     ],
     "native_subagent": "NOT_RUN_NO_TOOL",
-    "scope": "Integrated S01-S10: current exact Valley 25740 calculated and independently recovered; next 25750 install passed then transfer resource refusal; earlier nonzero 60/120 s completed and 180 s published/recovered under 240s attempted horizon; marked FIFO route/birth-moment network shadow; inline phase sums and zero-allocation bounded kernels; 13/15 pure Rust scoped; 0/9 original full days.",
+    "scope": "Integrated S01-S10: original exact frontier computed 25740 and independently recovered 25740; packed integer receiving references and exact event-bit pages; conservative time-bin measure closure under distinct identity; 4-bin 25800 recovered (480s); 1-bin 25860 recovered (540s); 13/15 pure Rust scoped; 0/9 original full days.",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "BLOCKED_RESOURCE_AND_MIGRATION_0_OF_9",
     "main_modified": false,
-    "evidence": "artifacts/v03_marked_owner_20261127/S10_RESEARCH_RECEIPT.json",
+    "evidence": "artifacts/v03_span_measure_20261127/S10_RESEARCH_RECEIPT.json",
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
@@ -384,20 +384,20 @@
       "status": "success"
     },
     "parallel_agents": [],
-    "active_branch": "research/v03-marked-owner-20261127",
-    "production_commit": "ba322ec3b4584409f8ac869c9fd7957d2c5f1bbc",
+    "active_branch": "research/v03-span-measure-20261127",
+    "production_commit": "518e0f989bd4c58128eecbc335ab6519b3350ede",
     "research_stages_completed": 10,
     "research_stages_total": 10,
-    "source_commit": "ba322ec3b4584409f8ac869c9fd7957d2c5f1bbc",
-    "native_source_sha256": "b7987eaeb95bc61a07279cda00ca3e82b691e193ee9686a980b2911435a410e9",
-    "native_binary_sha256": "4f2d45ddf5a6741c1ccf17e2ea4f267ced6affb0c216a96a32492cf9551dd8fb",
+    "source_commit": "518e0f989bd4c58128eecbc335ab6519b3350ede",
+    "native_source_sha256": "04c18fa43176dde530f3bcf4d05e8b61b06918d43af4ad75496174e974fc098b",
+    "native_binary_sha256": "6833a3f1cc19997cb5c12cc7644b2d845a13f1fa1e3b717bf2e88d9e4a5b670c",
     "current_loop_stages_completed": 10,
     "current_loop_stages_total": 10,
     "current_loop_native_subagent": "NOT_RUN_NO_TOOL",
-    "native_source_hash_method": "SHA256 of tracked source manifest at S09 source commit; measured S03/S04/S07 binaries individually bound to their receipts",
-    "native_binary_feature": "native-cli no Python; final build separate from measured S03/S04/S07 binaries",
-    "rust_backend_scoped": "13/15 pure Rust scoped; 2 partial; zero unported; computed and independently recovered 25740",
-    "theory_loop_scope": "S01-S10 integrated exact owner lifetime and marked FIFO network proposition; no release acceptance"
+    "native_source_hash_method": "SHA256 of tracked source manifest at S09 source commit; measured binaries individually bound to receipts",
+    "native_binary_feature": "native-cli no Python; measured S03/S06/S09 binaries individually bound",
+    "rust_backend_scoped": "13/15 pure Rust scoped; 2 partial; zero unported; original recovered 25740",
+    "theory_loop_scope": "S01-S10 integrated exact rank and event compression and new conservative marked time-bin measure proposition; no original release acceptance"
   },
   "nodes": [
     {
@@ -1902,7 +1902,7 @@
       "failure_classification": [
         "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
       ],
-      "positive_next_action": "V03/B15: resume exact 25740 checkpoint; current 25750 transfer candidate guard requires 4668031610 vs 4668014703 B after 18666739 incoming rows. Stop tiny numerical credits; derive bounded source event/control spans and incremental receiving materialization with original row order and exact marks, then test actual loaded tick and independent recovery. Advance nonzero River/Coastal and matched 8h refinement. B10: actual link-entry/outlet marks, endogenous ready-head route variant choice and graph-edit drain; scoped phase wire remains exact. Marked diverge is a separate candidate closure: extend to heterogeneous kinetic memory/merge and compare against physical V03 before substitution. Original 6GiB/8GiB/7200s and 3x3 full days unchanged.",
+      "positive_next_action": "V03/B15: retain original exact identity and strict caps; resume last verified 25740s only after profiling actual packed event and road cardinality, not guard shaving. Separate marked-time-bin model: prove and test adaptive boundary selection, avoid bin splitting when exact edge count is already lower, retain protected atoms, quantify per-route cumulative/arrival-time, readiness, travel-time and queue errors against exact matched horizons, quantify error propagation for nonlinear junction and kinetic-memory response. Evaluate 300/900/3600s and original 8h/24h on separately approved physical model; no substitution without acceptance amendment. B10 actual link-entry/outlet marks, endogenous ready-head suffix and graph edit drain; keep original frozen graph, calendar, finite response, legal K routes, accessibility/growth and 6GiB/8GiB/7200s, 3x3 matrix, 8h refinement. Prioritize reducing logical fragmentation and exact single-pass reconstruction/workspaces; packed read zero heap does not prove full-engine zero heap.",
       "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
       "contracts": [
         "C_RUNTIME",
@@ -2045,6 +2045,11 @@
           "path": "artifacts/v03_marked_owner_20261127/S10_RESEARCH_RECEIPT.json",
           "sha256": "a42d6f65f1e9df225c803586d0b69b04b92d49fad202bbdf48caeb1854636fe6",
           "scope": "Actual 25740 committed and recovered, next install pointer credit passes, transfer remains blocked; original nonzero progressive slices, marked physical alternative; no full-day acceptance"
+        },
+        {
+          "path": "artifacts/v03_span_measure_20261127/S10_RESEARCH_RECEIPT.json",
+          "sha256": "09134827fdc1fc5c97129d9f576b06367055e38f67184fa88d980357984d81e9",
+          "scope": "Exact adaptive rank and event pages; actual congestion retry and matched byte-exact nonzero slice; distinct conservative time-bin closure with independently recovered progressive horizon; no full-day acceptance"
         }
       ],
       "historical_blocked_evidence": [
@@ -2086,14 +2091,14 @@
         }
       ],
       "current_research_evidence": {
-        "path": "artifacts/v03_marked_owner_20261127/S10_RESEARCH_RECEIPT.json",
-        "sha256": "a42d6f65f1e9df225c803586d0b69b04b92d49fad202bbdf48caeb1854636fe6",
-        "status": "S01-S10 integrated; computed and recovered25740; 13/15 pure Rust scoped; V03 blocked",
-        "baseline_commit": "6b47e8c124936cfd270ddb5d7b9c5dc342125f74",
-        "source_sha256": "b7987eaeb95bc61a07279cda00ca3e82b691e193ee9686a980b2911435a410e9",
-        "native_sha256": "4f2d45ddf5a6741c1ccf17e2ea4f267ced6affb0c216a96a32492cf9551dd8fb",
-        "source_hash_method": "SHA256 of tracked source manifest at S09 source commit; measured S03/S04/S07 binaries individually bound to their receipts",
-        "theory_path": "docs/research/V03_MARKED_OWNER_20261127.md"
+        "path": "artifacts/v03_span_measure_20261127/S10_RESEARCH_RECEIPT.json",
+        "sha256": "09134827fdc1fc5c97129d9f576b06367055e38f67184fa88d980357984d81e9",
+        "status": "S01-S10 integrated; exact recovered 25740; marked-time-bin separate; 13/15 pure Rust scoped; V03 blocked",
+        "baseline_commit": "2eaafa0739b7b614ddee9c31d15a28ed40cb6cc2",
+        "source_sha256": "04c18fa43176dde530f3bcf4d05e8b61b06918d43af4ad75496174e974fc098b",
+        "native_sha256": "6833a3f1cc19997cb5c12cc7644b2d845a13f1fa1e3b717bf2e88d9e4a5b670c",
+        "source_hash_method": "SHA256 of tracked source manifest at S09 source commit; measured binaries individually bound to receipts",
+        "theory_path": "docs/research/V03_SPAN_MEASURE_20261127.md"
       },
       "historical_research_evidence": [
         {
@@ -2241,6 +2246,16 @@
           "native_sha256": "14d083220110e29f8fd3c148acafee35f542a12804c94ab45351464a6b54d39b",
           "source_hash_method": "SHA256 of S10_tracked_rust_sources.sha256; measured binaries separately identified by receipts; final tracked source content before S10 commit; S10 source diff is included in final commit, not implementation_head_before_S10",
           "theory_path": "docs/research/V03_CAUSAL_RESTART_20261127.md"
+        },
+        {
+          "path": "artifacts/v03_marked_owner_20261127/S10_RESEARCH_RECEIPT.json",
+          "sha256": "a42d6f65f1e9df225c803586d0b69b04b92d49fad202bbdf48caeb1854636fe6",
+          "status": "S01-S10 integrated; computed and recovered25740; 13/15 pure Rust scoped; V03 blocked",
+          "baseline_commit": "6b47e8c124936cfd270ddb5d7b9c5dc342125f74",
+          "source_sha256": "b7987eaeb95bc61a07279cda00ca3e82b691e193ee9686a980b2911435a410e9",
+          "native_sha256": "4f2d45ddf5a6741c1ccf17e2ea4f267ced6affb0c216a96a32492cf9551dd8fb",
+          "source_hash_method": "SHA256 of tracked source manifest at S09 source commit; measured S03/S04/S07 binaries individually bound to their receipts",
+          "theory_path": "docs/research/V03_MARKED_OWNER_20261127.md"
         }
       ],
       "secondary_blocked_evidence": {
@@ -2464,7 +2479,7 @@
     "authorized_on": "2026-11-16",
     "supersedes": "pure Python core restriction in PLAN v1.1.17 and AGENTS.md",
     "target": "Rust-owned backend, input preparation, measurement, headless execution and acceptance; Python frontend serialization or explicit opt-in test oracle only",
-    "mode": "Pure Rust native CLI; optional Python frontend; exact pointer-based owner credits, bounded phase expansions, marked diverge shadow; B10/B15 partial.",
+    "mode": "Pure Rust native CLI; optional Python frontend; exact packed references/events, bounded measure-bin research identity; B10/B15 partial.",
     "current_scope": [
       "Persistent f64 legal-turn routing in V1 preparation",
       "Direct factorized Rust calendar construction without Python per-leg objects",
@@ -2492,11 +2507,12 @@
       "Exact MFWHOLE2 packet/key codec, fused finite streaming road validation, compact decoded-owner and packet-count workspace, extended-real phase costs, checked actual FIFO head suffix fixture and loaded strict Valley 25710 s.",
       "MFWHOLE3 exact event run wire; direct sink and cached head/class work; canonical whole-engine route aliases and explicit native suffix replay; computed Valley 25730 s twice bit-identical, independent 25720 s recovery, 25730 reload blocked.",
       "Sequential decode/install owner accounting, streaming source scratch and route successor support, phase world v2 outlet window, isolated zero-allocation probes, causal finite FIFO shadow with frozen projected demand; current independently recovered 25730 s.",
-      "Verified 25740 same-identity compute/recovery, 25750 install closure, actual nonzero loaded 60/120/180s slices, marked FIFO birth-moment network shadow and bounded zero-alloc kernels; native phase wire unchanged."
+      "Verified 25740 same-identity compute/recovery, 25750 install closure, actual nonzero loaded 60/120/180s slices, marked FIFO birth-moment network shadow and bounded zero-alloc kernels; native phase wire unchanged.",
+      "Integrated S01-S10: original exact frontier computed 25740 and independently recovered 25740; packed integer receiving references and exact event-bit pages; conservative time-bin measure closure under distinct identity; 4-bin 25800 recovered (480s); 1-bin 25860 recovered (540s); 13/15 pure Rust scoped; 0/9 original full days."
     ],
     "remaining": [
-      "V03/B15: resume exact 25740 checkpoint; current 25750 transfer candidate guard requires 4668031610 vs 4668014703 B after 18666739 incoming rows. Stop tiny numerical credits; derive bounded source event/control spans and incremental receiving materialization with original row order and exact marks, then test actual loaded tick and independent recovery. Advance nonzero River/Coastal and matched 8h refinement. B10: actual link-entry/outlet marks, endogenous ready-head route variant choice and graph-edit drain; scoped phase wire remains exact. Marked diverge is a separate candidate closure: extend to heterogeneous kinetic memory/merge and compare against physical V03 before substitution. Original 6GiB/8GiB/7200s and 3x3 full days unchanged.",
-      "Computed and independently recovered 25740, next transfer candidates blocked; original full days and refinement remain.",
+      "V03/B15: retain original exact identity and strict caps; resume last verified 25740s only after profiling actual packed event and road cardinality, not guard shaving. Separate marked-time-bin model: prove and test adaptive boundary selection, avoid bin splitting when exact edge count is already lower, retain protected atoms, quantify per-route cumulative/arrival-time, readiness, travel-time and queue errors against exact matched horizons, quantify error propagation for nonlinear junction and kinetic-memory response. Evaluate 300/900/3600s and original 8h/24h on separately approved physical model; no substitution without acceptance amendment. B10 actual link-entry/outlet marks, endogenous ready-head suffix and graph edit drain; keep original frozen graph, calendar, finite response, legal K routes, accessibility/growth and 6GiB/8GiB/7200s, 3x3 matrix, 8h refinement. Prioritize reducing logical fragmentation and exact single-pass reconstruction/workspaces; packed read zero heap does not prove full-engine zero heap.",
+      "Original exact recovered 25740; original full days and refinement remain; separate approximate horizons do not grant release credit.",
       "Integrate source-aligned rank/span views into the actual ordered interval consumer and checkpoint expansion; retain finite response and commodity/birth observables. Separate bit-exact event sharing, real-arithmetic rank equivalence and explicitly approximate block closure; require complete-tick, ledger and checkpoint evidence.",
       "Frozen candidate3cases x3 full-day completion, matched refinement and full-day checkpoint replay; current completion0/9",
       "Separate final review, RLS01 packaging/fresh-install acceptance and full repository CI/integration deferred by user"
@@ -2505,13 +2521,13 @@
     "historical_local_patch_sha256": "7d89e8be20339709a9c0dc894a26dc7db75bdc0d857637ffb30f7bc7fe4a1326",
     "last_completed_work": {
       "date": "2026-11-27",
-      "scope": "Integrated S01-S10: current exact Valley 25740 calculated and independently recovered; next 25750 install passed then transfer resource refusal; earlier nonzero 60/120 s completed and 180 s published/recovered under 240s attempted horizon; marked FIFO route/birth-moment network shadow; inline phase sums and zero-allocation bounded kernels; 13/15 pure Rust scoped; 0/9 original full days.",
-      "evidence": "artifacts/v03_marked_owner_20261127/S10_RESEARCH_RECEIPT.json"
+      "scope": "Integrated S01-S10: original exact frontier computed 25740 and independently recovered 25740; packed integer receiving references and exact event-bit pages; conservative time-bin measure closure under distinct identity; 4-bin 25800 recovered (480s); 1-bin 25860 recovered (540s); 13/15 pure Rust scoped; 0/9 original full days.",
+      "evidence": "artifacts/v03_span_measure_20261127/S10_RESEARCH_RECEIPT.json"
     },
-    "active_work": "V03/B15: resume exact 25740 checkpoint; current 25750 transfer candidate guard requires 4668031610 vs 4668014703 B after 18666739 incoming rows. Stop tiny numerical credits; derive bounded source event/control spans and incremental receiving materialization with original row order and exact marks, then test actual loaded tick and independent recovery. Advance nonzero River/Coastal and matched 8h refinement. B10: actual link-entry/outlet marks, endogenous ready-head route variant choice and graph-edit drain; scoped phase wire remains exact. Marked diverge is a separate candidate closure: extend to heterogeneous kinetic memory/merge and compare against physical V03 before substitution. Original 6GiB/8GiB/7200s and 3x3 full days unchanged.",
+    "active_work": "V03/B15: retain original exact identity and strict caps; resume last verified 25740s only after profiling actual packed event and road cardinality, not guard shaving. Separate marked-time-bin model: prove and test adaptive boundary selection, avoid bin splitting when exact edge count is already lower, retain protected atoms, quantify per-route cumulative/arrival-time, readiness, travel-time and queue errors against exact matched horizons, quantify error propagation for nonlinear junction and kinetic-memory response. Evaluate 300/900/3600s and original 8h/24h on separately approved physical model; no substitution without acceptance amendment. B10 actual link-entry/outlet marks, endogenous ready-head suffix and graph edit drain; keep original frozen graph, calendar, finite response, legal K routes, accessibility/growth and 6GiB/8GiB/7200s, 3x3 matrix, 8h refinement. Prioritize reducing logical fragmentation and exact single-pass reconstruction/workspaces; packed read zero heap does not prove full-engine zero heap.",
     "backend_census": {
-      "path": "artifacts/v03_marked_owner_20261127/S10_backend_coverage.json",
-      "sha256": "882ef2c4ac54c15898d058f9eabd82eb0d00ac3cc9c2c2f99f299be7def143e6",
+      "path": "artifacts/v03_span_measure_20261127/S10_backend_coverage.json",
+      "sha256": "847728c0c84f08d0f311077bc0d5aa5d69090e369a3e72efa5c6720ff5f957a2",
       "denominator": 15,
       "implemented_scoped": 13,
       "pure_rust_scoped": 13,
