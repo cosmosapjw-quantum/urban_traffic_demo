@@ -1,0 +1,1090 @@
+{
+  "schema": "metroflow_v03_streaming_observer_research_v1",
+  "scope": "Integrated S01-S10: original exact recovered 25740 unchanged; retirement pushforward and hidden-child streaming moment closure; exact service support and bounded ordered stage sums; distinct streaming/egress identity. Matched Valley 28560 egress products 1310368 -> 986552, 1338759 raw receipts avoided, road observables bit-identical and age moment relative L1 <=3.043e-15. Independently recovered 28560,28740,29340 (840s new,4020s ancestry), 16018235 raw receipts avoided total; 2 warmed 1M-call zero-heap probes. Original 0/9 full days; 13/15 pure Rust scoped.",
+  "baseline_commit": "249b4f915a22ba55dfeda2a686e137a4e693eabc",
+  "implementation_head_before_S10": "6846514cd13ba0a48fee4ff608521417fd4514e6",
+  "final_native_build_sha256": "a99209dac662da6f4219559b24951ba3e3046609714b1fe9949434491d562067",
+  "tracked_rust_source_manifest_sha256": "9fd4ebf6c66f59b4308cb356007067b29ba28fea6be0300bcb6b8468262f9bef",
+  "source_hash_method": "SHA256 of tracked Rust source manifest at S09; execution receipts bind binary and manifest individually",
+  "stages": [
+    {
+      "commit": "f06bea7163729b7a07c9951cab256be29c222548",
+      "description": "S01 Bind streaming observer research to original V03 contract and source"
+    },
+    {
+      "commit": "0643878196a2fa76398ad93775b998cf0a38a508",
+      "description": "S02 Derive observable retirement pushforward and streaming moment closure"
+    },
+    {
+      "commit": "27e62a81c403ee0142de99854dfe60757bddc315",
+      "description": "S03 Restrict service egress validation to its actual observer support"
+    },
+    {
+      "commit": "c22f69a8b6264c1119ab618ee8911705b3ffb7a6",
+      "description": "S04 Stream per-leg stage sums without sorting on bounded dense path"
+    },
+    {
+      "commit": "df4fd1bb8903c557300b593eec4ebc0a04c6d82b",
+      "description": "S05 Implement allocation-free positive receipt moment accumulator"
+    },
+    {
+      "commit": "ecb84147f70c35007cf5775d0806cd485c79df12",
+      "description": "S06 Integrate transactional preappend receipt streaming with explicit migration"
+    },
+    {
+      "commit": "655ada56af0f77904c8b62abcef7a558f778a145",
+      "description": "S07 Project outlet law products directly into protected retirement buckets"
+    },
+    {
+      "commit": "9fa8bd9973b98a45629338c8eaa35f7c4d8f1977",
+      "description": "S08 Validate native integration, exact legacy replay and zero-heap observer kernels"
+    },
+    {
+      "commit": "6846514cd13ba0a48fee4ff608521417fd4514e6",
+      "description": "S09 Recover actual 60 180 600 second observer continuations and preserve original failures"
+    }
+  ],
+  "S10": "Regenerate PLAN/DAG, verify historical census evidence and original gates, publish and independently verify backup before duplicate consolidation",
+  "theory_path": "docs/research/V03_STREAMING_OBSERVER_20261127.md",
+  "readiness": {
+    "nodes_total": 21,
+    "nodes_accepted": 5,
+    "nodes_verified_scoped": 14,
+    "nodes_blocked": 1,
+    "nodes_planned": 1,
+    "direct_dependencies": [
+      {
+        "id": "P01",
+        "status": "VERIFIED_SCOPED"
+      },
+      {
+        "id": "V01",
+        "status": "VERIFIED_SCOPED"
+      },
+      {
+        "id": "V02",
+        "status": "VERIFIED_SCOPED"
+      }
+    ],
+    "direct_scoped_or_accepted": 3,
+    "direct_accepted": 0,
+    "original_cases_prepared": 3,
+    "prior_60s_prefixes_validated": 3,
+    "original_cases_total": 3,
+    "original_full_days_accepted": 0,
+    "original_full_days_required": 9,
+    "original_8h_refinement_completed": 0,
+    "original_8h_refinement_required": 3,
+    "computed_frontier_s": 25740,
+    "independently_recovered_frontier_s": 25740,
+    "research_frontiers": [
+      {
+        "bins": 4,
+        "start_s": 25320,
+        "recovered_s": 25800,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:4",
+        "evidence": "artifacts/v03_causal_rank_20261127/S05_r4_recover25800.json"
+      },
+      {
+        "bins": 1,
+        "start_s": 25320,
+        "recovered_s": 26220,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1",
+        "evidence": "artifacts/v03_causal_rank_20261127/S08_r1_recovered.json"
+      },
+      {
+        "bins": 1,
+        "ready_milli_veh": 500,
+        "start_s": 25800,
+        "ancestral_source_s": 25320,
+        "recovered_s": 27000,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60",
+        "evidence": "artifacts/v03_causal_rank_20261127/S08_ready500_recover27000.json"
+      },
+      {
+        "bins": 1,
+        "receipt_grid_step_s": 10,
+        "receipt_sweep_s": 60,
+        "ancestral_source_s": 25320,
+        "start_s": 27060,
+        "recovered_s": 28020,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10",
+        "evidence": "artifacts/v03_receipt_closure_20261127/S08_grid28020_recover.json"
+      },
+      {
+        "receipt_grid_step_s": 10,
+        "receipt_sweep_s": 60,
+        "observable_schedule": true,
+        "ancestral_source_s": 25320,
+        "start_s": 28020,
+        "recovered_s": 28500,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1",
+        "evidence": "artifacts/v03_observable_buckets_20261127/S09_schedule28500_recovery.json"
+      },
+      {
+        "streaming_receipts": true,
+        "egress_retirement_buckets": true,
+        "ancestral_source_s": 25320,
+        "start_s": 28500,
+        "recovered_s": 29340,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1",
+        "evidence": "artifacts/v03_streaming_observer_20261127/S09_egress29340_recovery.json"
+      }
+    ],
+    "definition": "Original V03 status unchanged. Separate streaming/egress identity recovered 29340, 840s new/4020s ancestry; not full-day or 8h refinement acceptance.",
+    "current_loop_stages": 10
+  },
+  "backend_coverage": {
+    "baseline_rust_core": 5,
+    "denominator": 15,
+    "method": "unweighted, fixed C01 functional inventory; scoped evidence reviewed; not LOC, full-city completeness or release acceptance",
+    "native_host_linked_python_scoped": 0,
+    "original_dag_accepted": 5,
+    "original_dag_scoped_or_accepted": 19,
+    "original_dag_total": 21,
+    "original_v03_direct_dependencies_ready": 3,
+    "original_v03_direct_dependencies_total": 3,
+    "original_v03_full_days": 0,
+    "original_v03_rust_only_city_preparations_verified": 3,
+    "original_v03_total": 9,
+    "partial_functions": 2,
+    "pure_rust_percent": 86.66666666666667,
+    "pure_rust_verified_scoped": 13,
+    "remaining_functions": 2,
+    "rows": [
+      {
+        "baseline": "PYTHON",
+        "component": "city geometry generation and map validation",
+        "evidence": "../v03_rust_atlas_integration_20261127/C06_all8.json",
+        "evidence_sha256": "857d457e5c32a58630e1918c69416806eab30c3551acdedd76a2e32dd205f5f2",
+        "id": "B01",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "activity geometry and finite access-law construction",
+        "evidence": "../v03_pure_rust_core_20261127/C06_oracle.log",
+        "evidence_sha256": "0b533f343de868b64ed7e4f0cd8eada19f1bd3a00ec176032214d89509726f79",
+        "id": "B02",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "factorized demand declarations and inventory",
+        "evidence": "../v03_rust_atlas_integration_20261127/valley_next.engine10.json",
+        "evidence_sha256": "7fc1f9f20b108e9686eb2a91aa8333b6f21a0ebe97534e3bb20c9775d3d354ea",
+        "id": "B03",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "native factorized OD enumeration",
+        "evidence": "../v03_causal_rank_20261127/river_weekday_s17.engine10.json",
+        "evidence_sha256": "f9d331a4accf22e08fc6aa5b09483b9f759234f7a9828dbea905e99f84796dcf",
+        "id": "B04",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "legal graph route search and cache",
+        "evidence": "../v03_pure_rust_core_20261127/C07-c07-2.json",
+        "evidence_sha256": "3cfd20377ae0cf444cf30c049fd9518a1fc8bcad2b524edb06c91d9aba13b077",
+        "id": "B05",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "MIXED",
+        "component": "fleet and freight route preparation",
+        "evidence": "../v03_pure_rust_core_20261127/C06_oracle.log",
+        "evidence_sha256": "0b533f343de868b64ed7e4f0cd8eada19f1bd3a00ec176032214d89509726f79",
+        "id": "B06",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "road kinetic transport and node allocation",
+        "evidence": "../v03_marked_owner_20261127/S03_25740.json",
+        "evidence_sha256": "d74089162965c0387affa5f879bbbe02bd99872f7c844b5c1d94f83265d448c4",
+        "id": "B07",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "service and journey coupling",
+        "evidence": "../v03_marked_owner_20261127/S03_25740.json",
+        "evidence_sha256": "d74089162965c0387affa5f879bbbe02bd99872f7c844b5c1d94f83265d448c4",
+        "id": "B08",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "whole engine orchestration and checkpoint",
+        "evidence": "../v03_marked_owner_20261127/S04_recovery.json",
+        "evidence_sha256": "821fdb4aad9342aef8f21e2838653b49504d3f95f4edca8aee8d2dab5c4f0e00",
+        "id": "B09",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "causal routing adaptation and delayed land-use",
+        "evidence": "../v03_marked_owner_20261127/S09_phase_parity.json",
+        "evidence_sha256": "a539fa90d97776be82955f79e82301821ce20f3450e3a4fe34078d1b7ee660e0",
+        "id": "B10",
+        "status": "PARTIAL"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "access-coupling research preprocessing",
+        "evidence": "../v03_rust_only_backend_20261126/C03_test.log",
+        "evidence_sha256": "41b47ea4c68ff1f201d6a9d71c5c9e736ec68ce0b508c9458023a751dd3509ff",
+        "id": "B11",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "route passage generation and validation",
+        "evidence": "../v03_rust_only_backend_20261126/C04_test.log",
+        "evidence_sha256": "07791a61eaf987cc0e20c00354b3645a8ade3817d68c57a4bb3134fbd9047638",
+        "id": "B12",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "CPP",
+        "component": "multiclass shared-access projection solver",
+        "evidence": "../v03_rust_only_backend_20261126/C09_parity.json",
+        "evidence_sha256": "1015116457d11089f1df668a3ef26e0f7c8cb0d896a33abb35de65ec1b75d377",
+        "id": "B13",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "research execution receipt and metrics",
+        "evidence": "../v03_receipt_closure_20261127/S09_original25380.json",
+        "evidence_sha256": "0732d7ff2b5eafc9e3d8ab67d679ff978d128e34ac058bb01151337df187342e",
+        "id": "B14",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "original V03 campaign runner and acceptance",
+        "evidence": "../v03_span_measure_20261127/S04_25750.json",
+        "evidence_sha256": "d1a6069fb79b0efc4aa8339335398edb444f44070c8e0cbc05135e7f3a1a1e69",
+        "id": "B15",
+        "status": "PARTIAL"
+      }
+    ],
+    "rust_implemented_percent": 86.66666666666667,
+    "rust_implemented_scoped": 13,
+    "schema": "metroflow_backend_functional_census_v1",
+    "unimplemented_functions": 0,
+    "current_loop": "Native streaming receipt and protected egress projection; 281 native tests, 9 headless; all 15 historical census evidence hashes verified, two relative references repaired. 13/15 scoped and B10/B15 partial unchanged."
+  },
+  "original_frontier": {
+    "computed": 25740,
+    "recovered": 25740,
+    "new_original_city_run": false,
+    "original_fixture_byte_identical": true,
+    "attempts": [
+      "artifacts/v03_streaming_observer_20261127/S09_original_default_failure.log",
+      "artifacts/v03_streaming_observer_20261127/S09_original_exactrestart25750.json",
+      "artifacts/v03_streaming_observer_20261127/S09_original_compact25750.json"
+    ],
+    "environment_contract": "artifacts/v03_streaming_observer_20261127/S09_original_attempt_contract.txt"
+  },
+  "runs": [
+    {
+      "start_s": 28500.0,
+      "recovered_s": 28560,
+      "advanced_s": 60.0,
+      "wall_s": 75.357549771,
+      "advance_s": 16.657811486,
+      "peak_rss_bytes": 1453993984,
+      "max_traced_guard_required_bytes": 1796539885,
+      "guard_exceedances": 0,
+      "checkpoint_bytes": 504271064,
+      "history_rows": 51230,
+      "history_bytes": 20082160,
+      "journey_records": {
+        "dynamic_bytes": 192246592,
+        "egress": 2834764,
+        "enter": 2330693,
+        "history": 51230,
+        "history_bytes": 20082160,
+        "internal": 73212,
+        "nonempty_histories": 51230,
+        "stage_bytes": [
+          76609104,
+          93148704,
+          2406624
+        ]
+      },
+      "peak_records": 8306578,
+      "raw_products": 1310368,
+      "stored_products": 986552,
+      "raw_receipt_contributions": 1338759,
+      "avoided_raw_receipt_rows": 1338759,
+      "execution": "artifacts/v03_streaming_observer_20261127/S09_egress28560.json",
+      "recovery": "artifacts/v03_streaming_observer_20261127/S09_egress28560_recovery.json"
+    },
+    {
+      "start_s": 28560.0,
+      "recovered_s": 28740,
+      "advanced_s": 180.0,
+      "wall_s": 113.826439197,
+      "advance_s": 45.683043853,
+      "peak_rss_bytes": 1413468160,
+      "max_traced_guard_required_bytes": 1752940861,
+      "guard_exceedances": 0,
+      "checkpoint_bytes": 491906904,
+      "history_rows": 51230,
+      "history_bytes": 20082160,
+      "journey_records": {
+        "dynamic_bytes": 179180288,
+        "egress": 2436523,
+        "enter": 2330693,
+        "history": 51230,
+        "history_bytes": 20082160,
+        "internal": 73212,
+        "nonempty_histories": 51230,
+        "stage_bytes": [
+          76609104,
+          80082400,
+          2406624
+        ]
+      },
+      "peak_records": 8002798,
+      "raw_products": 3933344,
+      "stored_products": 2959528,
+      "raw_receipt_contributions": 3473401,
+      "avoided_raw_receipt_rows": 3473401,
+      "execution": "artifacts/v03_streaming_observer_20261127/S09_egress28740.json",
+      "recovery": "artifacts/v03_streaming_observer_20261127/S09_egress28740_recovery.json"
+    },
+    {
+      "start_s": 28740.0,
+      "recovered_s": 29340,
+      "advanced_s": 600.0,
+      "wall_s": 363.338535376,
+      "advance_s": 307.445255889,
+      "peak_rss_bytes": 1954553856,
+      "max_traced_guard_required_bytes": 2297891117,
+      "guard_exceedances": 0,
+      "checkpoint_bytes": 840857776,
+      "history_rows": 69899,
+      "history_bytes": 27400408,
+      "journey_records": {
+        "dynamic_bytes": 285559688,
+        "egress": 3057215,
+        "enter": 4652561,
+        "history": 69899,
+        "history_bytes": 27400408,
+        "internal": 145649,
+        "nonempty_histories": 69899,
+        "stage_bytes": [
+          152925104,
+          100446256,
+          4787920
+        ]
+      },
+      "peak_records": 12706951,
+      "raw_products": 15175960,
+      "stored_products": 11191961,
+      "raw_receipt_contributions": 11224744,
+      "avoided_raw_receipt_rows": 11206075,
+      "execution": "artifacts/v03_streaming_observer_20261127/S09_egress29340.json",
+      "recovery": "artifacts/v03_streaming_observer_20261127/S09_egress29340_recovery.json"
+    }
+  ],
+  "matched_comparison": {
+    "address_space_limit_bytes": 8589934592,
+    "candidate_checkpoint_sha256": "9d445ba44c9faa1c4c3fa372f15d863c2ebe3dfae240256fbc922bf10cc2fe18",
+    "candidate_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1",
+    "candidate_manifest_sha256": "a5f0ab6eb169ae61d3e3c745c1900dfc513325826bb45e259fe7f3a0c644d574",
+    "cells": {
+      "active_veh": {
+        "bit_different_entries": 0,
+        "entries": 1586,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 1361.8086932931137,
+        "relative_l1": 0.0
+      },
+      "cumulative_entry_veh": {
+        "bit_different_entries": 0,
+        "entries": 1586,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 141880.28709483336,
+        "relative_l1": 0.0
+      },
+      "cumulative_exit_veh": {
+        "bit_different_entries": 0,
+        "entries": 1586,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 140518.47840154025,
+        "relative_l1": 0.0
+      },
+      "distance_veh_m": {
+        "bit_different_entries": 0,
+        "entries": 1586,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 27255103.874831747,
+        "relative_l1": 0.0
+      },
+      "occupied_lane_m": {
+        "bit_different_entries": 0,
+        "entries": 1586,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 6809.043466465569,
+        "relative_l1": 0.0
+      },
+      "speed_m_s": {
+        "bit_different_entries": 0,
+        "entries": 1586,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 8754.856782078423,
+        "relative_l1": 0.0
+      }
+    },
+    "executable_sha256": "a99209dac662da6f4219559b24951ba3e3046609714b1fe9949434491d562067",
+    "journey_legs": {
+      "completed_persons": {
+        "bit_different_entries": 1267,
+        "entries": 918450,
+        "l1": 6.489513787455436e-14,
+        "linf": 1.3322676295501878e-15,
+        "reference_l1": 8576.98522156303,
+        "relative_l1": 7.566194437575137e-18
+      },
+      "completed_veh": {
+        "bit_different_entries": 1366,
+        "entries": 918450,
+        "l1": 5.132005931329786e-14,
+        "linf": 8.881784197001252e-16,
+        "reference_l1": 6847.5659496841445,
+        "relative_l1": 7.49464257670495e-18
+      },
+      "since_completion_person_s": {
+        "bit_different_entries": 37581,
+        "entries": 918450,
+        "l1": 3.401307813177823e-08,
+        "linf": 5.093170329928398e-11,
+        "reference_l1": 11185820.81442261,
+        "relative_l1": 3.0407315382634187e-15
+      },
+      "since_completion_veh_s": {
+        "bit_different_entries": 37418,
+        "entries": 918450,
+        "l1": 2.7160489857180892e-08,
+        "linf": 4.0472514228895307e-11,
+        "reference_l1": 8925623.387921408,
+        "relative_l1": 3.0429795966896612e-15
+      }
+    },
+    "last_tick_outlet": {
+      "birth_to_exit_veh_s": {
+        "bit_different_entries": 0,
+        "entries": 304856,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 17658.7519438647,
+        "relative_l1": 0.0
+      },
+      "outlet_veh": {
+        "bit_different_entries": 0,
+        "entries": 304856,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 26.434658202754182,
+        "relative_l1": 0.0
+      }
+    },
+    "peak_rss_bytes": 725950464,
+    "reference_checkpoint_sha256": "89ca8bf6a7ac255009f90c9f42d7f932cac4ff760e528660cb8afbd2757c2742",
+    "reference_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1",
+    "reference_manifest_sha256": "a8df78fd4f2e71b177819d3b4968fe7fd7705d9b77e572966dc7758195d66ae0",
+    "road_tags": {
+      "active_veh": {
+        "bit_different_entries": 0,
+        "entries": 304856,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 1361.8086932931137,
+        "relative_l1": 0.0
+      },
+      "birth_veh_s": {
+        "bit_different_entries": 0,
+        "entries": 304856,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 38241859.33533672,
+        "relative_l1": 0.0
+      },
+      "entry_clock_veh_s": {
+        "bit_different_entries": 0,
+        "entries": 304856,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 38878651.273248985,
+        "relative_l1": 0.0
+      },
+      "route_offset_veh": {
+        "bit_different_entries": 0,
+        "entries": 304856,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 14987.110637859494,
+        "relative_l1": 0.0
+      }
+    },
+    "schema": "metroflow_rank_state_compare_v1",
+    "scope": "strict loaded snapshots same physical declaration/time/tag registry; numerical observable differences, not global error theorem or release acceptance",
+    "status": "EXECUTED_FOR_REVIEW",
+    "tag_order_sha256": "1afae786b6800f1e8705b0a64cedd6b4d018fa440176937d9ad919c758a25eb8",
+    "time_s": 28560.0,
+    "wall_s": 17.235064005
+  },
+  "matched_reference_recovery": {
+    "address_space_limit_bytes": 8589934592,
+    "build_s": 4.088183613,
+    "byte_budget": 6442450944,
+    "calendar_legs": 918450,
+    "calendar_totals": [
+      120000.0,
+      58801.0,
+      1000.0
+    ],
+    "checkpoint_bytes": 514277909,
+    "checkpoint_sha256": "89ca8bf6a7ac255009f90c9f42d7f932cac4ff760e528660cb8afbd2757c2742",
+    "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+    "class_names": [
+      "car",
+      "freight",
+      "scheduled_bus"
+    ],
+    "completed_event_rows": 2042034,
+    "decode_envelopes": {
+      "compact_owner_bytes": 54257672,
+      "compact_validation_scratch_bytes": 2334336,
+      "historical_legacy_owner_estimate_bytes": 54602840,
+      "historical_legacy_validation_scratch_bytes": 44166832
+    },
+    "executable_sha256": "fce8f24de1cd94fa7d7e060d316c9152c13603556c972c3ee9b00750b5eecd1a",
+    "journey_records": {
+      "dynamic_bytes": 202507088,
+      "egress": 3147479,
+      "enter": 2330693,
+      "history": 51230,
+      "history_bytes": 20082160,
+      "internal": 73212,
+      "nonempty_histories": 51230,
+      "stage_bytes": [
+        76609104,
+        103409200,
+        2406624
+      ]
+    },
+    "ledger": {
+      "cargo_kg": {
+        "active": 0.0,
+        "completed": 0.0,
+        "pending": 0.0,
+        "released": 0.0,
+        "released_intent_first_moment": 0.0,
+        "requested": 0.0
+      },
+      "persons": {
+        "active": 2607.5796199158667,
+        "completed": 8576.985221563062,
+        "pending": 7482.101825187739,
+        "released": 11184.564841478928,
+        "released_intent_first_moment": 300585180.11475354,
+        "requested": 18666.666666666668
+      },
+      "vehicles": {
+        "active": 2085.767383649303,
+        "completed": 6847.565949684184,
+        "pending": 213.3333333331193,
+        "released": 8933.333333333487,
+        "released_intent_first_moment": 240083333.33333504,
+        "requested": 9146.666666666606
+      }
+    },
+    "load_s": 1.910518116,
+    "manifest_sha256": "a8df78fd4f2e71b177819d3b4968fe7fd7705d9b77e572966dc7758195d66ae0",
+    "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1",
+    "peak_rss_bytes": 716009472,
+    "python_runtime_dependency": "none",
+    "road_class_ledgers": [
+      [
+        8476.352413314824,
+        7114.543720111027,
+        84763.52413420155,
+        149501.80796896757,
+        787766.8788052757
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        4.0,
+        4.0,
+        40.0,
+        42.546830484469325,
+        619.9681412956854
+      ]
+    ],
+    "road_records": {
+      "cell_packets": 2913,
+      "cell_parts": 2751429,
+      "mixed_parts": 0,
+      "pending_packets": 0,
+      "pending_parts": 0,
+      "retained_storage_bytes": 54257672,
+      "uniform_parts": 2751429
+    },
+    "road_totals": [
+      8480.352413393035,
+      7118.543720100107,
+      227293829.85130036,
+      193585116.74792436,
+      84803.52413393265,
+      788386.8469443882,
+      1231464.2793523849
+    ],
+    "schedule_identity": "61bf90204d22e3442c565f3f62b8ef4cba7d7be3e74b1d33e6c8bcf96208c920",
+    "schema": "metroflow_native_recovery_v1",
+    "scope": "strict complete decode, cross-owner ledger validation and original identity; no execution or elapsed-horizon claim",
+    "status": "RECOVERED_CHECKPOINT_ONLY",
+    "threads": 8,
+    "time_s": 28560.0,
+    "wall_s": 6.857998278
+  },
+  "fixture_comparison": {
+    "address_space_limit_bytes": 8589934592,
+    "candidate_checkpoint_sha256": "b0496f836e841c8d479dfdeb26a1b4f60aee90076df8b3f4a5317fd80d54db40",
+    "candidate_identity": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3:mature-receipt-v1:10:group-outlets-v1:receipt-grid-v1:1:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1",
+    "candidate_manifest_sha256": "06db4b536d59b00dece8837150fa09804367bf48dabd9f74eded4ac2b04b6314",
+    "cells": {
+      "active_veh": {
+        "bit_different_entries": 0,
+        "entries": 2,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      },
+      "cumulative_entry_veh": {
+        "bit_different_entries": 0,
+        "entries": 2,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 14.9,
+        "relative_l1": 0.0
+      },
+      "cumulative_exit_veh": {
+        "bit_different_entries": 0,
+        "entries": 2,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 14.9,
+        "relative_l1": 0.0
+      },
+      "distance_veh_m": {
+        "bit_different_entries": 0,
+        "entries": 2,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 1490.0000000000002,
+        "relative_l1": 0.0
+      },
+      "occupied_lane_m": {
+        "bit_different_entries": 0,
+        "entries": 2,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      },
+      "speed_m_s": {
+        "bit_different_entries": 0,
+        "entries": 2,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      }
+    },
+    "executable_sha256": "a99209dac662da6f4219559b24951ba3e3046609714b1fe9949434491d562067",
+    "journey_legs": {
+      "completed_persons": {
+        "bit_different_entries": 2,
+        "entries": 5,
+        "l1": 3.552713678800501e-15,
+        "linf": 1.7763568394002505e-15,
+        "reference_l1": 20.0,
+        "relative_l1": 1.7763568394002506e-16
+      },
+      "completed_veh": {
+        "bit_different_entries": 2,
+        "entries": 5,
+        "l1": 3.552713678800501e-15,
+        "linf": 1.7763568394002505e-15,
+        "reference_l1": 13.06,
+        "relative_l1": 2.7203014385915013e-16
+      },
+      "since_completion_person_s": {
+        "bit_different_entries": 1,
+        "entries": 5,
+        "l1": 2.2737367544323206e-13,
+        "linf": 2.2737367544323206e-13,
+        "reference_l1": 1524.6522365923192,
+        "relative_l1": 1.4913150027669562e-16
+      },
+      "since_completion_veh_s": {
+        "bit_different_entries": 1,
+        "entries": 5,
+        "l1": 1.1368683772161603e-13,
+        "linf": 1.1368683772161603e-13,
+        "reference_l1": 1043.9817892738554,
+        "relative_l1": 1.088973379513557e-16
+      }
+    },
+    "last_tick_outlet": {
+      "birth_to_exit_veh_s": {
+        "bit_different_entries": 0,
+        "entries": 5,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      },
+      "outlet_veh": {
+        "bit_different_entries": 0,
+        "entries": 5,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      }
+    },
+    "peak_rss_bytes": 7643136,
+    "reference_checkpoint_sha256": "37b8793a2abe7337e34cf81f671fbb82ee61e4c5bf965c4737520b44a950306e",
+    "reference_identity": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3:mature-receipt-v1:10:group-outlets-v1:receipt-grid-v1:1:receipt-schedule-v1",
+    "reference_manifest_sha256": "5a7004d8ed19249ba83977a31e1e7e04efb68cf465b86cb1b05dc13806f961ee",
+    "road_tags": {
+      "active_veh": {
+        "bit_different_entries": 0,
+        "entries": 5,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      },
+      "birth_veh_s": {
+        "bit_different_entries": 0,
+        "entries": 5,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      },
+      "entry_clock_veh_s": {
+        "bit_different_entries": 0,
+        "entries": 5,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      },
+      "route_offset_veh": {
+        "bit_different_entries": 0,
+        "entries": 5,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      }
+    },
+    "schema": "metroflow_rank_state_compare_v1",
+    "scope": "strict loaded snapshots same physical declaration/time/tag registry; numerical observable differences, not global error theorem or release acceptance",
+    "status": "EXECUTED_FOR_REVIEW",
+    "tag_order_sha256": "133d106ee0c5ad48bd141a8a61f99a3f5e36733c8bcd0bdaa1c43e817d4f9d25",
+    "time_s": 120.0,
+    "wall_s": 0.004172308
+  },
+  "allocation_probes": [
+    {
+      "iterations_per_kernel": 1000000,
+      "journey_fsum": {
+        "allocation_calls": 0,
+        "last_value": 3.5,
+        "reallocation_calls": 0,
+        "wall_s": 0.073593375
+      },
+      "link_step": {
+        "allocation_calls": 0,
+        "final_counts": {
+          "admitted": 1000000.0,
+          "departed": 999997.0,
+          "on_link": 3.0,
+          "pending": 0.0,
+          "requested": 1000000.0,
+          "residence_veh_s": 2999994.0
+        },
+        "reallocation_calls": 0,
+        "wall_s": 0.024868058
+      },
+      "scope": "single process, initialized ring, tested six-term finite cancellation input; other inputs may spill; no full-engine zero heap claim"
+    },
+    {
+      "allocation_calls": 0,
+      "iterations": 100000,
+      "kernel": "marked_fifo_diverge_step",
+      "metrics": {
+        "age_identity_residual": [
+          -5.820766091346741e-11,
+          -1.4551915228366852e-11
+        ],
+        "blocked_mixed_ticks": 14285,
+        "completed_elapsed_veh_s": [
+          248561.39999965587,
+          82853.80000013339
+        ],
+        "exited": {
+          "birth": [
+            2999790003.6,
+            999930001.2
+          ],
+          "mass": [
+            59997.599999901235,
+            19999.200000037694
+          ]
+        },
+        "max_birth_residual": 2.3178290575742722e-07,
+        "max_mass_residual": 7.275513524973576e-12,
+        "on_link": {
+          "birth": [
+            239996.4,
+            79998.8
+          ],
+          "mass": [
+            2.4,
+            0.8
+          ]
+        },
+        "peak_pending_veh": 0.0,
+        "peak_queue_rows": [
+          1,
+          3,
+          3,
+          3
+        ],
+        "pending": {
+          "birth": [
+            0.0,
+            0.0
+          ],
+          "mass": [
+            0.0,
+            0.0
+          ]
+        },
+        "requested": {
+          "birth": [
+            3000030000.0,
+            1000010000.0
+          ],
+          "mass": [
+            59999.99999990123,
+            20000.000000037697
+          ]
+        },
+        "reserved_queue_payload_bytes": 36000160,
+        "residence_veh_s": [
+          248564.99999965585,
+          82855.00000013338
+        ],
+        "time_s": 100000.0
+      },
+      "reallocation_calls": 0,
+      "scope": "preallocated marked network; 2 classes, unequal footprints, intermittent receiving restriction; no full V03 zero heap claim",
+      "wall_s": 0.033874843
+    },
+    {
+      "allocation_calls": 0,
+      "checksum": 2594073418108802610,
+      "iterations": 1000000,
+      "kernel": "packed_reference_and_event_random_access",
+      "reallocation_calls": 0,
+      "scope": "initialized exact packed ranks and event pages; encoding allocates per sealed page",
+      "sealed_saved_bytes": [
+        671744,
+        1459552
+      ],
+      "wall_s": 0.056621573
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        1.0,
+        3.0
+      ],
+      "iterations": 1000000,
+      "kernel": "rank_positive_mass_birth_accumulation",
+      "reallocation_calls": 0,
+      "scope": "actual compensated per-mark accumulator; excludes sort and packet output allocations",
+      "wall_s": 0.03332964
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        0.5,
+        4.75,
+        0.5,
+        10.375
+      ],
+      "iterations": 1000000,
+      "kernel": "warmed_receipt_grid_bucket",
+      "reallocation_calls": 0,
+      "scope": "actual warmed bucket insertion and inline positive mass/moment sums; output history and source visitor excluded",
+      "wall_s": 0.073259148
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        13.875,
+        1.0
+      ],
+      "iterations": 1000000,
+      "kernel": "transactional_receipt_accumulator",
+      "reallocation_calls": 0,
+      "scope": "actual fixed inline positive completion measure; excludes transaction scratch initialization, Arc history replacement and output",
+      "wall_s": 0.071647439
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        2.0,
+        1.0
+      ],
+      "iterations": 1000000,
+      "kernel": "warmed_egress_retirement_buckets",
+      "reallocation_calls": 0,
+      "scope": "actual warmed per-leg outlet law product projection from four products into two retirement buckets; stage output append excluded",
+      "wall_s": 0.367009347
+    },
+    {
+      "allocation_calls": 0,
+      "checksum": [
+        3,
+        13799029258263199744
+      ],
+      "iterations": 1000000,
+      "kernel": "outlet_group_and_stack_wire",
+      "reallocation_calls": 0,
+      "scope": "actual fixed-slice grouped outlet and stack word writer; no allocation for tested small fsum; full histories may spill",
+      "wall_s": 0.117918855
+    }
+  ],
+  "rational_oracle": {
+    "status": "PASS_EXACT_FINITE_ASSERTIONS",
+    "positive_atoms": 14,
+    "three_atom_mass_cases": 4480,
+    "hidden_release_sequence_cases": 13440,
+    "streaming_moment_cases": 4480,
+    "lipschitz_cells": 9032,
+    "unprotected_query_counterexample": {
+      "raw": "1/2",
+      "centroid": "1"
+    },
+    "seconds": 4.6453882090281695,
+    "scope": "rational finite test with dt=2, eps=0; proof in research note, not binary64 or full-city proof"
+  },
+  "validation": {
+    "native_lib_pass": 281,
+    "native_lib_ignored": 2,
+    "headless_pass": 9,
+    "native_release_bins": "PASS",
+    "full_repository_ci": "NOT_RUN_DEFERRED_BY_USER",
+    "native_subagent": "NOT_RUN_NO_TOOL",
+    "source_diff_check": "PASS",
+    "raw_log_trailing_whitespace": "preserved",
+    "research_checkpoints": "execution and independent recovery hashes, identities and ledgers checked; on-disk SHA verified"
+  },
+  "limits": {
+    "address_space_bytes": 8589934592,
+    "accounting_bytes": 6442450944,
+    "original_wall_s_per_case": 7200,
+    "full_day_cases_completed": 0,
+    "full_day_cases_required": 9
+  },
+  "full_day_acceptance": "BLOCKED_RESOURCE_AND_MIGRATION_0_OF_9",
+  "limitations": [
+    "Only matched 60s and fixture; longer runs are continuation evidence without matched control, not original acceptance.",
+    "Projection assumes locked hidden schedule observer and protected rounded boundaries. Per-creation tick buckets, fallback retained; no across-tick persistent ring or entry projection yet.",
+    "Warmed kernels only zero heap; whole-engine output and scratch allocations remain. Actual city dense stage path not observed. Shared-host timing does not establish speedup.",
+    "Original attempts did not lock complete historical lean environment, so no matched regression claim. Third trial attribution-on prevented lifetime path. No original frontier advance or gate change.",
+    "No full CI, main merge, full day, 8h refinement, actual evening return, other city, or independent native agent verification."
+  ],
+  "next_action": "V03/B15: retain original 6GiB/8GiB/7200s caps and all 3x3 days plus 8h refinement. Original 25740->25750: lock historical exact compact/event/restart/lifetime/packed/source flags and METROFLOW_TRACE_SOURCE_ATTRIBUTION=off for a matched lean arm; attribution-on compact preflight 5562576486>4668014575 is not an unavoidable lower bound. Prove and implement source/receiving workspace lifetime and exact ordinal/key streaming, do not shave guards. Research identity: integrate persistent sparse (leg,absolute retirement tick,protected observer cell) buckets across creation ticks, transactional rollback and exact ready/birth moments; prove entry consumer equivalence incl ordered tag/mass/birth, FIFO receiving and service marks before projecting 4.65M entry rows. Profile actual city dense stage fallback and allocation spills; bound inline/adaptive expansions with source-order parity. 10s/5s actual return comparisons, 3600s/8h/24h, River/Coastal and isolated repeated timings remain. B10 endogenous routing/graph edit drain partial. No production merge or original gate change.",
+  "evidence_files": {
+    "artifacts/v03_streaming_observer_20261127/S01_identity.txt": "fe141b007c52fe40c000fa1655f1dee741a559f453d8ee420f7c7fe0533bbeb1",
+    "artifacts/v03_streaming_observer_20261127/S01_readiness.json": "a761da5ca7dbf9e8b1c79549564073e11d69faf736243201e3856c99acd38099",
+    "artifacts/v03_streaming_observer_20261127/S02_cas.txt": "559ccd5f7bac9d7851b7c8358c7f3de76127f056894c516011d24610276dee47",
+    "artifacts/v03_streaming_observer_20261127/S03_test.log": "e2ce59ab70c79e30e2a90aa861349e1706775c71554d602889642f843ac4acc2",
+    "artifacts/v03_streaming_observer_20261127/S04_test.log": "76696818e66886a5ccc6e7c6d37330094e3103ff1882a029354dbf1f5a6c4ca7",
+    "artifacts/v03_streaming_observer_20261127/S05_test.log": "b152e159187ac570475b76bf435b54d9393a49db623c7df3d88d5f5b19460c46",
+    "artifacts/v03_streaming_observer_20261127/S06_native.log": "b8ffb810a6ccb8502f10e6ba2f18687772a0c4a45b3e02ddd0111ac862c8382f",
+    "artifacts/v03_streaming_observer_20261127/S07_test.log": "744098bdd64aeecf68cbced4e1209e418c1eeba93452d4e0b4fe845b2baef10f",
+    "artifacts/v03_streaming_observer_20261127/S08_binaries.sha256": "bbc7b4147894c818e8b3ad4bf269a601cd4b51540aed395aab9a178616097ee6",
+    "artifacts/v03_streaming_observer_20261127/S08_build.log": "aef278ab060179b03af84391180c689070807f5720b60628b4587c3d3080a36a",
+    "artifacts/v03_streaming_observer_20261127/S08_fixture_compare120.json": "efa2eea0942718710481ecd4003559de2ac036f6a2cadcb39e170c9bf45e76db",
+    "artifacts/v03_streaming_observer_20261127/S08_fixture_egress.manifest.json": "06db4b536d59b00dece8837150fa09804367bf48dabd9f74eded4ac2b04b6314",
+    "artifacts/v03_streaming_observer_20261127/S08_fixture_egress120.json": "f82a5505cdf1d20a75d9e6a26e500434bf03be31986b02c1a83fd1a71f1f4140",
+    "artifacts/v03_streaming_observer_20261127/S08_fixture_egress120_recovery.json": "9cead27112dc752dfc23b12d9c6e98b5b00e1abf44f58e21f82e777bad1bf94a",
+    "artifacts/v03_streaming_observer_20261127/S08_fixture_original_new.json": "eeba7951a5b469e960357af4d29c93eabe207a1313f898e3055c6a12d026bb75",
+    "artifacts/v03_streaming_observer_20261127/S08_fixture_schedule_new.json": "d40e3bea7099faa495bbca662f88291d3d112626e04fc70677d8896d010bcd8e",
+    "artifacts/v03_streaming_observer_20261127/S08_fixture_stream.manifest.json": "4fa4c1c1fa2fbf7983f6b230e62bd6cdd6f205995499d2e04fcb45527bc2cd5a",
+    "artifacts/v03_streaming_observer_20261127/S08_fixture_stream120.json": "ecbb303fdb3f34fef79889c0c918d312ef1c7f88b053bd923da14b301866b6b4",
+    "artifacts/v03_streaming_observer_20261127/S08_headless_tests.log": "c105f231b5384460b0f78fca0beab98293c85d807ba1a6e0ed60ed32b992f4ba",
+    "artifacts/v03_streaming_observer_20261127/S08_native_tests.log": "f37b157fa28520fbe8cbef3552554facf6174cd99e2e1f47b245ede74f55c9b4",
+    "artifacts/v03_streaming_observer_20261127/S08_reference28560.json": "4e5c90bfe618b2028ddcef5fad2a7afd2976995f96987810032ba39427a21462",
+    "artifacts/v03_streaming_observer_20261127/S08_reference28560_recovery.json": "8d540f274dc75e4bc2c1728d4fc8db52c8a606ff5bbb832ec21a1acd5a9e2b0e",
+    "artifacts/v03_streaming_observer_20261127/S08_zero_alloc.jsonl": "327ef8f67baacc1d10f256347f6f7862af8120a6e60d09fe81d43e2a5a7ddb0d",
+    "artifacts/v03_streaming_observer_20261127/S09_compare28560.json": "b1a7df4e6ea8bb548efbf2afe3cea9e735df363273fcb28bca27055e063e0c33",
+    "artifacts/v03_streaming_observer_20261127/S09_egress28500_migrate.json": "e2a373929395bce13267235057475cee9e2b029f17c222f82acdd0af92e91aad",
+    "artifacts/v03_streaming_observer_20261127/S09_egress28560.json": "6104258868b9a307262dd604c0f2f59701d6c0237ae542488a6c1ac8ab4111dc",
+    "artifacts/v03_streaming_observer_20261127/S09_egress28560_recovery.json": "c2968733de7682704c52fc7ba7f22a0c84bbc88977d8b8975a8d3bf7b311a310",
+    "artifacts/v03_streaming_observer_20261127/S09_egress28740.json": "8e22a42b6e933a21d5e87ef0d5cade204ca77d17e2bfc3b226a7e82deb4edc92",
+    "artifacts/v03_streaming_observer_20261127/S09_egress28740_recovery.json": "c921ecec33c0e57269ff9be8ac24bb0fff50fe4b925e4848dc9616c3000632ba",
+    "artifacts/v03_streaming_observer_20261127/S09_egress29340.json": "873fdef5c5a7443f8f4f276d8579ead322823c27de338564a684d76a2e49b70f",
+    "artifacts/v03_streaming_observer_20261127/S09_egress29340_recovery.json": "8b483b401188498a3974e20a04d7af96fa70ddbb5522dc4c2e9c187d08c47378",
+    "artifacts/v03_streaming_observer_20261127/S09_exact28560.json": "0532903591cd62cb4642cf3d2c759969a91b3205d20072be754022a24622633b",
+    "artifacts/v03_streaming_observer_20261127/S09_exact28560_recovery.json": "10a0644705f72525fee09319d1b2fd021495cf590c63a018e86cb5a33db14af6",
+    "artifacts/v03_streaming_observer_20261127/S09_original_attempt_contract.txt": "6021a1b4875da1de54970047f4fb359027ecb851eaa21de1a1a0b72babcb91a3",
+    "artifacts/v03_streaming_observer_20261127/S09_original_compact.log": "13473572065bc17c3936a655af3637361a3f4a157acd6c3855bb9b81df36ae0b",
+    "artifacts/v03_streaming_observer_20261127/S09_original_compact25750.json": "c0664b6b0ffee46476b6b5fad73dba458845220e5a6dd286d63e557fa401f90a",
+    "artifacts/v03_streaming_observer_20261127/S09_original_compact_process.txt": "95f05f5b7698859f7546d0bab44030e340869961c69e52ffaf80542bde56f05f",
+    "artifacts/v03_streaming_observer_20261127/S09_original_default_failure.log": "32bae02344eecc71e0002c0f8d6afa6cd65b56064e5394a536261b5150996fdd",
+    "artifacts/v03_streaming_observer_20261127/S09_original_exactrestart.log": "2d17c5a921f7b222f77f53d2471a1694b12560f8546a02a918e692dec9df2abb",
+    "artifacts/v03_streaming_observer_20261127/S09_original_exactrestart25750.json": "a53e9c68f89983f40dec3c83c4a49518000f281b41ccac80ae0df6515ee3921c",
+    "artifacts/v03_streaming_observer_20261127/S09_original_exactrestart_process.txt": "0f152fa8e3adfdbd0b397e2cdfb2e048eed50c01b4dbe8d89306110a0384ecae",
+    "artifacts/v03_streaming_observer_20261127/S09_original_process.txt": "33c968cb178ebc023aa0fb3e485e7b3cbb3bead4bd46b834c4089826060ab4e5",
+    "artifacts/v03_streaming_observer_20261127/S09_progressive_summary.json": "aa70aa47c9604879c85aed35dfbe44c3ee9b5b3cf9e9e329a2ee9966a968e772",
+    "artifacts/v03_streaming_observer_20261127/S09_rational_oracle.json": "c043b8ec7a07521f59b9724696a1d3000511076b5ebad9f0b3f9c5a20604a8ad",
+    "artifacts/v03_streaming_observer_20261127/S09_rational_oracle.sha256": "2957ab661d64869522de06a80869785710b69f108489f0aadcf41526e050667c",
+    "artifacts/v03_streaming_observer_20261127/S09_stream28500_migrate.json": "520d7e780df1a135545183c277b2bbd2d749cbaa406e4991e7bcae056f0d8e52",
+    "artifacts/v03_streaming_observer_20261127/S09_tracked_rust_sources.sha256": "9fd4ebf6c66f59b4308cb356007067b29ba28fea6be0300bcb6b8468262f9bef",
+    "artifacts/v03_streaming_observer_20261127/S09_valley_egress.manifest.json": "a5f0ab6eb169ae61d3e3c745c1900dfc513325826bb45e259fe7f3a0c644d574",
+    "artifacts/v03_streaming_observer_20261127/S09_valley_stream.manifest.json": "885b0ef9a13d159e1544176b487afb69fcea644369171fb0a59ccf05728f5b60"
+  }
+}
