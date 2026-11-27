@@ -1801,6 +1801,7 @@ pub struct V1Road {
     event_budget: Option<usize>,
     intervals: bool,
     research_interval_bins:Option<usize>,
+    research_rank_bins:Option<usize>,
     state: RoadState,
 }
 // Route registry is validated before this call. A terminal successor uses n.
@@ -3455,6 +3456,11 @@ impl V1Road {
         if !self.intervals||!(1..=64).contains(&bins){return Err(val("research interval bins outside supported domain"))}
         self.research_interval_bins=Some(bins);Ok(())
     }
+    #[cfg(feature="native-cli")]
+    pub(crate) fn set_research_rank_bins(&mut self,bins:usize)->CoreResult<()>{
+        if !self.intervals||!(1..=16).contains(&bins)||self.research_interval_bins.is_some()||!self.can_compact_incoming_parts(){return Err(val("research rank bins outside supported domain"))}
+        self.research_rank_bins=Some(bins);Ok(())
+    }
     pub(crate) fn owned_time(&self) -> f64 {
         self.state.t
     }
@@ -5082,11 +5088,16 @@ impl V1Road {
             // Same source-index key/tie order and separate mass/birth sum()
             // barriers. The timed carrier is read directly: no full raw
             // Part+Mark materialization exists at any point in this lane.
+            let target = out.cells[i].v[0] + self.groups[i][0];
+            let mut projected=None;
             let (parts,expired)=if use_timed_incoming {
                 work.require(local_peak,"timed incoming direct combine")?;
                 let source=std::mem::take(&mut timed_rows[i]);
                 let get=|index|source.get_with_events(index,&timed_controls,&events).0;
-                let parts=if local_consumer {
+                let parts=if let Some(bins)=self.research_rank_bins {
+                    projected=Some(v1_rank_projection::project(source.len(),get,target,bins,dt,self.record_budget,local_peak,&mut work)?);
+                    Vec::new()
+                }else if local_consumer {
                     combine_compact_indexed_parts(source.len(),get,|index_bytes,groups|{
                         let scratch=local_peak.saturating_add(index_bytes)
                             .saturating_add(groups.saturating_mul(std::mem::size_of::<Part>()));
@@ -5097,7 +5108,10 @@ impl V1Road {
                 (parts,expired)
             } else {
                 let source=std::mem::take(&mut incoming[i]);
-                let parts=combine_chunked_parts(&source)?;
+                let parts=if let Some(bins)=self.research_rank_bins{
+                    projected=Some(v1_rank_projection::project(source.len(),|index|source.get(index),target,bins,dt,self.record_budget,local_peak,&mut work)?);
+                    Vec::new()
+                }else{combine_chunked_parts(&source)?};
                 let expired_marks=std::mem::take(&mut marks[i]);
                 let expired=release_consumed_incoming_pair(&mut work,i,source,expired_marks)?;
                 (parts,expired)
@@ -5105,9 +5119,9 @@ impl V1Road {
             debug_assert_eq!(expired,raw_rows);
             if crate::v1_trace::enabled() && raw_rows > 0 {
                 crate::v1_trace::add("entry.raw_rows", raw_rows as u64);
-                crate::v1_trace::add("entry.combined_rows", parts.len() as u64);
+                crate::v1_trace::add("entry.combined_rows", projected.as_ref().map_or(parts.len(),|(p,_)|p.iter().map(|p|p.parts.len()).sum::<usize>()) as u64);
             }
-            let added = sum(parts.iter().map(|p| p.mass));
+            let added = projected.as_ref().map_or_else(||sum(parts.iter().map(|p|p.mass)),|(_,m)|*m);
             if added == 0. {
                 continue;
             }
@@ -5123,15 +5137,14 @@ impl V1Road {
                     )
                 })
                 .collect();
-            if local_consumer {
+            if local_consumer && projected.is_none() {
                 // Index vector is gone; the combined input is still owned
                 // by interval_packets. Its separate sweep and packet
                 // allocation envelopes remain intact.
                 work.base = consumer_floor.saturating_add(
                     parts.capacity().saturating_mul(std::mem::size_of::<Part>()));
             }
-            let target = out.cells[i].v[0] + self.groups[i][0];
-            let packets = if self.intervals {
+            let packets = if let Some((p,_))=projected{p}else if self.intervals {
                 self.interval_packets(parts, target, &mut work)?
             } else {
                 vec![Packet {
@@ -5706,6 +5719,7 @@ impl V1Road {
             event_budget,
             intervals,
             research_interval_bins:None,
+            research_rank_bins:None,
             state: RoadState {
                 t: 0.,
                 cells: vec![],
