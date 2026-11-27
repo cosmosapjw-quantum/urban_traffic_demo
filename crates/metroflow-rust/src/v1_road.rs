@@ -227,6 +227,48 @@ impl PacketParts {
         source:&PacketParts,f:f64,
         before_allocate:impl FnOnce(usize)->CoreResult<()>,
     )->CoreResult<Self> {
+        // Keep exact ordered key/code backing on proportional restriction.
+        // The per-dictionary multiplication uses exactly the same binary64
+        // operator as each logical row. Never combine successive factors.
+        if moment_dictionary_enabled() || matches!(source,Self::DictionaryKeys{..}){
+            if let Self::DictionaryKeys{a,b,keys,moments}=source{
+                let count=moments.codes.iter().filter(|&&i|moments.values[i as usize].0*f>0.).count();
+                if count==0{return Ok(Self::Mixed(Arc::new(Vec::new())))}
+                if count==moments.len()&&f==1.{before_allocate(0)?;return Ok(source.clone())}
+                let filtered=count!=moments.len();
+                let dict_cost=count.saturating_add(moments.values.len().saturating_mul(16)).saturating_add(128);
+                if dict_cost<count.saturating_mul(16){
+                    let new_bytes=moments.values.len().saturating_mul(16).saturating_add(128)
+                        .saturating_add(if filtered{count.saturating_mul(9).saturating_add(96)}else{0});
+                    before_allocate(new_bytes)?;
+                    let mut values=compact_checkpoint_vec(moments.values.len())?;
+                    values.extend(moments.values.iter().map(|&(m,b)|(m*f,b*f)));
+                    let (keys,codes)=if filtered{
+                        let mut k=compact_checkpoint_vec(count)?;let mut c=compact_checkpoint_vec(count)?;
+                        for (&key,&code) in keys.iter().zip(moments.codes.iter()){
+                            if values[code as usize].0>0.{k.push(key);c.push(code);}
+                        }
+                        (Arc::new(k),Arc::new(c))
+                    }else{(keys.clone(),moments.codes.clone())};
+                    crate::v1_trace::add("moment_dict.remainder_rows",count as u64);
+                    if !filtered{crate::v1_trace::add("moment_dict.remainder_shared_codes",count as u64);}
+                    return Ok(Self::DictionaryKeys{a:*a,b:*b,keys,moments:Arc::new(v1_moment_dict::MomentDict{codes,values})})
+                }
+                // At most the previous dictionary's charged moment bytes plus
+                // 8 bytes/key (old source observation reserve). The explicit
+                // allocation guard below still charges the new live buffer.
+            }
+            if let Self::SharedKeys{a,b,keys,moments}=source{
+                if moments.iter().all(|&(m,_)|m*f>0.){
+                    if f==1.{before_allocate(0)?;return Ok(source.clone())}
+                    before_allocate(moments.len().saturating_mul(16))?;
+                    let mut out=compact_checkpoint_vec(moments.len())?;
+                    out.extend(moments.iter().map(|&(m,b)|(m*f,b*f)));
+                    crate::v1_trace::add("moment_dict.remainder_shared_keys",moments.len()as u64);
+                    return Ok(Self::SharedKeys{a:*a,b:*b,keys:keys.clone(),moments:Arc::new(out)})
+                }
+            }
+        }
         let mut count=0usize;
         let mut endpoints:Option<(PackedTime,PackedTime)>=None;
         let mut can_uniform=true;
@@ -1630,6 +1672,27 @@ impl RoadState {
         }
         debug_assert_eq!(assignments.len(),index);
         Ok(converted)
+    }
+
+    fn dictionary_workspace(&self)->usize{
+        self.cells.iter().flat_map(|c|&c.packets).chain(self.pending.iter().flatten())
+            .filter_map(|p|match &p.parts{PacketParts::SharedKeys{moments,..}=>Some(moments.len().saturating_add(256*16+128).min(moments.len().saturating_mul(16))),_=>None})
+            .max().unwrap_or(0)
+    }
+    // Called only with all live owners charged and one dictionary overlap
+    // admitted. Each conversion has strictly smaller retained charged size.
+    fn compress_shared_moments(&mut self)->CoreResult<(usize,usize,usize)>{
+        let (mut packets,mut rows,mut saved)=(0usize,0usize,0usize);
+        for p in self.cells.iter_mut().flat_map(|c|&mut c.packets).chain(self.pending.iter_mut().flatten()){
+            let PacketParts::SharedKeys{a,b,keys,moments}=&p.parts else{continue};
+            let Some(plan)=v1_moment_dict::plan(moments)else{continue};
+            let dict=plan.build(moments)?;
+            let raw=moments.capacity().saturating_mul(16);
+            if dict.bytes()>=raw{return Err(arithmetic("dictionary retained charge not reduced"))}
+            saved=saved.saturating_add(raw-dict.bytes());rows=rows.saturating_add(dict.len());packets+=1;
+            p.parts=PacketParts::DictionaryKeys{a:*a,b:*b,keys:keys.clone(),moments:Arc::new(dict)};
+        }
+        Ok((packets,rows,saved))
     }
 
     /// Exact identity union on a specifically enumerated simultaneous set of
@@ -3868,6 +3931,19 @@ impl V1Road {
             let after = candidate.retained_storage_bytes();
             crate::v1_trace::add("keyset.continuous_converted", changed as u64);
             crate::v1_trace::add("keyset.continuous_saved_bytes", before.saturating_sub(after) as u64);
+            if moment_dictionary_enabled(){
+                let overlap=candidate.dictionary_workspace();
+                // Interning temporaries have expired. Reuse the already
+                // accepted conservative owner sum, charge one new dict.
+                let required=owner_sum.saturating_add(old_events).saturating_add(candidate_event_bytes).saturating_add(overlap);
+                if required<=limit{
+                    check_storage_limit(Some(limit),required,"moment dictionary candidate overlap")?;
+                    let (packets,rows,saved)=candidate.compress_shared_moments()?;
+                    crate::v1_trace::add("moment_dict.candidate_packets",packets as u64);
+                    crate::v1_trace::add("moment_dict.candidate_rows",rows as u64);
+                    crate::v1_trace::add("moment_dict.candidate_saved_bytes",saved as u64);
+                }else{crate::v1_trace::add("moment_dict.candidate_budget_skip",1);}
+            }
         }
         Ok(())
     }
@@ -9035,6 +9111,33 @@ impl V1Road{
 #[cfg(test)]
 mod compact_checkpoint_wire_tests{
     use super::*;
+    #[test]
+    fn dictionary_packet_is_bitwise_observable_and_scales_without_rebuilding_codes(){
+        let road=V1Road::new("dictionary-wire".into(),1.,vec![vec![1.;6];2],vec![None;2],vec![(vec![0,1],0)],vec![vec![1.;13]],vec![vec![0,1]],vec![],100000,None,true).unwrap();
+        let keys=Arc::new(vec![(0,0);1025]);
+        let a=PackedTime::new(Some(-0.)).unwrap();let b=PackedTime::new(Some(1.)).unwrap();
+        let xs:Vec<_>=(0..1025).map(|i|match i%3{0=>(0.125,-0.),1=>(0.25,0.125),_=>(f64::from_bits(1),0.)}).collect();
+        let raw=PacketParts::SharedKeys{a,b,keys:keys.clone(),moments:Arc::new(xs.clone())};
+        let dict=Arc::new(v1_moment_dict::plan(&xs).unwrap().build(&xs).unwrap());
+        let coded=PacketParts::DictionaryKeys{a,b,keys:keys.clone(),moments:dict.clone()};
+        let row_bits=|p:&PacketParts|p.iter().map(|x|(x.tag,x.offset,x.mass.to_bits(),x.birth.to_bits(),x.a.0,x.b.0)).collect::<Vec<_>>();
+        assert_eq!(row_bits(&raw),row_bits(&coded));
+        assert!(coded.allocated_bytes()<raw.allocated_bytes());
+        // Both dictionaries with and without underflow-filtered rows follow
+        // the original row multiplication and filter, including signed zero.
+        for f in [1.,0.75,0.5,0.,1e-100]{
+            let eager=PacketParts::pack(portion(&raw,f).unwrap(),|_|Ok(())).unwrap();
+            let scaled=PacketParts::pack_scaled_from(&coded,f,|_|Ok(())).unwrap();
+            assert_eq!(row_bits(&eager),row_bits(&scaled));
+            if f==1.{
+                match scaled{PacketParts::DictionaryKeys{keys:k,moments:m,..}=>{assert!(Arc::ptr_eq(&keys,&k));assert!(Arc::ptr_eq(&dict,&m));},_=>panic!("expected exact backing reuse")}
+            }
+        }
+        let q1=[Packet{target:1.,parts:raw}];let q2=[Packet{target:1.,parts:coded}];
+        let mut x=vec![];let mut y=vec![];let mut z=vec![];
+        road.write_packets_compact_scalar(&mut x,&q1).unwrap();road.write_packets_compact(&mut y,&q2).unwrap();road.write_packets_compact_scalar(&mut z,&q2).unwrap();
+        assert_eq!(x,y);assert_eq!(y,z);
+    }
     #[test]
     fn explicit_shared_wire_roundtrip_reuses_keys_and_preserves_legacy_bytes(){
         let road=V1Road::new("compact-wire".into(),1.,vec![vec![1.;6];2],vec![None;2],vec![(vec![0,1],0)],vec![vec![1.;13]],vec![vec![0,1]],vec![],100000,None,true).unwrap();
