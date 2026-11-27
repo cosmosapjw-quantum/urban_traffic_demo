@@ -4278,7 +4278,9 @@ impl V1Road {
                 // Heads identify owned queue rows. Cloning a potentially huge
                 // mixed packet just to inspect its mass/routes retained a full
                 // extra Part vector for every junction event.
-                let mut heads: BTreeMap<usize, ()> = BTreeMap::new();
+                // The active heads are immutable until the serve loop.
+                // Cache their exact old fsum result for this event only.
+                let mut heads: BTreeMap<usize, f64> = BTreeMap::new();
                 let mut future = vec![];
                 let mut beta: BTreeMap<usize, BTreeMap<usize, f64>> = BTreeMap::new();
                 let mut beta_space: BTreeMap<usize, BTreeMap<usize, f64>> = BTreeMap::new();
@@ -4293,7 +4295,6 @@ impl V1Road {
                         }
                         continue;
                     }
-                    heads.insert(i, ());
                     let mut dest: BTreeMap<usize, RoadExpansion> = BTreeMap::new();
                     let mut ds: BTreeMap<usize, RoadExpansion> = BTreeMap::new();
                     for p in &packet.parts {
@@ -4301,7 +4302,7 @@ impl V1Road {
                         dest.entry(j).or_default().add(p.mass);
                         ds.entry(j).or_default().add(p.mass * self.footprint(p.tag));
                     }
-                    let pm = mass(packet);
+                    let pm=mass(packet);heads.insert(i,pm);
                     beta.insert(i, dest.into_iter().map(|(j, v)| (j, v.finish() / pm)).collect());
                     beta_space.insert(i, ds.into_iter().map(|(j, v)| (j, v.finish() / pm)).collect());
                 }
@@ -4375,7 +4376,7 @@ impl V1Road {
                     }
                 }
                 for (&i, &r) in &rates {
-                    let limit = mass(&queues[i][position[i]].0) / r;
+                    let limit=heads[&i]/r;
                     if limit < h {
                         h = limit;
                         time_boundary = None;
@@ -4402,7 +4403,7 @@ impl V1Road {
                 let subulp = h > 0. && cursor + h == cursor;
                 let retires_head = subulp
                     && rates.iter().any(|(&i, &rate)| {
-                        let fraction = (rate * h / mass(&queues[i][position[i]].0)).min(1.);
+                        let fraction=(rate*h/heads[&i]).min(1.);
                         fraction == 1. || 1. - fraction < 1e-14
                     });
                 if h <= 0. || (subulp && !clock.active && !retires_head) {
@@ -4412,7 +4413,7 @@ impl V1Road {
                         .iter()
                         .map(|(&i, &rate)| {
                             let (packet, ready) = &queues[i][position[i]];
-                            let head_mass = mass(packet);
+                            let head_mass=heads[&i];
                             (
                                 i,
                                 position[i],
@@ -4498,7 +4499,7 @@ impl V1Road {
                 for (&i, &rate) in &rates {
                     let packet = &queues[i][position[i]].0;
                     let ready = queues[i][position[i]].1;
-                    let mut fraction = (rate * h / mass(packet)).min(1.);
+                    let mut fraction=(rate*h/heads[&i]).min(1.);
                     if 1. - fraction < 1e-14 {
                         fraction = 1.;
                     }
@@ -4575,9 +4576,8 @@ impl V1Road {
                     let sm = sum(served_parts(&packet.parts, fraction).map(|p| p.mass));
                     out.cells[i].v[3] += sm;
                     out.cells[i].v[5] += sm * mid;
-                    let mut serve_controls=if use_timed_incoming {
-                        vec![None;self.classes.len()]
-                    }else{Vec::new()};
+                    let mut serve_controls=[None;3];
+                    let mut class_marks:[Option<Mark>;3]=[None;3];
                     // Exactly original IEEE mass/birth transform + source order.
                     for mut p in served_parts(&packet.parts, fraction) {
                         let k = self.class(&p);
@@ -4591,16 +4591,15 @@ impl V1Road {
                             space[j] = (space[j] - p.mass * self.footprint(p.tag)).max(0.);
                             out.ledger[k][4] += p.mass * (end - mid);
                             hold += p.mass * (end - mid);
-                            let m = &motions[i];
-                            let rate = self.classes[k][8] + m.hazards[&k];
-                            let p0 = m.initial[&k];
-                            let latent = if rate == 0. {
-                                p0
-                            } else {
-                                p0 + (self.classes[k][8] / rate - p0)
-                                    * (-(-rate * local_mid).exp_m1())
-                            };
-                            let mark=compact_mark(m.sample(local_mid).1, latent);
+                            // All served rows of one source/class at the
+                            // same local midpoint have the identical mark.
+                            // Cache the original arithmetic, not an
+                            // approximation or reassociated expression.
+                            let mark=*class_marks[k].get_or_insert_with(||{
+                                let m=&motions[i];let rate=self.classes[k][8]+m.hazards[&k];let p0=m.initial[&k];
+                                let latent=if rate==0.{p0}else{p0+(self.classes[k][8]/rate-p0)*(-(-rate*local_mid).exp_m1())};
+                                compact_mark(m.sample(local_mid).1,latent)
+                            });
                             p.offset += 1;
                             if self.intervals {
                                 p.a = PackedTime::new(Some(start_time))?;
@@ -4785,9 +4784,7 @@ impl V1Road {
                 free[i] = (free[i] - m).max(0.);
                 space[i] =
                     (space[i] - sum(parts.iter().map(|p| p.mass * self.footprint(p.tag)))).max(0.);
-                let mut pending_controls=if use_timed_incoming {
-                    vec![None;self.classes.len()]
-                }else{Vec::new()};
+                let mut pending_controls=[None;3];
                 for part in &mut parts {
                     let k = self.class(&part);
                     if self.intervals {
