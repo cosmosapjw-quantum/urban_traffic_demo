@@ -2191,7 +2191,7 @@ pub fn run_native_declaration_with_plan(
                     let source=std::fs::canonicalize(source).map_err(io)?;
                     if !std::fs::metadata(&source).map_err(io)?.is_file(){return Err(bad("resume source not regular file"))}
                     let mut magic=[0u8;8];File::open(&source).map_err(io)?.read_exact(&mut magic).map_err(io)?;
-                    let wanted=if std::env::var("METROFLOW_NATIVE_COMPACT_WIRE").as_deref()==Ok("1"){b"MFWHOLE2"}else{b"MFWHOLE1"};
+                    let wanted=if crate::v1_road::compact_checkpoint_enabled(){b"MFWHOLE2"}else{b"MFWHOLE1"};
                     if &magic!=wanted{false}else{match std::fs::hard_link(&source,checkpoint){Ok(())=>{sync_parent_native(checkpoint)?;true},Err(e) if e.kind()==std::io::ErrorKind::AlreadyExists=>return Err(io(e)),Err(_)=>false}}
                 }else{false}
             }else{false};
@@ -2246,7 +2246,7 @@ pub fn run_native_declaration_with_plan(
     result["save_s"]=json!(clock.elapsed().as_secs_f64());
     result["checkpoint_write_s"]=json!(checkpoint_write_s);
     result["initial_checkpoint_method"]=json!(initial_checkpoint_method);
-    result["wire_writer"]=json!(if std::env::var("METROFLOW_NATIVE_COMPACT_WIRE").as_deref()==Ok("1"){"compact_v2"}else if std::env::var_os("METROFLOW_NATIVE_SCALAR_WIRE").is_some(){"scalar"}else{"batched_stack"});
+    result["wire_writer"]=json!(if crate::v1_road::compact_checkpoint_enabled(){"compact_v2"}else if std::env::var_os("METROFLOW_NATIVE_SCALAR_WIRE").is_some(){"scalar"}else{"batched_stack"});
     result["checkpoint_writer"]=json!(if std::env::var("METROFLOW_NATIVE_LEGACY_SAVE").as_deref()==Ok("1"){"legacy_restore"}else{"immutable_snapshot"});
     if let Ok(cursor)=std::env::var("METROFLOW_NATIVE_COMPLETED_SINCE_S"){
         let since:f64=cursor.parse().map_err(|_|bad("invalid completed observation cursor"))?;
@@ -2299,7 +2299,7 @@ fn save_atomic_native(engine:&mut NativeWholeEngine,path:&str,state:&NativeWhole
             // committed owners directly; no restore clone or altered physics.
             engine.checked(state)?;
             let mut f=BufWriter::with_capacity(1024*1024,std::fs::OpenOptions::new().write(true).create_new(true).open(&tmp).map_err(io)?);
-            let compact=std::env::var("METROFLOW_NATIVE_COMPACT_WIRE").as_deref()==Ok("1");
+            let compact=crate::v1_road::compact_checkpoint_enabled();
             f.write_all(if compact{b"MFWHOLE2"}else{b"MFWHOLE1"}).map_err(io)?;
             f.write_all(&(engine.identity.len()as u64).to_le_bytes()).map_err(io)?;
             f.write_all(engine.identity.as_bytes()).map_err(io)?;

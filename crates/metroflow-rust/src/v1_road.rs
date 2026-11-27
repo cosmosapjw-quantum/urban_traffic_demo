@@ -1279,7 +1279,7 @@ fn check_storage_limit(limit: Option<usize>, required: usize, phase: &str) -> Co
 // <=4096 finite partials; 128 KiB each covers Vec growth overlap.
 // 2 MiB covers these accumulators and local metadata. A key-pointer
 // HashSet census needs O(packet count), not O(physical row count).
-fn compact_checkpoint_enabled()->bool{cfg!(feature="native-cli")&&std::env::var("METROFLOW_NATIVE_COMPACT_WIRE").as_deref()==Ok("1")&&std::env::var("METROFLOW_NATIVE_LEGACY_SAVE").as_deref()!=Ok("1")}
+pub(crate) fn compact_checkpoint_enabled()->bool{cfg!(feature="native-cli")&&std::env::var("METROFLOW_NATIVE_COMPACT_WIRE").as_deref()==Ok("1")&&std::env::var("METROFLOW_NATIVE_LEGACY_SAVE").as_deref()!=Ok("1")}
 fn road_stream_validation_bound(packets:usize,cells:usize)->usize{
     (2*1024*1024usize).saturating_add(packets.saturating_mul(64)).saturating_add(cells.saturating_mul(32))
 }
@@ -8682,5 +8682,105 @@ mod compact_decode_envelope_tests{
             let mut out=vec![];let mut old=vec![];road.write_packets(&mut out,&got).unwrap();road.write_packets(&mut old,q).unwrap();assert_eq!(out,old);
         }
         assert_eq!(bound,work.decoded);assert_eq!(scratch,work.validation);
+    }
+}
+
+// B10 bounded road-owner primitive. The caller must bind both route variants
+// to the same canonical journey owner; this function does not mutate the
+// journey registry or apply a routing probability. Only an actual ready
+// FIFO head can change its remaining suffix, never a pending source.
+#[cfg(any(test,feature="native-cli"))]
+impl V1Road {
+    #[allow(dead_code)]
+    pub(crate) fn apply_ready_suffix(&self, s: &RoadState, cell: usize,
+        old_tag: usize, new_tag: usize, owners: &[usize],
+        legal_turns: &[(usize,usize)]) -> CoreResult<RoadState> {
+        self.check_state(s)?;
+        if old_tag == new_tag || old_tag >= self.routes.len() ||
+            new_tag >= self.routes.len() || owners.len() != self.routes.len() ||
+            owners[old_tag] != owners[new_tag] ||
+            self.routes[old_tag].1 != self.routes[new_tag].1 {
+            return Err(val("suffix route owner or class differs"));
+        }
+        let c = s.cells.get(cell).ok_or_else(||val("suffix cell missing"))?;
+        let head = c.packets.first().ok_or_else(||val("suffix head missing"))?;
+        if head.target > c.v[0] {
+            return Err(val("suffix head not yet at boundary"));
+        }
+        let old = self.path(old_tag);
+        let new = self.path(new_tag);
+        if old.last() != new.last() || new.windows(2)
+            .any(|w| !legal_turns.contains(&(w[0], w[1]))) {
+            return Err(val("suffix destination or legal turn differs"));
+        }
+        let mut changed = 0usize;
+        for p in head.parts.iter() {
+            if p.tag != old_tag {continue}
+            if p.offset+1 >= new.len() || p.offset+1 >= old.len() ||
+                old[..=p.offset] != new[..=p.offset] {
+                return Err(val("suffix occupied prefix differs"));
+            }
+            changed += 1;
+        }
+        if changed == 0 {return Err(val("suffix head has no matching route"))}
+        let base = s.retained_storage_bytes().max(self.retained_input_bytes);
+        let extra = head.parts.len().saturating_mul(
+            std::mem::size_of::<Part>() + std::mem::size_of::<CorePart>());
+        let required = base.saturating_mul(3).saturating_add(extra)
+            .saturating_add(road_stream_validation_bound(
+                s.cells.iter().map(|c|c.packets.len())
+                    .chain(s.pending.iter().map(Vec::len)).fold(0usize,usize::saturating_add),
+                s.cells.len()));
+        check_storage_limit(self.storage_budget,required,"ready suffix transaction")?;
+        let mut rows=checkpoint_vec(head.parts.len())?;
+        for mut p in head.parts.iter() {
+            if p.tag==old_tag {p.tag=new_tag}
+            rows.push(p);
+        }
+        let packed=PacketParts::pack(rows, |_|Ok(()))?;
+        let mut next=s.clone();
+        next.cells[cell].packets[0].parts=packed;
+        self.check_state(&next)?;
+        Ok(next)
+    }
+}
+
+#[cfg(test)]
+mod ready_suffix_owner_tests {
+    use super::*;
+    #[test]
+    fn actual_fifo_head_suffix_changes_destination_preserving_ledgers() {
+        let mut road=V1Road::new("suffix-ready".into(),10.,
+            vec![vec![10.,10.,2.,2.,200.,1.];6],
+            vec![Some((100.,50.,50.)),None,None,None,None,None],
+            vec![(vec![0,1,3,5],0),(vec![0,2,4,5],0)],
+            vec![vec![10.,2.,2.,4.,2.,1.,5.,1.,0.2,0.3,10.,0.,5.]],
+            vec![vec![0],vec![1],vec![2],vec![3,4],vec![5]],vec![],
+            100000,None,true).unwrap();
+        let legal=[(0,1),(1,3),(3,5),(0,2),(2,4),(4,5)];
+        road.owned_step(10.,vec![(0,1.,0.,Some(0.),Some(0.))]).unwrap();
+        for _ in 0..4 {road.owned_step(10.,vec![]).unwrap();}
+        let prior=road.state.clone();
+        assert_eq!(prior.t,50.);
+        assert!(!prior.cells[0].packets.is_empty());
+        assert!(road.apply_ready_suffix(&prior,0,0,1,&[0,1],&legal).is_err());
+        assert!(road.apply_ready_suffix(&prior,0,0,1,&[0,0],&legal[..3]).is_err());
+        let updated=road.apply_ready_suffix(&prior,0,0,1,&[0,0],&legal).unwrap();
+        assert_eq!(updated.totals,prior.totals);
+        assert_eq!(updated.ledger,prior.ledger);
+        assert_eq!(updated.cells[0].v,prior.cells[0].v);
+        let a=prior.cells[0].packets[0].parts.iter().next().unwrap();
+        let b=updated.cells[0].packets[0].parts.iter().next().unwrap();
+        assert_eq!(a.tag,0);assert_eq!(b.tag,1);
+        assert_eq!((a.mass.to_bits(),a.birth.to_bits(),a.a.0,a.b.0,a.offset),
+                   (b.mass.to_bits(),b.birth.to_bits(),b.a.0,b.b.0,b.offset));
+        road.state=updated;
+        let mut events=road.owned_step(10.,vec![]).unwrap();
+        for _ in 0..19 {events.extend(road.owned_step(10.,vec![]).unwrap());}
+        assert!(events.iter().any(|e|e.0==1&&e.1==0&&e.2==Some(2)));
+        assert!(!events.iter().any(|e|e.1==0&&e.2==Some(1)));
+        assert!((road.state.totals[0]-1.).abs()<1e-10);
+        assert!((road.state.totals[1]-1.).abs()<1e-10);
+        road.check_state(&road.state).unwrap();
     }
 }
