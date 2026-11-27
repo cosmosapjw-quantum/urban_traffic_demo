@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.49**, 2026-11-27. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.50**, 2026-11-27. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -2122,7 +2122,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-V03/B15: retain original 6GiB/8GiB/7200s caps and all 3x3 days plus 8h refinement. Original 25740->25750: lock historical exact compact/event/restart/lifetime/packed/source flags and METROFLOW_TRACE_SOURCE_ATTRIBUTION=off for a matched lean arm; attribution-on compact preflight 5562576486>4668014575 is not an unavoidable lower bound. Prove and implement source/receiving workspace lifetime and exact ordinal/key streaming, do not shave guards. Research identity: integrate persistent sparse (leg,absolute retirement tick,protected observer cell) buckets across creation ticks, transactional rollback and exact ready/birth moments; prove entry consumer equivalence incl ordered tag/mass/birth, FIFO receiving and service marks before projecting 4.65M entry rows. Profile actual city dense stage fallback and allocation spills; bound inline/adaptive expansions with source-order parity. 10s/5s actual return comparisons, 3600s/8h/24h, River/Coastal and isolated repeated timings remain. B10 endogenous routing/graph edit drain partial. No production merge or original gate change.
+V03/B15: preserve original 6GiB/8GiB/7200s caps, all 3x3 days and 8h refinement. Original 25740->25750: previous matched lean postroad guard closed by live input/current Arc credit; observer support bound corrected, final trial reached partial atomic save but timed out, no accepted checkpoint. Isolate exact writer/restart with historical flags and source hash, profile serialization and write/sync separately from compute, preserve atomicity and verify complete checkpoint independent recovery; do not infer completed tick from partial file or relax guards. Research: persistent sparse (leg, absolute consumption tick) entry ring with transactional rollback and compensated moments across creation ticks, remove periodic sort scratch only after proof/measure; egress and history growth remain, bound persistent observer support. Real-city ordered expansion spill4/spill8 require active-key sparse bounded overflow, source-order parity. Matched 10s/5s actual return, longer 3600s/8h/24h, River/Coastal and isolated repeated timings; B10 endogenous route/graph-edit drain partial. No production merge or original gate change.
 
 **예산·종료조건**
 
@@ -2306,11 +2306,11 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "V03"
   ],
   "native_subagent": "NOT_RUN_NO_TOOL",
-  "scope": "Integrated S01-S10: original exact recovered 25740 unchanged; retirement pushforward and hidden-child streaming moment closure; exact service support and bounded ordered stage sums; distinct streaming/egress identity. Matched Valley 28560 egress products 1310368 -> 986552, 1338759 raw receipts avoided, road observables bit-identical and age moment relative L1 <=3.043e-15. Independently recovered 28560,28740,29340 (840s new,4020s ancestry), 16018235 raw receipts avoided total; 2 warmed 1M-call zero-heap probes. Original 0/9 full days; 13/15 pure Rust scoped.",
+  "scope": "Integrated S01-S10: original lean continuous keyset guard 5087955648 ->3965258969 B within 4668014575 B by verified shared payload. Next capture 6444815725>6442450944; actual observer support corrected; final original retry timed out during atomic checkpoint write, no recovered 25750, original 25740 unchanged. Distinct source-clock entry quotient, bounded sweeps and direct product projection: matched Valley 29400 entry 4657671->2924498, road relative L1<=4.079e-19 and completed-leg/aggregate ledger exact; recovered 29400/29580/29940, 600s new/4620s ancestry, 13451223 sweep removal operations and 390480 products avoided. Warmed 1M-call zero-heap entry probe; 287 native/9 headless tests. Original 0/9 full days, 13/15 pure Rust scoped.",
   "full_repository_ci": "DEFERRED_BY_USER",
   "full_day_100k": "BLOCKED_RESOURCE_AND_MIGRATION_0_OF_9",
   "main_modified": false,
-  "evidence": "artifacts/v03_streaming_observer_20261127/S10_RESEARCH_RECEIPT.json",
+  "evidence": "artifacts/v03_entry_quotient_20261127/S10_RESEARCH_RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
@@ -2319,20 +2319,20 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "status": "success"
   },
   "parallel_agents": [],
-  "active_branch": "research/v03-streaming-observer-20261127",
-  "production_commit": "6846514cd13ba0a48fee4ff608521417fd4514e6",
+  "active_branch": "research/v03-entry-quotient-20261127",
+  "production_commit": "988974ee3510cdfdb086088b6a133d829f945392",
   "research_stages_completed": 10,
   "research_stages_total": 10,
-  "source_commit": "6846514cd13ba0a48fee4ff608521417fd4514e6",
-  "native_source_sha256": "9fd4ebf6c66f59b4308cb356007067b29ba28fea6be0300bcb6b8468262f9bef",
-  "native_binary_sha256": "a99209dac662da6f4219559b24951ba3e3046609714b1fe9949434491d562067",
+  "source_commit": "988974ee3510cdfdb086088b6a133d829f945392",
+  "native_source_sha256": "bf41bf5971fe36c94eeaab814d8f053ea1968f06d9a345077795dd2486175da9",
+  "native_binary_sha256": "ef3425597917182abb8fc30155695eab52db62e98dc47986e2681de7dbc4ec6e",
   "current_loop_stages_completed": 10,
   "current_loop_stages_total": 10,
   "current_loop_native_subagent": "NOT_RUN_NO_TOOL",
-  "native_source_hash_method": "SHA256 of tracked Rust source manifest at S09; execution receipts bind binary and manifest individually",
+  "native_source_hash_method": "SHA256 of tracked Rust source manifest at S09; measured binaries individually bound in receipts",
   "native_binary_feature": "native-cli no Python; S08/S09 bound",
   "rust_backend_scoped": "13/15 pure Rust scoped; 2 partial; zero unported; original recovered 25740",
-  "theory_loop_scope": "Retirement pushforward, hidden-child streaming moments, exact observer support, bounded egress generation buckets; distinct research identity; original acceptance unchanged"
+  "theory_loop_scope": "Marked source-clock quotient, finite-memory boundary cells, exact owner credit, bounded observer support and entry compression; separate research identity; original acceptance unchanged"
 }
 ```
 

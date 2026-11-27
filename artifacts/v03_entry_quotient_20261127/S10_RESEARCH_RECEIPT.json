@@ -1,0 +1,1109 @@
+{
+  "schema": "metroflow_v03_entry_quotient_research_v1",
+  "scope": "Integrated S01-S10: original lean continuous keyset guard 5087955648 ->3965258969 B within 4668014575 B by verified shared payload. Next capture 6444815725>6442450944; actual observer support corrected; final original retry timed out during atomic checkpoint write, no recovered 25750, original 25740 unchanged. Distinct source-clock entry quotient, bounded sweeps and direct product projection: matched Valley 29400 entry 4657671->2924498, road relative L1<=4.079e-19 and completed-leg/aggregate ledger exact; recovered 29400/29580/29940, 600s new/4620s ancestry, 13451223 sweep removal operations and 390480 products avoided. Warmed 1M-call zero-heap entry probe; 287 native/9 headless tests. Original 0/9 full days, 13/15 pure Rust scoped.",
+  "baseline_commit": "1c89e0b9c81dd82b911576dd350eb9164a3cb218",
+  "implementation_head_before_S10": "988974ee3510cdfdb086088b6a133d829f945392",
+  "final_native_build_sha256": "ef3425597917182abb8fc30155695eab52db62e98dc47986e2681de7dbc4ec6e",
+  "tracked_rust_source_manifest_sha256": "bf41bf5971fe36c94eeaab814d8f053ea1968f06d9a345077795dd2486175da9",
+  "source_hash_method": "SHA256 of tracked Rust source manifest at S09; measured binaries individually bound in receipts",
+  "stages": [
+    {
+      "commit": "b3b8652ff6ebb93b8cc11621b8d0f3a3cd82c6cc",
+      "description": "S01 Bind entry quotient study to original physics and verified frontier"
+    },
+    {
+      "commit": "21d9e56f9db44ed39b1ae2732eb261b8e86fd17a",
+      "description": "S02 Prove marked source-clock quotient and finite-memory boundary evolution"
+    },
+    {
+      "commit": "78467af94e200f6b8d6b48b48f4c9fa86f5b80f2",
+      "description": "S03 Fix postroad duplicate immutable payload charge with live Arc evidence"
+    },
+    {
+      "commit": "aa04c59f188aca8affe7ba8b788d41d2bb55ecc1",
+      "description": "S04 Implement bounded per-proposal entry clock projection with red-green test"
+    },
+    {
+      "commit": "23ae5402cb67f9a4f7fa579dde51a57622012537",
+      "description": "S05 Compact pending entry measures across generations with charged reference scratch"
+    },
+    {
+      "commit": "5f00c0184a20898055608c1955044306bbddb01a",
+      "description": "S06 Integrate bounded entry projection and periodic cross-generation closure under separate identity"
+    },
+    {
+      "commit": "0f5ed55abc2a25410192526cd59fa64ddc7788c2",
+      "description": "S07 Bind service validation scratch to real observer support and adaptive exact sum"
+    },
+    {
+      "commit": "f97f7e5fcea75e353209ef86d27266fd0017e606",
+      "description": "S08 Verify entry and original fixture replay plus allocation-free warmed access kernel"
+    },
+    {
+      "commit": "988974ee3510cdfdb086088b6a133d829f945392",
+      "description": "S09 Recover progressive entry-quotient runs and preserve exact-source timeout"
+    }
+  ],
+  "S10": "Regenerate PLAN/DAG and verify historical census; push, verify restorable bundle and immutable backup before deduplication",
+  "theory_path": "docs/research/V03_ENTRY_QUOTIENT_20261127.md",
+  "readiness": {
+    "nodes_total": 21,
+    "nodes_accepted": 5,
+    "nodes_verified_scoped": 14,
+    "nodes_blocked": 1,
+    "nodes_planned": 1,
+    "direct_dependencies": [
+      {
+        "id": "P01",
+        "status": "VERIFIED_SCOPED"
+      },
+      {
+        "id": "V01",
+        "status": "VERIFIED_SCOPED"
+      },
+      {
+        "id": "V02",
+        "status": "VERIFIED_SCOPED"
+      }
+    ],
+    "direct_scoped_or_accepted": 3,
+    "direct_accepted": 0,
+    "original_cases_prepared": 3,
+    "prior_60s_prefixes_validated": 3,
+    "original_cases_total": 3,
+    "original_full_days_accepted": 0,
+    "original_full_days_required": 9,
+    "original_8h_refinement_completed": 0,
+    "original_8h_refinement_required": 3,
+    "computed_frontier_s": 25740,
+    "independently_recovered_frontier_s": 25740,
+    "research_frontiers": [
+      {
+        "bins": 4,
+        "start_s": 25320,
+        "recovered_s": 25800,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:4",
+        "evidence": "artifacts/v03_causal_rank_20261127/S05_r4_recover25800.json"
+      },
+      {
+        "bins": 1,
+        "start_s": 25320,
+        "recovered_s": 26220,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1",
+        "evidence": "artifacts/v03_causal_rank_20261127/S08_r1_recovered.json"
+      },
+      {
+        "bins": 1,
+        "ready_milli_veh": 500,
+        "start_s": 25800,
+        "ancestral_source_s": 25320,
+        "recovered_s": 27000,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60",
+        "evidence": "artifacts/v03_causal_rank_20261127/S08_ready500_recover27000.json"
+      },
+      {
+        "bins": 1,
+        "receipt_grid_step_s": 10,
+        "receipt_sweep_s": 60,
+        "ancestral_source_s": 25320,
+        "start_s": 27060,
+        "recovered_s": 28020,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10",
+        "evidence": "artifacts/v03_receipt_closure_20261127/S08_grid28020_recover.json"
+      },
+      {
+        "receipt_grid_step_s": 10,
+        "receipt_sweep_s": 60,
+        "observable_schedule": true,
+        "ancestral_source_s": 25320,
+        "start_s": 28020,
+        "recovered_s": 28500,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1",
+        "evidence": "artifacts/v03_observable_buckets_20261127/S09_schedule28500_recovery.json"
+      },
+      {
+        "streaming_receipts": true,
+        "egress_retirement_buckets": true,
+        "ancestral_source_s": 25320,
+        "start_s": 28500,
+        "recovered_s": 29340,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1",
+        "evidence": "artifacts/v03_streaming_observer_20261127/S09_egress29340_recovery.json"
+      },
+      {
+        "entry_source_clock_buckets": true,
+        "ancestral_source_s": 25320,
+        "start_s": 29340,
+        "recovered_s": 29940,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1",
+        "evidence": "artifacts/v03_entry_quotient_20261127/S09_entry29940_recovery.json"
+      }
+    ],
+    "definition": "Original V03 gates unchanged; original exact recovered 25740. Distinct entry research recovered 29940, 600s new/4620s ancestry; no full-day or refinement acceptance.",
+    "current_loop_stages": 10
+  },
+  "backend_coverage": {
+    "baseline_rust_core": 5,
+    "denominator": 15,
+    "method": "unweighted, fixed C01 functional inventory; scoped evidence reviewed; not LOC, full-city completeness or release acceptance",
+    "native_host_linked_python_scoped": 0,
+    "original_dag_accepted": 5,
+    "original_dag_scoped_or_accepted": 19,
+    "original_dag_total": 21,
+    "original_v03_direct_dependencies_ready": 3,
+    "original_v03_direct_dependencies_total": 3,
+    "original_v03_full_days": 0,
+    "original_v03_rust_only_city_preparations_verified": 3,
+    "original_v03_total": 9,
+    "partial_functions": 2,
+    "pure_rust_percent": 86.66666666666667,
+    "pure_rust_verified_scoped": 13,
+    "remaining_functions": 2,
+    "rows": [
+      {
+        "baseline": "PYTHON",
+        "component": "city geometry generation and map validation",
+        "evidence": "../v03_rust_atlas_integration_20261127/C06_all8.json",
+        "evidence_sha256": "857d457e5c32a58630e1918c69416806eab30c3551acdedd76a2e32dd205f5f2",
+        "id": "B01",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "activity geometry and finite access-law construction",
+        "evidence": "../v03_pure_rust_core_20261127/C06_oracle.log",
+        "evidence_sha256": "0b533f343de868b64ed7e4f0cd8eada19f1bd3a00ec176032214d89509726f79",
+        "id": "B02",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "factorized demand declarations and inventory",
+        "evidence": "../v03_rust_atlas_integration_20261127/valley_next.engine10.json",
+        "evidence_sha256": "7fc1f9f20b108e9686eb2a91aa8333b6f21a0ebe97534e3bb20c9775d3d354ea",
+        "id": "B03",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "native factorized OD enumeration",
+        "evidence": "../v03_causal_rank_20261127/river_weekday_s17.engine10.json",
+        "evidence_sha256": "f9d331a4accf22e08fc6aa5b09483b9f759234f7a9828dbea905e99f84796dcf",
+        "id": "B04",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "legal graph route search and cache",
+        "evidence": "../v03_pure_rust_core_20261127/C07-c07-2.json",
+        "evidence_sha256": "3cfd20377ae0cf444cf30c049fd9518a1fc8bcad2b524edb06c91d9aba13b077",
+        "id": "B05",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "MIXED",
+        "component": "fleet and freight route preparation",
+        "evidence": "../v03_pure_rust_core_20261127/C06_oracle.log",
+        "evidence_sha256": "0b533f343de868b64ed7e4f0cd8eada19f1bd3a00ec176032214d89509726f79",
+        "id": "B06",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "road kinetic transport and node allocation",
+        "evidence": "../v03_marked_owner_20261127/S03_25740.json",
+        "evidence_sha256": "d74089162965c0387affa5f879bbbe02bd99872f7c844b5c1d94f83265d448c4",
+        "id": "B07",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "service and journey coupling",
+        "evidence": "../v03_marked_owner_20261127/S03_25740.json",
+        "evidence_sha256": "d74089162965c0387affa5f879bbbe02bd99872f7c844b5c1d94f83265d448c4",
+        "id": "B08",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "whole engine orchestration and checkpoint",
+        "evidence": "../v03_marked_owner_20261127/S04_recovery.json",
+        "evidence_sha256": "821fdb4aad9342aef8f21e2838653b49504d3f95f4edca8aee8d2dab5c4f0e00",
+        "id": "B09",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "causal routing adaptation and delayed land-use",
+        "evidence": "../v03_marked_owner_20261127/S09_phase_parity.json",
+        "evidence_sha256": "a539fa90d97776be82955f79e82301821ce20f3450e3a4fe34078d1b7ee660e0",
+        "id": "B10",
+        "status": "PARTIAL"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "access-coupling research preprocessing",
+        "evidence": "../v03_rust_only_backend_20261126/C03_test.log",
+        "evidence_sha256": "41b47ea4c68ff1f201d6a9d71c5c9e736ec68ce0b508c9458023a751dd3509ff",
+        "id": "B11",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "route passage generation and validation",
+        "evidence": "../v03_rust_only_backend_20261126/C04_test.log",
+        "evidence_sha256": "07791a61eaf987cc0e20c00354b3645a8ade3817d68c57a4bb3134fbd9047638",
+        "id": "B12",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "CPP",
+        "component": "multiclass shared-access projection solver",
+        "evidence": "../v03_rust_only_backend_20261126/C09_parity.json",
+        "evidence_sha256": "1015116457d11089f1df668a3ef26e0f7c8cb0d896a33abb35de65ec1b75d377",
+        "id": "B13",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "research execution receipt and metrics",
+        "evidence": "../v03_receipt_closure_20261127/S09_original25380.json",
+        "evidence_sha256": "0732d7ff2b5eafc9e3d8ab67d679ff978d128e34ac058bb01151337df187342e",
+        "id": "B14",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "original V03 campaign runner and acceptance",
+        "evidence": "../v03_span_measure_20261127/S04_25750.json",
+        "evidence_sha256": "d1a6069fb79b0efc4aa8339335398edb444f44070c8e0cbc05135e7f3a1a1e69",
+        "id": "B15",
+        "status": "PARTIAL"
+      }
+    ],
+    "rust_implemented_percent": 86.66666666666667,
+    "rust_implemented_scoped": 13,
+    "schema": "metroflow_backend_functional_census_v1",
+    "unimplemented_functions": 0,
+    "current_loop": "Exact original postroad credit and actual service-observer bound; separate entry quotient and bounded sweeps; warmed entry probe; B10/B15 partial; no census promotion."
+  },
+  "original_frontier": {
+    "computed": 25740,
+    "recovered": 25740,
+    "new_original_city_run": false,
+    "original_fixture_byte_identical": true,
+    "attempts": [
+      "artifacts/v03_entry_quotient_20261127/S03_original_lean25750.json",
+      "artifacts/v03_entry_quotient_20261127/S08_original_candidate25750.json",
+      "artifacts/v03_entry_quotient_20261127/S09_original_final_timeout.json"
+    ],
+    "environment_contract": "artifacts/v03_entry_quotient_20261127/S09_original_environment.txt",
+    "postroad_guard_closed": true,
+    "final_retry": "TIMEOUT_DURING_ATOMIC_SAVE_NOT_RECOVERED"
+  },
+  "runs": [
+    {
+      "start_s": 29340.0,
+      "recovered_s": 29400,
+      "advanced_s": 60.0,
+      "wall_s": 98.813351665,
+      "advance_s": 19.978478829,
+      "peak_rss_bytes": 1989156864,
+      "max_traced_guard_required_bytes": 2152702365,
+      "guard_exceedances": 0,
+      "checkpoint_bytes": 814546920,
+      "journey_records": {
+        "dynamic_bytes": 235472864,
+        "egress": 3218633,
+        "enter": 2924498,
+        "history": 73564,
+        "history_bytes": 28837088,
+        "internal": 145962,
+        "nonempty_histories": 73564,
+        "stage_bytes": [
+          96092800,
+          105744400,
+          4798576
+        ]
+      },
+      "peak_records": 11324579,
+      "entry_raw_products": 1896000,
+      "entry_stored_products": 1856952,
+      "entry_products_avoided": 39048,
+      "entry_sweep_removed": 2900379,
+      "entry_sweep_raw": 4652561,
+      "entry_sweep_retained": 1752182,
+      "entry_sweep_scratch_max": 264696344,
+      "stage_sorted_fallback": 2,
+      "execution": "artifacts/v03_entry_quotient_20261127/S09_entry29400.json",
+      "recovery": "artifacts/v03_entry_quotient_20261127/S09_entry29400_recovery.json"
+    },
+    {
+      "start_s": 29400.0,
+      "recovered_s": 29580,
+      "advanced_s": 180.0,
+      "wall_s": 182.475369438,
+      "advance_s": 80.636425276,
+      "peak_rss_bytes": 2076835840,
+      "max_traced_guard_required_bytes": 2135548309,
+      "guard_exceedances": 0,
+      "checkpoint_bytes": 894920480,
+      "journey_records": {
+        "dynamic_bytes": 255375184,
+        "egress": 3696739,
+        "enter": 2924498,
+        "history": 84280,
+        "history_bytes": 33037760,
+        "internal": 146353,
+        "nonempty_histories": 84280,
+        "stage_bytes": [
+          96092800,
+          121431504,
+          4813120
+        ]
+      },
+      "peak_records": 12214387,
+      "entry_raw_products": 5688000,
+      "entry_stored_products": 5570856,
+      "entry_products_avoided": 117144,
+      "entry_sweep_removed": 3516948,
+      "entry_sweep_raw": 8773494,
+      "entry_sweep_retained": 5256546,
+      "entry_sweep_scratch_max": 166406416,
+      "stage_sorted_fallback": 2,
+      "execution": "artifacts/v03_entry_quotient_20261127/S09_entry29580.json",
+      "recovery": "artifacts/v03_entry_quotient_20261127/S09_entry29580_recovery.json"
+    },
+    {
+      "start_s": 29580.0,
+      "recovered_s": 29940,
+      "advanced_s": 360.0,
+      "wall_s": 249.369500041,
+      "advance_s": 170.169455665,
+      "peak_rss_bytes": 2211311616,
+      "max_traced_guard_required_bytes": 2285850549,
+      "guard_exceedances": 0,
+      "checkpoint_bytes": 955606680,
+      "journey_records": {
+        "dynamic_bytes": 288072840,
+        "egress": 4495809,
+        "enter": 2924498,
+        "history": 100469,
+        "history_bytes": 39383848,
+        "internal": 146424,
+        "nonempty_histories": 100469,
+        "stage_bytes": [
+          96092800,
+          147783072,
+          4813120
+        ]
+      },
+      "peak_records": 13266110,
+      "entry_raw_products": 11376000,
+      "entry_stored_products": 11141712,
+      "entry_products_avoided": 234288,
+      "entry_sweep_removed": 7033896,
+      "entry_sweep_raw": 17546988,
+      "entry_sweep_retained": 10513092,
+      "entry_sweep_scratch_max": 166406416,
+      "stage_sorted_fallback": 2,
+      "execution": "artifacts/v03_entry_quotient_20261127/S09_entry29940.json",
+      "recovery": "artifacts/v03_entry_quotient_20261127/S09_entry29940_recovery.json"
+    }
+  ],
+  "matched_comparison": {
+    "address_space_limit_bytes": 8589934592,
+    "candidate_checkpoint_sha256": "2a0dd202bbbec6257503d420530699732aa5d496a13af9637765d3682c0e102b",
+    "candidate_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1",
+    "candidate_manifest_sha256": "7dadbdef803fe778e492505ee87ef5787d2fb91d18e0eeca13cf1aec31caacf6",
+    "cells": {
+      "active_veh": {
+        "bit_different_entries": 9,
+        "entries": 1586,
+        "l1": 3.6022617180830885e-17,
+        "linf": 1.3877787807814457e-17,
+        "reference_l1": 1606.2997381021323,
+        "relative_l1": 2.2425837672981355e-20
+      },
+      "cumulative_entry_veh": {
+        "bit_different_entries": 0,
+        "entries": 1586,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 185230.40450643672,
+        "relative_l1": 0.0
+      },
+      "cumulative_exit_veh": {
+        "bit_different_entries": 0,
+        "entries": 1586,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 183624.10476833463,
+        "relative_l1": 0.0
+      },
+      "distance_veh_m": {
+        "bit_different_entries": 0,
+        "entries": 1586,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 35600095.58096963,
+        "relative_l1": 0.0
+      },
+      "occupied_lane_m": {
+        "bit_different_entries": 11,
+        "entries": 1586,
+        "l1": 8.571702375670398e-16,
+        "linf": 4.440892098500626e-16,
+        "reference_l1": 8031.4986905106625,
+        "relative_l1": 1.0672606329125092e-19
+      },
+      "speed_m_s": {
+        "bit_different_entries": 4,
+        "entries": 1586,
+        "l1": 3.552713678800501e-15,
+        "linf": 8.881784197001252e-16,
+        "reference_l1": 8711.605199614705,
+        "relative_l1": 4.078138985175349e-19
+      }
+    },
+    "executable_sha256": "ef3425597917182abb8fc30155695eab52db62e98dc47986e2681de7dbc4ec6e",
+    "journey_legs": {
+      "completed_persons": {
+        "bit_different_entries": 0,
+        "entries": 918450,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 11418.945253419111,
+        "relative_l1": 0.0
+      },
+      "completed_veh": {
+        "bit_different_entries": 0,
+        "entries": 918450,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 9116.987286840213,
+        "relative_l1": 0.0
+      },
+      "since_completion_person_s": {
+        "bit_different_entries": 0,
+        "entries": 918450,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 19573103.64236069,
+        "relative_l1": 0.0
+      },
+      "since_completion_veh_s": {
+        "bit_different_entries": 0,
+        "entries": 918450,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 15622009.264312664,
+        "relative_l1": 0.0
+      }
+    },
+    "last_tick_outlet": {
+      "birth_to_exit_veh_s": {
+        "bit_different_entries": 25,
+        "entries": 304856,
+        "l1": 8.035933030114961e-14,
+        "linf": 1.4210854715202004e-14,
+        "reference_l1": 18549.314096754915,
+        "relative_l1": 4.33219955638187e-18
+      },
+      "outlet_veh": {
+        "bit_different_entries": 12,
+        "entries": 304856,
+        "l1": 7.995991022080595e-19,
+        "linf": 2.168404344971009e-19,
+        "reference_l1": 28.828555596830267,
+        "relative_l1": 2.7736356735679686e-20
+      }
+    },
+    "peak_rss_bytes": 920698880,
+    "reference_checkpoint_sha256": "e9460c879f23d970b7f72a5b7d7172d7216124a3edb62ca8f7e54343eb136c8b",
+    "reference_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1",
+    "reference_manifest_sha256": "a5f0ab6eb169ae61d3e3c745c1900dfc513325826bb45e259fe7f3a0c644d574",
+    "road_tags": {
+      "active_veh": {
+        "bit_different_entries": 304,
+        "entries": 304856,
+        "l1": 5.539121136592662e-16,
+        "linf": 2.7755575615628914e-17,
+        "reference_l1": 1606.2997381021323,
+        "relative_l1": 3.4483733049332485e-19
+      },
+      "birth_veh_s": {
+        "bit_different_entries": 358,
+        "entries": 304856,
+        "l1": 1.9186430222362105e-11,
+        "linf": 1.8189894035458565e-12,
+        "reference_l1": 46487435.15190458,
+        "relative_l1": 4.1272292523060483e-19
+      },
+      "entry_clock_veh_s": {
+        "bit_different_entries": 324,
+        "entries": 304856,
+        "l1": 2.4292678979520588e-11,
+        "linf": 3.637978807091713e-12,
+        "reference_l1": 47207899.39613654,
+        "relative_l1": 5.145892804014212e-19
+      },
+      "route_offset_veh": {
+        "bit_different_entries": 79,
+        "entries": 304856,
+        "l1": 4.2156321565078175e-16,
+        "linf": 2.220446049250313e-16,
+        "reference_l1": 16693.250998630545,
+        "relative_l1": 2.525351207415292e-20
+      }
+    },
+    "schema": "metroflow_rank_state_compare_v1",
+    "scope": "strict loaded snapshots same physical declaration/time/tag registry; numerical observable differences, not global error theorem or release acceptance",
+    "status": "EXECUTED_FOR_REVIEW",
+    "tag_order_sha256": "1afae786b6800f1e8705b0a64cedd6b4d018fa440176937d9ad919c758a25eb8",
+    "time_s": 29400.0,
+    "wall_s": 18.60136315
+  },
+  "matched_reference_recovery": {
+    "address_space_limit_bytes": 8589934592,
+    "build_s": 3.531313805,
+    "byte_budget": 6442450944,
+    "calendar_legs": 918450,
+    "calendar_totals": [
+      120000.0,
+      58801.0,
+      1000.0
+    ],
+    "checkpoint_bytes": 870008440,
+    "checkpoint_sha256": "e9460c879f23d970b7f72a5b7d7172d7216124a3edb62ca8f7e54343eb136c8b",
+    "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+    "class_names": [
+      "car",
+      "freight",
+      "scheduled_bus"
+    ],
+    "completed_event_rows": 4154162,
+    "decode_envelopes": {
+      "compact_owner_bytes": 111149504,
+      "compact_validation_scratch_bytes": 2334848,
+      "historical_legacy_owner_estimate_bytes": 111786368,
+      "historical_legacy_validation_scratch_bytes": 79534976
+    },
+    "executable_sha256": "a99209dac662da6f4219559b24951ba3e3046609714b1fe9949434491d562067",
+    "journey_records": {
+      "dynamic_bytes": 292472400,
+      "egress": 3218633,
+      "enter": 4657671,
+      "history": 73564,
+      "history_bytes": 28837088,
+      "internal": 145962,
+      "nonempty_histories": 73564,
+      "stage_bytes": [
+        153092336,
+        105744400,
+        4798576
+      ]
+    },
+    "ledger": {
+      "cargo_kg": {
+        "active": 0.0,
+        "completed": 0.0,
+        "pending": 0.0,
+        "released": 0.0,
+        "released_intent_first_moment": 0.0,
+        "requested": 0.0
+      },
+      "persons": {
+        "active": 3062.562209242895,
+        "completed": 11418.945253419037,
+        "pending": 9685.15920400403,
+        "released": 14481.507462661932,
+        "released_intent_first_moment": 396159164.69048864,
+        "requested": 24166.666666665962
+      },
+      "vehicles": {
+        "active": 2449.6793798260896,
+        "completed": 9116.987286840218,
+        "pending": 274.9999999999236,
+        "released": 11566.666666666308,
+        "released_intent_first_moment": 316420166.6666618,
+        "requested": 11841.666666666231
+      }
+    },
+    "load_s": 2.504729282,
+    "manifest_sha256": "a5f0ab6eb169ae61d3e3c745c1900dfc513325826bb45e259fe7f3a0c644d574",
+    "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1",
+    "peak_rss_bytes": 916062208,
+    "python_runtime_dependency": "none",
+    "road_class_ledgers": [
+      [
+        10992.03507207537,
+        9385.735334103556,
+        109920.35072218213,
+        199993.9726314893,
+        1023503.5512884161
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        4.0,
+        4.0,
+        40.0,
+        42.546830484469325,
+        619.9681412956854
+      ]
+    ],
+    "road_records": {
+      "cell_packets": 2921,
+      "cell_parts": 4961922,
+      "mixed_parts": 0,
+      "pending_packets": 0,
+      "pending_parts": 0,
+      "retained_storage_bytes": 111147680,
+      "uniform_parts": 4961922
+    },
+    "road_totals": [
+      10996.035072186358,
+      9389.73533408449,
+      299873890.11213297,
+      259417198.9697135,
+      109960.35072186688,
+      1024123.5194256731,
+      1598200.4677236513
+    ],
+    "schedule_identity": "61bf90204d22e3442c565f3f62b8ef4cba7d7be3e74b1d33e6c8bcf96208c920",
+    "schema": "metroflow_native_recovery_v1",
+    "scope": "strict complete decode, cross-owner ledger validation and original identity; no execution or elapsed-horizon claim",
+    "status": "RECOVERED_CHECKPOINT_ONLY",
+    "threads": 8,
+    "time_s": 29400.0,
+    "wall_s": 7.329062687
+  },
+  "fixture_comparison": {
+    "address_space_limit_bytes": 8589934592,
+    "candidate_checkpoint_sha256": "c0c358bb977e1e7486598a1b6c41c043306ca2e8c9686f8c37a5f3d353ef0d5f",
+    "candidate_identity": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3:mature-receipt-v1:10:group-outlets-v1:receipt-grid-v1:1:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1",
+    "candidate_manifest_sha256": "61219296e946d9aa7acfb2ece0292f33015240786f542d4a7a01edbc80ce0eb5",
+    "cells": {
+      "active_veh": {
+        "bit_different_entries": 0,
+        "entries": 2,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      },
+      "cumulative_entry_veh": {
+        "bit_different_entries": 0,
+        "entries": 2,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 14.9,
+        "relative_l1": 0.0
+      },
+      "cumulative_exit_veh": {
+        "bit_different_entries": 0,
+        "entries": 2,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 14.9,
+        "relative_l1": 0.0
+      },
+      "distance_veh_m": {
+        "bit_different_entries": 0,
+        "entries": 2,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 1490.0000000000002,
+        "relative_l1": 0.0
+      },
+      "occupied_lane_m": {
+        "bit_different_entries": 0,
+        "entries": 2,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      },
+      "speed_m_s": {
+        "bit_different_entries": 0,
+        "entries": 2,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      }
+    },
+    "executable_sha256": "ef3425597917182abb8fc30155695eab52db62e98dc47986e2681de7dbc4ec6e",
+    "journey_legs": {
+      "completed_persons": {
+        "bit_different_entries": 0,
+        "entries": 5,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 20.000000000000004,
+        "relative_l1": 0.0
+      },
+      "completed_veh": {
+        "bit_different_entries": 0,
+        "entries": 5,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 13.060000000000004,
+        "relative_l1": 0.0
+      },
+      "since_completion_person_s": {
+        "bit_different_entries": 0,
+        "entries": 5,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 1524.6522365923188,
+        "relative_l1": 0.0
+      },
+      "since_completion_veh_s": {
+        "bit_different_entries": 0,
+        "entries": 5,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 1043.9817892738552,
+        "relative_l1": 0.0
+      }
+    },
+    "last_tick_outlet": {
+      "birth_to_exit_veh_s": {
+        "bit_different_entries": 0,
+        "entries": 5,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      },
+      "outlet_veh": {
+        "bit_different_entries": 0,
+        "entries": 5,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      }
+    },
+    "peak_rss_bytes": 7745536,
+    "reference_checkpoint_sha256": "b0496f836e841c8d479dfdeb26a1b4f60aee90076df8b3f4a5317fd80d54db40",
+    "reference_identity": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3:mature-receipt-v1:10:group-outlets-v1:receipt-grid-v1:1:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1",
+    "reference_manifest_sha256": "06db4b536d59b00dece8837150fa09804367bf48dabd9f74eded4ac2b04b6314",
+    "road_tags": {
+      "active_veh": {
+        "bit_different_entries": 0,
+        "entries": 5,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      },
+      "birth_veh_s": {
+        "bit_different_entries": 0,
+        "entries": 5,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      },
+      "entry_clock_veh_s": {
+        "bit_different_entries": 0,
+        "entries": 5,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      },
+      "route_offset_veh": {
+        "bit_different_entries": 0,
+        "entries": 5,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      }
+    },
+    "schema": "metroflow_rank_state_compare_v1",
+    "scope": "strict loaded snapshots same physical declaration/time/tag registry; numerical observable differences, not global error theorem or release acceptance",
+    "status": "EXECUTED_FOR_REVIEW",
+    "tag_order_sha256": "133d106ee0c5ad48bd141a8a61f99a3f5e36733c8bcd0bdaa1c43e817d4f9d25",
+    "time_s": 120.0,
+    "wall_s": 0.001987968
+  },
+  "allocation_probes": [
+    {
+      "iterations_per_kernel": 1000000,
+      "journey_fsum": {
+        "allocation_calls": 0,
+        "last_value": 3.5,
+        "reallocation_calls": 0,
+        "wall_s": 0.051932925
+      },
+      "link_step": {
+        "allocation_calls": 0,
+        "final_counts": {
+          "admitted": 1000000.0,
+          "departed": 999997.0,
+          "on_link": 3.0,
+          "pending": 0.0,
+          "requested": 1000000.0,
+          "residence_veh_s": 2999994.0
+        },
+        "reallocation_calls": 0,
+        "wall_s": 0.012813114
+      },
+      "scope": "single process, initialized ring, tested six-term finite cancellation input; other inputs may spill; no full-engine zero heap claim"
+    },
+    {
+      "allocation_calls": 0,
+      "iterations": 100000,
+      "kernel": "marked_fifo_diverge_step",
+      "metrics": {
+        "age_identity_residual": [
+          -5.820766091346741e-11,
+          -1.4551915228366852e-11
+        ],
+        "blocked_mixed_ticks": 14285,
+        "completed_elapsed_veh_s": [
+          248561.39999965587,
+          82853.80000013339
+        ],
+        "exited": {
+          "birth": [
+            2999790003.6,
+            999930001.2
+          ],
+          "mass": [
+            59997.599999901235,
+            19999.200000037694
+          ]
+        },
+        "max_birth_residual": 2.3178290575742722e-07,
+        "max_mass_residual": 7.275513524973576e-12,
+        "on_link": {
+          "birth": [
+            239996.4,
+            79998.8
+          ],
+          "mass": [
+            2.4,
+            0.8
+          ]
+        },
+        "peak_pending_veh": 0.0,
+        "peak_queue_rows": [
+          1,
+          3,
+          3,
+          3
+        ],
+        "pending": {
+          "birth": [
+            0.0,
+            0.0
+          ],
+          "mass": [
+            0.0,
+            0.0
+          ]
+        },
+        "requested": {
+          "birth": [
+            3000030000.0,
+            1000010000.0
+          ],
+          "mass": [
+            59999.99999990123,
+            20000.000000037697
+          ]
+        },
+        "reserved_queue_payload_bytes": 36000160,
+        "residence_veh_s": [
+          248564.99999965585,
+          82855.00000013338
+        ],
+        "time_s": 100000.0
+      },
+      "reallocation_calls": 0,
+      "scope": "preallocated marked network; 2 classes, unequal footprints, intermittent receiving restriction; no full V03 zero heap claim",
+      "wall_s": 0.018022717
+    },
+    {
+      "allocation_calls": 0,
+      "checksum": 2594073418108802610,
+      "iterations": 1000000,
+      "kernel": "packed_reference_and_event_random_access",
+      "reallocation_calls": 0,
+      "scope": "initialized exact packed ranks and event pages; encoding allocates per sealed page",
+      "sealed_saved_bytes": [
+        671744,
+        1459552
+      ],
+      "wall_s": 0.026402659
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        1.0,
+        3.0
+      ],
+      "iterations": 1000000,
+      "kernel": "rank_positive_mass_birth_accumulation",
+      "reallocation_calls": 0,
+      "scope": "actual compensated per-mark accumulator; excludes sort and packet output allocations",
+      "wall_s": 0.017906126
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        0.5,
+        4.75,
+        0.5,
+        10.375
+      ],
+      "iterations": 1000000,
+      "kernel": "warmed_receipt_grid_bucket",
+      "reallocation_calls": 0,
+      "scope": "actual warmed bucket insertion and inline positive mass/moment sums; output history and source visitor excluded",
+      "wall_s": 0.0321911
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        13.875,
+        1.0
+      ],
+      "iterations": 1000000,
+      "kernel": "transactional_receipt_accumulator",
+      "reallocation_calls": 0,
+      "scope": "actual fixed inline positive completion measure; excludes transaction scratch initialization, Arc history replacement and output",
+      "wall_s": 0.035930817
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        2.0,
+        1.0
+      ],
+      "iterations": 1000000,
+      "kernel": "warmed_egress_retirement_buckets",
+      "reallocation_calls": 0,
+      "scope": "actual warmed per-leg outlet law product projection from four products into two retirement buckets; stage output append excluded",
+      "wall_s": 0.178138162
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        2.0,
+        2.0,
+        2.0
+      ],
+      "iterations": 1000000,
+      "kernel": "warmed_entry_access_projection",
+      "reallocation_calls": 0,
+      "scope": "actual preallocated per-proposal access projection, four law products to two consumption ticks; excludes initialization, queue output and periodic sweep",
+      "wall_s": 0.30120971
+    },
+    {
+      "allocation_calls": 0,
+      "checksum": [
+        3,
+        13799029258263199744
+      ],
+      "iterations": 1000000,
+      "kernel": "outlet_group_and_stack_wire",
+      "reallocation_calls": 0,
+      "scope": "actual fixed-slice grouped outlet and stack word writer; no allocation for tested small fsum; full histories may spill",
+      "wall_s": 0.054354294
+    }
+  ],
+  "rational_oracle": {
+    "status": "PASS_EXACT_FINITE_ASSERTIONS",
+    "atom_types": 16,
+    "three_atom_cases": 6528,
+    "boundary_checks": 32640,
+    "fifo_cases": 6528,
+    "scope": "fixed dt=2, eps=0, canonical source packet and proportional FIFO service; not full MetroFlow proof or binary64 test",
+    "elapsed_s": 1.3048592309933156
+  },
+  "validation": {
+    "native_lib_pass": 287,
+    "native_lib_ignored": 2,
+    "headless_pass": 9,
+    "native_release_bins": "PASS",
+    "full_repository_ci": "NOT_RUN_DEFERRED_BY_USER",
+    "native_subagent": "NOT_RUN_NO_TOOL",
+    "source_diff_check": "PASS",
+    "research_checkpoints": "execution and independent recovery hashes, identities and ledgers and on-disk SHA verified"
+  },
+  "limits": {
+    "address_space_bytes": 8589934592,
+    "accounting_bytes": 6442450944,
+    "original_wall_s_per_case": 7200,
+    "full_day_cases_completed": 0,
+    "full_day_cases_required": 9
+  },
+  "full_day_acceptance": "BLOCKED_RESOURCE_AND_MIGRATION_0_OF_9",
+  "limitations": [
+    "Only first 60s has matched control. Longer segments are separate-identity continuation evidence.",
+    "Entry fixture singleton law does not exercise compression; helper tests and actual city do. No whole-engine zero heap or measured speedup; host shared.",
+    "Periodic sweep still uses sort scratch; persistent ring not implemented. Actual city 4/8 component sums spill and sort. Egress/history still grow.",
+    "Original final retry timed out during atomic save; no completed receipt or accepted 25750. Partial stage not checkpoint.",
+    "No full day, 8h refinement, actual evening return, River/Coastal long progression, full CI, main merge or independent native agent review."
+  ],
+  "next_action": "V03/B15: preserve original 6GiB/8GiB/7200s caps, all 3x3 days and 8h refinement. Original 25740->25750: previous matched lean postroad guard closed by live input/current Arc credit; observer support bound corrected, final trial reached partial atomic save but timed out, no accepted checkpoint. Isolate exact writer/restart with historical flags and source hash, profile serialization and write/sync separately from compute, preserve atomicity and verify complete checkpoint independent recovery; do not infer completed tick from partial file or relax guards. Research: persistent sparse (leg, absolute consumption tick) entry ring with transactional rollback and compensated moments across creation ticks, remove periodic sort scratch only after proof/measure; egress and history growth remain, bound persistent observer support. Real-city ordered expansion spill4/spill8 require active-key sparse bounded overflow, source-order parity. Matched 10s/5s actual return, longer 3600s/8h/24h, River/Coastal and isolated repeated timings; B10 endogenous route/graph-edit drain partial. No production merge or original gate change.",
+  "evidence_files": {
+    "artifacts/v03_entry_quotient_20261127/S01_identity.txt": "d726fb73fcf24c60dba983da82d12686501d781d00588de761084d0d42bdadce",
+    "artifacts/v03_entry_quotient_20261127/S01_readiness.json": "dc8fd29b595fd7b02a79870fbf1cd9e4887bb652a4d63ba726f6706efa5a9836",
+    "artifacts/v03_entry_quotient_20261127/S02_cas.txt": "047996e7d4d58ca0be42ea0f461fc3e9bf7777d2d769642111e6d2ccff2ba2ef",
+    "artifacts/v03_entry_quotient_20261127/S03_binary.sha256": "5689466daa500a575700c88ca1ee8080e9661153a2bbad30dd1c92757ea712bd",
+    "artifacts/v03_entry_quotient_20261127/S03_build.log": "ff686c8b929bf3bba0d6f77687da78384d52bfdc9b4b7e1a0d582525d52f5dd7",
+    "artifacts/v03_entry_quotient_20261127/S03_original_lean.log": "5cd53bd99740b44af2597d5b7cc1d10e52403ec8e768243b0ce7704f3d49673f",
+    "artifacts/v03_entry_quotient_20261127/S03_original_lean25750.json": "8ad070a1902daaed3ded6c4a91bbd6d617661cb28181ccbe4378a4863d1550a1",
+    "artifacts/v03_entry_quotient_20261127/S03_original_process.txt": "c8d39ac9ddb2cabc05f83f67c30f62ff5ce159b0f121c1748596a80f9d537c31",
+    "artifacts/v03_entry_quotient_20261127/S03_test.log": "5d4806e1e22c00ef5617227f259b6a5e55c0dd24e24e3dbb919a42026c2141ea",
+    "artifacts/v03_entry_quotient_20261127/S04_green.log": "5a20f88a367b004417c4de1598b1dd6954460230944357db0bede6f8215ba00f",
+    "artifacts/v03_entry_quotient_20261127/S04_red.log": "0e63a2fd1857ab750f9a1bfc9040a4bd0d45322e2a932c51e25639ff1da4dce0",
+    "artifacts/v03_entry_quotient_20261127/S05_test.log": "b789df300a9fe18a63b4e1134f9db114a04926a18e6e3e225fe233fae0d8bc4d",
+    "artifacts/v03_entry_quotient_20261127/S06_native.log": "fa8b4b94916d0bf254005f08099bcf12fb2096a116aa1888b8ea98e18db26448",
+    "artifacts/v03_entry_quotient_20261127/S07_native.log": "c79a6c8ef823debefdf1204e0e42a704ff80de686bb795e57ff87ac4db2f0ca2",
+    "artifacts/v03_entry_quotient_20261127/S07_reference29400.json": "73f24b9d80ab4fe9e38e0ef09f0824c9c5097e7542e7d23e863c1deb261f12d6",
+    "artifacts/v03_entry_quotient_20261127/S07_reference29400_recovery.json": "62e774495b3a0a26e3e17712527864ab3ac45424a7141a91102f5935da1ee98f",
+    "artifacts/v03_entry_quotient_20261127/S08_binaries.sha256": "d38a23aca4d1331235a08df6aaf52d6b616d41b98cd4b78df6d66dbd20ce640f",
+    "artifacts/v03_entry_quotient_20261127/S08_build.log": "535247a88c0aa8edd1a4bdbf737cc8dd83286899d64d8c1ff866f629e7a74277",
+    "artifacts/v03_entry_quotient_20261127/S08_fixture_compare120.json": "fb79957cf127589ca4f44d79d9cb73b059072506855d7b14276d6ddd9cc6e738",
+    "artifacts/v03_entry_quotient_20261127/S08_fixture_egress_new.json": "cae661c2f8abe2cd621e0ed05dfa602baf62bb24eb11e52673a26443056913a0",
+    "artifacts/v03_entry_quotient_20261127/S08_fixture_entry.manifest.json": "61219296e946d9aa7acfb2ece0292f33015240786f542d4a7a01edbc80ce0eb5",
+    "artifacts/v03_entry_quotient_20261127/S08_fixture_entry120.json": "e2dbbcd79a9841a5d0c54699c73dbe4788fd84287b46db4fa43813b29889745f",
+    "artifacts/v03_entry_quotient_20261127/S08_fixture_entry120_recovery.json": "8ef7e05f6647d5b41c1435114fff6c7aa01d47fa8db2bb8938eb37799b18e662",
+    "artifacts/v03_entry_quotient_20261127/S08_fixture_original_new.json": "eb1c8259fa2afdedf7537d17f0b61048f76b3594da4e0a645927ab3973a2f0d2",
+    "artifacts/v03_entry_quotient_20261127/S08_headless.log": "aac780b5bba5f3bb23d6b1248b7da96d5dd2328799657464a1bc0d0cb9fe524b",
+    "artifacts/v03_entry_quotient_20261127/S08_original_candidate25750.json": "66ff624e932e90305c42d196cfe31cbd234497171639bcfa91e5ce2c70dbb491",
+    "artifacts/v03_entry_quotient_20261127/S08_original_candidate_process.txt": "ebfea67a27e419692a758fcf6e700513d2f9d4338bf6eef8db6f4f5b4bda87bf",
+    "artifacts/v03_entry_quotient_20261127/S08_zero_alloc.jsonl": "78683ebb3ddf94137363b3d9309f056e900cda3cddff90b0f4441f884e2663b5",
+    "artifacts/v03_entry_quotient_20261127/S09_compare29400.json": "47a93f6884b45c3e3c423dcad652bdffc385496208a65d9df3a657b55984179c",
+    "artifacts/v03_entry_quotient_20261127/S09_entry29340_migrate.json": "cbda551b9c5589caae2d18e16e67a11e3a11eac9ab138cf947809ad1a41213a2",
+    "artifacts/v03_entry_quotient_20261127/S09_entry29400.json": "6289394a8e4cf5146e4ff1660db7ad180d5e75528ff2853527b556de2420835c",
+    "artifacts/v03_entry_quotient_20261127/S09_entry29400_recovery.json": "61255350b9a1c89891e36edc008ca63e623836c0ecd8e33cae832678eb96f728",
+    "artifacts/v03_entry_quotient_20261127/S09_entry29580.json": "8398d5639bdbab62c389c9e632b3e835ec9bce55b40b2bd4adfc45c38e7816cc",
+    "artifacts/v03_entry_quotient_20261127/S09_entry29580_recovery.json": "b266295643e90d5bb1ff05d935e66a32a069f068beff71d3ca62266519b2f61b",
+    "artifacts/v03_entry_quotient_20261127/S09_entry29940.json": "d87f2c797f10879d61c6ef5f1c46001e9bd2e4412871bf1ade7c0f66a98224c5",
+    "artifacts/v03_entry_quotient_20261127/S09_entry29940_recovery.json": "3ba86e5dbb30204c9b38a8de6043a75282e3ebd093403a988555e88a9d2dd763",
+    "artifacts/v03_entry_quotient_20261127/S09_original_candidate.log": "5c754c5fa76826204472b9dc44fb2c752128fadd6c876fb3aa9be08bd9cc6926",
+    "artifacts/v03_entry_quotient_20261127/S09_original_environment.txt": "c1b4c8d1e986e34774617723a679d0e37ac8a2aa3232a32e97362e6fb8f18a0f",
+    "artifacts/v03_entry_quotient_20261127/S09_original_final_process.txt": "e483b681a052a455594f2ab79545af318dacf0844ffb57d9427f2370808e7a63",
+    "artifacts/v03_entry_quotient_20261127/S09_original_final_timeout.json": "703ccb014ce7a4eeffd76a0051cfbdf9f8b485664aae2bf93f886212af3d5644",
+    "artifacts/v03_entry_quotient_20261127/S09_progressive_summary.json": "d407c979b1c470b572c8994c47911a1ca0ecce17017bf96e36198fc2bf646404",
+    "artifacts/v03_entry_quotient_20261127/S09_rational_oracle.json": "7271d71ed15e57573a1292bab2eed84a6ff424f591e81d90186e1e7f3439498a",
+    "artifacts/v03_entry_quotient_20261127/S09_rational_oracle.sha256": "e1dcd5ad87780952e7474836d3f81f91443ce8c6abf6fb59543ed5406ba41e59",
+    "artifacts/v03_entry_quotient_20261127/S09_tracked_rust_sources.sha256": "bf41bf5971fe36c94eeaab814d8f053ea1968f06d9a345077795dd2486175da9",
+    "artifacts/v03_entry_quotient_20261127/S09_valley_entry.manifest.json": "7dadbdef803fe778e492505ee87ef5787d2fb91d18e0eeca13cf1aec31caacf6"
+  }
+}
