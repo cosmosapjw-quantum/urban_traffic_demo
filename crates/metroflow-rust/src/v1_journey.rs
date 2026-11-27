@@ -906,6 +906,7 @@ pub struct NativeJourneyCore {
     tick_times_s: Vec<f64>,
     peak_records: usize,
     history_rows: usize,
+    research_receipt_period_s:Option<u64>,
     history_bytes: usize,
     history_decoded_final: usize,
     history_decode_extra_max: usize,
@@ -1152,6 +1153,11 @@ impl NativeJourneyCore {
     }
     pub(crate) fn legs(&self) -> &[SharedJourneyLeg] {
         &self.legs
+    }
+    #[cfg(feature="native-cli")]
+    pub(crate) fn set_research_receipt_period(&mut self,period:u64)->CoreResult<()>{
+        if !(10..=3600).contains(&period)||self.storage_budget.is_none(){return Err(bad("receipt closure period outside supported domain"))}
+        self.research_receipt_period_s=Some(period);Ok(())
     }
     pub(crate) fn owned_time(&self) -> f64 {
         self.state.0
@@ -2218,6 +2224,7 @@ impl NativeJourneyCore {
             tick_times_s: Vec::new(),
             peak_records: 0,
             history_rows: 0,
+            research_receipt_period_s:None,
             history_bytes: 0,
             history_decoded_final: 0,
             history_decode_extra_max: 0,
@@ -2562,13 +2569,41 @@ impl NativeJourneyCore {
             }
         }
         let added = retired[0] + retired[1];
+        let mut removed=0usize;
+        if self.research_receipt_period_s.is_some_and(|p|(end/p as f64).floor()>(t/p as f64).floor()){
+            let n=self.legs.len();let dwell_bytes=n.saturating_mul(std::mem::size_of::<f64>());
+            let stage_bytes=stage_storage_bytes(&s);
+            check_storage_limit(self.storage_budget,self.retained_input_bytes,stage_bytes.saturating_add(history_bytes),dwell_bytes)?;
+            let mut dwell=checkpoint_vec(n)?;if dwell.capacity()!=n{return Err(CoreError::resource("receipt dwell capacity differs"))}dwell.resize(n,0.0f64);
+            for leg in &self.legs{if let Some(p)=leg.2{dwell[p]=dwell[p].max(leg.3);}}
+            let old_history_bytes=history_bytes;let mut touched=0usize;
+            for (i,h) in s.6.iter_mut().enumerate(){
+                if h.len()<2{continue}
+                let base=stage_bytes.saturating_add(history_bytes).max(self.retained_input_bytes).saturating_mul(WORKING_COPIES).saturating_add(STORAGE_SCRATCH_RESERVE).saturating_add(dwell_bytes);
+                let scratch=self.storage_budget.unwrap_or(usize::MAX).checked_sub(base).ok_or_else(||CoreError::resource("receipt sweep owner budget"))?;
+                if let Some(next)=h.compact_mature(end,dwell[i],scratch)?{
+                    removed=removed.checked_add(h.len()-next.len()).ok_or_else(||CoreError::resource("receipt removed count overflow"))?;
+                    history_bytes=history_bytes.checked_sub(h.storage_bytes()).and_then(|v|v.checked_add(next.storage_bytes())).ok_or_else(||CoreError::resource("receipt owner census overflow"))?;
+                    *h=next;touched+=1;
+                }
+            }
+            // Recompute decoder envelope after deletion, not an ever-max from
+            // the discarded representation; all live histories are counted.
+            history_decoded_final=0;history_decode_extra_max=0;
+            for h in &s.6{let b=h.decoded_final_storage_upper_bytes();history_decoded_final=history_decoded_final.saturating_add(b);history_decode_extra_max=history_decode_extra_max.max(h.decoded_storage_upper_bytes().saturating_sub(b));}
+            crate::v1_trace::add("receipt_closure.sweeps",1);
+            crate::v1_trace::add("receipt_closure.touched",touched as u64);
+            crate::v1_trace::add("receipt_closure.removed_rows",removed as u64);
+            crate::v1_trace::add("receipt_closure.saved_owner_bytes",old_history_bytes.saturating_sub(history_bytes) as u64);
+        }
+        let final_history_rows=self.history_rows.checked_add(added).and_then(|v|v.checked_sub(removed)).ok_or_else(||CoreError::resource("receipt history row census overflow"))?;
         s.0 = end;
         if let Some(attempt) = &mut self.last_attempt {
             attempt.generated[1] = generated_egress;
             attempt.retired[1] = retired[0];
             attempt.retired[2] = retired[1];
             attempt.receipts_added = added;
-            attempt.candidate = [s.1.len(), s.2.len(), s.3.len(), self.history_rows + added];
+            attempt.candidate = [s.1.len(), s.2.len(), s.3.len(), final_history_rows];
             attempt.phase = "journey_validation";
         }
         self.validate(&s)?;
@@ -2587,7 +2622,7 @@ impl NativeJourneyCore {
         } else {
             self.state = s;
         }
-        self.history_rows += added;
+        self.history_rows = final_history_rows;
         self.history_bytes = history_bytes;
         self.history_decoded_final = history_decoded_final;
         self.history_decode_extra_max = history_decode_extra_max;

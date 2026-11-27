@@ -2211,6 +2211,7 @@ fn build_native_input(manifest:serde_json::Value,threads:usize)->CoreResult<(Nat
     if let Some(v)=manifest.get("research_ready_mass_milli"){
         enable_research_ready(&mut engine,v.as_u64().ok_or_else(||bad("invalid research ready mass"))?)?;
     }
+    if let Some(v)=manifest.get("research_receipt_period_s"){enable_research_receipt(&mut engine,v.as_u64().ok_or_else(||bad("invalid receipt period"))?)?;}
 
     Ok((engine,calendar_legs,calendar_totals))
 }
@@ -2233,6 +2234,12 @@ fn enable_research_ready(engine:&mut NativeWholeEngine,milli:u64)->CoreResult<()
     engine.identity.push_str(&format!(":ready-rank-v1:{milli}:60"));
     Ok(())
 }
+#[cfg(feature="native-cli")]
+fn enable_research_receipt(engine:&mut NativeWholeEngine,period:u64)->CoreResult<()>{
+    engine.journey.set_research_receipt_period(period)?;
+    engine.identity.push_str(&format!(":mature-receipt-v1:{period}"));
+    Ok(())
+}
 /// Explicit model migration. Same physical owners at conversion, different
 /// future numerical closure and native identity. Target declaration must
 /// differ ONLY by the added research field.
@@ -2240,6 +2247,17 @@ fn enable_research_ready(engine:&mut NativeWholeEngine,milli:u64)->CoreResult<()
 pub fn migrate_native_time_bins(source:serde_json::Value,target:serde_json::Value,threads:usize,input:&str,checkpoint:&str)->CoreResult<serde_json::Value>{
     use serde_json::json;
     let mut comparison=target.clone();
+    if source.get("research_receipt_period_s").is_none()&&comparison.get("research_receipt_period_s").is_some(){
+        let period=comparison.as_object_mut().and_then(|o|o.remove("research_receipt_period_s")).and_then(|v|v.as_u64()).ok_or_else(||bad("invalid target receipt period"))?;
+        if comparison!=source{return Err(bad("receipt migration declarations differ beyond period"))}
+        let(mut engine,_,_)=build_native_input(source,threads)?;
+        let state=engine.load(input.to_owned())?;let source_identity=engine.identity.clone();let ledger=ledger_json(&engine,&state)?;
+        enable_research_receipt(&mut engine,period)?;
+        let next=NativeWholeState{identity:engine.identity.clone(),value:state.value};engine.validate_bundle(&next.value)?;
+        if ledger_json(&engine,&next)?!=ledger{return Err(bad("receipt migration ledger differs"))}
+        save_atomic_native(&mut engine,checkpoint,&next)?;
+        return Ok(json!({"schema":"metroflow_mature_receipt_migration_v1","status":"EXECUTED_FOR_REVIEW","scope":"unchanged initial physical owners; future mature receipt summaries; not original acceptance","time_s":next.time_s(),"native_identity":engine.identity,"source_native_identity":source_identity,"research_receipt_period_s":period,"ledger":ledger["ledger"]}))
+    }
     if source.get("research_rank_bins").is_some() && source.get("research_ready_mass_milli").is_none(){
         let milli=comparison.as_object_mut().and_then(|o|o.remove("research_ready_mass_milli")).and_then(|v|v.as_u64()).ok_or_else(||bad("missing target ready mass"))?;
         if comparison!=source{return Err(bad("ready migration declarations differ beyond mass"))}
@@ -2279,6 +2297,8 @@ pub fn recover_native_checkpoint(manifest:serde_json::Value,threads:usize,path:&
     let ledger=ledger_json(&engine,&state)?;let (totals,classes)=state.value.road.summary();
     let road=state.value.road.debug_stats();
     let mut out=json!({"schema":"metroflow_native_recovery_v1","status":"RECOVERED_CHECKPOINT_ONLY","scope":"strict complete decode, cross-owner ledger validation and original identity; no execution or elapsed-horizon claim","time_s":state.time_s(),"city_identity":engine.city,"schedule_identity":engine.schedule,"native_identity":engine.identity,"calendar_legs":calendar_legs,"calendar_totals":calendar_totals,"byte_budget":engine.byte_budget,"threads":threads,"build_s":build_s,"load_s":t.elapsed().as_secs_f64(),"ledger":ledger["ledger"],"road_totals":totals,"road_class_ledgers":classes,"class_names":engine.class_names,"road_records":{"cell_parts":road.cell_parts,"pending_parts":road.pending_parts,"cell_packets":road.cell_packets,"pending_packets":road.pending_packets,"uniform_parts":road.uniform_parts,"mixed_parts":road.mixed_parts,"retained_storage_bytes":state.value.road.retained_storage_bytes()},"completed_event_rows":state.value.service.1.len()});
+    let j=journey_debug(&state.value.journey);
+    out["journey_records"]=json!({"enter":j.counts[0],"egress":j.counts[1],"internal":j.counts[2],"history":j.counts[3],"nonempty_histories":j.nonempty_histories,"dynamic_bytes":journey_storage_bytes(&state.value.journey),"history_bytes":state.value.journey.6.iter().map(|h|h.storage_bytes()).sum::<usize>(),"stage_bytes":[state.value.journey.1.storage_bytes(),state.value.journey.2.storage_bytes(),state.value.journey.3.storage_bytes()]});
     let (owner,scratch)=state.value.road.compact_decode_envelope();let (old_owner,old_scratch)=state.value.road.legacy_decode_envelope();
     out["decode_envelopes"]=json!({"compact_owner_bytes":owner,"compact_validation_scratch_bytes":scratch,"historical_legacy_owner_estimate_bytes":old_owner,"historical_legacy_validation_scratch_bytes":old_scratch});
     if crate::v1_trace::enabled(){out["budget_trace"]=crate::v1_trace::native_snapshot();}
@@ -2648,7 +2668,7 @@ pub fn compare_native_rank_states(left:serde_json::Value,right:serde_json::Value
     use serde_json::json;
     use sha2::{Digest,Sha256};
     fn physical(mut m:serde_json::Value)->serde_json::Value{
-        if let Some(o)=m.as_object_mut(){for k in ["research_rank_bins","research_interval_bins","research_ready_mass_milli"]{o.remove(k);}}
+        if let Some(o)=m.as_object_mut(){for k in ["research_rank_bins","research_interval_bins","research_ready_mass_milli","research_receipt_period_s"]{o.remove(k);}}
         m
     }
     if physical(left.clone())!=physical(right.clone()){return Err(bad("rank audit physical declarations differ"))}
