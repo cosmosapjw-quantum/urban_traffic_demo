@@ -1,0 +1,1 @@
+Wolfram result: {m1*r1 + m2*r2 >= a*(m1 + m2), m1*r1 + m2*r2 <= b*(m1 + m2), True}; direct inequalities proved by positivity.
