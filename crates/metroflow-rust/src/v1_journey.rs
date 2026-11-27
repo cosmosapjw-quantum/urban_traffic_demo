@@ -2969,15 +2969,17 @@ struct EntryGroup{
 }
 impl EntryGroup{
     fn new(key:u32,first:Access)->Self{Self{key,first,birth:ReceiptAccumulator::default(),ready:ReceiptAccumulator::default()}}
-    fn add(&mut self,a:Access,t:f64,dt:f64)->bool{
+    fn add(&mut self,a:Access,t:f64,dt:f64)->bool{self.add_at(a,t,dt,t)}
+    fn add_at(&mut self,a:Access,t:f64,dt:f64,birth_max:f64)->bool{
         if a.0!=self.first.0||!a.3.is_finite()||a.3<0.||entry_key(a.2+a.3,t,dt)!=Some(self.key){return false}
-        self.birth.add(a.2,a.1,t).is_ok()&&self.ready.add(a.2+a.3,a.1,f64::MAX).is_ok()
+        self.birth.add(a.2,a.1,birth_max).is_ok()&&self.ready.add(a.2+a.3,a.1,f64::MAX).is_ok()
     }
-    fn representative(&self,t:f64,dt:f64)->Option<Access>{
+    fn representative(&self,t:f64,dt:f64)->Option<Access>{self.representative_at(t,dt,t)}
+    fn representative_at(&self,t:f64,dt:f64,birth_max:f64)->Option<Access>{
         if self.birth.count()==1{return Some(self.first)}
         let (b,m)=self.birth.representative().ok()?;
         let (r,m2)=self.ready.representative().ok()?;
-        if m.to_bits()!=m2.to_bits()||r<b||b>t{return None}
+        if m.to_bits()!=m2.to_bits()||r<b||b>birth_max{return None}
         let d=r-b;let actual=b+d;
         if !d.is_finite()||entry_key(actual,t,dt)!=Some(self.key)||(actual-r).abs()>1e-11*r.abs()+4.*f64::from_bits(1){return None}
         Some((self.first.0,m,b,d))
@@ -3026,6 +3028,129 @@ impl EntryBucketProbe{
         Ok([self.0.out.len()as f64,self.0.out.iter().map(|a|a.1).sum(),self.0.out.iter().map(|a|a.1*a.2).sum()])
     }
 }
+// Sparse ordered calendar. Wire remains the logical row sequence; on load
+// block boundaries may be lost, so normalize once, then share untouched
+// immutable clock partitions. Only the append tail is sorted thereafter.
+const DELAY_CALENDAR_KEYS:usize=4096;
+#[derive(Default,Debug)]
+struct DelayMergeStats{sorted:usize,shared:usize,removed:usize,rebuild:bool,scratch:usize}
+fn delay_calendar_key(r:f64,t:f64,dt:f64)->Option<u32>{
+    entry_key(r,t,dt).filter(|&k|(k as usize)<DELAY_CALENDAR_KEYS)
+}
+fn delay_projectable(a:&Access,key:u32,t:f64,dt:f64,horizon:Option<&[f64]>)->bool{
+    if let Some(h)=horizon{
+        let r=a.2+a.3;
+        // Old/new overdue rows use max(t,r) at retirement. Preserve them
+        // raw. Also protect epsilon-only ready beyond the committed end.
+        key>0&&r<=t+key as f64*dt&&h.get(a.0).is_some_and(|&x|r<=x&&t<=x)
+    }else{true}
+}
+fn delay_calendar_workspace(old:&StageQueue,combined:&StageQueue,t:f64,dt:f64)->Option<(bool,usize,usize)>{
+    if combined.len()<old.len(){return None}
+    let canonical=old.canonical_clock_order(|r|delay_calendar_key(r,t,dt));
+    let n=if canonical{combined.len()-old.len()}else{combined.len()};
+    let refs=n.saturating_mul(std::mem::size_of::<(u32,usize,&Access)>());
+    let scratch=refs.saturating_add(StageQueue::partitioned_storage_bound(combined.len(),DELAY_CALENDAR_KEYS)).saturating_add(64*1024);
+    Some((canonical,n,scratch))
+}
+// Caller guarantees combined is the immutable old logical prefix followed
+// only by newly generated rows, and keeps both live until return.
+fn merge_delay_calendar(old:&StageQueue,combined:&StageQueue,t:f64,dt:f64,birth_max:f64,horizon:Option<&[f64]>,available:usize)->CoreResult<Option<(StageQueue,DelayMergeStats)>>{
+    let Some((canonical,n,scratch))=delay_calendar_workspace(old,combined,t,dt)else{return Ok(None)};
+    if scratch>available{return Ok(None)}
+    if combined.is_empty(){return Ok(None)}
+    let mut refs=checkpoint_vec(n)?;
+    if refs.capacity()!=n{return Ok(None)}
+    for (ordinal,a) in combined.iter_from(if canonical{old.len()}else{0}).enumerate(){
+        let Some(k)=delay_calendar_key(a.2+a.3,t,dt)else{return Ok(None)};
+        if !a.1.is_finite()||a.1<=0.||!a.2.is_finite()||a.2<0.||a.2>birth_max||!a.3.is_finite()||a.3<0.{return Ok(None)}
+        refs.push((k,ordinal,a));
+    }
+    if refs.len()!=n{return Err(bad("delay calendar append census differs"))}
+    refs.sort_unstable_by_key(|x|(x.0,x.2.0,x.1));
+    let blocks=if canonical{old.blocks()}else{&[]};
+    let mut result=StageQueue::with_partition_capacity(combined.len(),DELAY_CALENDAR_KEYS)?;
+    let mut st=DelayMergeStats{sorted:n,rebuild:!canonical,scratch,..Default::default()};
+    let (mut oi,mut ni)=(0,0);
+    while oi<blocks.len()||ni<refs.len(){
+        let ok=blocks.get(oi).and_then(|b|delay_calendar_key(b.min_ready,t,dt));
+        let nk=refs.get(ni).map(|x|x.0);
+        let k=match(ok,nk){(Some(a),Some(b))=>a.min(b),(Some(a),None)=>a,(None,Some(b))=>b,(None,None)=>return Err(bad("delay calendar partition key absent"))};
+        let os=oi;while oi<blocks.len()&&delay_calendar_key(blocks[oi].min_ready,t,dt)==Some(k){oi+=1}
+        let ns=ni;while ni<refs.len()&&refs[ni].0==k{ni+=1}
+        if ns==ni{
+            st.shared+=blocks[os..oi].iter().map(|b|b.rows.len()).sum::<usize>();
+            result.append_shared_blocks(&blocks[os..oi]);continue
+        }
+        let mut a=blocks[os..oi].iter().flat_map(|b|b.rows.iter()).peekable();
+        let mut b=refs[ns..ni].iter().map(|x|x.2).peekable();
+        let mut first_in_partition=true;
+        while a.peek().is_some()||b.peek().is_some(){
+            let first=match(a.peek(),b.peek()){
+                (Some(x),Some(y))=>if x.0<=y.0{**x}else{**y},
+                (Some(x),None)=>**x,(None,Some(y))=>**y,_=>unreachable!()
+            };
+            let leg=first.0;let mut g=EntryGroup::new(k,first);
+            let aa=a.clone();let bb=b.clone();let (mut na,mut nb)=(0usize,0usize);let mut good=true;
+            while a.peek().is_some_and(|x|x.0==leg){
+                let r=a.next().unwrap();na+=1;
+                if good{good=delay_projectable(r,k,t,dt,horizon)&&g.add_at(*r,t,dt,birth_max)}
+            }
+            while b.peek().is_some_and(|x|x.0==leg){
+                let r=b.next().unwrap();nb+=1;
+                if good{good=delay_projectable(r,k,t,dt,horizon)&&g.add_at(*r,t,dt,birth_max)}
+            }
+            let rep=if good&&na+nb>1{g.representative_at(t,dt,birth_max).filter(|r|delay_projectable(r,k,t,dt,horizon))}else{None};
+            if let Some(r)=rep{
+                result.push_partitioned(r,first_in_partition);first_in_partition=false;
+                st.removed+=na+nb-1;
+            }else{
+                for &r in aa.take(na).chain(bb.take(nb)){
+                    result.push_partitioned(r,first_in_partition);first_in_partition=false;
+                }
+            }
+        }
+    }
+    if result.len()+st.removed!=combined.len()||!result.canonical_clock_order(|r|delay_calendar_key(r,t,dt)){
+        return Err(bad("delay calendar output census/order differs"))
+    }
+    if result.storage_bytes().saturating_add(n.saturating_mul(std::mem::size_of::<(u32,usize,&Access)>())).saturating_add(64*1024)>available{
+        return Err(CoreError::resource("delay calendar actual scratch exceeds preflight"))
+    }
+    Ok(Some((result,st)))
+}
+#[cfg(test)]
+mod persistent_delay_calendar_tests{
+    use super::*;
+    fn ledger(q:&StageQueue,t:f64)->std::collections::BTreeMap<(usize,u32),[f64;3]>{
+        let mut m=std::collections::BTreeMap::<_,[f64;3]>::new();
+        for a in q.iter(){let x=m.entry((a.0,entry_key(a.2+a.3,t,10.).unwrap())).or_default();x[0]+=a.1;x[1]+=a.1*a.2;x[2]+=a.1*(a.2+a.3);}
+        m
+    }
+    #[test]
+    fn calendar_normalizes_once_then_merges_only_tail_and_shares_other_clocks(){
+        let mut old=StageQueue::new();
+        for a in [(3,0.5,1.,22.),(1,0.25,1.,12.),(1,0.75,3.,13.),(2,1.,2.,42.)]{old.push(a);}
+        let (q,s)=merge_delay_calendar(&old,&old,10.,10.,10.,None,usize::MAX).unwrap().unwrap();
+        assert!(s.rebuild);assert_eq!(s.sorted,4);assert_eq!(s.removed,1);assert_eq!(ledger(&old,10.),ledger(&q,10.));
+        let mut c=q.clone();c.push((1,0.5,10.,6.));c.push((4,1.,10.,6.));
+        let (d,s)=merge_delay_calendar(&q,&c,10.,10.,10.,None,usize::MAX).unwrap().unwrap();
+        assert!(!s.rebuild);assert_eq!(s.sorted,2);assert_eq!(s.shared,2);assert_eq!(s.removed,1);
+        assert_eq!(ledger(&c,10.),ledger(&d,10.));assert_eq!(q.len(),3);
+        assert!(merge_delay_calendar(&q,&c,10.,10.,10.,None,1).unwrap().is_none());
+        let mut next=d.clone();next.retire_due_mode(20.+1e-10,true,|_|{});
+        assert!(next.canonical_clock_order(|r|delay_calendar_key(r,20.,10.)));
+    }
+    #[test]
+    fn egress_horizon_and_overdue_clamp_protect_raw_rows(){
+        let mut raw=StageQueue::new();
+        for a in [(0,0.5,1.,12.),(0,0.5,3.,13.),(1,0.5,1.,12.),(1,0.5,3.,13.),(2,0.5,1.,2.),(2,0.5,3.,2.)]{raw.push(a);}
+        let (q,s)=merge_delay_calendar(&StageQueue::new(),&raw,10.,10.,20.,Some(&[100.,14.,100.]),usize::MAX).unwrap().unwrap();
+        assert_eq!(s.removed,1);assert_eq!(q.len(),5);assert_eq!(ledger(&raw,10.),ledger(&q,10.));
+        assert_eq!(q.iter().filter(|a|a.0==1).count(),2);assert_eq!(q.iter().filter(|a|a.0==2).count(),2);
+    }
+}
+
 // Periodic cross-generation entry quotient. Sort only compact references
 // and original ordinals; old queue remains immutable until replacement.
 fn entry_sweep_scratch(rows:usize)->usize{
