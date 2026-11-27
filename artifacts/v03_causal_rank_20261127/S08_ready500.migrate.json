@@ -1,0 +1,45 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "checkpoint_bytes": 245953660,
+  "checkpoint_sha256": "bccb6255f67b7775a807cbaef2dbece1e4f206745ba4a41b52739cc75212d716",
+  "executable_sha256": "4c1842eda4d2519716998e8ee01e14b92eea968a88c0e6db5bdca55222da31d5",
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 1794.387601084965,
+      "completed": 175.43128144419086,
+      "pending": 1363.5144508042224,
+      "released": 1969.8188825291556,
+      "released_intent_first_moment": 50220532.41008134,
+      "requested": 3333.333333333378
+    },
+    "vehicles": {
+      "active": 1435.2137797331827,
+      "completed": 138.11955360016864,
+      "pending": 59.999999999992724,
+      "released": 1573.3333333333514,
+      "released_intent_first_moment": 40112133.33333303,
+      "requested": 1633.3333333333442
+    }
+  },
+  "manifest_sha256": "ab96131eb01aaa5e12d247bf967e39d63820ce901019918b370636fc08a9f95b",
+  "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60",
+  "peak_rss_bytes": 620834816,
+  "python_runtime_dependency": "none",
+  "research_ready_mass_milli": 500,
+  "schema": "metroflow_ready_rank_migration_v1",
+  "scope": "unchanged initial physical owners; added bounded ready/equal-target stock coalescence; not original V03 acceptance",
+  "source_checkpoint_sha256": "2a0570dde807e68aebbc77e338c5b9379dfb2b8410c3452d6fcd9e4718680292",
+  "source_manifest_sha256": "fc4e684304f8c091ca4ebb907c17c1cd581bcd78084370ef9653a687659dc2a9",
+  "source_native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1",
+  "status": "EXECUTED_FOR_REVIEW",
+  "time_s": 25800.0,
+  "wall_s": 6.7906466850000005
+}

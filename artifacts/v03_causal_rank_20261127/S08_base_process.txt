@@ -1,0 +1,2 @@
+S08_r1_t26220_exit=0
+S08_r1_recovery_exit=0

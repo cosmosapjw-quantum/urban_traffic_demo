@@ -1,0 +1,2 @@
+S08_ready500_t26220_exit=0
+S08_ready500_recover26220_exit=0
