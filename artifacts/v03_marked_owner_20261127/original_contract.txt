@@ -1,0 +1,135 @@
+# PRD — 도시교통 시뮬레이터
+
+## 제품 정의
+인구 약 100,000명 규모의 도시를 대상으로,
+도시 생성–교통–접근성–도시발전–행동/학습을 결합한 설명 가능한 시뮬레이터를 만든다.
+
+## 문제
+기존 city-builder 교통 AI의 문제:
+- deterministic shortest path 고착
+- bypass 효과 미약
+- bridge/IC/arterial 병목 반복
+- 교통 변화가 도시발전에 거의 반영되지 않음
+- 도시 구조 변화가 수요 구조를 제대로 바꾸지 못함
+
+## 목표
+- persistent citizen 유지
+- bulk transport는 mesoscopic core
+- generalized-cost routing
+- candidate path K + path-size correction
+- event-triggered reroute
+- weekday/weekend + AM/PM 수요 패턴
+- lagged accessibility-based land-use feedback
+- navigator-style UI
+
+## In-scope
+- shape + LUTI + CSUR lane grammar 하이브리드 지도 생성
+- link/node 기반 mesoscopic traffic
+- zonal accessibility cache
+- slow land-use feedback
+- EMA/bandit 기반 online adaptation
+- 실시간/준실시간 observability UI
+
+## Out-of-scope (v1)
+- lane-level microscopic default
+- full public transit assignment
+- parking micro
+- RL/LLM-first
+- distributed multi-GPU
+- full generic ECS/plugin framework
+
+## 성공 기준
+- bridge/IC bottleneck 재현
+- bypass 추가 시 초기 완화 + 이후 일부 induced-demand 방향성
+- weekday/weekend, AM/PM 차이 재현
+- replay determinism
+- stale cache 없음
+- same-tick positive feedback 없음
+# Feature Spec — 001 MetroFlow
+
+## Summary
+100k급 도시에서 도시발전-교통 상호작용을 설명 가능하게 시뮬레이션하는 엔진.
+
+## Functional requirements
+- persistent citizens
+- mesoscopic traffic core
+- generalized-cost routing
+- candidate path K + path-size correction
+- event-triggered reroute
+- weekday/weekend + time-of-day demand
+- lagged accessibility-based land-use feedback
+- navigator-style visualization
+
+## Non-functional requirements
+- deterministic replay
+- cache correctness
+- scalable on single machine
+- JAX-friendly pure core
+
+## Acceptance criteria
+- bridge/IC bottleneck reproduced
+- bypass / induced-demand directionality reproduced
+- weekday/weekend patterns differ
+- no same-tick feedback explosion
+- replay passes
+# Constitution
+
+## North Star
+100k급 도시에서 도시 생성–교통–접근성–도시발전을 설명 가능하게 결합한 시뮬레이터를 만든다.
+
+## Non-negotiables
+- S2 before S1
+- external-data learning 금지
+- baseline fallback 필수
+- immutable WorldState
+- explicit units
+- multirate scheduler
+- cache invalidation rules
+- deterministic replay
+
+## Deferred
+- lane-level microscopic default
+- RL/LLM-first
+- ECS/plugin-first
+- distributed multi-GPU
+
+## Merge bar
+- spec/task linkage
+- tests pass
+- benchmark not regressed
+- docs updated if contract changed
+0492364 import repaired bundle
+6524500 docs: establish MetroFlow constitution v1.0.0 and sync spec-kit templates
+f26a1a2 Implement fast-tick edge evolution in orchestrator
+e2b2f0f Implement multirate orchestration baseline
+55edfee Remove obsolete 001 contract docs
+65a0d51 Add measured benchmark harness
+faf96aa Integrate runtime routing wrapper
+f0faf03 feat: integrate metroflow runtime spine
+9280e96 fix: couple active movement to flow budget
+67a58ab feat: seed flow queues from active trips
+33c333d docs: document flow-coupled agent spine
+be36b6a feat: add static city map artifact
+46b24b5 docs: add static map visual audit
+b085c73 fix: repair generated city connectivity
+1605d78 docs: improve static map connectivity audit
+a0b75c3 feat: add rust cpu routing potential backend
+a64eb9d feat: add rust cpu greedy routing core
+b423c95 test: clarify rust routing benchmark boundary
+5e618cb test: add measured routing candidate benchmark
+fddcaa2 fix: require complete rust routing backend for auto
+6af25ef fix: preserve routing backend fallback metadata
+d7659e4 feat: add rust cpu next-link scoring core
+b0c79c7 feat: integrate conservative runtime reroute
+b67ac3d fix: accumulate runtime reroute summary metrics
+f2dd2df docs: refresh runtime spine diagnostic artifact
+1f7d2df test: preserve runtime reroute benchmark counters
+cc704d1 test: preserve runtime reroute replay counters
+adee8ad docs: surface reroute totals in runtime diagnostics
+e156f1e test: expose runtime counters in ui packets
+e18054f feat: enable ranked route candidate sets
+f5c2ea5 test: record route candidate score metadata
+7770617 docs: show route candidate metrics in diagnostics
+41fed67 test: preserve selected route candidate metadata
+5f62864 feat: select active route candidate by cost
+3d19995 feat: apply path-size route choice correction

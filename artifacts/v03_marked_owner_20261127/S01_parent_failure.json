@@ -1,0 +1,39 @@
+{
+  "status": "BLOCKED",
+  "time_s": 25730.0,
+  "failure": {
+    "kind": "Resource",
+    "message": "native whole checkpointability storage budget exceeded: required_bytes=6080774604, budget_bytes=5788793055"
+  },
+  "checkpoint_sha256": "bda4cc15df455e548aa80900af8b0ed3ecc037141cc83305f767e4fb700ee6d7",
+  "wall_s": 60.330748426,
+  "peak_rss_bytes": 4212760576,
+  "commit": {
+    "calls": 1,
+    "exceeded": 1,
+    "limit_at_max": 5788793055,
+    "live_at_max": null,
+    "max_ratio": 1.0504391064295873,
+    "max_required": 6080774604,
+    "terms_at_max": {
+      "call_binding_reserve": 82704900,
+      "candidate_event": 719452320,
+      "candidate_road": 1216307776,
+      "current_event": 594947232,
+      "current_road": 1034763016,
+      "decoded_journey": 394536232,
+      "decoded_road": 1225276824,
+      "event_pointer_verified_credit": 594947232,
+      "input_event": 594947232,
+      "input_road": 1034763016,
+      "journey_retained_input": 335242760,
+      "new_journey": 373441688,
+      "old_journey": 335242760,
+      "phase_event_charge": 1314399552,
+      "phase_journey_charge": 1065021752,
+      "phase_road_charge": 3294802856,
+      "road_decode_scratch": 78116416,
+      "validation_scratch": 489255344
+    }
+  }
+}
