@@ -1,0 +1,44 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "checkpoint_bytes": 693630677,
+  "checkpoint_sha256": "6ebb49e3a4694a31c931f09dc7169b1fe770b258b81115272e3bae0961eef193",
+  "executable_sha256": "fce8f24de1cd94fa7d7e060d316c9152c13603556c972c3ee9b00750b5eecd1a",
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 2607.5750832859867,
+      "completed": 6774.104679268023,
+      "pending": 6284.986904112828,
+      "released": 9381.67976255401,
+      "released_intent_first_moment": 249599590.08275604,
+      "requested": 15666.666666666837
+    },
+    "vehicles": {
+      "active": 2085.763754345232,
+      "completed": 5407.569578988137,
+      "pending": 183.33333333339215,
+      "released": 7493.333333333369,
+      "released_intent_first_moment": 199360133.33333343,
+      "requested": 7676.666666666762
+    }
+  },
+  "manifest_sha256": "a8df78fd4f2e71b177819d3b4968fe7fd7705d9b77e572966dc7758195d66ae0",
+  "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1",
+  "peak_rss_bytes": 968179712,
+  "python_runtime_dependency": "none",
+  "schema": "metroflow_schedule_receipt_migration_v1",
+  "scope": "same initial owners; schedule-hidden private child observation quotient; separate research identity",
+  "source_checkpoint_sha256": "9af7d9c08f0e45e373dc3e7157070d5c7d7e71b51adc6e341f8e9b8eabb99a6e",
+  "source_manifest_sha256": "e23ed04001651bc5c0bdf130e2f095625c77788f42c8445adc44d45f3ee4deec",
+  "source_native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10",
+  "status": "EXECUTED_FOR_REVIEW",
+  "time_s": 28020.0,
+  "wall_s": 24.131710884
+}
