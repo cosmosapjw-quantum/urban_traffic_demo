@@ -146,7 +146,7 @@ pub(super) fn project_with(len:usize,get:impl Fn(usize)->Part,target:f64,bins:us
 mod tests {
     use super::*;
     fn p(tag:usize,a:f64,b:f64,m:f64)->Part{Part{tag,offset:1,mass:m,birth:m*3.,a:PackedTime::new(Some(a)).unwrap(),b:PackedTime::new(Some(b)).unwrap()}}
-    fn work()->RoadWorkBudget{RoadWorkBudget{limit:Some(10_000_000),base:0,transfer_exclusive_cell_scratch:0,events:0,event_candidate_live_bound:None,incoming:0,incoming_page_cells:0,incoming_cell_rows:None,incoming_live_pages:0,incoming_descriptor_live_bytes:None,compact_events:false,compact_incoming:false,timed_incoming_control_bytes:None,timed_referenced_rows:None,packed_ref_saved:None,interval_retained:0,interval_transient:0,service_events:None}}
+    fn work()->RoadWorkBudget{RoadWorkBudget{limit:Some(10_000_000),base:0,transfer_exclusive_cell_scratch:0,source_key_growth:0,events:0,event_candidate_live_bound:None,incoming:0,incoming_page_cells:0,incoming_cell_rows:None,incoming_live_pages:0,incoming_descriptor_live_bytes:None,compact_events:false,compact_incoming:false,timed_incoming_control_bytes:None,timed_referenced_rows:None,packed_ref_saved:None,interval_retained:0,interval_transient:0,service_events:None}}
     #[test] fn all_atoms_and_intervals_no_fallback_and_marked_conservation(){
         let parts=[p(2,0.,4.,2.),p(1,1.,1.,3.),p(2,2.,2.,1.),p(1,4.,6.,2.),p(1,5.,5.,1.)];
         let mut w=work();

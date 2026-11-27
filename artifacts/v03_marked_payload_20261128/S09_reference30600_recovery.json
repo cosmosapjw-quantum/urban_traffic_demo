@@ -1,0 +1,120 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "build_s": 3.416403383,
+  "byte_budget": 6442450944,
+  "calendar_legs": 918450,
+  "calendar_totals": [
+    120000.0,
+    58801.0,
+    1000.0
+  ],
+  "checkpoint_bytes": 831536866,
+  "checkpoint_sha256": "7896f25adb57932f35c5aaa0f3aeefba5f0bf1ec8b57e57bc098abfd97d6fa05",
+  "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+  "class_names": [
+    "car",
+    "freight",
+    "scheduled_bus"
+  ],
+  "completed_event_rows": 5095558,
+  "decode_envelopes": {
+    "compact_owner_bytes": 106735136,
+    "compact_validation_scratch_bytes": 2335104,
+    "historical_legacy_owner_estimate_bytes": 107423648,
+    "historical_legacy_validation_scratch_bytes": 89869600
+  },
+  "executable_sha256": "9e4f02f60a444c117fe5832e412860c3ecf11faa36dd5127c165f20ed23d02d7",
+  "journey_records": {
+    "dynamic_bytes": 159789872,
+    "egress": 1742770,
+    "enter": 1752182,
+    "history": 102460,
+    "history_bytes": 40164320,
+    "internal": 146424,
+    "nonempty_histories": 102460,
+    "stage_bytes": [
+      57559568,
+      57252864,
+      4813120
+    ]
+  },
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 3302.064157516148,
+      "completed": 16187.457413270573,
+      "pending": 13010.478429210681,
+      "released": 19489.52157078672,
+      "released_intent_first_moment": 546349507.7931614,
+      "requested": 32499.999999997402
+    },
+    "vehicles": {
+      "active": 2641.2809356576836,
+      "completed": 12925.385731008668,
+      "pending": 358.33333333309747,
+      "released": 15566.666666666351,
+      "released_intent_first_moment": 436380166.66666347,
+      "requested": 15924.999999999449
+    }
+  },
+  "load_s": 5.275717893,
+  "manifest_sha256": "70a055a27b4833adf6569203113690455bdc5759263e607b87d8766850d2f232",
+  "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1:delay-calendar-v1",
+  "peak_rss_bytes": 710008832,
+  "python_runtime_dependency": "none",
+  "road_class_ledgers": [
+    [
+      14956.935958248485,
+      13220.714631236657,
+      149569.35958324143,
+      301039.5089027946,
+      1391418.0847454183
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      4.0,
+      4.0,
+      40.0,
+      42.546830484469325,
+      619.9681412956854
+    ]
+  ],
+  "road_records": {
+    "cell_packets": 2925,
+    "cell_parts": 5607828,
+    "mixed_parts": 0,
+    "pending_packets": 0,
+    "pending_parts": 0,
+    "retained_storage_bytes": 106733312,
+    "uniform_parts": 5607828
+  },
+  "road_totals": [
+    14960.935958341357,
+    13224.714631210469,
+    418213178.3864225,
+    374512737.611959,
+    149609.35958341564,
+    1392038.0528878048,
+    2186166.0736596333
+  ],
+  "schedule_identity": "61bf90204d22e3442c565f3f62b8ef4cba7d7be3e74b1d33e6c8bcf96208c920",
+  "schema": "metroflow_native_recovery_v1",
+  "scope": "strict complete decode, cross-owner ledger validation and original identity; no execution or elapsed-horizon claim",
+  "status": "RECOVERED_CHECKPOINT_ONLY",
+  "threads": 8,
+  "time_s": 30600.0,
+  "wall_s": 9.997605704
+}

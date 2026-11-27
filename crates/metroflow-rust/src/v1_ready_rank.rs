@@ -97,7 +97,7 @@ pub(super) fn coalesce(q:&mut Vec<Packet>,progress:f64,eta:f64,h:f64,work:&mut R
 #[cfg(test)]mod tests{
     use super::*;
     fn p(tag:u32,target:f64,t:f64,m:f64)->Packet{let a=PackedTime::new(Some(t)).unwrap();Packet{target,parts:PacketParts::Uniform{a,b:a,rows:Arc::new(vec![CorePart{tag,offset:0,mass:m,birth:2.*m}])}}}
-    fn w()->RoadWorkBudget{RoadWorkBudget{limit:Some(10_000_000),base:0,transfer_exclusive_cell_scratch:0,events:0,event_candidate_live_bound:None,incoming:0,incoming_page_cells:0,incoming_cell_rows:None,incoming_live_pages:0,incoming_descriptor_live_bytes:None,compact_events:false,compact_incoming:false,timed_incoming_control_bytes:None,timed_referenced_rows:None,packed_ref_saved:None,interval_retained:0,interval_transient:0,service_events:None}}
+    fn w()->RoadWorkBudget{RoadWorkBudget{limit:Some(10_000_000),base:0,transfer_exclusive_cell_scratch:0,source_key_growth:0,events:0,event_candidate_live_bound:None,incoming:0,incoming_page_cells:0,incoming_cell_rows:None,incoming_live_pages:0,incoming_descriptor_live_bytes:None,compact_events:false,compact_incoming:false,timed_incoming_control_bytes:None,timed_referenced_rows:None,packed_ref_saved:None,interval_retained:0,interval_transient:0,service_events:None}}
     #[test]fn contiguous_ready_and_identical_future_target_only(){
         let mut q=vec![p(1,1.,1.,0.0625),p(1,2.,2.,0.0625),p(2,3.,3.,0.0625),p(3,10.,4.,0.0625),p(3,10.,5.,0.0625),p(3,11.,6.,0.0625)];
         coalesce(&mut q,3.,0.25,60.,&mut w()).unwrap();

@@ -306,6 +306,19 @@ impl PacketParts {
             Ok(Self::Mixed(Arc::new(rows)))
         }
     }
+    fn new_remainder_key_bytes(&self,new:&Self)->usize{
+        let old_keys=match self{
+            Self::SharedKeys{keys,..}|Self::DictionaryKeys{keys,..}=>keys,
+            _=>return 0,
+        };
+        match new{
+            Self::SharedKeys{keys,..}|Self::DictionaryKeys{keys,..}=>{
+                if Arc::ptr_eq(old_keys,keys){0}else{keys.capacity().saturating_mul(8).saturating_add(96)}
+            }
+            Self::Uniform{rows,..}=>rows.capacity().saturating_mul(8),
+            Self::Mixed(rows)=>rows.capacity().saturating_mul(std::mem::size_of::<Part>()),
+        }
+    }
     fn clone_checked(&self) -> CoreResult<Self> {
         // PacketParts owns only immutable post-packing compositions. Existing
         // snapshots and candidates may reference the same physical row
@@ -532,6 +545,9 @@ struct RoadWorkBudget {
     /// remainders charge their own actual raw and packed buffers instead.
     /// True interval combination/splitting retains the full original reserve.
     transfer_exclusive_cell_scratch:usize,
+    // New filtered key arrays from source remainder restrictions. Until
+    // all source queues die, every actually generated key byte is charged.
+    source_key_growth:usize,
     events: usize,
     /// Projected from the actual event carrier immediately before each source
     /// serve; includes both physical row/time pages and their descriptors.
@@ -1149,6 +1165,7 @@ impl RoadWorkBudget {
             phase_base
                 .saturating_add(event_bytes)
                 .saturating_add(incoming_bytes)
+                .saturating_add(self.source_key_growth)
                 .saturating_add(self.interval_retained)
                 .saturating_add(self.interval_transient)
                 .saturating_add(extra);
@@ -1176,6 +1193,7 @@ impl RoadWorkBudget {
                         self.incoming_descriptor_live_bytes.unwrap_or(0)),
                     ("incoming_descriptors_frozen",
                         usize::from(self.incoming_descriptor_live_bytes.is_some())),
+                    ("source_key_growth",self.source_key_growth),
                     ("interval_retained", self.interval_retained),
                     ("interval_transient", self.interval_transient),
                     ("extra", extra),
@@ -1435,11 +1453,16 @@ impl RoadState {
                      PacketParts::SharedKeys { keys: l, moments: n, .. }) =>
                         matched_bytes(k, l).saturating_add(matched_bytes(m, n)),
                     (PacketParts::DictionaryKeys{keys:k,moments:m,..},PacketParts::DictionaryKeys{keys:l,moments:n,..})=>{
-                        let values=if Arc::ptr_eq(m,n){m.values.capacity().saturating_mul(16)/(Arc::strong_count(m)/2).max(1)}else{0};
-                        // Code references may be shared by multiple dictionary owners.
-                        // Count only complete identical dictionary pairs, and no code
-                        // credit: the latter is conservative and avoids alias ambiguity.
-                        matched_bytes(k,l).saturating_add(values)
+                        let payload=if Arc::ptr_eq(m,n){
+                            let pairs=(Arc::strong_count(m)/2).max(1);
+                            // At most floor(strong_count(dict)/2) disjoint
+                            // matched shell pairs, and at most strong_count
+                            // (codes) independent dictionaries share codes.
+                            let values=m.values.capacity().saturating_mul(16)/pairs;
+                            let codes=m.codes.capacity()/pairs/Arc::strong_count(&m.codes).max(1);
+                            values.saturating_add(codes)
+                        }else{0};
+                        matched_bytes(k,l).saturating_add(payload)
                     },
                     _ => 0,
                 };
@@ -3724,7 +3747,14 @@ impl V1Road {
         // and no raw attribution vectors. Extremely large coefficients use
         // the established legacy reserve instead of this specialization.
         if s.t>1e12||self.dt>1e6||s.totals.iter().any(|x|*x>1e12)||self.groups.iter().flatten().chain(self.classes.iter().flatten()).any(|x|*x>1e12)||self.windows.iter().any(|w|w.3>1e6){return old}
-        let shared_rows=s.cells.iter().flat_map(|c|&c.packets).chain(s.pending.iter().flatten()).fold(0usize,|n,p|n.saturating_add(if matches!(&p.parts,PacketParts::SharedKeys{..}|PacketParts::DictionaryKeys{..}){p.parts.len()}else{0}));
+        // When dictionary restrictions preserve keys, no road head needs
+        // unconditional 8B/row expansion. A filtered restriction is charged
+        // by the actual new key allocation and kept through the source phase.
+        // Pending source path still uses the original materialized reserve.
+        let shared_count=|p:&Packet|if matches!(&p.parts,PacketParts::SharedKeys{..}|PacketParts::DictionaryKeys{..}){p.parts.len()}else{0};
+        let shared_rows=if moment_dictionary_enabled(){
+            s.pending.iter().flatten().map(shared_count).fold(0usize,usize::saturating_add)
+        }else{s.cells.iter().flat_map(|c|&c.packets).chain(s.pending.iter().flatten()).map(shared_count).fold(0usize,usize::saturating_add)};
         let workers=rayon::current_num_threads().max(1).min(cells);
         // Two per-destination moment maps for ONE currently inspected head;
         // all prior heads retain only scalar beta maps. 128KiB per finite
@@ -3748,7 +3778,7 @@ impl V1Road {
             return Ok(RoadWorkBudget {
                 limit: None,
                 base: 0,
-                transfer_exclusive_cell_scratch:0,
+                transfer_exclusive_cell_scratch:0, source_key_growth:0,
                 events: 0, event_candidate_live_bound: None,
                 incoming: 0,
                 incoming_page_cells: self.groups.len(),
@@ -3815,7 +3845,7 @@ impl V1Road {
         let mut work = RoadWorkBudget {
             limit: self.storage_budget,
             base,
-            transfer_exclusive_cell_scratch:combine_scratch,
+            transfer_exclusive_cell_scratch:combine_scratch, source_key_growth:0,
             events: 0, event_candidate_live_bound: None,
             incoming: 0,
             incoming_page_cells: self.groups.len(),
@@ -4973,6 +5003,14 @@ impl V1Road {
                             work.pack_parts_with_live_descriptors(
                                 portion(&packet.parts,1.-fraction)?,&incoming,&marks)?
                         };
+                        if moment_dictionary_enabled()&&use_timed_incoming&&work.timed_referenced_rows.is_some()&&receiving_lifetime_enabled(){
+                            let bytes=packet.parts.new_remainder_key_bytes(&remainder);
+                            // The full new payload has already been admitted
+                            // by source remainder packing. Retain only extra
+                            // key charge, monotonically, until receiver census.
+                            work.source_key_growth=work.source_key_growth.checked_add(bytes).ok_or_else(||budget("source key growth overflow"))?;
+                            if bytes>0{crate::v1_trace::add("moment_dict.source_key_growth_bytes",bytes as u64);}
+                        }
                         queues[i][position[i]].0.parts=remainder;
                     } else {
                         position[i] += 1;
@@ -5177,6 +5215,10 @@ impl V1Road {
             crate::v1_trace::add("receiving.expired_source_observation_bytes",source_observation_bytes as u64);
             crate::v1_trace::add("receiving.initial_candidate_owner_bytes",candidate as u64);
             work.base=floor;
+            // Source queues and discarded remainders are gone. The measured
+            // candidate charge in floor now includes every live new key.
+            crate::v1_trace::add("moment_dict.expired_source_key_growth_bytes",work.source_key_growth as u64);
+            work.source_key_growth=0;
             work.require(0,"receiving phase actual candidate owner")?;
             floor
         } else {full_consumer_base.saturating_sub(work.transfer_exclusive_cell_scratch)};
@@ -5916,7 +5958,7 @@ mod workspace_accounting_tests {
         RoadWorkBudget {
             limit: Some(limit),
             base: 0,
-            transfer_exclusive_cell_scratch:0,
+            transfer_exclusive_cell_scratch:0, source_key_growth:0,
             events: 0, event_candidate_live_bound: None,
             incoming: 0,
             incoming_page_cells: 0,
@@ -7623,7 +7665,7 @@ mod exact_consumed_packet_source_lifetime_tests {
     fn work(n:usize)->RoadWorkBudget {
         RoadWorkBudget {
             limit:Some(10_000_000),
-            base:0,transfer_exclusive_cell_scratch:0,
+            base:0,transfer_exclusive_cell_scratch:0, source_key_growth:0,
             events: 0, event_candidate_live_bound: None,incoming:n,incoming_page_cells:1586,
             incoming_cell_rows:None,incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
@@ -7777,7 +7819,7 @@ mod exact_incoming_cell_page_liveness_tests {
 
     fn work(g:usize)->RoadWorkBudget {
         RoadWorkBudget {
-            limit:Some(100_000_000),base:0,transfer_exclusive_cell_scratch:0,
+            limit:Some(100_000_000),base:0,transfer_exclusive_cell_scratch:0, source_key_growth:0,
             events: 0, event_candidate_live_bound: None,incoming:0,
             incoming_page_cells:g,compact_events:true,compact_incoming:true, timed_incoming_control_bytes: None, timed_referenced_rows: None, packed_ref_saved:None,
             incoming_cell_rows:Some(vec![0;g]),incoming_live_pages:0,
@@ -7852,7 +7894,7 @@ mod exact_locked_incoming_descriptor_lifetime_tests {
 
     fn work()->RoadWorkBudget {
         RoadWorkBudget {
-            limit:Some(100_000_000),base:0,transfer_exclusive_cell_scratch:0,
+            limit:Some(100_000_000),base:0,transfer_exclusive_cell_scratch:0, source_key_growth:0,
             events: 0, event_candidate_live_bound: None,incoming:0,
             incoming_page_cells:3,
             incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,
@@ -7933,7 +7975,7 @@ mod exact_pending_pack_live_descriptor_tests {
     #[test]
     fn pending_packet_pack_uses_current_vec_capacity_without_freezing_future_appends() {
         let mut w=RoadWorkBudget {
-            limit:Some(100000000),base:0,transfer_exclusive_cell_scratch:0,
+            limit:Some(100000000),base:0,transfer_exclusive_cell_scratch:0, source_key_growth:0,
             events: 0, event_candidate_live_bound: None,incoming:0,
             incoming_page_cells:3,
             incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,
@@ -8102,7 +8144,7 @@ mod original_transfer_exclusive_cell_scratch_tests {
     fn phase_source_budget()->RoadWorkBudget {
         RoadWorkBudget{
             limit:Some(900),base:1000,
-            transfer_exclusive_cell_scratch:150,
+            transfer_exclusive_cell_scratch:150, source_key_growth:0,
             events: 0, event_candidate_live_bound: None,incoming:0,incoming_page_cells:0,
             incoming_cell_rows:None,incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
@@ -8195,7 +8237,7 @@ mod source_remainder_lifetime_tests {
     fn fixture(limit: usize) -> (RoadWorkBudget, Vec<ChunkedParts>, Vec<ChunkedMarks>) {
         (RoadWorkBudget {
             limit: Some(limit), base: 1_000_000,
-            transfer_exclusive_cell_scratch: 200_000,
+            transfer_exclusive_cell_scratch: 200_000, source_key_growth:0,
             events: 0, event_candidate_live_bound: None, incoming: 0, incoming_page_cells: 1,
             incoming_cell_rows: Some(vec![0]), incoming_live_pages: 0,
             incoming_descriptor_live_bytes: None,
@@ -8349,7 +8391,7 @@ mod exact_event_time_run_tests {
         let tracked=segmented_incoming_exact_cell_pages_charge(0,0,0,true,None);
         let mut work=RoadWorkBudget {
             limit:Some(111+222+carrier+tracked),base:0,
-            transfer_exclusive_cell_scratch:0,
+            transfer_exclusive_cell_scratch:0, source_key_growth:0,
             events:12_305,event_candidate_live_bound:Some(carrier),incoming:0,
             incoming_page_cells:0,incoming_cell_rows:Some(vec![]),incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
@@ -8441,7 +8483,7 @@ mod timed_incoming_workspace_contract_tests {
 
     fn work(cells: usize, controls: &TimedIncomingControls) -> RoadWorkBudget {
         RoadWorkBudget {
-            limit: Some(usize::MAX), base: 0, transfer_exclusive_cell_scratch: 0,
+            limit: Some(usize::MAX), base: 0, transfer_exclusive_cell_scratch: 0, source_key_growth:0,
             events: 0, event_candidate_live_bound: None,
             incoming: 0, incoming_page_cells: cells,
             incoming_cell_rows: Some(vec![0; cells]), incoming_live_pages: 0,
@@ -9137,6 +9179,20 @@ mod compact_checkpoint_wire_tests{
         let mut x=vec![];let mut y=vec![];let mut z=vec![];
         road.write_packets_compact_scalar(&mut x,&q1).unwrap();road.write_packets_compact(&mut y,&q2).unwrap();road.write_packets_compact_scalar(&mut z,&q2).unwrap();
         assert_eq!(x,y);assert_eq!(y,z);
+    }
+    #[test]
+    fn remainder_key_charge_tracks_new_storage_not_reused_backing(){
+        let keys=Arc::new(vec![(0,0);1024]);
+        let a=PackedTime::new(Some(0.)).unwrap();
+        let xs:Vec<_>=(0..1024).map(|i|if i%2==0{(0.25,0.125)}else{(f64::from_bits(1),0.)}).collect();
+        let d=Arc::new(v1_moment_dict::plan(&xs).unwrap().build(&xs).unwrap());
+        let p=PacketParts::DictionaryKeys{a,b:a,keys:keys.clone(),moments:d};
+        let q=PacketParts::pack_scaled_from(&p,0.75,|_|Ok(())).unwrap();
+        assert_eq!(q.len(),1024);assert_eq!(p.new_remainder_key_bytes(&q),0);
+        let q=PacketParts::pack_scaled_from(&p,0.25,|_|Ok(())).unwrap();
+        assert_eq!(q.len(),512);assert!(p.new_remainder_key_bytes(&q)>=512*8);
+        let oracle=PacketParts::pack(portion(&p,0.25).unwrap(),|_|Ok(())).unwrap();
+        assert_eq!(q.iter().map(|x|(x.mass.to_bits(),x.birth.to_bits())).collect::<Vec<_>>(),oracle.iter().map(|x|(x.mass.to_bits(),x.birth.to_bits())).collect::<Vec<_>>());
     }
     #[test]
     fn explicit_shared_wire_roundtrip_reuses_keys_and_preserves_legacy_bytes(){
