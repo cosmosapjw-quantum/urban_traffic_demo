@@ -1,0 +1,1209 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "advance_s": 0.002996742,
+  "build_s": 0.000405697,
+  "byte_budget": 268435456,
+  "calendar_legs": 5,
+  "calendar_totals": [
+    20.0,
+    13.06,
+    100.0
+  ],
+  "checkpoint_bytes": 1536,
+  "checkpoint_sha256": "ef4110b4a751d51803a06e1b3139be2959fcb506f9e655ae93dc5a420daa0ec3",
+  "city_identity": "rust-host-fixture-city",
+  "executable_sha256": "4f2d45ddf5a6741c1ccf17e2ea4f267ced6affb0c216a96a32492cf9551dd8fb",
+  "growth_stock_identity": null,
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 100.0,
+      "pending": 0.0,
+      "released": 100.0,
+      "released_intent_first_moment": 750.0,
+      "requested": 100.0
+    },
+    "persons": {
+      "active": 0.0,
+      "completed": 20.0,
+      "pending": 0.0,
+      "released": 20.0,
+      "released_intent_first_moment": 500.00000000000006,
+      "requested": 20.0
+    },
+    "vehicles": {
+      "active": 0.0,
+      "completed": 13.06,
+      "pending": 0.0,
+      "released": 13.06,
+      "released_intent_first_moment": 324.75000000000006,
+      "requested": 13.06
+    }
+  },
+  "manifest_sha256": "2dbedc0ab2720529b71ef1377f9def399bb40e6e400ac22a6073e33bbf4f6a21",
+  "native_identity": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3",
+  "peak_rss_bytes": 8138752,
+  "phase_config_sha256": "8b619496087dbae3800207e36b8bb983f1bafbf1ee527bab4faf9764f54bf879",
+  "phase_inputs_sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+  "phase_model_identity": "55a8e49a1d2bf888d3a9dfac7f93fd4d070477df8af429b2b7a04413932246e4",
+  "phase_window": {
+    "groups": {},
+    "last": 120.0,
+    "since": 120.0
+  },
+  "phase_window_sha256": "079150287843802f793414a4dec062eb1dfedb203a1e142cb1d1fbe5ca44dbc1",
+  "phase_wire": {
+    "accessibility": {
+      "completed_veh": 14.9,
+      "stamp_s": 120.0
+    },
+    "city_identity": "rust-host-fixture-city",
+    "completed_costs": [
+      {
+        "end_s": 19.745998999557308,
+        "key": {
+          "class": "car",
+          "id": "c0:out",
+          "kind": "route"
+        },
+        "mass_veh": 3.8400000000000003,
+        "measure": "completed conditional birth-to-exit mean; includes all recorded holds",
+        "population": "d5f6fe26fe76eb56862ea11553d15e04aa9742f84f88aaa983e40ab718338bfe",
+        "seconds": 15.70981550727918,
+        "sensor_xy": [
+          0.0,
+          0.0
+        ],
+        "source": "T04_completed_outlet",
+        "stamp_s": 20.0,
+        "start_s": 17.734578808823553,
+        "version": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3"
+      },
+      {
+        "end_s": 22.85078849580867,
+        "key": {
+          "class": "car",
+          "id": "c0:out",
+          "kind": "route"
+        },
+        "mass_veh": 2.560000000000001,
+        "measure": "completed conditional birth-to-exit mean; includes all recorded holds",
+        "population": "4b77d6a13a3479f153111782c52204feaf9ab84e3c521f6a7f641d491b2cf312",
+        "seconds": 13.438226510304377,
+        "sensor_xy": [
+          0.0,
+          0.0
+        ],
+        "source": "T04_completed_outlet",
+        "stamp_s": 25.0,
+        "start_s": 20.099467937144176,
+        "version": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3"
+      },
+      {
+        "end_s": 22.85078849580867,
+        "key": {
+          "class": "freight",
+          "id": "freight:freight:job:0",
+          "kind": "route"
+        },
+        "mass_veh": 0.1,
+        "measure": "completed conditional birth-to-exit mean; includes all recorded holds",
+        "population": "c5f54210ebae921382aeec7988319279d5e3b67840448437ace3000336dcf429",
+        "seconds": 12.66578849580867,
+        "sensor_xy": [
+          0.0,
+          0.0
+        ],
+        "source": "T04_completed_outlet",
+        "stamp_s": 25.0,
+        "start_s": 22.480788495808667,
+        "version": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3"
+      },
+      {
+        "end_s": 44.41611942198812,
+        "key": {
+          "class": "scheduled_bus",
+          "id": "bus:out:0",
+          "kind": "route"
+        },
+        "mass_veh": 1.0,
+        "measure": "completed conditional birth-to-exit mean; includes all recorded holds",
+        "population": "62b0ed69ad017889bfa78fd05de4370a3f6962623575980a5085e13f1871ecbe",
+        "seconds": 14.166119421988125,
+        "sensor_xy": [
+          0.0,
+          0.0
+        ],
+        "source": "T04_completed_outlet",
+        "stamp_s": 45.0,
+        "start_s": 43.91611942198812,
+        "version": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3"
+      },
+      {
+        "end_s": 59.709536856585586,
+        "key": {
+          "class": "car",
+          "id": "c0:home",
+          "kind": "route"
+        },
+        "mass_veh": 3.8400000000000003,
+        "measure": "completed conditional birth-to-exit mean; includes all recorded holds",
+        "population": "789ae4044c19f189015bf27aea1173347982645b3ec06c04eb7cb71e50fb06db",
+        "seconds": 15.67788477484499,
+        "sensor_xy": [
+          0.0,
+          0.0
+        ],
+        "source": "T04_completed_outlet",
+        "stamp_s": 60.0,
+        "start_s": 57.703554358496866,
+        "version": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3"
+      },
+      {
+        "end_s": 63.204882685347144,
+        "key": {
+          "class": "car",
+          "id": "c0:home",
+          "kind": "route"
+        },
+        "mass_veh": 2.560000000000001,
+        "measure": "completed conditional birth-to-exit mean; includes all recorded holds",
+        "population": "2f25dcf0335c9efcf778a8687e3a577b74f1599a8909fa2999a67db757d0d872",
+        "seconds": 13.570477992308462,
+        "sensor_xy": [
+          0.0,
+          0.0
+        ],
+        "source": "T04_completed_outlet",
+        "stamp_s": 65.0,
+        "start_s": 60.0607747089451,
+        "version": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3"
+      },
+      {
+        "end_s": 72.54959007134005,
+        "key": {
+          "class": "scheduled_bus",
+          "id": "bus:back:0",
+          "kind": "route"
+        },
+        "mass_veh": 1.0,
+        "measure": "completed conditional birth-to-exit mean; includes all recorded holds",
+        "population": "04e0d32134f38a71a2a4606665187124ed03c881749d65affc27292ddd589b81",
+        "seconds": 12.299590071340049,
+        "sensor_xy": [
+          0.0,
+          0.0
+        ],
+        "source": "T04_completed_outlet",
+        "stamp_s": 75.0,
+        "start_s": 72.04959007134005,
+        "version": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3"
+      }
+    ],
+    "decisions": [
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 10.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 10.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "920b935c58a725ca325b60fa9cd2bc887ef8667889ebdd06df7bb0fac61e30f2",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 5.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 10.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 10.0
+          }
+        ],
+        "cache_hit": true,
+        "cost_epoch": "920b935c58a725ca325b60fa9cd2bc887ef8667889ebdd06df7bb0fac61e30f2",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 10.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "d228317db875b8235d1e49407c3aed62f531f1c71abd618f7c0ef7e2028662c7",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 15.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "64fa4f68117f66f58cf9831f5e687111fb14e034ef0516ccecd18efa3bff06ec",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 20.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "f79a529378e3a43cc09b1b9df9aa83633d5bb98dad327a8b7afb7303d9fbb186",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 25.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "655e5b69683d95349ce553f8868f4850a5325c2b905b4db37df3d34690f33a99",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 30.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "735b213ccb97bd516aebeed57815a8ca395ff793b94aba0555812a4226c1de90",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 35.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "4510e611b3024c889640d1df50d643ab08f147a9b9af61b166a99c428358c762",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 40.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "1b082d52bd9afa7a5c618f5102163d11470cbd5574c10705dd5599c1c52ca569",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 45.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "003c497831d197d64f1f567b9a4de1e247ef34562cf31a4e3502e776082bebad",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 50.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "9ef76bd2b4e6c7e44b3a49aa7ac2b668ed5556f2468b9d72b1c237960010cb92",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 55.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "c4e7063673ae6314c516f1eff34652e9b05641f8fea26e591526551e74369bff",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 60.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "252cc801e04f0e1dac52065e845cf9fb6805c996b00ac79228e090aefcdd28fb",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 65.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "98c275874373fad704cd889a9c210f0b86aab7f537a30a6d1de7314ab5e4b2ca",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 70.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "e6984ee1e9f6b62cc46371e5e358ba4c376cf6b4f0b0bcfa90dae9f38dee4b2d",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 75.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "73be17915f3c248d8bcae81a2e522e6d14e155c3557fe4c2ae70b1e5288fa203",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 80.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "98fb7cdaa2001cbac8cc5aa96d02e27913f5a947a02fb077583c3f24079dd4b5",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 85.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "a08817557f91ddf5da25cf75939ea9184b3731558b3de7d733c51b0a8540e6eb",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 90.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "173940161516cf241e0addb947822af9c9723e1b204ca5aa1fb3fe313aa3a1e5",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 95.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "b2b238230caa49d3af7583d218426c99184b8398104f827d5ae7b9c52cc9a10a",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 100.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "50db79a29b70cebbc7ebf5a3b4b3d133caa5b24dad536389e888189b655b1dcd",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 105.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 30.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 30.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "a5e04595ede115f1ab743f305efe31011a1070b77be258079b357dba884ee857",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 110.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 10.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 10.0
+          }
+        ],
+        "cache_hit": false,
+        "cost_epoch": "920b935c58a725ca325b60fa9cd2bc887ef8667889ebdd06df7bb0fac61e30f2",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 115.0
+      },
+      {
+        "alternatives": [
+          {
+            "commitment": {
+              "graph_id": "29295235ab1b54b8b8e739d29c6ad181019bb742804e2a410acf9d62240085aa",
+              "links": [
+                "ab"
+              ],
+              "position": 0
+            },
+            "generalized_cost_s": 10.0,
+            "length_m": 100.0,
+            "path_size": 1.0,
+            "probability": 1.0,
+            "suffix": [
+              "ab"
+            ],
+            "travel_time_s": 10.0
+          }
+        ],
+        "cache_hit": true,
+        "cost_epoch": "920b935c58a725ca325b60fa9cd2bc887ef8667889ebdd06df7bb0fac61e30f2",
+        "expanded": 1,
+        "fallback": null,
+        "reason": "delivered cost alternatives",
+        "regret_s": null,
+        "status": "CANDIDATES",
+        "time_s": 120.0
+      }
+    ],
+    "demand_identity": "rust-host-fixture-schedule",
+    "growth_increment": 0,
+    "growth_snapshot": null,
+    "growth_state": null,
+    "info_time_s": 120.0,
+    "information_reports": [],
+    "journal": [
+      {
+        "input_stamp_s": 0.0,
+        "phase": "medium",
+        "time_s": 5.0
+      },
+      {
+        "input_stamp_s": 5.0,
+        "phase": "medium",
+        "time_s": 10.0
+      },
+      {
+        "input_stamp_s": 5.0,
+        "phase": "slow",
+        "time_s": 10.0
+      },
+      {
+        "input_stamp_s": 10.0,
+        "phase": "medium",
+        "time_s": 15.0
+      },
+      {
+        "input_stamp_s": 15.0,
+        "phase": "medium",
+        "time_s": 20.0
+      },
+      {
+        "input_stamp_s": 15.0,
+        "phase": "slow",
+        "time_s": 20.0
+      },
+      {
+        "input_stamp_s": 20.0,
+        "phase": "medium",
+        "time_s": 25.0
+      },
+      {
+        "input_stamp_s": 25.0,
+        "phase": "medium",
+        "time_s": 30.0
+      },
+      {
+        "input_stamp_s": 25.0,
+        "phase": "slow",
+        "time_s": 30.0
+      },
+      {
+        "input_stamp_s": 30.0,
+        "phase": "medium",
+        "time_s": 35.0
+      },
+      {
+        "input_stamp_s": 35.0,
+        "phase": "medium",
+        "time_s": 40.0
+      },
+      {
+        "input_stamp_s": 35.0,
+        "phase": "slow",
+        "time_s": 40.0
+      },
+      {
+        "input_stamp_s": 40.0,
+        "phase": "medium",
+        "time_s": 45.0
+      },
+      {
+        "input_stamp_s": 45.0,
+        "phase": "medium",
+        "time_s": 50.0
+      },
+      {
+        "input_stamp_s": 45.0,
+        "phase": "slow",
+        "time_s": 50.0
+      },
+      {
+        "input_stamp_s": 50.0,
+        "phase": "medium",
+        "time_s": 55.0
+      },
+      {
+        "input_stamp_s": 55.0,
+        "phase": "medium",
+        "time_s": 60.0
+      },
+      {
+        "input_stamp_s": 55.0,
+        "phase": "slow",
+        "time_s": 60.0
+      },
+      {
+        "input_stamp_s": 60.0,
+        "phase": "medium",
+        "time_s": 65.0
+      },
+      {
+        "input_stamp_s": 65.0,
+        "phase": "medium",
+        "time_s": 70.0
+      },
+      {
+        "input_stamp_s": 65.0,
+        "phase": "slow",
+        "time_s": 70.0
+      },
+      {
+        "input_stamp_s": 70.0,
+        "phase": "medium",
+        "time_s": 75.0
+      },
+      {
+        "input_stamp_s": 75.0,
+        "phase": "medium",
+        "time_s": 80.0
+      },
+      {
+        "input_stamp_s": 75.0,
+        "phase": "slow",
+        "time_s": 80.0
+      },
+      {
+        "input_stamp_s": 80.0,
+        "phase": "medium",
+        "time_s": 85.0
+      },
+      {
+        "input_stamp_s": 85.0,
+        "phase": "medium",
+        "time_s": 90.0
+      },
+      {
+        "input_stamp_s": 85.0,
+        "phase": "slow",
+        "time_s": 90.0
+      },
+      {
+        "input_stamp_s": 90.0,
+        "phase": "medium",
+        "time_s": 95.0
+      },
+      {
+        "input_stamp_s": 95.0,
+        "phase": "medium",
+        "time_s": 100.0
+      },
+      {
+        "input_stamp_s": 95.0,
+        "phase": "slow",
+        "time_s": 100.0
+      },
+      {
+        "input_stamp_s": 100.0,
+        "phase": "medium",
+        "time_s": 105.0
+      },
+      {
+        "input_stamp_s": 105.0,
+        "phase": "medium",
+        "time_s": 110.0
+      },
+      {
+        "input_stamp_s": 105.0,
+        "phase": "slow",
+        "time_s": 110.0
+      },
+      {
+        "input_stamp_s": 110.0,
+        "phase": "medium",
+        "time_s": 115.0
+      },
+      {
+        "input_stamp_s": 115.0,
+        "phase": "medium",
+        "time_s": 120.0
+      },
+      {
+        "input_stamp_s": 115.0,
+        "phase": "slow",
+        "time_s": 120.0
+      }
+    ],
+    "model_id": "55a8e49a1d2bf888d3a9dfac7f93fd4d070477df8af429b2b7a04413932246e4",
+    "next_medium_s": 125.0,
+    "next_slow_s": 130.0,
+    "observation_cursor_s": 120.0,
+    "routing": {
+      "cache": [
+        [
+          "b13ffd720a1c3909af49944c5b144610903e08705977acba19e583573a250527",
+          [
+            4629137466983448576,
+            4630826316843712512
+          ]
+        ],
+        [
+          "566434e8d098e880d96c2131e0289ab525214e2e63ce8699ef9cf5c1576a0a17",
+          [
+            4629137466983448576,
+            4630826316843712512
+          ]
+        ],
+        [
+          "87a07939f308838bc02fccb5b20a083b9252c244efbb545488695f7d68807092",
+          [
+            4629137466983448576,
+            4630826316843712512
+          ]
+        ],
+        [
+          "c1ca07390937205df721e6251dd8a92c82360deb96b6a32a1912efd309329275",
+          [
+            4621819117588971520,
+            4626322717216342016
+          ]
+        ]
+      ],
+      "hits": 2,
+      "misses": 22,
+      "model": "72c86b40621519d37094ea6ac86085ed161d90e1095f394e106dda5ac6dd72ce"
+    },
+    "slow_input": {
+      "completed_veh": 14.9,
+      "stamp_s": 115.0
+    },
+    "time_s": 120.0,
+    "traffic_identity": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3"
+  },
+  "phase_wire_sha256": "933c476338e4081518c85f16ef16fa87d35170e82e0d15b8d9e04984d2c675d3",
+  "physical_suffix_applied": false,
+  "python_runtime_dependency": "none",
+  "schedule_identity": "rust-host-fixture-schedule",
+  "schema": "metroflow_native_world_v2",
+  "scope": "C01 proposal-only phase semantics on actual native T04 state; explicit growth publications; no occupied suffix mutation",
+  "start_s": 59.0,
+  "status": "EXECUTED_FOR_REVIEW",
+  "threads": 8,
+  "tick_times_s": [
+    0.000081774,
+    0.000098025,
+    0.000049945,
+    0.000036759,
+    0.000018374,
+    0.000016801,
+    0.000013346,
+    0.000038462,
+    0.000021751,
+    0.000018785,
+    0.00002156,
+    0.000013565,
+    0.000022162,
+    0.000040938,
+    0.000018145,
+    0.000016301,
+    0.000011041,
+    0.000025509,
+    0.000011391,
+    0.000011893,
+    0.000015269,
+    0.000022302,
+    0.000015169,
+    0.000014297,
+    0.000014497,
+    0.000014107,
+    0.000011842,
+    9.097e-6,
+    8.796e-6,
+    8.997e-6,
+    0.000018304,
+    9.538e-6,
+    8.326e-6,
+    8.737e-6,
+    8.316e-6,
+    0.000026069,
+    9.267e-6,
+    0.000012003,
+    9.397e-6,
+    0.000017413,
+    0.000014497,
+    0.000015279,
+    9.958e-6,
+    0.000011932,
+    9.418e-6,
+    0.000011632,
+    0.000010009,
+    8.336e-6,
+    9.999e-6,
+    0.000016121,
+    0.00001541,
+    0.000016491,
+    0.000014497,
+    0.000014086,
+    8.626e-6,
+    0.00001062,
+    9.077e-6,
+    8.405e-6,
+    9.027e-6,
+    9.077e-6,
+    8.506e-6
+  ],
+  "time_s": 120.0,
+  "wall_s": 0.017739919
+}

@@ -7,7 +7,22 @@ const MAX_GROUPS:usize=10000;
 const MAX_PARTIALS:usize=64;
 fn bad(s:&str)->CoreError{CoreError::value(s)}
 #[derive(Clone,Debug,Serialize,Deserialize,Default,PartialEq)]
-struct Expansion { partials:Vec<f64> }
+struct Expansion { #[serde(with="inline_partials")] partials:smallvec::SmallVec<[f64;4]> }
+mod inline_partials {
+ use serde::{Serialize,Serializer,Deserializer,de::{Visitor,SeqAccess,Error}};
+ type Parts=smallvec::SmallVec<[f64;4]>;
+ pub fn serialize<S:Serializer>(p:&Parts,s:S)->Result<S::Ok,S::Error>{p.as_slice().serialize(s)}
+ pub fn deserialize<'de,D:Deserializer<'de>>(d:D)->Result<Parts,D::Error>{
+  struct V;
+  impl<'de> Visitor<'de> for V{
+   type Value=Parts;
+   fn expecting(&self,f:&mut std::fmt::Formatter)->std::fmt::Result{write!(f,"at most {} finite expansion components",super::MAX_PARTIALS)}
+   fn visit_seq<A:SeqAccess<'de>>(self,mut a:A)->Result<Parts,A::Error>{
+    let mut p=Parts::new();while let Some(x)=a.next_element::<f64>()?{if p.len()==super::MAX_PARTIALS||!x.is_finite(){return Err(A::Error::custom("phase expansion bound or nonfinite value"))}p.push(x)}Ok(p)
+   }
+  }d.deserialize_seq(V)
+ }
+}
 impl Expansion {
     fn add(&mut self,mut x:f64)->CoreResult<()>{
         if !x.is_finite(){return Err(bad("nonfinite outlet moment"))}
@@ -91,6 +106,11 @@ mod tests{
         let m=w.publish(2.).unwrap();
         assert_eq!(m.len(),1);assert_eq!(m[0].count,2);assert_eq!(m[0].mass,5.);assert_eq!(m[0].elapsed,5.5);
         w.validate(2.,2.,1).unwrap();
+    }
+    #[test]
+    fn wire_decoder_refuses_oversized_expansion_before_use(){
+        let v=serde_json::json!({"partials":vec![1.;MAX_PARTIALS+1]});
+        assert!(serde_json::from_value::<Expansion>(v).is_err());
     }
     #[test]
     fn partitions_preserve_exact_moments(){

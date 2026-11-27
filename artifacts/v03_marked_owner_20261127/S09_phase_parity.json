@@ -1,0 +1,10 @@
+{
+  "wire": "MFWHOLE1",
+  "prior_exact": true,
+  "resume_exact": true,
+  "partial_groups": 1,
+  "partial_rows": 6,
+  "mass": 14.900000000000002,
+  "physical_complete": 14.9,
+  "sha": "934ee5da2dd3003ebda551a1e8c09bad4384827edff1e401e5bcc9c189ae8f28"
+}

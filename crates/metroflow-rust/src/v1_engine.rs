@@ -214,7 +214,7 @@ fn stage_sums(j: &Journey, legs: usize) -> CoreResult<Vec<f64>> {
 // final fsum rounding, without a vector per pending calendar record.
 #[derive(Default)]
 struct Sum {
-    partials: Vec<f64>,
+    partials: smallvec::SmallVec<[f64;4]>,
 }
 impl Sum {
     fn add(&mut self, mut x: f64) {
