@@ -943,6 +943,7 @@ pub struct NativeJourneyCore {
     research_schedule_receipts:bool,
     research_stream_receipts:bool,
     research_egress_buckets:bool,
+    research_entry_buckets:bool,
     history_bytes: usize,
     history_decoded_final: usize,
     history_decode_extra_max: usize,
@@ -1218,6 +1219,11 @@ impl NativeJourneyCore {
     pub(crate) fn enable_research_egress_buckets(&mut self)->CoreResult<()>{
         if !self.research_stream_receipts{return Err(bad("egress buckets require streaming receipt identity"))}
         self.research_egress_buckets=true;Ok(())
+    }
+    #[cfg(feature="native-cli")]
+    pub(crate) fn enable_research_entry_buckets(&mut self)->CoreResult<()>{
+        if !self.research_egress_buckets||self.research_receipt_grid_step.is_none(){return Err(bad("entry buckets require egress and fixed grid identity"))}
+        self.research_entry_buckets=true;Ok(())
     }
     pub(crate) fn owned_time(&self) -> f64 {
         self.state.0
@@ -2105,6 +2111,30 @@ crate::optional_binding::optional_pymethods!(NativeJourneyCore,
             proposal_scratch,
         )?;
         let mut s = self.state.clone();
+        let entry_dt=if self.research_entry_buckets{
+            Some(self.research_receipt_grid_step.ok_or_else(||bad("entry projection missing fixed grid"))?)
+        }else{None};
+        if let Some(dt)=entry_dt{
+            if t%dt!=0.{return Err(bad("entry projection requires aligned prepare"))}
+            if self.research_receipt_period_s.is_some_and(|p|t%(p as f64)==0.){
+                let n=s.1.len();
+                let dynamic=stage_storage_bytes(&s).saturating_add(self.history_bytes);
+                let base=dynamic.max(self.retained_input_bytes).saturating_mul(WORKING_COPIES).saturating_add(STORAGE_SCRATCH_RESERVE);
+                let available=self.storage_budget.unwrap_or(usize::MAX).saturating_sub(base);
+                let workspace=entry_sweep_scratch(n);
+                if n>=2&&workspace<=available{
+                    check_storage_limit(self.storage_budget,self.retained_input_bytes,dynamic,workspace)?;
+                    if let Some(next)=compact_entry_queue(&s.1,t,dt,available)?{
+                        let removed=n-next.len();
+                        s.1=next;
+                        crate::v1_trace::add("entry_sweep.raw",n as u64);
+                        crate::v1_trace::add("entry_sweep.retained",s.1.len() as u64);
+                        crate::v1_trace::add("entry_sweep.removed",removed as u64);
+                        crate::v1_trace::add("entry_sweep.scratch",workspace as u64);
+                    }else{crate::v1_trace::add("entry_sweep.fallback",1);}
+                }else{crate::v1_trace::add("entry_sweep.skipped_budget_or_empty",1);}
+            }
+        }
         // Every proposal reads the same immutable pre-tick state. Indexed
         // chunks return in source order, and all additions/queue insertion
         // remain serial in exactly the original leg/law order.
@@ -2147,13 +2177,15 @@ crate::optional_binding::optional_pymethods!(NativeJourneyCore,
             + RETAINED_ALLOCATION_PADDING;
         let scratch = proposal_scratch.saturating_add(
             offer_count.saturating_mul(offer_bytes.saturating_add(self.max_tag_bytes)),
-        );
+        ).saturating_add(if entry_dt.is_some(){EntryWorkspace::storage_upper()}else{0});
         check_storage_limit(
             self.storage_budget,
             self.retained_input_bytes,
             stage_storage_bytes(&s).saturating_add(self.history_bytes),
             scratch,
         )?;
+        let mut entry_work=if entry_dt.is_some(){Some(EntryWorkspace::new()?)}else{None};
+        let mut entry_raw=0usize;let mut entry_stored=0usize;let mut entry_reduced=0usize;
         let attempt = self.last_attempt.as_mut().unwrap();
         for (i, mass, born, hold) in proposals.into_iter().flatten() {
             let l = &self.legs[i];
@@ -2162,19 +2194,32 @@ crate::optional_binding::optional_pymethods!(NativeJourneyCore,
             let stage = if l.5 == 2 { 2 } else { 0 };
             let all_stages = stage_storage_bytes(&s);
             let target = if stage == 2 { &mut s.3 } else { &mut s.1 };
+            let reduced=stage==0&&entry_work.as_mut().zip(entry_dt).is_some_and(|(w,dt)|w.project(i,mass,born,hold,&l.6,t,dt));
+            let n=if reduced{entry_work.as_ref().unwrap().out.len()}else{l.6.len()};
+            if stage==0&&entry_dt.is_some(){
+                entry_raw=entry_raw.saturating_add(l.6.len());entry_stored=entry_stored.saturating_add(n);
+                entry_reduced=entry_reduced.saturating_add(usize::from(reduced));
+            }
             let projected = self
                 .history_bytes
                 .saturating_add(all_stages - target.storage_bytes())
-                .saturating_add(target.append_upper_bytes(l.6.len()));
+                .saturating_add(target.append_upper_bytes(n));
             check_storage_limit(
                 self.storage_budget,
                 self.retained_input_bytes,
                 projected,
                 scratch,
             )?;
-            attempt.generated[stage] += l.6.len();
-            target.extend(l.6.iter().map(|w| (i, mass * w.1, born, w.0 + hold)));
+            attempt.generated[stage] += n;
+            if reduced{target.extend(entry_work.as_ref().unwrap().out.iter().copied());}
+            else{target.extend(l.6.iter().map(|w| (i, mass * w.1, born, w.0 + hold)));}
         }
+        if entry_dt.is_some(){
+            crate::v1_trace::add("entry_projection.raw_products",entry_raw as u64);
+            crate::v1_trace::add("entry_projection.stored_rows",entry_stored as u64);
+            crate::v1_trace::add("entry_projection.reduced_proposals",entry_reduced as u64);
+        }
+        drop(entry_work);
         let mut offers = Vec::new();
         s.1.retire_due(t + 1e-10, |a| {
             offers.push((self.legs[a.0].0.clone(), a.1, a.1 * a.2));
@@ -2299,6 +2344,7 @@ impl NativeJourneyCore {
             research_schedule_receipts:false,
             research_stream_receipts:false,
             research_egress_buckets:false,
+            research_entry_buckets:false,
             history_bytes: 0,
             history_decoded_final: 0,
             history_decode_extra_max: 0,
@@ -2961,6 +3007,17 @@ impl EntryWorkspace{
             self.out.push(a);
         }
         true
+    }
+}
+#[cfg(feature="native-cli")]
+pub struct EntryBucketProbe(EntryWorkspace);
+#[cfg(feature="native-cli")]
+impl EntryBucketProbe{
+    pub fn new()->CoreResult<Self>{Ok(Self(EntryWorkspace::new()?))}
+    pub fn run(&mut self)->CoreResult<[f64;3]>{
+        let law=[(3.,0.125),(5.,0.25),(13.,0.25),(15.,0.375)];
+        if !self.0.project(3,2.,1.,9.,&law,10.,10.){return Err(bad("entry projection probe failed"))}
+        Ok([self.0.out.len()as f64,self.0.out.iter().map(|a|a.1).sum(),self.0.out.iter().map(|a|a.1*a.2).sum()])
     }
 }
 // Periodic cross-generation entry quotient. Sort only compact references
