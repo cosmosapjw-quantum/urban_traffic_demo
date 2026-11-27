@@ -67,6 +67,11 @@ mod probe {
         for _ in 0..n{egress_result=black_box(egress.run().unwrap());}
         let(ea,er,ew)=finish(t);assert_eq!(egress_result,[2.,1.]);assert_eq!((ea,er),(0,0));
         println!("{}",json!({"kernel":"warmed_egress_retirement_buckets","iterations":n,"allocation_calls":ea,"reallocation_calls":er,"wall_s":ew,"answer":egress_result,"scope":"actual warmed per-leg outlet law product projection from four products into two retirement buckets; stage output append excluded"}));
+        let mut entry=_metroflow_rust::EntryBucketProbe::new().unwrap();
+        let t=start();let mut entry_result=[0.;3];
+        for _ in 0..n{entry_result=black_box(entry.run().unwrap());}
+        let(ia,ir,iw)=finish(t);assert_eq!(entry_result,[2.,2.,2.]);assert_eq!((ia,ir),(0,0));
+        println!("{}",json!({"kernel":"warmed_entry_access_projection","iterations":n,"allocation_calls":ia,"reallocation_calls":ir,"wall_s":iw,"answer":entry_result,"scope":"actual preallocated per-proposal access projection, four law products to two consumption ticks; excludes initialization, queue output and periodic sweep"}));
         let t=start();let mut x=[0;2];for _ in 0..n{x=black_box(_metroflow_rust::allocation_probe_outlet_and_wire().unwrap());}let(a6,r6,w6)=finish(t);assert_eq!(x[0],3);assert_eq!((a6,r6),(0,0));println!("{}",json!({"kernel":"outlet_group_and_stack_wire","iterations":n,"allocation_calls":a6,"reallocation_calls":r6,"wall_s":w6,"checksum":x,"scope":"actual fixed-slice grouped outlet and stack word writer; no allocation for tested small fsum; full histories may spill"}));
 
     }
