@@ -1,0 +1,1 @@
+Wolfram centroid min/max and moment equality True/True/True; maturity implication returned unevaluated, follows by hand from centroid<=tmax.
