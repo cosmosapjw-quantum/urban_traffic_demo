@@ -343,7 +343,7 @@ fn nonnegative(values: impl IntoIterator<Item = f64>) -> bool {
 }
 // Non-overlapping partials, with the final half-even adjustment of math.fsum.
 pub(crate) fn fsum(values: impl IntoIterator<Item = f64>) -> f64 {
-    let mut partials: Vec<f64> = Vec::new();
+    let mut partials: smallvec::SmallVec<[f64; 4]> = smallvec::SmallVec::new();
     for mut x in values {
         let mut i = 0;
         for j in 0..partials.len() {

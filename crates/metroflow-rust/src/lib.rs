@@ -1355,3 +1355,6 @@ mod extended_cost_wire;
 pub mod causal_bottleneck;
 #[cfg(feature="native-cli")]
 pub mod phase_window;
+/// Diagnostic entry to the actual journey summation kernel.
+#[cfg(feature="native-cli")]
+pub fn allocation_probe_fsum(values:&[f64])->f64{v1_journey::fsum(values.iter().copied())}

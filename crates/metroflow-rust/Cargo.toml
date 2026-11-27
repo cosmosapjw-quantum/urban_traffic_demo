@@ -78,3 +78,8 @@ required-features = ["native-cli"]
 name = "metroflow-causal-bottleneck"
 path = "src/bin/metroflow-causal-bottleneck.rs"
 required-features = ["native-cli"]
+
+[[bin]]
+name = "metroflow-zero-alloc-bench"
+path = "src/bin/metroflow-zero-alloc-bench.rs"
+required-features = ["native-cli"]

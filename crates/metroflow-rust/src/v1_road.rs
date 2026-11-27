@@ -4009,12 +4009,9 @@ impl V1Road {
         receive: &BTreeMap<usize, f64>,
     ) -> CoreResult<BTreeMap<usize, f64>> {
         let mut q: BTreeMap<usize, f64> = heads.keys().map(|&i| (i, 0.)).collect();
-        let mut active: Vec<usize> = heads.keys().copied().filter(|i| send[i] > 0.).collect();
+        let mut active: smallvec::SmallVec<[usize; 8]> = heads.keys().copied().filter(|i| send[i] > 0.).collect();
         while !active.is_empty() {
-            let mut bounds: Vec<f64> = active
-                .iter()
-                .map(|i| (send[i] - q[i]) / self.groups[*i][5])
-                .collect();
+            let mut bound = active.iter().map(|i| (send[i] - q[i]) / self.groups[*i][5]).fold(f64::INFINITY, f64::min);
             for (&j, &supply) in receive {
                 let slope = sum(active
                     .iter()
@@ -4023,14 +4020,14 @@ impl V1Road {
                     let used = sum(heads
                         .iter()
                         .map(|(&i, b)| b.get(&j).copied().unwrap_or(0.) * q[&i]));
-                    bounds.push((supply - used).max(0.) / slope);
+                    bound = bound.min((supply - used).max(0.) / slope);
                 }
             }
-            let step = bounds.into_iter().fold(f64::INFINITY, f64::min).max(0.);
+            let step = bound.max(0.);
             for &i in &active {
                 *q.get_mut(&i).unwrap() += step * self.groups[i][5];
             }
-            let saturated: Vec<usize> = receive
+            let saturated: smallvec::SmallVec<[usize; 8]> = receive
                 .iter()
                 .filter_map(|(&j, &supply)| {
                     if supply
@@ -4775,7 +4772,7 @@ impl V1Road {
                     .map(|(packet, _)| packet),
             );
             out.cells[i].packets = survivors;
-            let mut active = vec![false; self.classes.len()];
+            let mut active: smallvec::SmallVec<[bool; 8]> = std::iter::repeat_n(false,self.classes.len()).collect();
             for p in &out.cells[i].packets {
                 for x in &p.parts {
                     active[self.class(&x)] = true;
