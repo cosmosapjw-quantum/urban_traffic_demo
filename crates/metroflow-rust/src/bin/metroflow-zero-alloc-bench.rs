@@ -48,6 +48,11 @@ mod probe {
         let(a4,r4,w4)=finish(t);
         println!("{}",json!({"kernel":"packed_reference_and_event_random_access","iterations":n,"allocation_calls":a4,"reallocation_calls":r4,"wall_s":w4,"checksum":check,"sealed_saved_bytes":probe.saved_bytes(),"scope":"initialized exact packed ranks and event pages; encoding allocates per sealed page"}));
         assert_eq!((a4,r4),(0,0));
+        let values=[(0.125,0.375),(0.25,0.75),(0.5,1.5),(0.125,0.375)];
+        let t=start();let mut answer=[0.;2];
+        for _ in 0..n{answer=black_box(_metroflow_rust::allocation_probe_rank_moments(black_box(&values)).unwrap());}
+        let(a5,r5,w5)=finish(t);assert_eq!(answer,[1.,3.]);assert_eq!((a5,r5),(0,0));
+        println!("{}",json!({"kernel":"rank_positive_mass_birth_accumulation","iterations":n,"allocation_calls":a5,"reallocation_calls":r5,"wall_s":w5,"answer":answer,"scope":"actual compensated per-mark accumulator; excludes sort and packet output allocations"}));
 
     }
 }

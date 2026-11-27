@@ -1,0 +1,852 @@
+   Compiling metroflow-rust v0.1.0 (/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/crates/metroflow-rust)
+warning: unused import: `CoreError`
+ --> crates/metroflow-rust/src/v1_lineage_shadow.rs:6:25
+  |
+6 | use crate::core_error::{CoreError,CoreResult};
+  |                         ^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+warning: unused import: `CoreError`
+  --> crates/metroflow-rust/src/v1_timed_incoming.rs:13:25
+   |
+13 | use crate::core_error::{CoreError,CoreResult};
+   |                         ^^^^^^^^^
+warning: unnecessary parentheses around closure body
+    --> crates/metroflow-rust/src/v1_road.rs:7775:34
+     |
+7775 |   ...   let actual=(0..3).map(|i|(
+     |  ________________________________^
+7776 | | ...       incoming[i].descriptor_capacity()*std::mem::size_of::<Vec<Part>>()
+     | |__________^
+7777 |   ...       +marks[i].chunks.capacity()*std::mem::size_of::<Vec<Mark>>()
+     |  _______________________________________________________________________^
+7778 | | ...   )).sum();
+     | |_______^
+     |
+     = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+     |
+7775 ~         let actual=(0..3).map(|i|incoming[i].descriptor_capacity()*std::mem::size_of::<Vec<Part>>()
+7776 ~             +marks[i].chunks.capacity()*std::mem::size_of::<Vec<Mark>>()).sum();
+     |
+warning: unused import: `journey_debug`
+ --> crates/metroflow-rust/src/v1_engine.rs:8:32
+  |
+8 |     advance_owned_joint, fsum, journey_debug, journey_dense_storage_bytes...
+  |                                ^^^^^^^^^^^^^
+warning: unused imports: `AgentBatchResult` and `FlowBatchResult`
+  --> crates/metroflow-rust/src/lib.rs:29:14
+   |
+29 | use common::{AgentBatchResult, FlowBatchResult};
+   |              ^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^
+warning: unused imports: `compute_multi_destination_dynamic_potentials_impl` and `compute_ranked_route_candidates_batch_impl`
+  --> crates/metroflow-rust/src/lib.rs:35:5
+   |
+35 |     compute_multi_destination_dynamic_potentials_impl, compute_next_link...
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+36 |     compute_ranked_route_candidates_batch_impl, compute_ranked_route_can...
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+warning: unused import: `BTreeSet`
+  --> crates/metroflow-rust/src/atlas_portals.rs:14:29
+   |
+14 |     collections::{BTreeMap, BTreeSet},
+   |                             ^^^^^^^^
+warning: unused import: `terrain_validation::Landscape`
+ --> crates/metroflow-rust/src/atlas_generate.rs:7:5
+  |
+7 |     terrain_validation::Landscape,
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+warning: unused import: `std::collections::BTreeMap`
+  --> crates/metroflow-rust/src/atlas_generate.rs:81:9
+   |
+81 |     use std::collections::BTreeMap;
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+warning: unused import: `atlas_generate`
+ --> crates/metroflow-rust/src/next_epoch.rs:4:5
+  |
+4 |     atlas_generate,
+  |     ^^^^^^^^^^^^^^
+warning: unused import: `std::collections::BTreeSet`
+  --> crates/metroflow-rust/src/phase_runtime.rs:14:5
+   |
+14 | use std::collections::BTreeSet;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+warning: unused variable: `rows`
+    --> crates/metroflow-rust/src/v1_road.rs:5025:17
+     |
+5025 |             let rows=stats.cell_parts.saturating_add(stats.pending_par...
+     |                 ^^^^ help: if this is intentional, prefix it with an underscore: `_rows`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+warning: unused variable: `n`
+    --> crates/metroflow-rust/src/v1_road.rs:6039:13
+     |
+6039 |         let n=parts.len();
+     |             ^ help: if this is intentional, prefix it with an underscore: `_n`
+warning: function `compute_multi_destination_dynamic_potentials_impl` is never used
+   --> crates/metroflow-rust/src/routing.rs:912:15
+    |
+912 | pub(crate) fn compute_multi_destination_dynamic_potentials_impl(
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+warning: function `compute_ranked_route_candidates_batch_impl` is never used
+   --> crates/metroflow-rust/src/routing.rs:974:15
+    |
+974 | pub(crate) fn compute_ranked_route_candidates_batch_impl(
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+warning: methods `cached_destinations` and `potential_builds` are never used
+   --> crates/metroflow-rust/src/v1_routing.rs:268:8
+    |
+268 |     fn cached_destinations(&self) -> Vec<String> {
+    |        ^^^^^^^^^^^^^^^^^^^
+...
+276 |     fn potential_builds(&self) -> usize {
+    |        ^^^^^^^^^^^^^^^^
+    |
+   ::: crates/metroflow-rust/src/optional_binding.rs:14:9
+    |
+ 14 |         impl $ty { $($($method)*)* }
+    |         -------- methods in this implementation
+warning: type alias `Row` is never used
+ --> crates/metroflow-rust/src/v1_calendar.rs:9:6
+  |
+9 | type Row = (
+  |      ^^^
+warning: fields `cohort`, `released`, and `completed` are never read
+   --> crates/metroflow-rust/src/v1_calendar.rs:151:16
+    |
+149 | pub(crate) struct Leg {
+    |                   --- fields in this struct
+150 |     pub(crate) id: u64,
+151 |     pub(crate) cohort: u64,
+    |                ^^^^^^
+...
+156 |     pub(crate) released: f64,
+    |                ^^^^^^^^
+157 |     pub(crate) completed: f64,
+    |                ^^^^^^^^^
+    |
+    = note: `Leg` has a derived impl for the trait `Clone`, but this is intentionally ignored during dead code analysis
+warning: methods `key_existing` and `key` are never used
+   --> crates/metroflow-rust/src/v1_calendar.rs:210:8
+    |
+194 | impl NativeCalendar {
+    | ------------------- methods in this implementation
+...
+210 |     fn key_existing(&self, text: &str) -> Option<u64> {
+    |        ^^^^^^^^^^^^
+...
+227 |     fn key(&mut self, text: &str) -> u64 {
+    |        ^^^
+warning: multiple methods are never used
+   --> crates/metroflow-rust/src/v1_calendar.rs:303:8
+    |
+303 |     fn binding(&self) -> (String, String) {
+    |        ^^^^^^^
+...
+327 |     fn label(&self, index: usize) -> CoreResult<String> {
+    |        ^^^^^
+...
+380 |     fn profile(&self, index: usize) -> CoreResult<Vec<(f64, f64, f64)>> {
+    |        ^^^^^^^
+...
+391 |     fn append(&mut self, rows: Vec<Row>) -> CoreResult<usize> {
+    |        ^^^^^^
+...
+540 |     fn leg(&self, index: usize) -> CoreResult<Row> {
+    |        ^^^
+...
+571 |     fn requested_totals(&self, start_s: f64, end_s: f64) -> CoreResult<...
+    |        ^^^^^^^^^^^^^^^^
+...
+604 |     fn initial_ledger_totals(&self) -> (f64, f64) {
+    |        ^^^^^^^^^^^^^^^^^^^^^
+...
+615 |     fn storage_report(&self) -> (usize, usize, usize, usize, usize) {
+    |        ^^^^^^^^^^^^^^
+    |
+   ::: crates/metroflow-rust/src/optional_binding.rs:14:9
+    |
+ 14 |         impl $ty { $($($method)*)* }
+    |         -------- methods in this implementation
+warning: type alias `PartRow` is never used
+  --> crates/metroflow-rust/src/v1_road.rs:69:6
+   |
+69 | type PartRow = (usize, usize, f64, f64, Option<f64>, Option<f64>);
+   |      ^^^^^^^
+warning: type alias `PacketRow` is never used
+  --> crates/metroflow-rust/src/v1_road.rs:70:6
+   |
+70 | type PacketRow = (f64, Vec<PartRow>);
+   |      ^^^^^^^^^
+warning: type alias `CellRow` is never used
+  --> crates/metroflow-rust/src/v1_road.rs:71:6
+   |
+71 | type CellRow = (Vec<f64>, Vec<PacketRow>, Vec<(usize, f64)>);
+   |      ^^^^^^^
+warning: type alias `StateRow` is never used
+  --> crates/metroflow-rust/src/v1_road.rs:72:17
+   |
+72 | pub(crate) type StateRow = (
+   |                 ^^^^^^^^
+warning: method `pack_parts` is never used
+   --> crates/metroflow-rust/src/v1_road.rs:990:8
+    |
+989 | impl RoadDecodeBudget {
+    | --------------------- method in this implementation
+990 |     fn pack_parts(&mut self, parts: Vec<Part>) -> CoreResult<PacketPart...
+    |        ^^^^^^^^^^
+warning: method `active_by_tag` is never used
+    --> crates/metroflow-rust/src/v1_road.rs:1314:19
+     |
+1307 | impl RoadState {
+     | -------------- method in this implementation
+...
+1314 |     pub(crate) fn active_by_tag(&self) -> HashMap<usize, f64> {
+     |                   ^^^^^^^^^^^^^
+warning: multiple methods are never used
+    --> crates/metroflow-rust/src/v1_road.rs:3197:19
+     |
+3151 | impl V1Road {
+     | ----------- methods in this implementation
+...
+3197 |     pub(crate) fn summary(&self) -> (&[f64; 7], &[[f64; 5]]) {
+     |                   ^^^^^^^
+...
+3352 |     pub(crate) fn read_state<R: Read>(&self,r:&mut R)->CoreResult<Road...
+     |                   ^^^^^^^^^^
+...
+3450 |     pub(crate) fn install_state(&mut self, state: RoadState) {
+     |                   ^^^^^^^^^^^^^
+...
+3487 |     pub(crate) fn arc_committed_snapshot_union(&self, supplied: &RoadS...
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+3564 |     pub(crate) fn event_resolution_stats(&self) -> (u64, f64, f64, f64) {
+     |                   ^^^^^^^^^^^^^^^^^^^^^^
+...
+5256 |     fn row(&self) -> StateRow {
+     |        ^^^
+...
+5281 |     fn row_packets(
+     |        ^^^^^^^^^^^
+...
+5315 |     fn from_row(&self, row: StateRow) -> CoreResult<RoadState> {
+     |        ^^^^^^^^
+warning: multiple methods are never used
+    --> crates/metroflow-rust/src/v1_road.rs:5463:8
+     |
+5463 |     fn storage_limits(&self) -> (Option<usize>, usize, usize, Option<u...
+     |        ^^^^^^^^^^^^^^
+...
+5476 |     fn event_resolution_diagnostics(&self) -> (u64, f64, f64, f64) {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+5484 |     fn storage_layout_bytes(&self) -> (usize, usize, usize, usize) {
+     |        ^^^^^^^^^^^^^^^^^^^^
+...
+5497 |     fn packet_storage_counts(&self) -> (usize, usize, usize, usize) {
+     |        ^^^^^^^^^^^^^^^^^^^^^
+...
+5560 |     fn snapshot(&self) -> StateRow {
+     |        ^^^^^^^^
+...
+5568 |     fn restore(&mut self, row: StateRow) -> CoreResult<()> {
+     |        ^^^^^^^
+...
+5580 |     fn reset(&mut self, t: f64) -> CoreResult<()> {
+     |        ^^^^^
+...
+5629 |     fn registry_sizes(&self) -> (usize, usize, usize) {
+     |        ^^^^^^^^^^^^^^
+     |
+    ::: crates/metroflow-rust/src/optional_binding.rs:14:9
+     |
+  14 |         impl $ty { $($($method)*)* }
+     |         -------- methods in this implementation
+warning: type alias `JourneyLeg` is never used
+  --> crates/metroflow-rust/src/v1_journey.rs:30:17
+   |
+30 | pub(crate) type JourneyLeg = (String, f64, Option<usize>, f64, Profile, ...
+   |                 ^^^^^^^^^^
+warning: type alias `BusMeta` is never used
+  --> crates/metroflow-rust/src/v1_journey.rs:31:17
+   |
+31 | pub(crate) type BusMeta = (usize, f64, f64, f64, f64, Law); // leg, cale...
+   |                 ^^^^^^^
+warning: type alias `FreightMeta` is never used
+  --> crates/metroflow-rust/src/v1_journey.rs:32:17
+   |
+32 | pub(crate) type FreightMeta = (usize, f64, f64, Law);
+   |                 ^^^^^^^^^^^
+warning: struct `JourneyDebug` is never constructed
+   --> crates/metroflow-rust/src/v1_journey.rs:126:19
+    |
+126 | pub(crate) struct JourneyDebug {
+    |                   ^^^^^^^^^^^^
+warning: function `journey_debug` is never used
+   --> crates/metroflow-rust/src/v1_journey.rs:135:15
+    |
+135 | pub(crate) fn journey_debug(s: &Journey) -> JourneyDebug {
+    |               ^^^^^^^^^^^^^
+warning: fields `start_s` and `before` are never read
+   --> crates/metroflow-rust/src/v1_journey.rs:156:9
+    |
+155 | pub(crate) struct JourneyAttempt {
+    |                   -------------- fields in this struct
+156 |     pub start_s: f64,
+    |         ^^^^^^^
+157 |     pub end_s: f64,
+158 |     pub before: [usize; 4],
+    |         ^^^^^^
+    |
+    = note: `JourneyAttempt` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+warning: function `journey_decoded_storage_upper_bytes` is never used
+   --> crates/metroflow-rust/src/v1_journey.rs:207:15
+    |
+207 | pub(crate) fn journey_decoded_storage_upper_bytes(s: &Journey) -> usize {
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+warning: type alias `JourneyRow` is never used
+   --> crates/metroflow-rust/src/v1_journey.rs:328:6
+    |
+328 | type JourneyRow = (
+    |      ^^^^^^^^^^
+warning: method `sources` is never used
+   --> crates/metroflow-rust/src/v1_journey.rs:469:19
+    |
+406 | impl NativeServiceCore {
+    | ---------------------- method in this implementation
+...
+469 |     pub(crate) fn sources(&self) -> (&[Source], &[Source]) {
+    |                   ^^^^^^^
+warning: methods `snapshot`, `storage_accounting`, `road_events`, `restore`, and `abort` are never used
+   --> crates/metroflow-rust/src/v1_journey.rs:742:8
+    |
+742 |     fn snapshot(&self) -> Service {
+    |        ^^^^^^^^
+...
+751 |     fn storage_accounting(&self) -> (usize, usize, usize) {
+    |        ^^^^^^^^^^^^^^^^^^
+...
+763 |     fn road_events(&self) -> Vec<EventRow> {
+    |        ^^^^^^^^^^^
+...
+772 |     fn restore(&mut self, state: Service) -> CoreResult<()> {
+    |        ^^^^^^^
+...
+784 |     fn abort(&mut self) {
+    |        ^^^^^
+    |
+   ::: crates/metroflow-rust/src/optional_binding.rs:14:9
+    |
+ 14 |         impl $ty { $($($method)*)* }
+    |         -------- methods in this implementation
+warning: methods `owned_time`, `owned_phase_metrics`, `storage_budget`, `last_attempt`, and `install_state` are never used
+    --> crates/metroflow-rust/src/v1_journey.rs:1156:19
+     |
+ 919 | impl NativeJourneyCore {
+     | ---------------------- methods in this implementation
+...
+1156 |     pub(crate) fn owned_time(&self) -> f64 {
+     |                   ^^^^^^^^^^
+...
+1162 |     pub(crate) fn owned_phase_metrics(&self) -> &JourneyPhaseMetrics {
+     |                   ^^^^^^^^^^^^^^^^^^^
+...
+1211 |     pub(crate) fn storage_budget(&self) -> Option<usize> {
+     |                   ^^^^^^^^^^^^^^
+...
+1228 |     pub(crate) fn last_attempt(&self) -> Option<&JourneyAttempt> {
+     |                   ^^^^^^^^^^^^
+...
+1244 |     pub(crate) fn install_state(&mut self, state: Journey) {
+     |                   ^^^^^^^^^^^^^
+warning: multiple associated items are never used
+    --> crates/metroflow-rust/src/v1_journey.rs:1851:8
+     |
+1851 |     fn new(
+     |        ^^^
+...
+1898 |     fn snapshot(&self) -> JourneyRow {
+     |        ^^^^^^^^
+...
+1917 |     fn storage_accounting(&self) -> (usize, usize, usize) {
+     |        ^^^^^^^^^^^^^^^^^^
+...
+1929 |     fn decoded_storage_upper_bytes(&self) -> usize {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+1939 |     fn advance_metrics(&self) -> (Vec<f64>, usize) {
+     |        ^^^^^^^^^^^^^^^
+...
+1947 |     fn queue_storage(&self) -> ([usize; 4], [usize; 3]) {
+     |        ^^^^^^^^^^^^^
+...
+1962 |     fn restore(&mut self, row: JourneyRow) -> CoreResult<()> {
+     |        ^^^^^^^
+...
+1986 |     fn abort(&mut self) {
+     |        ^^^^^
+     |
+    ::: crates/metroflow-rust/src/optional_binding.rs:14:9
+     |
+  14 |         impl $ty { $($($method)*)* }
+     |         -------- associated items in this implementation
+warning: associated items `new`, `from_rows`, `to_vec`, `block_count`, and `shared_prefix_rows` are never used
+   --> crates/metroflow-rust/src/v1_history.rs:163:19
+    |
+162 | impl ReceiptHistory {
+    | ------------------- associated items in this implementation
+163 |     pub(crate) fn new() -> Self {
+    |                   ^^^
+...
+167 |     pub(crate) fn from_rows(rows: Vec<Receipt>) -> Result<Self, &'stati...
+    |                   ^^^^^^^^^
+...
+328 |     pub(crate) fn to_vec(&self) -> Vec<Receipt> {
+    |                   ^^^^^^
+...
+334 |     fn block_count(&self) -> usize {
+    |        ^^^^^^^^^^^
+...
+338 |     fn shared_prefix_rows(&self, other: &Self) -> usize {
+    |        ^^^^^^^^^^^^^^^^^^
+warning: struct `NativeReceiptHistory` is never constructed
+   --> crates/metroflow-rust/src/v1_history.rs:371:12
+    |
+371 | pub struct NativeReceiptHistory {
+    |            ^^^^^^^^^^^^^^^^^^^^
+warning: multiple associated items are never used
+   --> crates/metroflow-rust/src/v1_history.rs:379:8
+    |
+379 |     fn new(rows: Vec<Receipt>) -> CoreResult<Self> {
+    |        ^^^
+...
+390 |     fn append(&mut self, time: f64, fraction: f64) -> CoreResult<()> {
+    |        ^^^^^^
+...
+401 |     fn fork(&self) -> Self {
+    |        ^^^^
+...
+412 |     fn snapshot(&self) -> Vec<Receipt> {
+    |        ^^^^^^^^
+...
+421 |     fn total(&self) -> f64 {
+    |        ^^^^^
+...
+430 |     fn eligible(&self, dwell: f64, now: f64) -> CoreResult<f64> {
+    |        ^^^^^^^^
+...
+442 |     fn valid_at(&self, now: f64) -> bool {
+    |        ^^^^^^^^
+...
+460 |     fn storage_shape(&self) -> (usize, usize, usize) {
+    |        ^^^^^^^^^^^^^
+...
+473 |     fn shared_prefix_rows(&self, other: &Self) -> usize {
+    |        ^^^^^^^^^^^^^^^^^^
+...
+482 |     fn storage_bytes(&self) -> usize {
+    |        ^^^^^^^^^^^^^
+...
+490 |     fn decoded_storage_upper_bytes(&self) -> usize {
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+498 |     fn decoded_final_storage_upper_bytes(&self) -> usize {
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+506 |     fn append_upper_bytes(&self) -> usize {
+    |        ^^^^^^^^^^^^^^^^^^
+    |
+   ::: crates/metroflow-rust/src/optional_binding.rs:14:9
+    |
+ 14 |         impl $ty { $($($method)*)* }
+    |         -------- associated items in this implementation
+warning: methods `is_empty`, `capacity`, `to_vec`, and `shared_rows` are never used
+   --> crates/metroflow-rust/src/v1_stage.rs:77:19
+    |
+ 70 | impl StageQueue {
+    | --------------- methods in this implementation
+...
+ 77 |     pub(crate) fn is_empty(&self) -> bool {
+    |                   ^^^^^^^^
+...
+ 80 |     pub(crate) fn capacity(&self) -> usize {
+    |                   ^^^^^^^^
+...
+184 |     pub(crate) fn to_vec(&self) -> Vec<Access> {
+    |                   ^^^^^^
+...
+318 |     fn shared_rows(&self, other: &Self) -> usize {
+    |        ^^^^^^^^^^^
+warning: struct `NativeStageQueue` is never constructed
+   --> crates/metroflow-rust/src/v1_stage.rs:367:12
+    |
+367 | pub struct NativeStageQueue {
+    |            ^^^^^^^^^^^^^^^^
+warning: multiple associated items are never used
+   --> crates/metroflow-rust/src/v1_stage.rs:382:8
+    |
+382 |     fn new(rows: Vec<Access>) -> CoreResult<Self> {
+    |        ^^^
+...
+393 |     fn fork(&self) -> Self {
+    |        ^^^^
+...
+403 |     fn append(&mut self, row: Access) -> CoreResult<()> {
+    |        ^^^^^^
+...
+415 |     fn snapshot(&self) -> Vec<Access> {
+    |        ^^^^^^^^
+...
+423 |     fn retire_due(&mut self, deadline: f64) -> CoreResult<Vec<Access>> {
+    |        ^^^^^^^^^^
+...
+436 |     fn due_count(&self, deadline: f64) -> CoreResult<usize> {
+    |        ^^^^^^^^^
+...
+447 |     fn append_upper_bytes(&self, additional: usize) -> usize {
+    |        ^^^^^^^^^^^^^^^^^^
+...
+455 |     fn decoded_storage_upper_bytes(&self) -> usize {
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+463 |     fn storage_shape(&self) -> (usize, usize, usize, usize) {
+    |        ^^^^^^^^^^^^^
+...
+476 |     fn shared_rows(&self, other: &Self) -> usize {
+    |        ^^^^^^^^^^^
+    |
+   ::: crates/metroflow-rust/src/optional_binding.rs:14:9
+    |
+ 14 |         impl $ty { $($($method)*)* }
+    |         -------- associated items in this implementation
+warning: method `model_identity` is never used
+   --> crates/metroflow-rust/src/v1_engine.rs:471:8
+    |
+471 |     fn model_identity(&self) -> String {
+    |        ^^^^^^^^^^^^^^
+    |
+   ::: crates/metroflow-rust/src/optional_binding.rs:14:9
+    |
+ 14 |         impl $ty { $($($method)*)* }
+    |         -------- method in this implementation
+warning: multiple fields are never read
+   --> crates/metroflow-rust/src/v1_engine.rs:480:5
+    |
+477 | pub struct NativeWholeEngine {
+    |            ----------------- fields in this struct
+...
+480 |     storage_policy: String,
+    |     ^^^^^^^^^^^^^^
+481 |     road_storage_bytes: Option<usize>,
+482 |     journey_storage_bytes: Option<usize>,
+    |     ^^^^^^^^^^^^^^^^^^^^^
+...
+495 |     totals: [f64; 3],
+    |     ^^^^^^
+496 |     unassigned: [f64; 3],
+    |     ^^^^^^^^^^
+497 |     unsupported: usize,
+498 |     supported: [usize; 3],
+    |     ^^^^^^^^^
+499 |     passenger_available: Vec<f64>,
+    |     ^^^^^^^^^^^^^^^^^^^
+500 |     freight_cargo: Vec<f64>,
+    |     ^^^^^^^^^^^^^
+...
+504 |     estimated_bytes: usize,
+    |     ^^^^^^^^^^^^^^^
+warning: methods `identity`, `native_threads`, `snapshot`, `check`, and `sample_legs` are never used
+    --> crates/metroflow-rust/src/v1_engine.rs:1406:8
+     |
+1406 |     fn identity(&self) -> String {
+     |        ^^^^^^^^
+...
+1414 |     fn native_threads(&self) -> usize {
+     |        ^^^^^^^^^^^^^^
+...
+1530 |     fn snapshot(&self) -> NativeWholeState {
+     |        ^^^^^^^^
+...
+1538 |     fn check(&self, state: &NativeWholeState) -> CoreResult<()> {
+     |        ^^^^^
+...
+1746 |     fn sample_legs(
+     |        ^^^^^^^^^^^
+     |
+    ::: crates/metroflow-rust/src/optional_binding.rs:14:9
+     |
+  14 |         impl $ty { $($($method)*)* }
+     |         -------- methods in this implementation
+warning: `metroflow-rust` (lib test) generated 49 warnings (run `cargo fix --lib -p metroflow-rust --tests` to apply 13 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.66s
+     Running unittests src/lib.rs (target/debug/deps/_metroflow_rust-a583b037c6cad871)
+running 265 tests
+test atlas_seed::tests::integer_mt19937_known_stream ... ok
+test causal_bottleneck::tests::exact_delay_and_old_clock_spillback ... ok
+test atlas_zoning::tests::capped_stock_and_ties ... ok
+test causal_bottleneck::tests::finite_capacity_monotonic_for_exhaustive_short_signal_sequences ... ok
+test extended_cost_wire::tests::infinity_is_not_null_and_finite_spelling_stays_unchanged ... ok
+test marked_fifo::tests::shared_head_fraction_uses_footprint_and_common_cut ... ok
+test marked_fifo::tests::mixed_head_spillback_and_marked_residence ... ok
+test phase_window::tests::partitions_preserve_exact_moments ... ok
+test phase_window::tests::earlier_tick_survives_restart_and_no_double_count ... ok
+test phase_window::tests::wire_decoder_refuses_oversized_expansion_before_use ... ok
+test terrain_validation::tests::interior_ground_hump_and_overlap_minimum ... ok
+test phase_runtime::tests::budget_and_foreign_clock_refused ... ok
+test tests::active_agent_waits_at_sink_when_completion_budget_is_zero ... ok
+test tests::active_agent_completes_when_sink_budget_is_available ... ok
+test tests::active_agent_skip_slot_does_not_move ... ok
+test tests::computes_flow_zero_turns ... ok
+test tests::active_agent_shared_link_budget_uses_slot_order ... ok
+test tests::active_agent_empty_route_releases_slot ... ok
+test tests::advances_active_agent_with_movement_budget ... ok
+test tests::computes_greedy_route_candidate_empty_when_unreachable ... ok
+test tests::computes_greedy_route_candidate_normal_path ... ok
+test tests::computes_next_link_action_costs_normal_batch ... ok
+test tests::computes_next_link_action_costs_with_blocked_and_unreachable_links ... ok
+test tests::computes_flow_normal_update ... ok
+test tests::computes_flow_with_forbidden_and_priority_weighting ... ok
+test tests::computes_flow_zero_links ... ok
+test tests::agent_module_preserves_action_planner_contract ... ok
+test tests::computes_greedy_route_candidate_with_forbidden_turn ... ok
+test tests::computes_ranked_route_candidates_normal_paths ... ok
+test tests::computes_reroute_decision_batch ... ok
+test tests::computes_ranked_route_candidates_with_forbidden_turn ... ok
+test tests::computes_route_candidate_metadata_empty_path ... ok
+test tests::computes_routing_potential_with_blocked_link ... ok
+test tests::evolves_normal_batch ... ok
+test tests::flow_module_preserves_baseline_array_contract ... ok
+test tests::rejects_active_agent_length_mismatch ... ok
+test tests::computes_route_candidate_metadata_costs_and_path_size ... ok
+test tests::rejects_active_agent_route_offset_mismatch ... ok
+test tests::rejects_flow_invalid_turn_index ... ok
+test tests::rejects_flow_length_mismatch ... ok
+test tests::computes_routing_potential_normal_path ... ok
+test tests::edge_module_preserves_batch_evolution_contract ... ok
+test tests::computes_routing_potential_for_zero_links ... ok
+test tests::rejects_greedy_route_length_mismatch ... ok
+test tests::rejects_length_mismatch ... ok
+test tests::evolves_zero_capacity_with_eps_travel_time ... ok
+test causal::tests::nonanticipation_and_atomic_history ... ok
+test tests::flow_point_queue_uses_rate_supply_and_additive_waiting_ticks ... ok
+test tests::rejects_flow_negative_numeric_input ... ok
+test lagged_growth::tests::relocation_atomic ... ok
+test lagged_growth::tests::weighted_completed_and_no_same_tick ... ok
+test tests::rejects_negative_input ... ok
+test tests::rejects_next_link_action_cost_invalid_candidate_index ... ok
+test tests::rejects_queue_above_stock ... ok
+test tests::rejects_next_link_action_cost_length_mismatch ... ok
+test causal_routing::tests::unavailable_not_unreachable ... ok
+test causal_routing::tests::choices_cache_and_occupied_suffix ... ok
+test phase_runtime::tests::coincident_clocks_and_wire_replay ... ok
+test tests::rejects_greedy_route_invalid_outgoing_index ... ok
+test tests::rejects_reroute_decision_length_mismatch ... ok
+test v1_engine::capture_road_clone_owner_exact_bounds::source_road_credit_requires_actual_input_and_future_capture_phase ... ok
+test tests::rejects_route_candidate_metadata_length_mismatch ... ok
+test v1_engine::restart_owner_tests::full_clone_charge_but_only_one_new_event_owner ... ok
+test tests::rejects_route_candidate_metadata_unknown_link_id ... ok
+test tests::rejects_route_candidate_selection_negative_link_id ... ok
+test tests::rejects_routing_invalid_index ... ok
+test tests::rejects_routing_length_mismatch ... ok
+test tests::reroute_module_preserves_decision_contract ... ok
+test tests::routing_module_preserves_dynamic_potential_contract ... ok
+test tests::selects_route_candidate_empty_when_no_viable_path ... ok
+test tests::selects_route_candidate_first_viable_when_costs_are_missing ... ok
+test tests::selects_route_candidate_tie_by_candidate_id_then_path ... ok
+test tests::selects_route_candidate_with_path_size_utility ... ok
+test geometry_simd::tests::vector_bits_including_tail_and_infinity ... ok
+test causal_routing::tests::tie_resource_and_path_size ... ok
+test v1_area::tests::concave_shortest_and_fail_closed ... ok
+test v1_engine::capture_road_clone_owner_exact_bounds::actual_immutable_arc_payload_is_not_allocated_twice_in_future_road_clone ... ok
+test v1_engine::restart_owner_tests::install_shared_payload_credit ... ok
+test v1_engine::stage_sum_tests::stage_sums_empty_journey_is_all_zero ... ok
+test v1_area::tests::square_depth0_and_internal_mass ... ok
+test v1_journey::exact_checkpointability_lifetime_phase_tests::individually_real_three_owner_cases_are_still_charged_not_aliased ... ok
+test v1_journey::event_snapshot_arc_ownership_tests::captured_snapshots_and_committed_service_share_event_backing ... ok
+test v1_journey::event_snapshot_arc_ownership_tests::replacing_event_backing_preserves_previous_immutable_snapshot ... ok
+test v1_journey::exact_checkpointability_lifetime_phase_tests::original_100k_checkpoint_future_decoder_never_coexists_with_new_candidate ... ok
+test v1_journey::exact_checkpointability_lifetime_phase_tests::verified_input_current_road_pair_must_not_be_charged_twice ... ok
+test v1_journey::service_phase_actual_owner_tests::same_arc_credit_requires_pointer_equality ... ok
+test v1_journey::service_phase_actual_owner_tests::three_unequal_live_owners_are_all_charged_without_fictitious_largest_copies ... ok
+test v1_journey::retained_timed_event_history_contract_tests::wide_legacy_event_indices_survive_direct_decode ... ok
+test v1_kcmb::tests::shape_and_storage_guards_and_zero_step ... ok
+test v1_kcmb_node::tests::shared_red_movement_blocks_entire_group ... ok
+test v1_kcmb_node::tests::weighted_merge_and_lane_metres_conserve_resources ... ok
+test v1_road::compact_mark_exactness_tests::empty_and_multidest_mark_stream_has_one_to_one_alignment ... ok
+test v1_road::compact_decode_envelope_tests::bound_matches_actual_decode_accounting_for_aliases_and_mixed_rows ... ok
+test v1_road::compact_mark_exactness_tests::speed_latent_only_mark_is_exactly_reconstructible_from_the_existing_part ... ok
+test v1_road::conservative_arc_pair_credit_tests::paired_clone_credit_counts_only_guaranteed_arc_aliases ... ok
+test v1_road::conservative_arc_pair_credit_tests::paired_credit_is_sound_for_three_states_and_distinct_candidate ... ok
+test v1_road::composed_interval_view_tests::source_index_view_empty_and_nonassociative_duplicate_keys ... ok
+test v1_road::conservative_arc_pair_credit_tests::credit_never_exceeds_owner_payload_or_cross_snapshot_union_duplicates ... ok
+test v1_road::conservative_arc_pair_credit_tests::unshared_original_input_earns_zero_after_the_committed_state_changes ... ok
+test v1_road::continuous_keyset_and_page_geometry_tests::actual_source_100k_part_mark_work_pages_have_optimal_power_two_size ... ok
+test v1_road::continuous_keyset_and_page_geometry_tests::postroad_continuous_interning_counts_both_old_state_and_new_scratch ... ok
+test v1_road::direct_core_interval_pack_tests::direct_core_empty_and_duplicate_key_order ... ok
+test v1_road::continuous_keyset_and_page_geometry_tests::new_page_geometry_retains_indexwise_order_and_original_mark_bits ... ok
+test marked_fifo::tests::exhaustive_short_binary_capacity_sequences ... ok
+test v1_road::direct_uniform_point_pack_tests::signed_zero_mixed_point_endpoints_refuse_fast_path ... ok
+test v1_road::compact_mark_exactness_tests::original_ordered_fsum_speed_and_latent_are_bit_exact_over_mixed_classes ... ok
+test v1_road::compact_checkpoint_wire_tests::explicit_shared_wire_roundtrip_reuses_keys_and_preserves_legacy_bytes ... ok
+test v1_road::event_carrier_metadata_tests::flatten_allowance_covers_coexisting_carrier_and_flat_vec_header_at_zero_rows ... ok
+test v1_road::event_carrier_metadata_tests::zero_row_page_allowance_covers_the_actual_living_carrier ... ok
+test atlas_roads::tests::small_connected_roads ... ok
+test v1_road::exact_compact_candidate_event_tests::source_derived_candidate_event_charge_matches_real_packed_allocation ... ok
+test v1_road::exact_compact_incoming_source_tests::compact_physical_pages_reduce_source_charge_without_a_budget_override ... ok
+test v1_road::exact_compact_candidate_event_tests::wide_default_legacy_event_rows_remain_valid_without_truncation ... ok
+test v1_road::exact_compact_incoming_source_tests::uncapped_wide_part_mode_keeps_original_usize_range ... ok
+test v1_road::exact_compact_candidate_event_tests::packed_event_row_has_genuine_48byte_payload_and_ieee_exact_inverse ... ok
+test v1_road::exact_compact_incoming_source_tests::packed_incoming_part_is_exact_40byte_injective_source_row ... ok
+test v1_road::exact_consumed_packet_source_lifetime_tests::source_release_rejects_unequal_mark_counts_or_overclaim_without_discarding ... ok
+test v1_road::exact_event_page_live_capacity_contract_tests::candidate_allocation_charges_actual_preallocated_page_capacity_not_fictitious_slack ... ok
+test v1_road::exact_event_page_live_capacity_contract_tests::source_100k_measured_transfer_guards_are_predicted_to_clear_without_cap_changes ... ok
+test v1_road::exact_event_run_wire_tests::run_wire_rejects_bad_count_before_payload ... ok
+test v1_road::exact_event_time_run_tests::event_carrier_bound_preserves_all_original_input_and_current_history_bytes ... ok
+test v1_road::direct_core_interval_pack_tests::direct_core_rows_match_old_combined_uniform_packet_bits ... ok
+test v1_road::exact_consumed_packet_source_lifetime_tests::release_only_after_both_physically_allocated_part_and_mark_pages_expire ... ok
+test v1_road::exact_compact_incoming_source_tests::source_order_across_part_mark_page_boundaries_is_bit_identical ... ok
+test v1_road::exact_incoming_cell_page_liveness_tests::page_growth_is_only_at_true_cell_local_128_row_boundary ... ok
+test v1_road::exact_incoming_cell_page_liveness_tests::projected_source_cell_pages_equal_physically_live_part_and_mark_pages ... ok
+test v1_road::direct_uniform_point_pack_tests::uniform_point_direct_core_matches_legacy_group_sum_and_packet_bits ... ok
+test v1_engine::stage_sum_tests::stage_sums_match_former_per_key_sum_bits ... ok
+test v1_road::exact_event_time_run_tests::distinct_time_bits_and_page_boundaries_preserve_every_event_field ... ok
+test v1_road::exact_interval_sweep_tests::benchmark_original_naive_scan_vs_event_sweep_selection_only ... ignored
+test v1_road::exact_interval_sweep_tests::original_finite_interval_and_point_selection_is_bitorder_preserving ... ok
+test v1_road::exact_locked_incoming_descriptor_lifetime_tests::locked_descriptor_state_checks_physical_mark_alignment_before_admission ... ok
+test v1_road::exact_merged_unique_edges_tests::unique_edges_match_original_across_zero_sign_permutations_and_empty ... ok
+test v1_road::exact_locked_incoming_descriptor_lifetime_tests::original_stable_source_vec_descriptors_can_be_counted_from_actual_capacity ... ok
+test v1_road::exact_narrow_lineage_indices_tests::all_original_mass_birth_and_signed_zero_endpoint_bits_roundtrip ... ok
+test v1_road::exact_narrow_lineage_indices_tests::compact_core_layout_is_24_bytes_and_integer_bounds_are_lossless ... ok
+test v1_road::exact_narrow_lineage_indices_tests::distinguish_mixed_signed_zeros_even_if_indices_are_compactable ... ok
+test v1_road::exact_narrow_lineage_indices_tests::overflow_indices_are_never_truncated_and_preserve_legacy_part_fields ... ok
+test v1_road::exact_event_time_run_tests::projected_source_append_bounds_both_page_and_descriptor_allocations ... ok
+test v1_road::exact_paged_event_candidate_tests::actual_candidate_page_structural_bound_is_not_only_a_numeric_discount ... ok
+test v1_road::exact_persistent_keyset_storage_tests::already_shared_full_arc_is_not_converted_into_two_new_allocations ... ok
+test v1_road::exact_pending_pack_live_descriptor_tests::pending_packet_pack_uses_current_vec_capacity_without_freezing_future_appends ... ok
+test v1_road::exact_persistent_keyset_storage_tests::different_key_order_and_original_wide_mixed_values_never_intern ... ok
+test v1_road::exact_persistent_keyset_storage_tests::independent_same_keys_share_only_metadata_not_ieee_moments ... ok
+test v1_road::exact_persistent_keyset_storage_tests::local_workspace_selects_combined_row_and_packet_peak ... ok
+test v1_road::exact_postroad_live_owner_bound_tests::exact_three_live_road_owners_are_added_individually_without_alias_credit ... ok
+test v1_road::exact_postroad_live_owner_bound_tests::zero_and_nonidentical_owner_terms_are_never_assumed_pointer_sharing ... ok
+test v1_road::exact_route_keyset_census_tests::census_recognizes_identical_key_sequences_with_distinct_physical_moments ... ok
+test v1_road::exact_persistent_keyset_storage_tests::cell_and_pending_share_exact_keys_with_one_live_cell_workspace ... ok
+test v1_road::exact_route_keyset_census_tests::same_length_but_different_order_cannot_share_keys_even_if_mass_equal ... ok
+test v1_road::direct_wire_decode_tests::uniform_decode_does_not_require_raw_part_buffer ... ok
+test v1_road::direct_wire_decode_tests::mixed_late_fallback_preserves_exact_rows ... ok
+test v1_road::exact_route_keyset_census_tests::unequal_endpoint_bit_patterns_do_not_change_key_identity_or_physical_bits ... ok
+test v1_road::exact_segmented_incoming_buffer_tests::changed_guard_has_real_pages_and_conservative_capacity_slack ... ok
+test v1_road::exact_segmented_incoming_buffer_tests::no_existing_page_is_reallocated_while_appending_many_later_rows ... ok
+test v1_road::exact_segmented_mark_alignment_tests::actual_two_page_source_bound_uses_one_copy_of_each_row ... ok
+test v1_road::exact_paged_event_candidate_tests::old_event_page_never_moves_when_later_events_are_appended ... ok
+test v1_road::exact_segmented_mark_alignment_tests::appending_new_marks_does_not_move_old_paged_mark_backing ... ok
+test v1_road::exact_segmented_incoming_buffer_tests::segmented_source_order_matches_original_vec_at_chunk_boundaries ... ok
+test v1_road::exact_event_page_live_capacity_contract_tests::physical_page_chunk_capacity_and_event_bits_remain_unchanged ... ok
+test v1_road::exact_shared_fifo_source_arc_credit_tests::distinct_shared_key_backings_are_counted_once_not_per_cohort ... ok
+test v1_road::exact_shared_event_source_budget_tests::only_pointer_identical_old_event_backing_can_be_counted_once ... ok
+test v1_road::exact_shared_fifo_source_arc_credit_tests::cloned_source_uniform_arc_with_two_packet_owners_must_not_doublecount ... ok
+test v1_journey::retained_timed_event_history_contract_tests::event_decode_budget_rejection_preserves_committed_history ... ok
+test v1_road::fifo_moment_nonclosure_physical_source_tests::exact_fifo_source_counterexample_same_mass_and_birth_different_departure_age ... ok
+test v1_road::exact_streaming_remainder_tests::scaled_source_direct_matches_eager_for_uniform_shared_and_mixed ... ok
+test v1_road::fifo_moment_nonclosure_physical_source_tests::retaining_individual_packet_birth_and_source_interval_bits_is_not_global_closure ... ok
+test v1_road::exact_streaming_remainder_tests::direct_source_allocation_excludes_full_temporary_part_buffer ... ok
+test v1_road::lineage_shadow::exact_shadow_tests::interval_split_transform_retains_original_order_birth_and_signed_boundary ... ok
+test v1_road::lineage_shadow::exact_shadow_tests::nested_proportional_split_is_exact_per_field_not_collapsed_fraction ... ok
+test v1_road::lineage_shadow::exact_shadow_tests::nonfinite_bad_fraction_or_invalid_handle_is_a_real_error ... ok
+test v1_road::lineage_shadow::exact_shadow_tests::rewind_mixed_rewrite_keeps_same_metadata_and_all_float_bits ... ok
+test v1_road::exact_segmented_mark_alignment_tests::ordered_mark_pages_preserve_each_original_f64_bit_and_pairing ... ok
+test v1_road::lineage_shadow::exact_shadow_tests::served_and_remainder_share_immutable_input_without_mass_smearing ... ok
+test v1_road::lineage_shadow::exact_shadow_tests::streamed_rows_are_order_and_bit_identical_to_materialized_reference ... ok
+test v1_road::lineage_shadow::independent_shadow_adversarial_tests::distinct_order_and_time_support_survive_nonassociative_rewrites ... ok
+test v1_road::lineage_shadow::independent_shadow_adversarial_tests::subnormal_mass_drop_matches_exact_original_ieee_predicate ... ok
+test v1_road::exact_segmented_incoming_buffer_tests::original_source_sorted_group_sum_remains_bit_equal_for_duplicate_and_signed_zero_keys ... ok
+test v1_road::lineage_shadow::independent_shadow_adversarial_tests::deterministic_random_nested_serve_remainder_against_original_portion ... ok
+test v1_road::lineage_shadow::original_packet_composition_sharing_tests::uniform_and_mixed_clones_share_identical_immutable_source_bytes ... ok
+test v1_road::lineage_shadow::exact_shadow_tests::repeated_deep_trace_uses_iterative_evaluation_and_no_recursive_drop ... ok
+test v1_road::lineage_shadow::shadow_event_consumer_tests::event_consumer_stream_is_bit_identical_to_original_eager_event_rows ... ok
+test v1_road::lineage_shadow::shadow_event_consumer_tests::fallible_consumer_stops_stream_and_preserves_source_for_retry ... ok
+test v1_road::lineage_shadow::shadow_event_consumer_tests::invalid_event_clock_refused_without_mutating_source_arena ... ok
+test v1_road::lineage_shadow::shadow_storage_benchmark::benchmark_immutable_lineage_vs_eager_retained_rows ... ignored
+test v1_road::ordered_stream_interval_tests::repeated_ordered_keys_reuse_only_keys_and_match_legacy_bits ... ok
+test v1_road::ordered_stream_interval_tests::selected_subset_underflow_and_changed_keys_match_legacy ... ok
+test v1_road::original_transfer_exclusive_cell_scratch_tests::no_unearned_transfer_credit_for_zero_extra_or_nontransfer_call ... ok
+test v1_road::original_transfer_exclusive_cell_scratch_tests::only_source_transfer_preflight_excludes_future_interval_cell_combine_scratch ... ok
+test v1_road::original_weighted_fifo_physical_rates_theorem_tests::original_progressive_junction_exact_physical_bottleneck_prediction ... ok
+test v1_road::lineage_shadow::original_served_stream_oracles::original_portion_vs_served_iterator_are_exact_for_mixed_and_uniform ... ok
+test v1_road::original_weighted_fifo_physical_rates_theorem_tests::zero_downstream_capacity_blocks_only_upstream_sources_that_use_it ... ok
+test v1_road::postroad_event_lifetime_tests::finishing_after_workspaces_drop_charges_distinct_real_backings_only ... ok
+test v1_road::postroad_event_lifetime_tests::no_event_history_uses_no_candidate_rows_or_flattening ... ok
+test v1_road::compact_receiving_group_tests::compact_source_ordinals_and_group_census_preserve_order_and_bits ... ok
+test v1_road::receiving_lifetime_floor_tests::expired_source_rows_only_credit_once_and_candidate_growth_is_charged ... ok
+test v1_road::receiving_local_lifetime_tests::local_scratch_covers_index_and_combined_capacity ... ok
+test v1_road::receiving_local_lifetime_tests::measured_old_maximum_is_not_the_active_consumer ... ok
+test v1_road::registered_width_tests::exact_union_counts_terminal_and_deduplicates_repeated_routes ... ok
+test v1_road::exact_event_time_run_tests::source_runs_share_control_bits_across_payload_and_flag_pages ... ok
+test v1_road::exact_interval_sweep_tests::randomized_original_scan_vs_event_sweep_selected_indices ... ok
+test v1_road::source_remainder_lifetime_tests::mixed_remainder_still_charges_raw_buffer_before_reusing_it ... ok
+test v1_road::ready_suffix_owner_tests::actual_fifo_head_suffix_changes_destination_preserving_ledgers ... ok
+test v1_road::source_remainder_lifetime_tests::source_remainder_admits_only_its_live_raw_and_packed_buffers ... ok
+test v1_road::source_remainder_lifetime_tests::source_remainder_budget_boundary_charges_both_buffers_and_restores_on_error ... ok
+test v1_road::exact_event_time_run_tests::repeated_time_pairs_allocate_once_per_run_not_once_per_physical_row ... ok
+test v1_road::streaming_validation_tests::checked_finite_expansion_matches_exact_order_and_rejects_overflow ... ok
+test v1_road::registered_width_tests::wide_registry_falls_back_to_universal_bound ... ok
+test v1_road::hierarchical_active_index_bitset_tests::original_rust_ieee_interval_sweep_selected_row_order_unchanged ... ok
+test v1_road::source_specific_keyset_workspace_tests::interning_bound_allocates_only_uniform_rows_and_preserves_shared_moment_owner ... ok
+test v1_road::exact_compact_candidate_event_tests::packed_event_pages_reproduce_original_sixteen_million_ieee_order_boundaries ... ok
+test v1_road::lineage_shadow::original_packet_composition_sharing_tests::shared_packet_clones_preserve_original_part_order_and_float_bits ... ok
+test v1_road::streaming_validation_tests::validation_workspace_depends_on_packet_shells_not_rows ... ok
+test v1_road::timed_incoming::event_ref_tests::combined_envelope_covers_two_tails_and_growth_at_all_page_boundaries ... ok
+test v1_road::sweep_partition_live_bound_tests::ordinal_width_fallback_and_order_are_injective ... ok
+test v1_road::source_specific_keyset_workspace_tests::existing_shared_rows_need_metadata_but_no_new_key_or_moment_payload ... ok
+test v1_road::exact_paged_event_candidate_tests::paged_events_reconstruct_original_exact_tuple_bits_and_order ... ok
+test v1_road::sweep_partition_live_bound_tests::opposite_sign_zeros_are_numeric_points_but_bit_distinct ... ok
+test v1_road::sweep_partition_live_bound_tests::reversed_interval_is_rejected_without_reclassifying_as_point ... ok
+test v1_road::timed_incoming::event_ref_tests::referenced_road_and_owned_pending_keep_exact_payload_after_page_growth ... ok
+test v1_road::hierarchical_active_index_bitset_tests::bitset_operations_are_exactly_ordered_like_btree_over_boundary_cardinalities ... ok
+test v1_road::timed_incoming::tests::actual_rows_and_controls_are_32_bytes_and_keep_every_field_bit ... ok
+test v1_road::timed_incoming::tests::invalid_ids_wide_indices_and_changed_clock_bits_do_not_mutate_rows ... ok
+test v1_road::timed_incoming::tests::zero_projection_is_actual_storage_and_overflow_is_rejected ... ok
+test v1_road::timed_incoming::tests::moving_and_dropping_one_cell_preserves_other_cells_and_global_controls ... ok
+test v1_road::unique_arc_backing_account_tests::duplicated_uniform_arc_backing_is_counted_once_but_owner_count_kept ... ok
+test v1_road::unique_arc_backing_account_tests::zero_capacity_backing_still_has_unique_arc_metadata ... ok
+test v1_road::unique_arc_live_state_union_tests::empty_union_is_exact_zero_and_single_state_agrees_with_existing_census ... ok
+test v1_road::unique_arc_live_state_union_tests::identical_independent_roadstate_is_not_shared_even_at_same_part_bits ... ok
+test v1_road::unique_arc_live_state_union_tests::three_live_cloned_roadstates_are_one_shared_backing_but_three_owners ... ok
+test v1_road::v1_rank_projection::tests::all_atoms_and_intervals_no_fallback_and_marked_conservation ... ok
+test v1_road::v1_rank_projection::tests::sparse_point_clocks_are_unchanged_and_budget_fail_closed ... ok
+test v1_road::v1_ready_rank::tests::cap_span_and_nonpoint_are_protected ... ok
+test v1_road::unique_arc_backing_account_tests::equal_payload_but_independent_mixed_allocations_are_not_aliases ... ok
+test v1_road::timed_incoming_workspace_contract_tests::source_charge_remains_until_all_direct_combine_reads_finish ... ok
+test v1_road::v1_ready_rank::tests::contiguous_ready_and_identical_future_target_only ... ok
+test v1_road::retained_event_append_bound_tests::streaming_decode_projection_bounds_actual_retention_for_both_domains ... ok
+test v1_road::workspace_accounting_tests::interval_transient_is_released_and_only_packed_rows_are_retained ... ok
+test v1_road::workspace_accounting_tests::road_step_event_charge_has_no_sink_terms ... ok
+test v1_road::workspace_accounting_tests::sink_envelope_counts_only_exiting_rows ... ok
+test v1_routing::pure_routing_tests::potential_reuses_storage_and_lexical_path_ties ... ok
+test v1_road::v1_ref_blocks::tests::widths_and_random_access_bits ... ok
+test v1_road::composed_interval_view_tests::source_index_view_matches_materialized_ieee_split_and_combine ... ok
+test v1_road::timed_incoming::tests::projected_append_covers_every_prefix_and_real_descriptor_growth ... ok
+test v1_road::sweep_partition_live_bound_tests::only_classified_source_rows_allocate_their_real_event_arrays ... ok
+test v1_road::v1_ref_blocks::tests::exact_order_and_fallback_after_multiple_block_growths ... ok
+test v1_road::timed_incoming::packed_ref_integration_tests::packed_and_plain_receiving_rows_match_exactly_across_control_changes_and_owned_tail ... ok
+test v1_road::workspace_accounting_tests::bounded_projection_retains_marked_mass_birth_and_endpoint_atom ... ok
+test restored_atlas::tests::restored_typed_ramps ... ok
+test v1_road::lineage_shadow::original_served_stream_oracles::deterministic_random_head_stream_preserves_ieee_first_birth_moment_and_sum ... ok
+test v1_stage::stable_capacity_normal_form_tests::sparse_survivors_repack_without_changing_order_or_f64_fields ... ok
+test v1_road::packed_event_carrier_tests::packed_candidate_exact_bits_projection_and_wire ... ok
+test v1_road::v1_event_blocks::tests::page_roundtrip_all_modes ... ok
+test v1_road::timed_incoming_workspace_contract_tests::global_projection_covers_minimum_headers_and_all_cell_page_boundaries ... ok
+test v1_road::timed_incoming::tests::shared_class_controls_match_original_portion_and_ordered_mark_sums ... ok
+test v1_engine::canonical_variant_fixture_tests::canonical_alias_survives_actual_road_exit_and_completes_original_journey ... ok
+test v1_journey::retained_timed_event_history_contract_tests::legacy_event_wire_roundtrip_is_ieee_exact_across_pages ... ok
+test v1_road::exact_interval_sweep_tests::original_split_and_combine_ieee_payloads_match_event_selected_rows ... ok
+test v1_road::exact_merged_unique_edges_tests::unique_edges_match_original_seeded_intervals_and_many_duplicate_endpoints ... ok
+test v1_road::exact_event_run_wire_tests::run_wire_roundtrip_crosses_payload_flag_control_and_time_pages ... ok
+test atlas_zoning::tests::face_stock_ledger ... ok
+test v1_road::inline_expansion_storage_tests::inline_and_spill_preserve_original_expansion_bits ... ok
+test v1_journey::retained_timed_event_history_contract_tests::repeated_time_checkpoint_history_uses_less_than_48_bytes_per_event ... ok
+test v1_road::class_moment_stream_tests::streaming_expansions_match_legacy_order_and_rounding ... ok
+test atlas_seed::tests::substrate_registry_and_landscape ... ok
+test result: ok. 263 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 1.56s

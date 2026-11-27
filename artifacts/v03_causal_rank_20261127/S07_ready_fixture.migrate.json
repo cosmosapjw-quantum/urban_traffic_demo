@@ -1,0 +1,45 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "checkpoint_bytes": 1574,
+  "checkpoint_sha256": "3887b72a771c040e624fe8ef535f1fb0253d77f44d02f63b35107a39d0e2fa19",
+  "executable_sha256": "4c1842eda4d2519716998e8ee01e14b92eea968a88c0e6db5bdca55222da31d5",
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 100.0,
+      "pending": 0.0,
+      "released": 100.0,
+      "released_intent_first_moment": 750.0,
+      "requested": 100.0
+    },
+    "persons": {
+      "active": 0.0,
+      "completed": 20.0,
+      "pending": 0.0,
+      "released": 20.0,
+      "released_intent_first_moment": 500.00000000000006,
+      "requested": 20.0
+    },
+    "vehicles": {
+      "active": 0.0,
+      "completed": 13.06,
+      "pending": 0.0,
+      "released": 13.06,
+      "released_intent_first_moment": 324.75000000000006,
+      "requested": 13.06
+    }
+  },
+  "manifest_sha256": "c48f385c0d8733a96f8d4941b2d64c8881e4efedaf145fdbbde8056b17d8e2d5",
+  "native_identity": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60",
+  "peak_rss_bytes": 7720960,
+  "python_runtime_dependency": "none",
+  "research_ready_mass_milli": 500,
+  "schema": "metroflow_ready_rank_migration_v1",
+  "scope": "unchanged initial physical owners; added bounded ready/equal-target stock coalescence; not original V03 acceptance",
+  "source_checkpoint_sha256": "f24b2b841b9c5e4cdb14476f54aae400fa8b0e4cc7a7de9eb59f0269fd6c349b",
+  "source_manifest_sha256": "5bb903029ab1d653b3d11e5a76f325d09b97287819c280539fdbe63abf193694",
+  "source_native_identity": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1",
+  "status": "EXECUTED_FOR_REVIEW",
+  "time_s": 120.0,
+  "wall_s": 0.012294026
+}

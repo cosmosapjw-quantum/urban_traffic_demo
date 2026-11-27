@@ -1804,6 +1804,7 @@ pub struct V1Road {
     intervals: bool,
     research_interval_bins:Option<usize>,
     research_rank_bins:Option<usize>,
+    research_ready_mass_milli:Option<u64>,
     state: RoadState,
 }
 // Route registry is validated before this call. A terminal successor uses n.
@@ -3462,6 +3463,11 @@ impl V1Road {
     pub(crate) fn set_research_rank_bins(&mut self,bins:usize)->CoreResult<()>{
         if !self.intervals||!(1..=16).contains(&bins)||self.research_interval_bins.is_some()||!self.can_compact_incoming_parts(){return Err(val("research rank bins outside supported domain"))}
         self.research_rank_bins=Some(bins);Ok(())
+    }
+    #[cfg(feature="native-cli")]
+    pub(crate) fn set_research_ready_mass(&mut self,milli:u64)->CoreResult<()>{
+        if self.research_rank_bins.is_none()||!(1..=10000).contains(&milli){return Err(val("ready rank mass outside domain or missing rank closure"))}
+        self.research_ready_mass_milli=Some(milli);Ok(())
     }
     pub(crate) fn owned_time(&self) -> f64 {
         self.state.t
@@ -5191,6 +5197,10 @@ impl V1Road {
             out.cells[i].v[2] += added;
             out.cells[i].v[4] += added * end;
         }
+        if let Some(milli)=self.research_ready_mass_milli{
+            if local_consumer{work.base=consumer_floor;}
+            for cell in &mut out.cells{v1_ready_rank::coalesce(&mut cell.packets,cell.v[0],milli as f64/1000.,60.,&mut work)?;}
+        }
         work.base = full_consumer_base;
         // No timed source/control owner survives into validation or the
         // persistent candidate. Legacy state/checkpoint representation stays.
@@ -5722,6 +5732,7 @@ impl V1Road {
             intervals,
             research_interval_bins:None,
             research_rank_bins:None,
+            research_ready_mass_milli:None,
             state: RoadState {
                 t: 0.,
                 cells: vec![],
@@ -9150,3 +9161,6 @@ impl PackedRankProbe{
         [r.event as u64,r.offset as u64,r.control as u64,e.mass.to_bits(),e.birth.to_bits()]
     }
 }
+
+#[cfg(feature="native-cli")]
+pub fn allocation_probe_rank_moments(values:&[(f64,f64)])->CoreResult<[f64;2]>{v1_rank_projection::moment_probe(values)}

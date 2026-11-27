@@ -2208,6 +2208,9 @@ fn build_native_input(manifest:serde_json::Value,threads:usize)->CoreResult<(Nat
         let bins=v.as_u64().and_then(|v|usize::try_from(v).ok()).ok_or_else(||bad("invalid research interval bins"))?;
         enable_research_bins(&mut engine,bins)?;
     }
+    if let Some(v)=manifest.get("research_ready_mass_milli"){
+        enable_research_ready(&mut engine,v.as_u64().ok_or_else(||bad("invalid research ready mass"))?)?;
+    }
 
     Ok((engine,calendar_legs,calendar_totals))
 }
@@ -2224,6 +2227,12 @@ fn enable_research_rank(engine:&mut NativeWholeEngine,bins:usize)->CoreResult<()
     engine.identity.push_str(&format!(":causal-rank-v1:{bins}"));
     Ok(())
 }
+#[cfg(feature="native-cli")]
+fn enable_research_ready(engine:&mut NativeWholeEngine,milli:u64)->CoreResult<()>{
+    engine.road.set_research_ready_mass(milli)?;
+    engine.identity.push_str(&format!(":ready-rank-v1:{milli}:60"));
+    Ok(())
+}
 /// Explicit model migration. Same physical owners at conversion, different
 /// future numerical closure and native identity. Target declaration must
 /// differ ONLY by the added research field.
@@ -2231,6 +2240,19 @@ fn enable_research_rank(engine:&mut NativeWholeEngine,bins:usize)->CoreResult<()
 pub fn migrate_native_time_bins(source:serde_json::Value,target:serde_json::Value,threads:usize,input:&str,checkpoint:&str)->CoreResult<serde_json::Value>{
     use serde_json::json;
     let mut comparison=target.clone();
+    if source.get("research_rank_bins").is_some() && source.get("research_ready_mass_milli").is_none(){
+        let milli=comparison.as_object_mut().and_then(|o|o.remove("research_ready_mass_milli")).and_then(|v|v.as_u64()).ok_or_else(||bad("missing target ready mass"))?;
+        if comparison!=source{return Err(bad("ready migration declarations differ beyond mass"))}
+        let (mut engine,_,_)=build_native_input(source,threads)?;
+        let state=engine.load(input.to_owned())?;
+        let source_identity=engine.identity.clone();let ledger=ledger_json(&engine,&state)?;
+        enable_research_ready(&mut engine,milli)?;
+        let next=NativeWholeState{identity:engine.identity.clone(),value:state.value};
+        engine.validate_bundle(&next.value)?;
+        if ledger_json(&engine,&next)?!=ledger{return Err(bad("ready migration ledger differs"))}
+        save_atomic_native(&mut engine,checkpoint,&next)?;
+        return Ok(json!({"schema":"metroflow_ready_rank_migration_v1","status":"EXECUTED_FOR_REVIEW","scope":"unchanged initial physical owners; added bounded ready/equal-target stock coalescence; not original V03 acceptance","time_s":next.time_s(),"native_identity":engine.identity,"source_native_identity":source_identity,"research_ready_mass_milli":milli,"ledger":ledger["ledger"]}))
+    }
     let rank=comparison.get("research_rank_bins").is_some();
     let field=if rank{"research_rank_bins"}else{"research_interval_bins"};
     let bins=comparison.as_object_mut().and_then(|o|o.remove(field))

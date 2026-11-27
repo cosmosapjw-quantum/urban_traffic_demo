@@ -158,3 +158,10 @@ mod tests {
         let mut w=work();w.limit=Some(1);assert!(project(parts.len(),|i|parts[i],10.,4,10.,10,0,&mut w).is_err());
     }
 }
+
+#[cfg(feature="native-cli")]
+pub(super) fn moment_probe(values:&[(f64,f64)])->CoreResult<[f64;2]>{
+    let (mut m,mut b)=(Acc::default(),Acc::default());
+    for &(x,y) in values{m.add(x)?;b.add(y)?;}
+    Ok([m.value(),b.value()])
+}

@@ -1362,3 +1362,5 @@ pub fn allocation_probe_fsum(values:&[f64])->f64{v1_journey::fsum(values.iter().
 pub mod marked_fifo;
 #[cfg(feature="native-cli")]
 pub use v1_road::PackedRankProbe;
+#[cfg(feature="native-cli")]
+pub use v1_road::allocation_probe_rank_moments;
