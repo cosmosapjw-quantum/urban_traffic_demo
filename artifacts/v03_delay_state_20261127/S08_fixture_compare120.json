@@ -1,0 +1,153 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "candidate_checkpoint_sha256": "5e95582417295fc32bef9684624be6788281bbdea754dc272dba875e564dc2fe",
+  "candidate_identity": "native-whole-v1:rust-host-delay-calendar-multilaw-fixture-v1:268435456:bounded_bytes_v1:retained_capacity_v3:mature-receipt-v1:10:group-outlets-v1:receipt-grid-v1:1:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1:delay-calendar-v1",
+  "candidate_manifest_sha256": "dbcea017ece0cf95a2e50861c09f532720f288b840cdb3a533a7d3f17a0fc227",
+  "cells": {
+    "active_veh": {
+      "bit_different_entries": 0,
+      "entries": 2,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 0.0,
+      "relative_l1": null
+    },
+    "cumulative_entry_veh": {
+      "bit_different_entries": 0,
+      "entries": 2,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 14.900000000000002,
+      "relative_l1": 0.0
+    },
+    "cumulative_exit_veh": {
+      "bit_different_entries": 0,
+      "entries": 2,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 14.900000000000002,
+      "relative_l1": 0.0
+    },
+    "distance_veh_m": {
+      "bit_different_entries": 0,
+      "entries": 2,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 1490.0000000000002,
+      "relative_l1": 0.0
+    },
+    "occupied_lane_m": {
+      "bit_different_entries": 0,
+      "entries": 2,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 0.0,
+      "relative_l1": null
+    },
+    "speed_m_s": {
+      "bit_different_entries": 0,
+      "entries": 2,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 0.0,
+      "relative_l1": null
+    }
+  },
+  "executable_sha256": "9e4f02f60a444c117fe5832e412860c3ecf11faa36dd5127c165f20ed23d02d7",
+  "journey_legs": {
+    "completed_persons": {
+      "bit_different_entries": 0,
+      "entries": 5,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 20.000000000000004,
+      "relative_l1": 0.0
+    },
+    "completed_veh": {
+      "bit_different_entries": 0,
+      "entries": 5,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 13.060000000000004,
+      "relative_l1": 0.0
+    },
+    "since_completion_person_s": {
+      "bit_different_entries": 1,
+      "entries": 5,
+      "l1": 2.8421709430404007e-13,
+      "linf": 2.8421709430404007e-13,
+      "reference_l1": 1494.32926263862,
+      "relative_l1": 1.9019710140868296e-16
+    },
+    "since_completion_veh_s": {
+      "bit_different_entries": 1,
+      "entries": 5,
+      "l1": 2.2737367544323206e-13,
+      "linf": 2.2737367544323206e-13,
+      "reference_l1": 1021.9284101108962,
+      "relative_l1": 2.2249471997608744e-16
+    }
+  },
+  "last_tick_outlet": {
+    "birth_to_exit_veh_s": {
+      "bit_different_entries": 0,
+      "entries": 5,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 0.0,
+      "relative_l1": null
+    },
+    "outlet_veh": {
+      "bit_different_entries": 0,
+      "entries": 5,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 0.0,
+      "relative_l1": null
+    }
+  },
+  "peak_rss_bytes": 7802880,
+  "reference_checkpoint_sha256": "fe7b0d60b2137149b749dfdcde269848becd3461d50263b6105f2b8d14a1299a",
+  "reference_identity": "native-whole-v1:rust-host-delay-calendar-multilaw-fixture-v1:268435456:bounded_bytes_v1:retained_capacity_v3:mature-receipt-v1:10:group-outlets-v1:receipt-grid-v1:1:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1",
+  "reference_manifest_sha256": "c88ff7175b5421600538ff9c257ce7a940a58a92c07d718e985b51597d49b1aa",
+  "road_tags": {
+    "active_veh": {
+      "bit_different_entries": 0,
+      "entries": 5,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 0.0,
+      "relative_l1": null
+    },
+    "birth_veh_s": {
+      "bit_different_entries": 0,
+      "entries": 5,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 0.0,
+      "relative_l1": null
+    },
+    "entry_clock_veh_s": {
+      "bit_different_entries": 0,
+      "entries": 5,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 0.0,
+      "relative_l1": null
+    },
+    "route_offset_veh": {
+      "bit_different_entries": 0,
+      "entries": 5,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 0.0,
+      "relative_l1": null
+    }
+  },
+  "schema": "metroflow_rank_state_compare_v1",
+  "scope": "strict loaded snapshots same physical declaration/time/tag registry; numerical observable differences, not global error theorem or release acceptance",
+  "status": "EXECUTED_FOR_REVIEW",
+  "tag_order_sha256": "133d106ee0c5ad48bd141a8a61f99a3f5e36733c8bcd0bdaa1c43e817d4f9d25",
+  "time_s": 120.0,
+  "wall_s": 0.002533552
+}

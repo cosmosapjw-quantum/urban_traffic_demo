@@ -3072,6 +3072,14 @@ impl EntryBucketProbe{
         Ok([self.0.out.len()as f64,self.0.out.iter().map(|a|a.1).sum(),self.0.out.iter().map(|a|a.1*a.2).sum()])
     }
 }
+#[cfg(feature="native-cli")]
+pub fn allocation_probe_delay_cell()->CoreResult<[f64;3]>{
+    let rows=std::hint::black_box([(1,0.25,1.,12.),(1,0.75,3.,13.),(1,0.5,10.,6.)]);
+    let mut g=EntryGroup::new(1,rows[0]);
+    for r in rows{if !delay_projectable(&r,1,10.,10.,Some(&[100.,100.]))||!g.add_at(r,10.,10.,10.){return Err(bad("delay cell probe add"))}}
+    let a=g.representative_at(10.,10.,10.).ok_or_else(||bad("delay cell probe projection"))?;
+    Ok([a.1,a.2,a.2+a.3])
+}
 // Sparse ordered calendar. Wire remains the logical row sequence; on load
 // block boundaries may be lost, so normalize once, then share untouched
 // immutable clock partitions. Only the append tail is sorted thereafter.
