@@ -175,9 +175,10 @@ pub(crate) const STAGE_SUM_ROW_BYTES: usize = std::mem::size_of::<(u64, f64)>();
 // Direct-index ordered expansion. Retain precisely the same per-key add
 // sequence as the sorted reference. On capacity/finite-range failure discard
 // scratch and use the old reference, never truncate low-order components.
-#[derive(Clone, Copy, Default)]
-struct FixedStageSum { partials: [f64;4], len: usize }
-impl FixedStageSum {
+#[derive(Clone, Copy)]
+struct FixedStageSum<const N:usize> { partials: [f64;N], len: usize }
+impl<const N:usize> Default for FixedStageSum<N>{fn default()->Self{Self{partials:[0.;N],len:0}}}
+impl<const N:usize> FixedStageSum<N> {
     fn add(&mut self, mut x:f64)->bool{
         let mut i=0;
         for j in 0..self.len{
@@ -199,29 +200,37 @@ impl FixedStageSum {
     fn finish(&self)->f64{fsum(self.partials[..self.len].iter().copied())}
 }
 fn stage_sums_dense(j:&Journey,legs:usize)->CoreResult<Option<Vec<f64>>>{
+    stage_sums_dense_n::<4>(j,legs)
+}
+fn stage_sums_dense_n<const N:usize>(j:&Journey,legs:usize)->CoreResult<Option<Vec<f64>>>{
     let rows=j.1.len()+j.2.len()+j.3.len();
     let allowed=rows.saturating_mul(STAGE_SUM_ROW_BYTES);
-    if legs.saturating_mul(std::mem::size_of::<FixedStageSum>())>allowed{return Ok(None)}
+    if legs.saturating_mul(std::mem::size_of::<FixedStageSum<N>>())>allowed{return Ok(None)}
     let mut sums=Vec::new();
     if sums.try_reserve_exact(legs).is_err(){return Ok(None)}
-    if sums.capacity().saturating_mul(std::mem::size_of::<FixedStageSum>())>allowed{return Ok(None)}
-    sums.resize(legs,FixedStageSum::default());
+    if sums.capacity().saturating_mul(std::mem::size_of::<FixedStageSum<N>>())>allowed{return Ok(None)}
+    sums.resize(legs,FixedStageSum::<N>::default());
     for part in [&j.1,&j.2,&j.3]{
         for a in part{
             let v=sums.get_mut(a.0).ok_or_else(||bad("native stage row leg index differs"))?;
-            if !v.add(a.1){return Ok(None)}
+            if !v.add(a.1){
+                crate::v1_trace::add(if N==4{"stage_validation.spill4"}else{"stage_validation.spill8"},1);
+                return Ok(None)
+            }
         }
     }
     let mut mass=Vec::new();
     mass.try_reserve_exact(legs).map_err(|_|CoreError::resource("native stage validation allocation failed"))?;
     mass.extend(sums.iter().map(FixedStageSum::finish));
     crate::v1_trace::add("stage_validation.dense_rows",rows as u64);
-    crate::v1_trace::add("stage_validation.dense_scratch",sums.capacity().saturating_mul(std::mem::size_of::<FixedStageSum>()) as u64);
+    crate::v1_trace::add("stage_validation.dense_scratch",sums.capacity().saturating_mul(std::mem::size_of::<FixedStageSum<N>>()) as u64);
     Ok(Some(mass))
 }
 fn stage_sums(j:&Journey,legs:usize)->CoreResult<Vec<f64>>{
     if legs>u32::MAX as usize||j.1.len()+j.2.len()+j.3.len()>u32::MAX as usize{return Err(bad("native stage validation index exceeds u32"))}
     if let Some(mass)=stage_sums_dense(j,legs)?{return Ok(mass)}
+    if let Some(mass)=stage_sums_dense_n::<8>(j,legs)?{return Ok(mass)}
+    crate::v1_trace::add("stage_validation.sorted_fallback",1);
     stage_sums_sorted(j,legs)
 }
 fn stage_sums_sorted(j: &Journey, legs: usize) -> CoreResult<Vec<f64>> {
@@ -2132,6 +2141,15 @@ mod stage_sum_tests {
         assert!(stage_sums_dense(&j,1).unwrap().is_none());
         assert_eq!(stage_sums(&j,1).unwrap(),stage_sums_sorted(&j,1).unwrap());
         assert!(stage_sums_dense(&j,100).unwrap().is_none());
+    }
+    #[test]
+    fn eight_component_path_handles_real_ordered_four_component_spill(){
+        let mut a=StageQueue::new();
+        for i in 0..6{a.push((0,2f64.powi(-60*i),0.,1.));}
+        let j:Journey=(0.,a,StageQueue::new(),StageQueue::new(),vec![],vec![],vec![],vec![]);
+        assert!(stage_sums_dense(&j,1).unwrap().is_none());
+        assert_eq!(stage_sums_dense_n::<8>(&j,1).unwrap().unwrap()[0].to_bits(),stage_sums_sorted(&j,1).unwrap()[0].to_bits());
+        assert_eq!(stage_sums(&j,1).unwrap(),stage_sums_sorted(&j,1).unwrap());
     }
     #[test]
     fn stage_sums_empty_journey_is_all_zero() {

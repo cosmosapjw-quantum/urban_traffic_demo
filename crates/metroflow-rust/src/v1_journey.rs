@@ -342,6 +342,9 @@ fn bad(message: &str) -> CoreError {
 fn nonnegative(values: impl IntoIterator<Item = f64>) -> bool {
     values.into_iter().all(|x| x.is_finite() && x >= 0.0)
 }
+fn service_observer_group_bound(rows:usize,legs:usize,bus:usize,freight:usize)->usize{
+    rows.min(legs).min(bus.saturating_add(freight))
+}
 fn service_egress_rows(
     stage: &StageQueue,
     bus: &HashMap<usize, [f64;3]>,
@@ -1011,7 +1014,10 @@ impl NativeJourneyCore {
     /// dense snapshot copies are accounted by the enclosing engine.
     pub(crate) fn validation_scratch_bytes(&self, state: &Journey) -> usize {
         let rows = state.2.len();
-        let groups = rows.min(self.legs.len());
+        // service_egress_rows stores only actual bus/freight owner keys.
+        // The row term remains all egress rows (worst case); the number of
+        // materialized Vec/HashMap keys cannot exceed the declared support.
+        let groups = service_observer_group_bound(rows,self.legs.len(),self.bus.len(),self.freight.len());
         let egress_vectors = rows
             .saturating_mul(2)
             .saturating_add(groups.saturating_mul(4))
@@ -3360,6 +3366,20 @@ mod schedule_receipt_tests{
 #[cfg(test)]
 mod service_projection_tests{
     use super::*;
+    #[test]
+    fn service_observer_bound_counts_only_materializable_keys(){
+        assert_eq!(service_observer_group_bound(4_000_000,918_450,0,0),0);
+        assert_eq!(service_observer_group_bound(4_000_000,918_450,13,7),20);
+        assert_eq!(service_observer_group_bound(2,918_450,13,7),2);
+        assert_eq!(service_observer_group_bound(100,3,13,7),3);
+        let mut q=StageQueue::new();
+        for i in 0..100{q.push((i,1.,0.,1.));}
+        let bus=HashMap::from([(2,[0.;3]),(5,[0.;3])]);
+        let freight=HashMap::from([(2,[0.;3]),(7,[0.;3])]);
+        let observed=service_egress_rows(&q,&bus,&freight);
+        assert_eq!(observed.len(),3);
+        assert!(observed.len()<=service_observer_group_bound(q.len(),100,bus.len(),freight.len()));
+    }
     #[test]
     fn service_projection_retains_original_order_and_all_observed_mass(){
         let mut q=StageQueue::new();
