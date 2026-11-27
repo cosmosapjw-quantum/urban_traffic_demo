@@ -232,20 +232,19 @@ pub(super) struct TimedIncomingRows {
     // Every transfer has already been appended to the long-lived event owner.
     // Pending admissions have no event and use the owned suffix above.
     refs: Pages<ReceivingRef>,
+    packed:Option<super::v1_ref_blocks::PackedRefs>,
 }
-
-#[derive(Clone, Copy)]
-#[repr(C)]
-struct ReceivingRef { event:u32, offset:u32, control:u32 }
-const _: [(); 12] = [(); size_of::<ReceivingRef>()];
+use super::v1_ref_blocks::ReceivingRef;
 
 impl TimedIncomingRows {
     pub(super) fn new() -> Self {
         Self::default()
     }
 
+    pub(super) fn new_packed()->Self{Self{packed:Some(Default::default()),..Self::default()}}
+    pub(super) fn packed_saved_bytes(&self)->usize{self.packed.as_ref().map_or(0,|p|p.saved_bytes())}
     pub(super) fn len(&self) -> usize {
-        self.refs.len + self.pages.len
+        self.referenced_len() + self.pages.len
     }
 
     pub(super) fn is_empty(&self) -> bool {
@@ -253,30 +252,30 @@ impl TimedIncomingRows {
     }
 
     pub(super) fn capacity(&self) -> usize {
-        self.refs.capacity() + self.pages.capacity()
+        self.packed.as_ref().map_or_else(||self.refs.capacity(),|p|p.logical_capacity()) + self.pages.capacity()
     }
 
     pub(super) fn descriptor_capacity(&self) -> usize {
-        self.refs.chunks.capacity() + self.pages.chunks.capacity()
+        self.packed.as_ref().map_or(self.refs.chunks.capacity(),|p|p.descriptor_capacity()) + self.pages.chunks.capacity()
     }
 
     pub(super) fn physical_capacity_bytes(&self) -> usize {
-        self.refs.physical_capacity_bytes() + self.pages.physical_capacity_bytes()
+        self.packed.as_ref().map_or_else(||self.refs.physical_capacity_bytes(),|p|p.physical_capacity_bytes()) + self.pages.physical_capacity_bytes()
     }
 
     pub(super) fn allocated_bytes(&self) -> usize {
-        self.refs.allocated_bytes() + self.pages.allocated_bytes()
+        self.packed.as_ref().map_or_else(||self.refs.allocated_bytes(),|p|p.allocated_bytes()) + self.pages.allocated_bytes()
     }
 
     pub(super) fn projected_append_bytes(&self, additional: usize) -> CoreResult<usize> {
-        checked_add(self.refs.allocated_bytes(),self.pages.projected_append_bytes(additional)?)
+        checked_add(self.packed.as_ref().map_or_else(||self.refs.allocated_bytes(),|p|p.allocated_bytes()),self.pages.projected_append_bytes(additional)?)
     }
 
-    pub(super) fn referenced_len(&self)->usize {self.refs.len}
+    pub(super) fn referenced_len(&self)->usize {self.packed.as_ref().map_or(self.refs.len,|p|p.len())}
 
     // An append-only logical event index survives growth of either page table.
     pub(super) fn push_event(&mut self, part:Part, control:u32, controls:&TimedIncomingControls,
-        events:&ChunkedEvents, event:usize)->CoreResult<()> {
+        events:&ChunkedEvents, event:usize)->CoreResult<usize> {
         if self.pages.len!=0 {return Err(arithmetic("event transfer after pending admission"));}
         let id=u32::try_from(event).map_err(|_|budget("event reference outside compact domain"))?;
         let payload=events.compact_payload(event).ok_or_else(||arithmetic("missing receiving event owner"))?;
@@ -286,13 +285,15 @@ impl TimedIncomingRows {
             return Err(arithmetic("receiving reference disagrees with the original transfer"));
         }
         let offset=u32::try_from(part.offset).map_err(|_|arithmetic("receiving offset outside compact domain"))?;
-        self.refs.push_checked(ReceivingRef{event:id,offset,control})
+        let r=ReceivingRef{event:id,offset,control};
+        if let Some(p)=&mut self.packed{p.push(r)}else{self.refs.push_checked(r)?;Ok(0)}
     }
 
     pub(super) fn get_with_events(&self,index:usize,controls:&TimedIncomingControls,
         events:&ChunkedEvents)->(Part,Mark) {
-        if index>=self.refs.len {return self.get(index-self.refs.len,controls);}
-        let r=self.refs.get(index).expect("receiving reference inside source page");
+        let n=self.referenced_len();
+        if index>=n{return self.get(index-n,controls);}
+        let r=if let Some(p)=&self.packed{p.get(index)}else{self.refs.get(index).copied()}.expect("receiving reference inside source page");
         let p=events.compact_payload(r.event as usize).expect("receiving event validated on append");
         let (a,b,mark)=controls.get(r.control);
         (Part{tag:p.tag as usize,offset:r.offset as usize,mass:p.mass,birth:p.birth,a,b},mark)
@@ -358,7 +359,7 @@ impl TimedIncomingRows {
         &'a self,
         controls: &'a TimedIncomingControls,
     ) -> impl ExactSizeIterator<Item = (Part, Mark)> + 'a {
-        debug_assert_eq!(self.refs.len,0);
+        debug_assert_eq!(self.referenced_len(),0);
         (0..self.pages.len).map(move |i| self.get(i, controls))
     }
 }
@@ -681,3 +682,20 @@ mod event_ref_tests {
         assert_eq!(super::super::referenced_incoming_page_charge(usize::MAX,1,97),usize::MAX);
     }
 }
+
+#[cfg(test)]mod packed_ref_integration_tests{
+use super::*;
+#[test]fn packed_and_plain_receiving_rows_match_exactly_across_control_changes_and_owned_tail(){
+ let mut e=ChunkedEvents::new(true);let mut controls=TimedIncomingControls::new();let mut a=TimedIncomingRows::new();let mut b=TimedIncomingRows::new_packed();
+ let x=PackedTime::new(Some(-0.)).unwrap();let y=PackedTime::new(Some(3.)).unwrap();let mut id=0;
+ for i in 0..10003{if i%67==0{id=controls.push_checked(x,y,(i as f64,0.25)).unwrap()}
+ let p=Part{tag:i%307,offset:i%17,mass:0.125,birth:(i%11)as f64,a:x,b:y};
+ e.push_checked((p.tag,0,Some(1),p.mass,-0.,3.,p.birth)).unwrap();
+ if i%4!=0{a.push_event(p,id,&controls,&e,i).unwrap();b.push_event(p,id,&controls,&e,i).unwrap();}
+ }
+ let p=Part{tag:3,offset:0,mass:1.,birth:0.,a:x,b:y};a.push_checked(p,id,&controls).unwrap();b.push_checked(p,id,&controls).unwrap();
+ let bits=|(p,m):(Part,Mark)|(p.tag,p.offset,p.mass.to_bits(),p.birth.to_bits(),p.a.0,p.b.0,m.0.to_bits(),m.1.to_bits());
+ assert_eq!(a.iter_with_events(&controls,&e).map(bits).collect::<Vec<_>>(),b.iter_with_events(&controls,&e).map(bits).collect::<Vec<_>>());
+ assert!(b.packed_saved_bytes()>50000);assert!(b.physical_capacity_bytes()<a.physical_capacity_bytes());
+ assert_eq!(b.capacity(),a.capacity());
+}}
