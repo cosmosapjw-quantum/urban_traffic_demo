@@ -1,0 +1,1 @@
+Wolfram FullSimplify of overlap mass, bin mass, centroid: {True, True, True}
