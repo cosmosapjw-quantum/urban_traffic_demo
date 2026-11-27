@@ -1,4 +1,4 @@
-use _metroflow_rust::{run_native_declaration_with_plan,recover_native_checkpoint,run_native_phase};
+use _metroflow_rust::{run_native_declaration_with_plan,recover_native_checkpoint,run_native_phase,run_native_suffix};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::{
@@ -56,6 +56,20 @@ fn address_cap() -> std::io::Result<u64> {
 }
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let a: Vec<_> = std::env::args().collect();
+    if a.get(1).is_some_and(|x|x=="--suffix"){
+        if a.len()!=11{return Err("usage: metroflow-native-run --suffix MANIFEST PRIOR_RECEIPT PRIOR_CHECKPOINT CELL OLD_TAG NEW_TAG OUTPUT_RECEIPT OUTPUT_CHECKPOINT THREADS".into())}
+        let start=Instant::now();let cap=address_cap()?;
+        if Path::new(&a[8]).exists()||Path::new(&a[9]).exists(){return Err("output exists".into())}
+        let mh=digest(Path::new(&a[2]))?;let ch=digest(Path::new(&a[4]))?;
+        let prior:Value=serde_json::from_reader(BufReader::new(File::open(&a[3])?))?;
+        if prior["manifest_sha256"]!=mh||prior["checkpoint_sha256"]!=ch{return Err("suffix input binding differs".into())}
+        let input=serde_json::from_reader(BufReader::new(File::open(&a[2])?))?;
+        let mut out=run_native_suffix(input,a[10].parse()?,&a[4],&a[5],&a[6],&a[7],&a[9])?;
+        if mh!=digest(Path::new(&a[2]))?||ch!=digest(Path::new(&a[4]))?{return Err("suffix input changed".into())}
+        out["manifest_sha256"]=json!(mh);out["source_checkpoint_sha256"]=json!(ch);out["checkpoint_sha256"]=json!(digest(Path::new(&a[9]))?);out["executable_sha256"]=json!(digest(&std::env::current_exe()?)?);
+        out["checkpoint_bytes"]=json!(std::fs::metadata(&a[9])?.len());out["address_space_limit_bytes"]=json!(cap);out["peak_rss_bytes"]=json!(rss());out["wall_s"]=json!(start.elapsed().as_secs_f64());out["python_runtime_dependency"]=json!("none");
+        serde_json::to_writer_pretty(OpenOptions::new().write(true).create_new(true).open(&a[8])?,&out)?;println!("{}",serde_json::to_string(&out)?);return Ok(())
+    }
     if a.get(1).is_some_and(|x|x=="--phase"){
         if ![9,11].contains(&a.len()){return Err("usage: metroflow-native-run --phase MANIFEST CONFIG INPUTS END_S THREADS RECEIPT CHECKPOINT [PRIOR_RECEIPT PRIOR_CHECKPOINT]".into())}
         let started=Instant::now();let cap=address_cap()?;

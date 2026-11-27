@@ -2569,3 +2569,11 @@ impl NativeJourneyCore {
         Ok(())
     }
 }
+
+impl NativeJourneyCore {
+    pub(crate) fn bind_route_alias(&mut self,alias:String,owner:usize)->CoreResult<()> {
+        if !alias.starts_with("__variant__:")||self.legs.get(owner).is_none_or(|l|l.5!=1)||self.route_indices.contains_key(&alias){return Err(bad("invalid canonical journey alias"))}
+        self.route_indices.insert(alias,owner);
+        Ok(())
+    }
+}

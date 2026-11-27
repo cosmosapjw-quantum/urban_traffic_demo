@@ -1303,6 +1303,14 @@ impl RoadState {
         }
         out
     }
+    /// Canonical journey mass across multiple physical route tags. Preserve
+    /// physical row encounter order; one-tag owners have identical old sums.
+    pub(crate) fn active_by_owner(&self,owners:&[Option<usize>])->CoreResult<HashMap<usize,f64>>{
+        let mut out=HashMap::new();
+        for p in self.cells.iter().flat_map(|c|&c.packets).chain(self.pending.iter().flatten()).flat_map(|q|&q.parts){
+            if let Some(i)=*owners.get(p.tag).ok_or_else(||val("route owner absent"))?{*out.entry(i).or_insert(0.)+=p.mass;}
+        }Ok(out)
+    }
     /// Count guaranteed redundant payload across distinct, live input and
     /// committed packet shells, without allocating before the guard.
     pub(crate) fn paired_shared_payload_lower_bound(&self, other: &RoadState) -> usize {
@@ -8692,13 +8700,14 @@ mod compact_decode_envelope_tests{
 #[cfg(any(test,feature="native-cli"))]
 impl V1Road {
     #[allow(dead_code)]
+    pub(crate) fn registered_path(&self,tag:usize)->Option<&[usize]>{self.routes.get(tag).map(|&(p,_)|self.paths[p].as_slice())}
     pub(crate) fn apply_ready_suffix(&self, s: &RoadState, cell: usize,
-        old_tag: usize, new_tag: usize, owners: &[usize],
+        old_tag: usize, new_tag: usize, owners: &[Option<usize>],
         legal_turns: &[(usize,usize)]) -> CoreResult<RoadState> {
         self.check_state(s)?;
         if old_tag == new_tag || old_tag >= self.routes.len() ||
             new_tag >= self.routes.len() || owners.len() != self.routes.len() ||
-            owners[old_tag] != owners[new_tag] ||
+            owners[old_tag].is_none() || owners[old_tag] != owners[new_tag] ||
             self.routes[old_tag].1 != self.routes[new_tag].1 {
             return Err(val("suffix route owner or class differs"));
         }
@@ -8763,9 +8772,9 @@ mod ready_suffix_owner_tests {
         let prior=road.state.clone();
         assert_eq!(prior.t,50.);
         assert!(!prior.cells[0].packets.is_empty());
-        assert!(road.apply_ready_suffix(&prior,0,0,1,&[0,1],&legal).is_err());
-        assert!(road.apply_ready_suffix(&prior,0,0,1,&[0,0],&legal[..3]).is_err());
-        let updated=road.apply_ready_suffix(&prior,0,0,1,&[0,0],&legal).unwrap();
+        assert!(road.apply_ready_suffix(&prior,0,0,1,&[Some(0),Some(1)],&legal).is_err());
+        assert!(road.apply_ready_suffix(&prior,0,0,1,&[Some(0),Some(0)],&legal[..3]).is_err());
+        let updated=road.apply_ready_suffix(&prior,0,0,1,&[Some(0),Some(0)],&legal).unwrap();
         assert_eq!(updated.totals,prior.totals);
         assert_eq!(updated.ledger,prior.ledger);
         assert_eq!(updated.cells[0].v,prior.cells[0].v);

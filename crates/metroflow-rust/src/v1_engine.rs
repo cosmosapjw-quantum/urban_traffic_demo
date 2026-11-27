@@ -336,6 +336,8 @@ struct Static {
     depot: Option<String>,
     #[cfg_attr(feature = "native-cli", serde(rename = "depot_node_or_None"))]
     depot_node: Option<String>,
+    #[cfg_attr(feature="native-cli",serde(default))]
+    route_variants:Vec<(String,String,Vec<String>)>, // canonical car leg, alias, complete path
 }
 impl Static {
     #[cfg(feature="python-extension")]
@@ -368,6 +370,7 @@ impl Static {
             corridor_routes: field(p, "corridor_routes")?,
             depot: field(p, "depot_block_id")?,
             depot_node: field(p, "depot_node_or_None")?,
+            route_variants:vec![],
         })
     }
 }
@@ -540,7 +543,7 @@ fn capture_road_clone_credit(
 impl NativeWholeEngine {
     fn build(
         calendar: &NativeCalendar,
-        s: Static,
+        mut s: Static,
         byte_budget: usize,
         parallel: ParallelPolicy,
         storage_policy: String,
@@ -554,6 +557,28 @@ impl NativeWholeEngine {
             || s.max_service_runs == 0
         {
             return Err(bad("whole-calendar binding or step differs"));
+        }
+        // Only declared native car variants. The original immutable calendar
+        // and primary offer IDs are unchanged. Bind the exact optional route
+        // declarations to the native identity before any checkpoint exists.
+        let variants=std::mem::take(&mut s.route_variants);
+        if !variants.is_empty(){
+            if variants.len()>128{return Err(CoreError::resource("route variant count bound"))}
+            let arcs:HashMap<_,_>=s.arcs.iter().map(|(e,a,b)|(e.as_str(),(a.as_str(),b.as_str()))).collect();
+            let turns:HashSet<_>=s.turns.iter().map(|(a,b)|(a.as_str(),b.as_str())).collect();
+            let mut names=HashSet::new();
+            for (owner,alias,path) in &variants{
+                if owner.is_empty()||owner.len()>256||!alias.starts_with("__variant__:")||alias.len()>256||!names.insert(alias)||path.len()<2||path.len()>4096{return Err(bad("invalid car variant declaration"))}
+                let mut seen=HashSet::new();let mut previous=None;
+                for edge in path{
+                    let &(tail,head)=arcs.get(edge.as_str()).ok_or_else(||bad("unknown variant link"))?;
+                    if let Some((before,node))=previous{if node!=tail||!turns.contains(&(before,edge.as_str())){return Err(bad("illegal variant turn"))}}
+                    else if !seen.insert(tail){return Err(bad("variant loop"))}
+                    if !seen.insert(head){return Err(bad("variant loop"))}previous=Some((edge.as_str(),head));
+                }
+            }
+            #[cfg(feature="native-cli")] {let bytes=serde_json::to_vec(&variants).map_err(|e|bad(e.to_string()))?;s.identity.push_str(":variants:");s.identity.push_str(&crate::frozen_city::hash(&bytes));}
+            #[cfg(not(feature="native-cli"))] {return Err(bad("variant declarations require native CLI"));}
         }
         let n = calendar.owned_legs().len();
         // Conservative persistent+construction/snapshot allowance, not an RSS cap.
@@ -900,6 +925,16 @@ impl NativeWholeEngine {
             let path = router.intern(vec![0])?;
             routes.push(("__joint_clock__".to_owned(), path, car_class, None));
         }
+        let mut route_aliases=vec![];
+        for (owner,alias,links) in variants{
+            let (_,primary,class,leg)=routes.iter().find(|r|r.0==owner).ok_or_else(||bad("variant owner is not a declared physical car leg"))?;
+            let (primary,class,leg)=(*primary,*class,leg.ok_or_else(||bad("variant owner is not a car journey"))?);
+            if class!=car_class||routes.iter().any(|r|r.0==alias){return Err(bad("variant class or label collision"))}
+            let path=router.declared(&links)?;
+            let old=&router.paths[primary];let new=&router.paths[path];
+            if old==new||old.first()!=new.first()||old.last()!=new.last(){return Err(bad("variant must have distinct interior and identical terminal links"))}
+            route_aliases.push((alias.clone(),leg));routes.push((alias,path,class,Some(leg)));
+        }
         routes.sort_by(|a, b| a.0.cmp(&b.0));
         if routes.windows(2).any(|r| r[0].0 == r[1].0) {
             return Err(bad("duplicate native physical route tag"));
@@ -932,6 +967,7 @@ impl NativeWholeEngine {
         )?;
         let service = NativeServiceCore::new(buses, people, freight, Vec::new())?;
         let mut journey = NativeJourneyCore::new_shared(legs, bus_meta, freight_meta, s.budget)?;
+        for (alias,owner) in route_aliases{journey.bind_route_alias(alias,owner)?;}
         let runtime_storage = if storage_policy == "bounded_bytes_v1" {
             let strings = |values: &Vec<String>| {
                 values.iter().fold(buffer_bytes(values), |bytes, value| {
@@ -1202,12 +1238,7 @@ impl NativeWholeEngine {
         let j = &b.journey;
         let service = &b.service.0;
         let stages = stage_sums(j, self.journey.legs().len())?;
-        let mut active: HashMap<usize, f64> = HashMap::new();
-        for (tag, mass) in b.road.active_by_tag() {
-            if let Some(i) = self.car_tag_legs[tag] {
-                active.insert(i, mass);
-            }
-        }
+        let active=b.road.active_by_owner(&self.car_tag_legs)?;
         for (i, leg) in self.journey.legs().iter().enumerate() {
             if leg.5 == 1 || leg.5 == 2 {
                 let mass = stages[i] + active.get(&i).copied().unwrap_or(0.0);
@@ -2405,4 +2436,85 @@ pub fn run_native_phase(
     let advance_s=t.elapsed().as_secs_f64();
     save_atomic_native(&mut engine,checkpoint,&state)?;
     Ok(json!({"schema":"metroflow_native_world_v1","scope":"C01 proposal-only phase semantics on actual native T04 state; explicit growth publications; no occupied suffix mutation","status":"EXECUTED_FOR_REVIEW","city_identity":engine.city,"schedule_identity":engine.schedule,"native_identity":engine.identity,"phase_model_identity":runtime.id,"start_s":begin,"time_s":state.time_s(),"calendar_legs":calendar_legs,"calendar_totals":calendar_totals,"threads":threads,"byte_budget":engine.byte_budget,"build_s":build_s,"advance_s":advance_s,"tick_times_s":tick_times,"ledger":ledger["ledger"],"phase_wire":phase_wire,"phase_wire_sha256":phase_wire_sha256,"growth_stock_identity":growth_stock_identity,"physical_suffix_applied":false}))
+}
+
+/// Explicit native transaction on a predeclared legal route variant; not an
+/// endogenous decision or a fabricated link observation. Journey/service
+/// identity and ledgers remain canonical, and no occupied prefix is rewritten.
+#[cfg(feature="native-cli")]
+impl NativeWholeEngine {
+    fn suffix_transaction(&mut self,state:&NativeWholeState,cell:usize,old:&str,new:&str)->CoreResult<NativeWholeState>{
+        self.checked(state)?;
+        let old_tag=self.tags.binary_search_by(|s|s.as_str().cmp(old)).map_err(|_|bad("unknown source route tag"))?;
+        let new_tag=self.tags.binary_search_by(|s|s.as_str().cmp(new)).map_err(|_|bad("unknown new route tag"))?;
+        if !new.starts_with("__variant__:"){return Err(bad("new route must be a predeclared car variant"))}
+        let before=ledger_json(self,state)?;
+        let road_rows=state.value.road.debug_stats();
+        self.storage_admission(&state.value.journey,state.value.road.retained_storage_bytes(),road_rows.cell_parts.saturating_add(road_rows.pending_parts),service_event_storage_bytes(&state.value.service),None,false)?;
+        let other=journey_storage_bytes(&state.value.journey).max(journey_storage_bytes(self.journey.state())).saturating_mul(3)
+            .saturating_add(service_event_storage_bytes(&state.value.service).max(self.service.event_storage_bytes()).saturating_mul(3))
+            .saturating_add(self.validation_scratch(&state.value.journey,road_rows.cell_parts.saturating_add(road_rows.pending_parts)));
+        if self.runtime_storage.is_some(){self.road.set_phase_storage_budget(self.pool_after(other,"canonical suffix transaction")?)?;}
+        // Every turn was validated against the original static graph at
+        // declaration compilation. Reuse that checked complete path.
+        let turns=self.road.registered_path(new_tag).ok_or_else(||bad("missing variant path"))?.windows(2).map(|w|(w[0],w[1])).collect::<Vec<_>>();
+        let result=self.road.apply_ready_suffix(&state.value.road,cell,old_tag,new_tag,&self.car_tag_legs,&turns);
+        self.reset_phase_ceilings()?;
+        let road=result?;
+        let next=NativeWholeState{identity:self.identity.clone(),value:Arc::new(Bundle{road,service:state.value.service.clone(),journey:state.value.journey.clone()})};
+        self.load_validation_admission(&next.value,road_rows.cell_parts.saturating_add(road_rows.pending_parts))?;
+        self.validate_bundle(&next.value)?;
+        if before!=ledger_json(self,&next)?{return Err(bad("canonical suffix changed journey ledger"))}
+        Ok(next)
+    }
+}
+#[cfg(feature="native-cli")]
+pub fn run_native_suffix(manifest:serde_json::Value,threads:usize,input:&str,cell:&str,old:&str,new:&str,checkpoint:&str)->CoreResult<serde_json::Value>{
+    use serde_json::json;
+    let i=manifest["static"]["link_ids"].as_array().and_then(|xs|xs.iter().position(|x|x.as_str()==Some(cell))).ok_or_else(||bad("unknown suffix cell"))?;
+    let (mut engine,_,_)=build_native_input(manifest,threads)?;
+    let state=engine.load(input.to_owned())?;
+    let next=engine.suffix_transaction(&state,i,old,new)?;
+    let ledger=ledger_json(&engine,&next)?;
+    save_atomic_native(&mut engine,checkpoint,&next)?;
+    Ok(json!({"schema":"metroflow_native_suffix_v1","status":"EXECUTED_FOR_REVIEW","scope":"explicit checked ready-head route variant, canonical car journey; not endogenous route selection","time_s":next.time_s(),"city_identity":engine.city,"schedule_identity":engine.schedule,"native_identity":engine.identity,"old_tag":old,"new_tag":new,"cell":cell,"ledger":ledger["ledger"],"physical_suffix_applied":true}))
+}
+
+#[cfg(all(test,feature="native-cli"))]
+mod canonical_variant_fixture_tests{
+    use super::*;use serde_json::json;
+    fn manifest()->serde_json::Value{
+        let mut m:serde_json::Value=serde_json::from_str(include_str!("../fixtures/native_declaration.json")).unwrap();
+        let s=&mut m["static"];
+        s["link_ids"]=json!(["ax","xy","yz","xw","wz","zb","ba"]);
+        s["route_arcs"]=json!([["ax","a","x"],["xy","x","y"],["yz","y","z"],["xw","x","w"],["wz","w","z"],["zb","z","b"],["ba","b","a"]]);
+        s["route_costs"]=json!([["ax",1],["xy",1],["yz",1],["xw",3],["wz",3],["zb",1],["ba",1]]);
+        s["allowed_turns"]=json!([["ax","xy"],["xy","yz"],["yz","zb"],["ax","xw"],["xw","wz"],["wz","zb"],["zb","ba"],["ba","ax"]]);
+        s["groups"]=json!(vec![vec![10.,10.,200.,200.,10000.,1.];7]);
+        s["signals"]=json!([[100.,50.,50.],null,null,null,null,null,null]);
+        s["incoming"]=json!([[0],[1],[2,4],[3],[5],[6]]);
+        s["corridor_routes"]=json!([["out",["ax","xy","yz","zb"]],["back",["ba"]]]);
+        m
+    }
+    #[test]fn canonical_alias_survives_actual_road_exit_and_completes_original_journey(){
+        let mut m=manifest();
+        let (base,_,_)=build_native_input(m.clone(),1).unwrap();
+        let old=base.tags.iter().zip(&base.car_tag_legs).find(|(tag,owner)|owner.is_some()&&base.road.registered_path(base.tags.binary_search(tag).unwrap()).unwrap().first()==Some(&0)).unwrap().0.clone();
+        m["static"]["route_variants"]=json!([[old,"__variant__:alternate",["ax","xw","wz","zb"]]]);
+        let (mut engine,_,_)=build_native_input(m,1).unwrap();
+        let mut state=engine.advance_owned(&engine.initial(),49.).unwrap();
+        let old_tag=engine.tags.binary_search(&old).unwrap();let new_tag=engine.tags.binary_search(&"__variant__:alternate".to_owned()).unwrap();
+        let owner=engine.car_tag_legs[old_tag].unwrap();assert_eq!(engine.car_tag_legs[new_tag],Some(owner));
+        let before=state.clone();
+        state=engine.suffix_transaction(&state,0,&old,"__variant__:alternate").unwrap();
+        assert_eq!(before.value.journey.4,state.value.journey.4);
+        assert_eq!(before.value.journey.5,state.value.journey.5);
+        let mut switched=false;let mut exited=false;
+        for t in 50..=250{
+            state=engine.advance_owned(&state,t as f64).unwrap();
+            for e in state.value.service.1.iter(){if e.0==new_tag{switched|=e.1==0&&e.2==Some(3);exited|=e.2.is_none();}}
+        }
+        assert!(switched&&exited);assert!(state.value.journey.5[owner]>0.);
+        engine.validate_bundle(&state.value).unwrap();
+    }
 }
