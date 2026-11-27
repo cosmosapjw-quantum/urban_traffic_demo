@@ -1,0 +1,205 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "budget_trace": {
+    "alloc_counting": false,
+    "counters": {},
+    "mode": "record",
+    "sites": {
+      "engine_admission:exact restart install": {
+        "calls": 1,
+        "exceeded": 0,
+        "limit_at_max": 6442450944,
+        "live_at_max": null,
+        "max_ratio": 0.36332241212949157,
+        "max_required": 2340686817,
+        "terms_at_max": {
+          "call_binding": 82704900,
+          "event_pointer_verified_credit": 0,
+          "fixed": 570952989,
+          "metadata_scratch": 32364032,
+          "new_events": 261208832,
+          "new_journey": 210927360,
+          "new_road": 485438728,
+          "old_events": 320,
+          "old_journey": 0,
+          "old_road": 723568,
+          "road_pointer_verified_credit": 0
+        }
+      },
+      "engine_admission:journey decode other owners": {
+        "calls": 1,
+        "exceeded": 0,
+        "limit_at_max": 5788793055,
+        "live_at_max": null,
+        "max_ratio": 0.12910661011702032,
+        "max_required": 747371448,
+        "terms_at_max": {
+          "decoded_events": 261208832,
+          "decoded_road": 485438728,
+          "legacy_reserved": 2239942680,
+          "old_events": 320,
+          "old_road": 723568
+        }
+      },
+      "engine_admission:load validation": {
+        "calls": 1,
+        "exceeded": 0,
+        "limit_at_max": 6442450944,
+        "live_at_max": null,
+        "max_ratio": 0.2937791951311131,
+        "max_required": 1892658053,
+        "terms_at_max": {
+          "call_binding": 82704900,
+          "current_dynamic": 723888,
+          "decoded_dynamic": 957574920,
+          "fixed_base": 570952989,
+          "validation_scratch": 363406256
+        }
+      },
+      "engine_admission:service decode other owners": {
+        "calls": 1,
+        "exceeded": 0,
+        "limit_at_max": 5788793055,
+        "live_at_max": null,
+        "max_ratio": 0.08398336084584734,
+        "max_required": 486162296,
+        "terms_at_max": {
+          "decoded_road": 485438728,
+          "legacy_reserved": 1456316184,
+          "old_journey": 0,
+          "old_road": 723568
+        }
+      },
+      "journey_store:stored/working": {
+        "calls": 6704360,
+        "exceeded": 0,
+        "limit_at_max": 5041421607,
+        "live_at_max": null,
+        "max_ratio": 0.12553047162754385,
+        "max_required": 632852032,
+        "terms_at_max": {
+          "dynamic": 210928832,
+          "retained": 0,
+          "scratch": 0
+        }
+      },
+      "road_decode:checkpoint decode preflight": {
+        "calls": 505375,
+        "exceeded": 0,
+        "limit_at_max": 5788792095,
+        "live_at_max": null,
+        "max_ratio": 0.25716594957449407,
+        "max_required": 1488680216,
+        "terms_at_max": {
+          "decoded": 485438728,
+          "retained_input": 723568,
+          "validation": 32364032
+        }
+      }
+    },
+    "source_attribution": false
+  },
+  "build_s": 3.392794448,
+  "byte_budget": 6442450944,
+  "calendar_legs": 918450,
+  "calendar_totals": [
+    120000.0,
+    58801.0,
+    1000.0
+  ],
+  "checkpoint_bytes": 945669114,
+  "checkpoint_sha256": "02765864e2a3876a4d35765696544dbca625fc33f150db9119b273672096ca10",
+  "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+  "class_names": [
+    "car",
+    "freight",
+    "scheduled_bus"
+  ],
+  "completed_event_rows": 10663078,
+  "decode_envelopes": {
+    "compact_owner_bytes": 485438728,
+    "compact_validation_scratch_bytes": 32364032,
+    "historical_legacy_owner_estimate_bytes": 485480776,
+    "historical_legacy_validation_scratch_bytes": 425469328
+  },
+  "executable_sha256": "79b7b78b9f12210b98603b0bd8296fe1ec19e6b7b3c5a0406af999baea156088",
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 1489.1487936388787,
+      "completed": 80.02896024025593,
+      "pending": 1097.4889127876443,
+      "released": 1569.1777538791346,
+      "released_intent_first_moment": 39912036.169917315,
+      "requested": 2666.666666666779
+    },
+    "vehicles": {
+      "active": 1191.0228242957558,
+      "completed": 62.31050903754527,
+      "pending": 53.333333333348946,
+      "released": 1253.333333333301,
+      "released_intent_first_moment": 31878533.33333459,
+      "requested": 1306.66666666665
+    }
+  },
+  "load_s": 5.550610192,
+  "manifest_sha256": "2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3",
+  "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3",
+  "peak_rss_bytes": 1372569600,
+  "python_runtime_dependency": "none",
+  "road_class_ledgers": [
+    [
+      865.8382358186718,
+      123.62645923530631,
+      8658.38235817821,
+      1973.6462740940026,
+      28481.013263224057
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      4.0,
+      4.0,
+      40.0,
+      42.546830484469325,
+      619.9681412956854
+    ]
+  ],
+  "road_records": {
+    "cell_packets": 472127,
+    "cell_parts": 25644407,
+    "mixed_parts": 0,
+    "pending_packets": 0,
+    "pending_parts": 0,
+    "retained_storage_bytes": 485438728,
+    "uniform_parts": 25644407
+  },
+  "road_totals": [
+    869.8382358177437,
+    127.62645923572327,
+    22059240.834778436,
+    3250106.988697591,
+    8698.382358177596,
+    29100.98140812827,
+    103838.57767160682
+  ],
+  "schedule_identity": "61bf90204d22e3442c565f3f62b8ef4cba7d7be3e74b1d33e6c8bcf96208c920",
+  "schema": "metroflow_native_recovery_v1",
+  "scope": "strict complete decode, cross-owner ledger validation and original identity; no execution or elapsed-horizon claim",
+  "status": "RECOVERED_CHECKPOINT_ONLY",
+  "threads": 8,
+  "time_s": 25680.0,
+  "wall_s": 10.76668708
+}
