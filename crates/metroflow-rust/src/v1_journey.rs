@@ -2898,6 +2898,104 @@ impl NativeJourneyCore {
 }
 
 
+// Entry access atoms are observed by road only on the aligned prepare grid.
+// Canonical source packet combines same route/offset and absent intervals.
+const ENTRY_BUCKETS:usize=128;
+fn entry_key(r:f64,t:f64,dt:f64)->Option<u32>{
+    if !r.is_finite()||r<0.||!t.is_finite()||t<0.||!dt.is_finite()||dt<1.||dt.fract()!=0.||t%dt!=0.{return None}
+    if r<=t+1e-10{return Some(0)}
+    let raw=((r-t)/dt).ceil();
+    if !raw.is_finite()||raw<1.||raw>=u32::MAX as f64-1.{return None}
+    let mut k=raw as u32;
+    if k>1&&r<=t+(k-1)as f64*dt+1e-10{k-=1;}
+    if r>t+k as f64*dt+1e-10{k+=1;}
+    if r<=t+(k-1)as f64*dt+1e-10||r>t+k as f64*dt+1e-10{return None}
+    Some(k)
+}
+struct EntryGroup{
+    key:u32,first:Access,birth:ReceiptAccumulator,ready:ReceiptAccumulator,
+}
+impl EntryGroup{
+    fn new(key:u32,first:Access)->Self{Self{key,first,birth:ReceiptAccumulator::default(),ready:ReceiptAccumulator::default()}}
+    fn add(&mut self,a:Access,t:f64,dt:f64)->bool{
+        if a.0!=self.first.0||!a.3.is_finite()||a.3<0.||entry_key(a.2+a.3,t,dt)!=Some(self.key){return false}
+        self.birth.add(a.2,a.1,t).is_ok()&&self.ready.add(a.2+a.3,a.1,f64::MAX).is_ok()
+    }
+    fn representative(&self,t:f64,dt:f64)->Option<Access>{
+        if self.birth.count()==1{return Some(self.first)}
+        let (b,m)=self.birth.representative().ok()?;
+        let (r,m2)=self.ready.representative().ok()?;
+        if m.to_bits()!=m2.to_bits()||r<b||b>t{return None}
+        let d=r-b;let actual=b+d;
+        if !d.is_finite()||entry_key(actual,t,dt)!=Some(self.key)||(actual-r).abs()>1e-11*r.abs()+4.*f64::from_bits(1){return None}
+        Some((self.first.0,m,b,d))
+    }
+}
+struct EntryWorkspace{bins:Vec<EntryGroup>,out:Vec<Access>}
+impl EntryWorkspace{
+    fn storage_upper()->usize{
+        ENTRY_BUCKETS.saturating_mul(std::mem::size_of::<EntryGroup>()+std::mem::size_of::<Access>()).saturating_add(2*RETAINED_ALLOCATION_PADDING)
+    }
+    fn new()->CoreResult<Self>{
+        let bins=checkpoint_vec(ENTRY_BUCKETS)?;let out=checkpoint_vec(ENTRY_BUCKETS)?;
+        if bins.capacity()!=ENTRY_BUCKETS||out.capacity()!=ENTRY_BUCKETS{return Err(CoreError::resource("entry projection workspace capacity differs"))}
+        Ok(Self{bins,out})
+    }
+    fn project(&mut self,i:usize,mass:f64,born:f64,hold:f64,law:&[(f64,f64)],t:f64,dt:f64)->bool{
+        self.bins.clear();self.out.clear();
+        if law.len()<2||law.len()>ENTRY_BUCKETS||!born.is_finite()||born<0.||born>t{return false}
+        for &(d,q) in law{
+            let a=(i,mass*q,born,d+hold);
+            let Some(key)=entry_key(a.2+a.3,t,dt)else{return false};
+            let pos=match self.bins.iter().position(|g|g.key==key){
+                Some(j)=>j,
+                None=>{self.bins.push(EntryGroup::new(key,a));self.bins.len()-1}
+            };
+            if !self.bins[pos].add(a,t,dt){return false}
+        }
+        if self.bins.len()>=law.len(){return false}
+        // First encounter order is deterministic. Distinct due keys never
+        // feed the same prepare tick; road combine handles same-tag offers.
+        for g in &self.bins{
+            let Some(a)=g.representative(t,dt)else{return false};
+            self.out.push(a);
+        }
+        true
+    }
+}
+#[cfg(test)]
+mod entry_projection_tests{
+    use super::*;
+    #[test]
+    fn local_access_projection_preserves_ready_ticks_and_birth_mass(){
+        let mut w=EntryWorkspace::new().unwrap();
+        let law=[(3.,0.125),(5.,0.25),(13.,0.25),(15.,0.375)];
+        assert!(w.project(3,2.,1.,9.,&law,10.,10.));
+        assert_eq!(w.out.len(),2);
+        let ledger=|rows:&[Access]|{
+            let mut d=std::collections::BTreeMap::<u32,[f64;2]>::new();
+            for a in rows{let k=entry_key(a.2+a.3,10.,10.).unwrap();let x=d.entry(k).or_default();x[0]+=a.1;x[1]+=a.1*a.2;}
+            d
+        };
+        let raw:Vec<Access>=law.iter().map(|&(d,q)|(3,2.*q,1.,d+9.)).collect();
+        assert_eq!(ledger(&raw),ledger(&w.out));
+        assert!(!w.project(3,2.,11.,9.,&law,10.,10.));
+        assert!(!w.project(3,2.,1.,9.,&[(3.,0.5),(13.,0.5)],10.,10.));
+    }
+    #[test]
+    fn entry_key_matches_original_rounded_readiness(){
+        for t in [0.,10.,29340.,86400.]{
+            for k in 0..6{
+                let edge=t+k as f64*10.;
+                for r in [edge,edge.next_up(),edge+1e-10,(edge+1e-10).next_up(),(edge-1e-10).max(0.)]{
+                    let reference=(0..=7).find(|j|r<=t+*j as f64*10.+1e-10).unwrap();
+                    assert_eq!(entry_key(r,t,10.),Some(reference));
+                }
+            }
+        }
+    }
+}
+
 // Research-only linear convolution on identical (leg, outlet clock) atoms.
 // Do not change physical last-tick event owner or service sink processing.
 #[derive(Clone,Copy,Debug)]
