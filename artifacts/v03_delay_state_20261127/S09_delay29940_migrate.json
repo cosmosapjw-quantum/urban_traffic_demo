@@ -1,0 +1,44 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "checkpoint_bytes": 955606698,
+  "checkpoint_sha256": "933a2b984cc37d8f9340a35297780d68df42e989974c72a3c6e70b0b3bef6794",
+  "executable_sha256": "9e4f02f60a444c117fe5832e412860c3ecf11faa36dd5127c165f20ed23d02d7",
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 3271.3212694871145,
+      "completed": 13463.792541830324,
+      "pending": 11181.552855349393,
+      "released": 16735.11381131744,
+      "released_intent_first_moment": 463001128.991628,
+      "requested": 27916.66666666683
+    },
+    "vehicles": {
+      "active": 2616.686625235743,
+      "completed": 10749.98004143135,
+      "pending": 312.50000000011096,
+      "released": 13366.666666667094,
+      "released_intent_first_moment": 369808166.6666668,
+      "requested": 13679.166666667204
+    }
+  },
+  "manifest_sha256": "70a055a27b4833adf6569203113690455bdc5759263e607b87d8766850d2f232",
+  "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1:delay-calendar-v1",
+  "peak_rss_bytes": 901922816,
+  "python_runtime_dependency": "none",
+  "schema": "metroflow_delay_calendar_migration_v1",
+  "scope": "same initial owners; sparse clock partition merge for private entry and protected egress; separate research identity",
+  "source_checkpoint_sha256": "3436449e4fa94b0714eee4c66f4a835e990f9c0fee64275c8d055b7d45b3a3ea",
+  "source_manifest_sha256": "7dadbdef803fe778e492505ee87ef5787d2fb91d18e0eeca13cf1aec31caacf6",
+  "source_native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1",
+  "status": "EXECUTED_FOR_REVIEW",
+  "time_s": 29940.0,
+  "wall_s": 33.682662894
+}

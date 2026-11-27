@@ -1,0 +1,11 @@
+{
+  "status": "PASS_EXACT_FINITE_ASSERTIONS",
+  "seed": 20261127,
+  "trajectories": 240,
+  "tick_comparisons": 7680,
+  "release_queries": 23040,
+  "live_support_bound_checks": 7680,
+  "maximum_supported_live_cells": 8,
+  "scope": "positive rational delay measure dt=2, max delay 8; fixed profiles and protected raw fallback; not full-city or binary64 proof",
+  "elapsed_s": 4.082984954933636
+}

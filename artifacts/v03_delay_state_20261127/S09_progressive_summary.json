@@ -1,0 +1,431 @@
+{
+  "runs": [
+    {
+      "start_s": 29940.0,
+      "recovered_s": 30000,
+      "advanced_s": 60.0,
+      "wall_s": 76.343698864,
+      "advance_s": 37.50142003,
+      "checkpoint_write_s": 22.041095466,
+      "peak_rss_bytes": 2257530880,
+      "max_traced_guard_required_bytes": 2213025449,
+      "guard_exceedances": 0,
+      "checkpoint_bytes": 828373778,
+      "journey_records": {
+        "dynamic_bytes": 158837648,
+        "egress": 1727136,
+        "enter": 1752182,
+        "history": 101338,
+        "history_bytes": 39724496,
+        "internal": 146424,
+        "nonempty_histories": 101338,
+        "stage_bytes": [
+          57559568,
+          56740464,
+          4813120
+        ]
+      },
+      "peak_records": 9330416,
+      "checkpoint_phases": {
+        "checkpoint.file_sync_ns": [
+          1,
+          21602863016,
+          21602863016
+        ],
+        "checkpoint.flush_ns": [
+          1,
+          12773,
+          12773
+        ],
+        "checkpoint.rename_parent_sync_ns": [
+          1,
+          13055320,
+          13055320
+        ],
+        "checkpoint.write_journey_ns": [
+          1,
+          63487970,
+          63487970
+        ],
+        "checkpoint.write_road_ns": [
+          1,
+          152753461,
+          152753461
+        ],
+        "checkpoint.write_service_ns": [
+          1,
+          207596795,
+          207596795
+        ]
+      },
+      "calendar": {
+        "delay_calendar.egress_rebuild": [
+          6,
+          1,
+          1
+        ],
+        "delay_calendar.egress_removed": [
+          6,
+          4123857,
+          3005217
+        ],
+        "delay_calendar.egress_shared": [
+          6,
+          1065063,
+          213514
+        ],
+        "delay_calendar.egress_sorted": [
+          6,
+          6450914,
+          4820853
+        ],
+        "delay_calendar.egress_workspace": [
+          6,
+          856376624,
+          308553296
+        ],
+        "delay_calendar.entry_rebuild": [
+          6,
+          1,
+          1
+        ],
+        "delay_calendar.entry_removed": [
+          6,
+          2420532,
+          1380352
+        ],
+        "delay_calendar.entry_shared": [
+          6,
+          1091210,
+          218242
+        ],
+        "delay_calendar.entry_sorted": [
+          6,
+          4781450,
+          3233990
+        ],
+        "delay_calendar.entry_workspace": [
+          6,
+          766643432,
+          218347392
+        ]
+      },
+      "validation": {
+        "stage_validation.partitioned_rows": [
+          2,
+          11192473,
+          7566731
+        ],
+        "stage_validation.partitioned_scratch": [
+          2,
+          104234984,
+          67881448
+        ]
+      },
+      "entry_removed": 2420532,
+      "egress_removed": 4123857,
+      "entry_shared": 1091210,
+      "egress_shared": 1065063,
+      "entry_sorted": 4781450,
+      "egress_sorted": 6450914,
+      "entry_rebuild": 1,
+      "egress_rebuild": 1,
+      "execution": "artifacts/v03_delay_state_20261127/S09_delay30000.json",
+      "recovery": "artifacts/v03_delay_state_20261127/S09_delay30000_recovery.json"
+    },
+    {
+      "start_s": 30000.0,
+      "recovered_s": 30180,
+      "advanced_s": 180.0,
+      "wall_s": 71.68099851,
+      "advance_s": 62.233812589,
+      "checkpoint_write_s": 1.296037737,
+      "peak_rss_bytes": 2523447296,
+      "max_traced_guard_required_bytes": 1821702665,
+      "guard_exceedances": 0,
+      "checkpoint_bytes": 830154154,
+      "journey_records": {
+        "dynamic_bytes": 159760976,
+        "egress": 1742354,
+        "enter": 1752182,
+        "history": 102426,
+        "history_bytes": 40150992,
+        "internal": 146424,
+        "nonempty_histories": 102426,
+        "stage_bytes": [
+          57559568,
+          57237296,
+          4813120
+        ]
+      },
+      "peak_records": 9349579,
+      "checkpoint_phases": {
+        "checkpoint.file_sync_ns": [
+          1,
+          266918341,
+          266918341
+        ],
+        "checkpoint.flush_ns": [
+          1,
+          165479,
+          165479
+        ],
+        "checkpoint.rename_parent_sync_ns": [
+          1,
+          3629302,
+          3629302
+        ],
+        "checkpoint.write_journey_ns": [
+          1,
+          472884555,
+          472884555
+        ],
+        "checkpoint.write_road_ns": [
+          1,
+          212898887,
+          212898887
+        ],
+        "checkpoint.write_service_ns": [
+          1,
+          337459947,
+          337459947
+        ]
+      },
+      "calendar": {
+        "delay_calendar.egress_rebuild": [
+          18,
+          1,
+          1
+        ],
+        "delay_calendar.egress_removed": [
+          18,
+          4062111,
+          226512
+        ],
+        "delay_calendar.egress_shared": [
+          18,
+          3653760,
+          215423
+        ],
+        "delay_calendar.egress_sorted": [
+          18,
+          7623729,
+          2053895
+        ],
+        "delay_calendar.egress_workspace": [
+          18,
+          2024900376,
+          151272640
+        ],
+        "delay_calendar.entry_rebuild": [
+          18,
+          1,
+          1
+        ],
+        "delay_calendar.entry_removed": [
+          18,
+          3744648,
+          208036
+        ],
+        "delay_calendar.entry_shared": [
+          18,
+          3710114,
+          218242
+        ],
+        "delay_calendar.entry_sorted": [
+          18,
+          7323038,
+          2061674
+        ],
+        "delay_calendar.entry_workspace": [
+          18,
+          2015918112,
+          151711576
+        ]
+      },
+      "validation": {
+        "stage_validation.partitioned_rows": [
+          2,
+          7266702,
+          3640960
+        ],
+        "stage_validation.partitioned_scratch": [
+          2,
+          72828816,
+          36475280
+        ]
+      },
+      "entry_removed": 3744648,
+      "egress_removed": 4062111,
+      "entry_shared": 3710114,
+      "egress_shared": 3653760,
+      "entry_sorted": 7323038,
+      "egress_sorted": 7623729,
+      "entry_rebuild": 1,
+      "egress_rebuild": 1,
+      "execution": "artifacts/v03_delay_state_20261127/S09_delay30180.json",
+      "recovery": "artifacts/v03_delay_state_20261127/S09_delay30180_recovery.json"
+    },
+    {
+      "start_s": 30180.0,
+      "recovered_s": 30540,
+      "advanced_s": 360.0,
+      "wall_s": 145.679044376,
+      "advance_s": 122.947346084,
+      "checkpoint_write_s": 14.26007927,
+      "peak_rss_bytes": 2784358400,
+      "max_traced_guard_required_bytes": 1823721353,
+      "guard_exceedances": 0,
+      "checkpoint_bytes": 830958130,
+      "journey_records": {
+        "dynamic_bytes": 159789872,
+        "egress": 1742736,
+        "enter": 1752182,
+        "history": 102460,
+        "history_bytes": 40164320,
+        "internal": 146424,
+        "nonempty_histories": 102460,
+        "stage_bytes": [
+          57559568,
+          57252864,
+          4813120
+        ]
+      },
+      "peak_records": 9351544,
+      "checkpoint_phases": {
+        "checkpoint.file_sync_ns": [
+          1,
+          7039362765,
+          7039362765
+        ],
+        "checkpoint.flush_ns": [
+          1,
+          139981,
+          139981
+        ],
+        "checkpoint.rename_parent_sync_ns": [
+          1,
+          15116265,
+          15116265
+        ],
+        "checkpoint.write_journey_ns": [
+          1,
+          4199910439,
+          4199910439
+        ],
+        "checkpoint.write_road_ns": [
+          1,
+          564935335,
+          564935335
+        ],
+        "checkpoint.write_service_ns": [
+          1,
+          2439164355,
+          2439164355
+        ]
+      },
+      "calendar": {
+        "delay_calendar.egress_rebuild": [
+          36,
+          1,
+          1
+        ],
+        "delay_calendar.egress_removed": [
+          36,
+          8143599,
+          226586
+        ],
+        "delay_calendar.egress_shared": [
+          36,
+          7541294,
+          215474
+        ],
+        "delay_calendar.egress_sorted": [
+          36,
+          13538576,
+          2069968
+        ],
+        "delay_calendar.egress_workspace": [
+          36,
+          4015522392,
+          152179688
+        ],
+        "delay_calendar.entry_rebuild": [
+          36,
+          1,
+          1
+        ],
+        "delay_calendar.entry_removed": [
+          36,
+          7489296,
+          208036
+        ],
+        "delay_calendar.entry_shared": [
+          36,
+          7638470,
+          218242
+        ],
+        "delay_calendar.entry_sorted": [
+          36,
+          12893894,
+          2061674
+        ],
+        "delay_calendar.entry_workspace": [
+          36,
+          3989783856,
+          151711576
+        ]
+      },
+      "validation": {
+        "stage_validation.partitioned_rows": [
+          2,
+          7282302,
+          3641342
+        ],
+        "stage_validation.partitioned_scratch": [
+          2,
+          72953616,
+          36478336
+        ]
+      },
+      "entry_removed": 7489296,
+      "egress_removed": 8143599,
+      "entry_shared": 7638470,
+      "egress_shared": 7541294,
+      "entry_sorted": 12893894,
+      "egress_sorted": 13538576,
+      "entry_rebuild": 1,
+      "egress_rebuild": 1,
+      "execution": "artifacts/v03_delay_state_20261127/S09_delay30540.json",
+      "recovery": "artifacts/v03_delay_state_20261127/S09_delay30540_recovery.json"
+    }
+  ],
+  "last_recovered_s": 30540,
+  "new_horizon_s": 600,
+  "ancestral_horizon_s": 5220,
+  "target_s": 30540,
+  "target_status": "RECOVERED",
+  "entry_removed_total": 13654476,
+  "egress_removed_total": 16329567,
+  "entry_shared_total": 12439794,
+  "egress_shared_total": 12260117,
+  "entry_sorted_total": 24998382,
+  "egress_sorted_total": 27613219,
+  "entry_rebuild_total": 3,
+  "egress_rebuild_total": 3,
+  "original": {
+    "recovered_s": 25750,
+    "computed_s": 25750,
+    "new_s": 10,
+    "execution": "artifacts/v03_delay_state_20261127/S02_original25750.json",
+    "recovery": "artifacts/v03_delay_state_20261127/S02_original25750_recovery.json",
+    "final_binary_recovery": "RECOVERED",
+    "final_binary_recovery_path": "artifacts/v03_delay_state_20261127/S09_original25750_final_recovery.json",
+    "next_failure": "artifacts/v03_delay_state_20261127/S08_original25760.json",
+    "failure": {
+      "kind": "Resource",
+      "message": "native road storage budget exceeded: phase=tick preflight, required_bytes=4809424815, budget_bytes=4533044215"
+    },
+    "checkpoint_sha256": "02c884729e12b5e83d982573725e86554c9a07c0b2b0decd8c90797089c05a28"
+  }
+}
