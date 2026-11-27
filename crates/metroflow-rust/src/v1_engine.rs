@@ -2213,6 +2213,7 @@ fn build_native_input(manifest:serde_json::Value,threads:usize)->CoreResult<(Nat
     }
     if let Some(v)=manifest.get("research_receipt_period_s"){enable_research_receipt(&mut engine,v.as_u64().ok_or_else(||bad("invalid receipt period"))?)?;}
     if let Some(v)=manifest.get("research_group_outlets"){if v.as_bool()!=Some(true){return Err(bad("outlet grouping field must be true"))}enable_group_outlets(&mut engine)?;}
+    if let Some(v)=manifest.get("research_receipt_grid"){if v.as_bool()!=Some(true){return Err(bad("receipt grid field must be true"))}enable_receipt_grid(&mut engine)?;}
 
     Ok((engine,calendar_legs,calendar_totals))
 }
@@ -2243,6 +2244,8 @@ fn enable_research_receipt(engine:&mut NativeWholeEngine,period:u64)->CoreResult
 }
 #[cfg(feature="native-cli")]
 fn enable_group_outlets(engine:&mut NativeWholeEngine)->CoreResult<()>{engine.journey.enable_research_group_outlets()?;engine.identity.push_str(":group-outlets-v1");Ok(())}
+#[cfg(feature="native-cli")]
+fn enable_receipt_grid(engine:&mut NativeWholeEngine)->CoreResult<()>{engine.journey.enable_research_receipt_grid(engine.step)?;engine.identity.push_str(&format!(":receipt-grid-v1:{}",engine.step));Ok(())}
 /// Explicit model migration. Same physical owners at conversion, different
 /// future numerical closure and native identity. Target declaration must
 /// differ ONLY by the added research field.
@@ -2250,6 +2253,13 @@ fn enable_group_outlets(engine:&mut NativeWholeEngine)->CoreResult<()>{engine.jo
 pub fn migrate_native_time_bins(source:serde_json::Value,target:serde_json::Value,threads:usize,input:&str,checkpoint:&str)->CoreResult<serde_json::Value>{
     use serde_json::json;
     let mut comparison=target.clone();
+    if source.get("research_receipt_grid").is_none()&&comparison.get("research_receipt_grid").is_some(){
+        if comparison.as_object_mut().and_then(|o|o.remove("research_receipt_grid")).and_then(|v|v.as_bool())!=Some(true)||comparison!=source{return Err(bad("receipt grid migration declaration differs"))}
+        let(mut engine,_,_)=build_native_input(source,threads)?;let state=engine.load(input.to_owned())?;let source_identity=engine.identity.clone();let ledger=ledger_json(&engine,&state)?;
+        if state.time_s()%engine.step!=0.{return Err(bad("receipt grid migration clock differs"))}
+        enable_receipt_grid(&mut engine)?;let next=NativeWholeState{identity:engine.identity.clone(),value:state.value};engine.validate_bundle(&next.value)?;if ledger_json(&engine,&next)?!=ledger{return Err(bad("receipt grid migration ledger differs"))}
+        save_atomic_native(&mut engine,checkpoint,&next)?;return Ok(json!({"schema":"metroflow_receipt_grid_migration_v1","status":"EXECUTED_FOR_REVIEW","scope":"same initial owners, fixed-tick future eligibility closure; separate identity","time_s":next.time_s(),"native_identity":engine.identity,"source_native_identity":source_identity,"ledger":ledger["ledger"]}))
+    }
     if source.get("research_group_outlets").is_none()&&comparison.get("research_group_outlets").is_some(){
         if comparison.as_object_mut().and_then(|o|o.remove("research_group_outlets")).and_then(|v|v.as_bool())!=Some(true)||comparison!=source{return Err(bad("outlet migration declaration differs"))}
         let(mut engine,_,_)=build_native_input(source,threads)?;let state=engine.load(input.to_owned())?;let source_identity=engine.identity.clone();let ledger=ledger_json(&engine,&state)?;
@@ -2677,7 +2687,7 @@ pub fn compare_native_rank_states(left:serde_json::Value,right:serde_json::Value
     use serde_json::json;
     use sha2::{Digest,Sha256};
     fn physical(mut m:serde_json::Value)->serde_json::Value{
-        if let Some(o)=m.as_object_mut(){for k in ["research_rank_bins","research_interval_bins","research_ready_mass_milli","research_receipt_period_s","research_group_outlets"]{o.remove(k);}}
+        if let Some(o)=m.as_object_mut(){for k in ["research_rank_bins","research_interval_bins","research_ready_mass_milli","research_receipt_period_s","research_group_outlets","research_receipt_grid"]{o.remove(k);}}
         m
     }
     if physical(left.clone())!=physical(right.clone()){return Err(bad("rank audit physical declarations differ"))}

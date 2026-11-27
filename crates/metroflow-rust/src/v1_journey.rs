@@ -908,6 +908,7 @@ pub struct NativeJourneyCore {
     history_rows: usize,
     research_receipt_period_s:Option<u64>,
     research_group_outlets:bool,
+    research_receipt_grid_step:Option<f64>,
     history_bytes: usize,
     history_decoded_final: usize,
     history_decode_extra_max: usize,
@@ -1164,6 +1165,11 @@ impl NativeJourneyCore {
     pub(crate) fn enable_research_group_outlets(&mut self)->CoreResult<()>{
         if self.research_receipt_period_s.is_none()||self.storage_budget.is_none(){return Err(bad("outlet grouping requires receipt research identity"))}
         self.research_group_outlets=true;Ok(())
+    }
+    #[cfg(feature="native-cli")]
+    pub(crate) fn enable_research_receipt_grid(&mut self,dt:f64)->CoreResult<()>{
+        if !self.research_group_outlets||!dt.is_finite()||!(1.0..=3600.).contains(&dt)||dt.fract()!=0.{return Err(bad("receipt grid requires grouped outlet research and integral dt"))}
+        self.research_receipt_grid_step=Some(dt);Ok(())
     }
     pub(crate) fn owned_time(&self) -> f64 {
         self.state.0
@@ -2232,6 +2238,7 @@ impl NativeJourneyCore {
             history_rows: 0,
             research_receipt_period_s:None,
             research_group_outlets:false,
+            research_receipt_grid_step:None,
             history_bytes: 0,
             history_decoded_final: 0,
             history_decode_extra_max: 0,
@@ -2595,19 +2602,25 @@ impl NativeJourneyCore {
             }
         }
         let added = retired[0] + retired[1];
+        if let Some(dt)=self.research_receipt_grid_step{if t%dt!=0.||end%dt!=0.||end-t!=dt{return Err(bad("receipt grid requires fixed aligned ticks"))}}
         let mut removed=0usize;
         if self.research_receipt_period_s.is_some_and(|p|(end/p as f64).floor()>(t/p as f64).floor()){
-            let n=self.legs.len();let dwell_bytes=n.saturating_mul(std::mem::size_of::<f64>());
+            let n=self.legs.len();let dwell_bytes=n.saturating_mul(std::mem::size_of::<f64>()+2*std::mem::size_of::<u8>());
             let stage_bytes=stage_storage_bytes(&s);
             check_storage_limit(self.storage_budget,self.retained_input_bytes,stage_bytes.saturating_add(history_bytes),dwell_bytes)?;
             let mut dwell=checkpoint_vec(n)?;if dwell.capacity()!=n{return Err(CoreError::resource("receipt dwell capacity differs"))}dwell.resize(n,0.0f64);
-            for leg in &self.legs{if let Some(p)=leg.2{dwell[p]=dwell[p].max(leg.3);}}
+            let mut flags:Vec<u8>=checkpoint_vec(n)?;if flags.capacity()!=n{return Err(CoreError::resource("receipt child flags capacity differs"))}flags.resize(n,0);
+            for leg in &self.legs{if let Some(p)=leg.2{if flags[p]!=0&&dwell[p].to_bits()!=leg.3.to_bits(){flags[p]=2;}else if flags[p]==0{flags[p]=1;}dwell[p]=dwell[p].max(leg.3);}}
+            let mut grid_touched=0usize;let mut grid_removed=0usize;
             let old_history_bytes=history_bytes;let mut touched=0usize;
             for (i,h) in s.6.iter_mut().enumerate(){
                 if h.len()<2{continue}
                 let base=stage_bytes.saturating_add(history_bytes).max(self.retained_input_bytes).saturating_mul(WORKING_COPIES).saturating_add(STORAGE_SCRATCH_RESERVE).saturating_add(dwell_bytes);
                 let scratch=self.storage_budget.unwrap_or(usize::MAX).checked_sub(base).ok_or_else(||CoreError::resource("receipt sweep owner budget"))?;
-                if let Some(next)=h.compact_mature(end,dwell[i],scratch)?{
+                let grid=self.research_receipt_grid_step.filter(|_|flags[i]!=2);
+                let next=if let Some(dt)=grid{h.compact_grid(end,dwell[i],dt,scratch)?}else{h.compact_mature(end,dwell[i],scratch)?};
+                if let Some(next)=next{
+                    if grid.is_some(){grid_touched+=1;grid_removed=grid_removed.saturating_add(h.len()-next.len());}
                     removed=removed.checked_add(h.len()-next.len()).ok_or_else(||CoreError::resource("receipt removed count overflow"))?;
                     history_bytes=history_bytes.checked_sub(h.storage_bytes()).and_then(|v|v.checked_add(next.storage_bytes())).ok_or_else(||CoreError::resource("receipt owner census overflow"))?;
                     *h=next;touched+=1;
@@ -2618,6 +2631,7 @@ impl NativeJourneyCore {
             history_decoded_final=0;history_decode_extra_max=0;
             for h in &s.6{let b=h.decoded_final_storage_upper_bytes();history_decoded_final=history_decoded_final.saturating_add(b);history_decode_extra_max=history_decode_extra_max.max(h.decoded_storage_upper_bytes().saturating_sub(b));}
             crate::v1_trace::add("receipt_closure.sweeps",1);
+            crate::v1_trace::add("receipt_grid.touched",grid_touched as u64);crate::v1_trace::add("receipt_grid.removed_rows",grid_removed as u64);
             crate::v1_trace::add("receipt_closure.touched",touched as u64);
             crate::v1_trace::add("receipt_closure.removed_rows",removed as u64);
             crate::v1_trace::add("receipt_closure.saved_owner_bytes",old_history_bytes.saturating_sub(history_bytes) as u64);

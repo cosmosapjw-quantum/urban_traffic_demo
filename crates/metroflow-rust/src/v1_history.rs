@@ -373,6 +373,52 @@ impl ReceiptHistory {
         if !close(self.total(),out.total())||!close(b,t*m)||out.len()!=head.count-count+1{return Err(CoreError::arithmetic("receipt compact mass/moment invariant"))}
         Ok(Some(out))
     }
+    // First observable tick of fixed-dwell eligibility. Check the actual
+    // addition predicate, including binary64 boundary behavior.
+    fn grid_key(t:f64,dwell:f64,dt:f64,now:f64)->CoreResult<u64>{
+        if t+dwell<=now{return Ok(0)}
+        let ready=t+dwell;
+        let raw=(ready/dt).ceil();
+        if !raw.is_finite()||raw<=0.||raw>1e9{return Err(CoreError::value("receipt grid key outside domain"))}
+        let mut k=raw as u64;
+        if ready>k as f64*dt{k+=1}
+        if k>0&&ready<=(k-1)as f64*dt{k-=1}
+        if ready>k as f64*dt||k==0||ready<=(k-1)as f64*dt{return Err(CoreError::arithmetic("receipt grid key predicate differs"))}
+        Ok(k)
+    }
+    /// Fixed tick-grid sufficient statistic for one common child dwell.
+    /// Grouping changes raw distribution, not sampled eligibility in real
+    /// arithmetic. Each group's actual binary64 predicate is verified.
+    pub(crate) fn compact_grid(&self,now:f64,dwell:f64,dt:f64,scratch:usize)->CoreResult<Option<Self>>{
+        if !now.is_finite()||now<0.||!dwell.is_finite()||dwell<0.||!dt.is_finite()||dt<1.||dt.fract()!=0.||now%dt!=0.{return Err(CoreError::value("receipt grid domain"))}
+        if self.len()<2{return Ok(None)}
+        if self.0.as_ref().unwrap().max_time+dwell<=now{return self.compact_mature(now,dwell,scratch)}
+        let n=self.len();
+        let array=n.checked_mul(std::mem::size_of::<(u64,usize,f64,f64)>()).ok_or_else(||CoreError::resource("receipt grid array overflow"))?;
+        let pointer=self.block_count().saturating_mul(4*std::mem::size_of::<&Block>()).saturating_add(128);
+        let fixed=array.saturating_add(pointer).saturating_add(128*1024);
+        let available=scratch.checked_sub(fixed).ok_or_else(||CoreError::resource("receipt grid scratch"))?;
+        let mut rows=Vec::new();rows.try_reserve_exact(n).map_err(|_|CoreError::resource("receipt grid allocation"))?;
+        if rows.capacity()!=n{return Err(CoreError::resource("receipt grid capacity differs"))}
+        for (i,&(t,f)) in self.iter().enumerate(){rows.push((Self::grid_key(t,dwell,dt,now)?,i,t,f));}
+        rows.sort_unstable_by_key(|r|(r.0,r.1));
+        if rows.windows(2).all(|w|w[0].0!=w[1].0){return Ok(None)}
+        let mut out=Self::new();
+        for g in rows.chunk_by(|a,b|a.0==b.0){
+            let(mut m,mut b)=(Expansion::default(),Expansion::default());
+            let(mut lo,mut hi)=(f64::INFINITY,0.0f64);
+            for &(_,_,t,f) in g{lo=lo.min(t);hi=hi.max(t);m.add(f).map_err(CoreError::value)?;b.add(t*f).map_err(CoreError::value)?;}
+            let m=m.total();let b=b.total();
+            if m<=0.||!m.is_finite()||!b.is_finite(){return Err(CoreError::arithmetic("receipt grid moment overflow"))}
+            let t=if g.len()==1{g[0].2}else{(b/m).clamp(lo,hi)};
+            if Self::grid_key(t,dwell,dt,now)?!=g[0].0||(t*m-b).abs()>1e-11*b.abs()+4.*f64::from_bits(1){return Err(CoreError::arithmetic("receipt grid centroid predicate/moment differs"))}
+            if out.append_upper_bytes()>available{return Err(CoreError::resource("receipt grid output budget"))}
+            out.push((t,m)).map_err(CoreError::value)?;
+            if out.storage_bytes()>available{return Err(CoreError::resource("receipt grid output bytes"))}
+        }
+        let total=self.total();if (out.total()-total).abs()>1e-11*total+4.*f64::from_bits(1){return Err(CoreError::arithmetic("receipt grid total differs"))}
+        Ok(Some(out))
+    }
     fn block_count(&self) -> usize {
         self.len().div_ceil(BLOCK_ROWS)
     }
@@ -568,4 +614,8 @@ mod mature_closure_tests {
    assert!(h.compact_mature(2.,10.,1_000_000).unwrap().is_none());
    assert_eq!(h.len(),2);
  }
+}
+
+#[cfg(test)]mod grid_closure_tests{use super::*;
+#[test]fn future_grid_conserves_eligibility_even_for_immature_receipts(){let h=ReceiptHistory::from_rows(vec![(1.,0.125),(2.,0.125),(10.,0.25),(11.,0.25),(15.,0.25)]).unwrap();let c=h.compact_grid(20.,3600.,10.,1_000_000).unwrap().unwrap();assert_eq!(c.len(),2);for t in (20..=3650).step_by(10){assert_eq!(h.eligible(3600.,t as f64),c.eligible(3600.,t as f64));}assert_eq!(h.total(),c.total());assert_eq!(h.iter().map(|r|r.0*r.1).sum::<f64>(),c.iter().map(|r|r.0*r.1).sum::<f64>());assert!(h.compact_grid(21.,3600.,10.,1_000_000).is_err());assert!(h.compact_grid(20.,3600.,10.,1).is_err());}
 }
