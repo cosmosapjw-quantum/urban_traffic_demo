@@ -2423,7 +2423,7 @@ fn completed_route_observations_native(engine:&NativeWholeEngine,state:&NativeWh
 pub fn run_native_phase(
     manifest:serde_json::Value,threads:usize,end_s:f64,
     config:crate::phase_runtime::Config,inputs:crate::phase_runtime::Inputs,
-    resume:Option<(&str,crate::phase_runtime::Wire)>,checkpoint:&str,
+    resume:Option<(&str,crate::phase_runtime::Wire,crate::phase_window::PhaseWindow)>,checkpoint:&str,
 )->CoreResult<serde_json::Value>{
     use serde_json::json;
     use crate::{phase_runtime::Runtime,causal_routing::Link};
@@ -2435,7 +2435,7 @@ pub fn run_native_phase(
     let (mut engine,calendar_legs,calendar_totals)=build_native_input(manifest,threads)?;
     let runtime=Runtime::new(&engine.city,&engine.schedule,&engine.identity,engine.step,links,turns,config)?;
     let build_s=t.elapsed().as_secs_f64();
-    let (mut state,mut world)=if let Some((path,wire))=resume{let state=engine.load(path.to_owned())?;let world=runtime.restore(wire,state.time_s())?;(state,world)}else{(engine.initial(),runtime.initial()?)};
+    let (mut state,mut world,mut window)=if let Some((path,wire,window))=resume{let state=engine.load(path.to_owned())?;let world=runtime.restore(wire,state.time_s())?;window.validate(world.wire.observation_cursor_s,state.time_s(),engine.tags.len())?;(state,world,window)}else{(engine.initial(),runtime.initial()?,crate::phase_window::PhaseWindow::new(0.))};
     runtime.validate_input(&world,end_s,&inputs)?;
     let mut pending=inputs.reports;
     if let Some(publication)=inputs.growth{runtime.publish(&mut world,publication)?;}
@@ -2445,18 +2445,32 @@ pub fn run_native_phase(
     let pool=rayon::ThreadPoolBuilder::new().num_threads(threads).build().map_err(|e|bad(e.to_string()))?;
     let mut tick_times=vec![];
     while state.time_s()<end_s{
-        let target=runtime.boundary(&world,end_s);
+        let target=runtime.boundary(&world,end_s).min(state.time_s()+engine.step);
         let next=engine.advance_owned(&state,target)?;
+        window.append_tick(state.time_s(),target,engine.tags.len(),next.value.service.1.iter())?;
         let (times,_)=engine.advance_metrics();tick_times.extend(times);
         let (totals,_)=next.value.road.summary();
         let completed=if runtime.medium(&world,target){
-            let v=completed_route_observations_native(&engine,&next,world.wire.observation_cursor_s,20000)?;
-            serde_json::from_value(v["observations"].clone()).map_err(|e|bad(e.to_string()))?
+            let mut observations=Vec::new();
+            for m in window.publish(target)?{
+                use sha2::{Sha256,Digest};
+                let id=engine.tags.get(m.tag).ok_or_else(||bad("outlet route identity"))?;
+                let class=engine.road.class_for_route(m.tag).and_then(|c|engine.class_names.get(c)).ok_or_else(||bad("outlet class identity"))?;
+                let mut h=Sha256::new();h.update(b"outlet-window-v2");h.update(m.hash);h.update(m.count.to_le_bytes());h.update(engine.identity.as_bytes());h.update(id.as_bytes());
+                let o=crate::causal::Observation{key:crate::causal::Key{kind:"route".into(),id:id.clone(),class:class.clone()},seconds:m.elapsed/m.mass,stamp_s:target,start_s:m.start,end_s:m.end,mass_veh:m.mass,sensor_xy:[0.,0.],source:"T04_completed_outlet".into(),version:engine.identity.clone(),population:format!("{:x}",h.finalize()),measure:"completed conditional birth-to-exit mean; includes all recorded holds".into()};
+                o.validate()?;observations.push(o);
+            }
+            observations
         }else{vec![]};
         pool.install(||runtime.transition(&mut world,target,totals[1],completed,&mut pending))?;
         state=next;
     }
     let wire=runtime.finalize(world,&pending)?;
+    window.validate(wire.observation_cursor_s,state.time_s(),engine.tags.len())?;
+    let phase_window=serde_json::to_value(&window).map_err(|e|bad(e.to_string()))?;
+    let window_bytes=serde_json::to_vec(&phase_window).map_err(|e|bad(e.to_string()))?;
+    if window_bytes.len()>16*1024*1024{return Err(CoreError::resource("phase outlet window wire byte bound"))}
+    let phase_window_sha256=crate::frozen_city::hash(&window_bytes);drop(window_bytes);
     let growth_stock_identity=runtime.growth_stock_identity(&wire)?;
     let phase_wire=serde_json::to_value(&wire).map_err(|e|bad(e.to_string()))?;
     let wire_bytes=serde_json::to_vec(&phase_wire).map_err(|e|bad(e.to_string()))?;
@@ -2466,7 +2480,7 @@ pub fn run_native_phase(
     let ledger=ledger_json(&engine,&state)?;
     let advance_s=t.elapsed().as_secs_f64();
     save_atomic_native(&mut engine,checkpoint,&state)?;
-    Ok(json!({"schema":"metroflow_native_world_v1","scope":"C01 proposal-only phase semantics on actual native T04 state; explicit growth publications; no occupied suffix mutation","status":"EXECUTED_FOR_REVIEW","city_identity":engine.city,"schedule_identity":engine.schedule,"native_identity":engine.identity,"phase_model_identity":runtime.id,"start_s":begin,"time_s":state.time_s(),"calendar_legs":calendar_legs,"calendar_totals":calendar_totals,"threads":threads,"byte_budget":engine.byte_budget,"build_s":build_s,"advance_s":advance_s,"tick_times_s":tick_times,"ledger":ledger["ledger"],"phase_wire":phase_wire,"phase_wire_sha256":phase_wire_sha256,"growth_stock_identity":growth_stock_identity,"physical_suffix_applied":false}))
+    Ok(json!({"schema":"metroflow_native_world_v2","scope":"C01 proposal-only phase semantics on actual native T04 state; explicit growth publications; no occupied suffix mutation","status":"EXECUTED_FOR_REVIEW","city_identity":engine.city,"schedule_identity":engine.schedule,"native_identity":engine.identity,"phase_model_identity":runtime.id,"start_s":begin,"time_s":state.time_s(),"calendar_legs":calendar_legs,"calendar_totals":calendar_totals,"threads":threads,"byte_budget":engine.byte_budget,"build_s":build_s,"advance_s":advance_s,"tick_times_s":tick_times,"ledger":ledger["ledger"],"phase_wire":phase_wire,"phase_wire_sha256":phase_wire_sha256,"phase_window":phase_window,"phase_window_sha256":phase_window_sha256,"growth_stock_identity":growth_stock_identity,"physical_suffix_applied":false}))
 }
 
 /// Explicit native transaction on a predeclared legal route variant; not an

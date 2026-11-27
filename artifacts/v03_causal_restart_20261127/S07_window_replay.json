@@ -1,0 +1,18 @@
+{
+  "direct_checkpoint": "934ee5da2dd3003ebda551a1e8c09bad4384827edff1e401e5bcc9c189ae8f28",
+  "resume_checkpoint": "934ee5da2dd3003ebda551a1e8c09bad4384827edff1e401e5bcc9c189ae8f28",
+  "direct_wire": "933c476338e4081518c85f16ef16fa87d35170e82e0d15b8d9e04984d2c675d3",
+  "resume_wire": "933c476338e4081518c85f16ef16fa87d35170e82e0d15b8d9e04984d2c675d3",
+  "direct_window": "079150287843802f793414a4dec062eb1dfedb203a1e142cb1d1fbe5ca44dbc1",
+  "resume_window": "079150287843802f793414a4dec062eb1dfedb203a1e142cb1d1fbe5ca44dbc1",
+  "partial_time": 57,
+  "partial_window": {
+    "groups": {},
+    "last": 57,
+    "since": 55
+  },
+  "completed_observation_count": 7,
+  "completed_observed_mass": 14.900000000000002,
+  "final_accessibility_completed": 14.9,
+  "exact_replay": true
+}

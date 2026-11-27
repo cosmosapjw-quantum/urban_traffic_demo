@@ -177,7 +177,7 @@ impl Runtime {
             })
             .transpose()?;
         let id = digest(&(
-            "C01_native_phase_v1",
+            "C01_native_phase_v2_outlet_window",
             city,
             schedule,
             traffic,

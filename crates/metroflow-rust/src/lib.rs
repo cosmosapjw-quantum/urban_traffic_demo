@@ -1353,3 +1353,5 @@ pub mod phase_runtime;
 mod extended_cost_wire;
 #[cfg(feature="native-cli")]
 pub mod causal_bottleneck;
+#[cfg(feature="native-cli")]
+pub mod phase_window;
