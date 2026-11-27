@@ -1,0 +1,2 @@
+# V03 continuation: exact ordered interval and native backend
+Both original V03 bottleneck research and Rust-only migration are authorized. Baseline 40a5a1d22ca5bbc8825d8bd78c7af288fe6b1396; current valid 25660s, separate historical 25720s identity. Preserve finite-response closure, legal FIFO, marks, time and conservation, original 3x3 full-day requirement, 6 GiB internal and 8 GiB RSS/address limits, 7200s wall. No approximation substituted for acceptance. Fixed 15-group census. Python only explicit oracle tests; scientific measurement Rust.
