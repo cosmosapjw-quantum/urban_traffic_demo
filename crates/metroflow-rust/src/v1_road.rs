@@ -8789,12 +8789,65 @@ fn write_moments<W:Write>(w:&mut W,m:f64,b:f64)->CoreResult<()>{
     let mut row=[0u8;16];row[..8].copy_from_slice(&m.to_bits().to_le_bytes());row[8..].copy_from_slice(&b.to_bits().to_le_bytes());
     w.write_all(&row).map_err(|e|CoreError::io(e.to_string()))
 }
+// Same little-endian bytes as scalar wire, amortize calls into BufWriter.
+// A single stack buffer is reused across all packets in a queue.
+fn wire_fixed_batch<W:Write,T,const N:usize>(w:&mut W,rows:&[T],scratch:&mut [u8],encode:impl Fn(&T)->[u8;N])->CoreResult<()>{
+    let batch=scratch.len()/N;
+    if batch==0{return Err(arithmetic("compact wire batch capacity"))}
+    for chunk in rows.chunks(batch){
+        for (dst,row) in scratch.chunks_exact_mut(N).zip(chunk){dst.copy_from_slice(&encode(row));}
+        w.write_all(&scratch[..chunk.len()*N]).map_err(|e|CoreError::io(e.to_string()))?;
+    }
+    Ok(())
+}
+fn wire_core_row(row:&CorePart)->[u8;24]{
+    let mut b=[0;24];b[..4].copy_from_slice(&row.tag.to_le_bytes());b[4..8].copy_from_slice(&row.offset.to_le_bytes());
+    b[8..16].copy_from_slice(&row.mass.to_bits().to_le_bytes());b[16..].copy_from_slice(&row.birth.to_bits().to_le_bytes());b
+}
+fn wire_key_row(row:&(u32,u32))->[u8;8]{
+    let mut b=[0;8];b[..4].copy_from_slice(&row.0.to_le_bytes());b[4..].copy_from_slice(&row.1.to_le_bytes());b
+}
+fn wire_moment_row(row:&(f64,f64))->[u8;16]{
+    let mut b=[0;16];b[..8].copy_from_slice(&row.0.to_bits().to_le_bytes());b[8..].copy_from_slice(&row.1.to_bits().to_le_bytes());b
+}
+fn wire_mixed_row(p:&Part)->[u8;48]{
+    let mut b=[0;48];
+    for (dst,x) in b.chunks_exact_mut(8).zip([p.tag as u64,p.offset as u64,p.mass.to_bits(),p.birth.to_bits(),p.a.0,p.b.0]){dst.copy_from_slice(&x.to_le_bytes());}b
+}
 impl V1Road{
     /// MFWHOLE2 road section. Version 1's logical rows are unchanged.
     /// Within a queue, only the most recent explicit shared key owner may be
     /// reused. No pointer values enter the wire. All interval/birth/mass bits
     /// are copied, never normalized or re-associated.
     fn write_packets_compact<W:Write>(&self,w:&mut W,q:&[Packet])->CoreResult<()>{
+        if std::env::var_os("METROFLOW_NATIVE_SCALAR_COMPACT_WIRE").as_deref()==Some(std::ffi::OsStr::new("1")){
+            return self.write_packets_compact_scalar(w,q)
+        }
+        write_len(w,q.len())?;
+        let mut previous:Option<&Arc<Vec<(u32,u32)>>>=None;
+        let mut scratch=[0u8;24*1024];
+        for p in q{
+            write_f64(w,p.target)?;write_len(w,p.parts.len())?;
+            match &p.parts{
+                PacketParts::Uniform{a,b,rows}=>{
+                    write_u64(w,0)?;write_u64(w,a.0)?;write_u64(w,b.0)?;
+                    wire_fixed_batch(w,rows.as_slice(),&mut scratch,wire_core_row)?;
+                }
+                PacketParts::SharedKeys{a,b,keys,moments}=>{
+                    let reuse=previous.is_some_and(|old|Arc::ptr_eq(old,keys));
+                    write_u64(w,if reuse{3}else{2})?;write_u64(w,a.0)?;write_u64(w,b.0)?;
+                    if !reuse{wire_fixed_batch(w,keys.as_slice(),&mut scratch,wire_key_row)?;}
+                    wire_fixed_batch(w,moments.as_slice(),&mut scratch,wire_moment_row)?;
+                    previous=Some(keys);
+                }
+                PacketParts::Mixed(rows)=>{
+                    write_u64(w,1)?;wire_fixed_batch(w,rows.as_slice(),&mut scratch,wire_mixed_row)?;
+                }
+            }
+        }
+        Ok(())
+    }
+    fn write_packets_compact_scalar<W:Write>(&self,w:&mut W,q:&[Packet])->CoreResult<()>{
         write_len(w,q.len())?;
         let mut previous:Option<&Arc<Vec<(u32,u32)>>>=None;
         for p in q{
@@ -8888,6 +8941,11 @@ mod compact_checkpoint_wire_tests{
         let p=|v:f64|Packet{target:1.,parts:PacketParts::SharedKeys{a,b,keys:keys.clone(),moments:Arc::new(vec![(v,0.);1024])}};
         let q=vec![p(0.5),p(0.25),Packet{target:2.,parts:PacketParts::Uniform{a,b,rows:Arc::new(vec![CorePart{tag:0,offset:1,mass:0.125,birth:0.}])}},p(0.75)];
         let mut old=vec![];let mut compact=vec![];road.write_packets(&mut old,&q).unwrap();road.write_packets_compact(&mut compact,&q).unwrap();
+        let mut scalar=vec![];road.write_packets_compact_scalar(&mut scalar,&q).unwrap();assert_eq!(compact,scalar);
+        let mixed=Packet{target:3.,parts:PacketParts::Mixed(Arc::new(vec![Part{tag:0,offset:0,mass:0.5,birth:-0.,a,b};1001]))};
+        let uniform=Packet{target:4.,parts:PacketParts::Uniform{a,b,rows:Arc::new(vec![CorePart{tag:0,offset:0,mass:0.5,birth:-0.};1025])}};
+        let mut c=vec![];let mut v=vec![];let more=[mixed,uniform];road.write_packets_compact(&mut c,&more).unwrap();road.write_packets_compact_scalar(&mut v,&more).unwrap();assert_eq!(c,v);
+
         assert!(compact.len()<old.len()/2);
         let mut work=RoadDecodeBudget{limit:None,retained_input:0,decoded:0,validation:0};
         let got=road.read_packets_compact(&mut &compact[..],&mut 100000,&mut work).unwrap();

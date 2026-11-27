@@ -2688,14 +2688,26 @@ fn save_atomic_native(engine:&mut NativeWholeEngine,path:&str,state:&NativeWhole
             let magic=native_checkpoint_magic();f.write_all(magic).map_err(io)?;
             f.write_all(&(engine.identity.len()as u64).to_le_bytes()).map_err(io)?;
             f.write_all(engine.identity.as_bytes()).map_err(io)?;
+            let phase=std::time::Instant::now();
             engine.road.write_snapshot_codec(&mut f,&state.value.road,compact)?;
+            crate::v1_trace::add("checkpoint.write_road_ns",phase.elapsed().as_nanos().min(u64::MAX as u128)as u64);
+            let phase=std::time::Instant::now();
             NativeServiceCore::write_snapshot_codec(&mut f,&state.value.service.0,&state.value.service.1,magic==b"MFWHOLE3")?;
+            crate::v1_trace::add("checkpoint.write_service_ns",phase.elapsed().as_nanos().min(u64::MAX as u128)as u64);
+            let phase=std::time::Instant::now();
             NativeJourneyCore::write_snapshot(&mut f,&state.value.journey)?;
+            crate::v1_trace::add("checkpoint.write_journey_ns",phase.elapsed().as_nanos().min(u64::MAX as u128)as u64);
+            let phase=std::time::Instant::now();
             f.flush().map_err(io)?;
+            crate::v1_trace::add("checkpoint.flush_ns",phase.elapsed().as_nanos().min(u64::MAX as u128)as u64);
         }
+        let phase=std::time::Instant::now();
         std::fs::File::open(&tmp).map_err(io)?.sync_all().map_err(io)?;
+        crate::v1_trace::add("checkpoint.file_sync_ns",phase.elapsed().as_nanos().min(u64::MAX as u128)as u64);
+        let phase=std::time::Instant::now();
         std::fs::rename(&tmp,path).map_err(io)?;
         sync_parent_native(path)?;
+        crate::v1_trace::add("checkpoint.rename_parent_sync_ns",phase.elapsed().as_nanos().min(u64::MAX as u128)as u64);
         Ok(())
     })();
     if result.is_err(){let _=std::fs::remove_file(&tmp);}

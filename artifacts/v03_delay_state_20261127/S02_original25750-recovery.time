@@ -1,0 +1,23 @@
+	Command being timed: "timeout 360s /home/cosmosapjw/research_backups/metroflow_v03_entry_quotient_20261127/metroflow-native-run --recover /home/cosmosapjw/research_backups/metroflow_v03_entry_quotient_20261127/valley-original.manifest.json /home/cosmosapjw/research_backups/metroflow_v03_delay_state_20261127/original25750.bin artifacts/v03_delay_state_20261127/S02_original25750_recovery.json 8"
+	User time (seconds): 20.96
+	System time (seconds): 2.05
+	Percent of CPU this job got: 98%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:23.33
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 2879456
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 1
+	Minor (reclaiming a frame) page faults: 810892
+	Voluntary context switches: 2053
+	Involuntary context switches: 163
+	Swaps: 0
+	File system inputs: 763848
+	File system outputs: 32
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
