@@ -891,6 +891,12 @@ fn release_high(profile:f64,lo:f64,eligible:impl FnOnce()->f64)->Option<f64>{
 fn released_eligible(released:f64, mass:f64, tol:f64, eligible:impl FnOnce()->f64)->bool{
     released<=tol || released<=mass*eligible()+tol
 }
+// For a private child, the profile is zero through its first window start.
+// The entire old parent measure is eligible by any subsequent observation if
+// its newest possible receipt plus dwell is no later than that start.
+fn private_profile_hides_old_history(end:f64,dwell:f64,kind:u8,profile:&Profile)->bool{
+    kind!=0&&profile.iter().map(|w|w.0).reduce(f64::min).is_some_and(|start|end+dwell<=start)
+}
 fn eligible(legs: &[SharedJourneyLeg], s: &Journey, i: usize) -> f64 {
     match legs[i].2 {
         None => 1.0,
@@ -920,6 +926,7 @@ pub struct NativeJourneyCore {
     research_receipt_period_s:Option<u64>,
     research_group_outlets:bool,
     research_receipt_grid_step:Option<f64>,
+    research_schedule_receipts:bool,
     history_bytes: usize,
     history_decoded_final: usize,
     history_decode_extra_max: usize,
@@ -1181,6 +1188,11 @@ impl NativeJourneyCore {
     pub(crate) fn enable_research_receipt_grid(&mut self,dt:f64)->CoreResult<()>{
         if !self.research_group_outlets||!dt.is_finite()||!(1.0..=3600.).contains(&dt)||dt.fract()!=0.{return Err(bad("receipt grid requires grouped outlet research and integral dt"))}
         self.research_receipt_grid_step=Some(dt);Ok(())
+    }
+    #[cfg(feature="native-cli")]
+    pub(crate) fn enable_research_schedule_receipts(&mut self)->CoreResult<()>{
+        if self.research_receipt_grid_step.is_none(){return Err(bad("schedule receipt closure requires fixed receipt grid"))}
+        self.research_schedule_receipts=true;Ok(())
     }
     pub(crate) fn owned_time(&self) -> f64 {
         self.state.0
@@ -2259,6 +2271,7 @@ impl NativeJourneyCore {
             research_receipt_period_s:None,
             research_group_outlets:false,
             research_receipt_grid_step:None,
+            research_schedule_receipts:false,
             history_bytes: 0,
             history_decoded_final: 0,
             history_decode_extra_max: 0,
@@ -2625,12 +2638,34 @@ impl NativeJourneyCore {
         if let Some(dt)=self.research_receipt_grid_step{if t%dt!=0.||end%dt!=0.||end-t!=dt{return Err(bad("receipt grid requires fixed aligned ticks"))}}
         let mut removed=0usize;
         if self.research_receipt_period_s.is_some_and(|p|(end/p as f64).floor()>(t/p as f64).floor()){
-            let n=self.legs.len();let dwell_bytes=n.saturating_mul(std::mem::size_of::<f64>()+2*std::mem::size_of::<u8>());
+            let n=self.legs.len();let dwell_bytes=n.saturating_mul(std::mem::size_of::<f64>()+(2+usize::from(self.research_schedule_receipts))*std::mem::size_of::<u8>());
             let stage_bytes=stage_storage_bytes(&s);
             check_storage_limit(self.storage_budget,self.retained_input_bytes,stage_bytes.saturating_add(history_bytes),dwell_bytes)?;
             let mut dwell=checkpoint_vec(n)?;if dwell.capacity()!=n{return Err(CoreError::resource("receipt dwell capacity differs"))}dwell.resize(n,0.0f64);
             let mut flags:Vec<u8>=checkpoint_vec(n)?;if flags.capacity()!=n{return Err(CoreError::resource("receipt child flags capacity differs"))}flags.resize(n,0);
-            for leg in &self.legs{if let Some(p)=leg.2{if flags[p]!=0&&dwell[p].to_bits()!=leg.3.to_bits(){flags[p]=2;}else if flags[p]==0{flags[p]=1;}dwell[p]=dwell[p].max(leg.3);}}
+            let mut hidden:Vec<u8>=Vec::new();
+            if self.research_schedule_receipts{
+                hidden=checkpoint_vec(n)?;
+                if hidden.capacity()!=n{return Err(CoreError::resource("receipt schedule capacity differs"))}
+                hidden.resize(n,1);
+            }
+            for leg in &self.legs{if let Some(p)=leg.2{
+                if p>=n{return Err(bad("invalid parent receipt index"))}
+                if flags[p]!=0&&dwell[p].to_bits()!=leg.3.to_bits(){flags[p]=2;}else if flags[p]==0{flags[p]=1;}
+                dwell[p]=dwell[p].max(leg.3);
+                if self.research_schedule_receipts&&!private_profile_hides_old_history(end,leg.3,leg.5,&leg.4){hidden[p]=0;}
+            }}
+            if self.research_schedule_receipts{
+                // A bus gate is a distinct observable even if its profile
+                // vanishes. Freight/service eligibility is also protected.
+                for i in self.bus.iter().map(|b|b.0).chain(self.freight.iter().map(|f|f.0)){
+                    if let Some(p)=self.legs[i].2{
+                        if p>=n{return Err(bad("invalid service parent receipt index"))}
+                        hidden[p]=0;
+                    }
+                }
+            }
+            let mut schedule_touched=0usize;let mut schedule_removed=0usize;
             let mut grid_touched=0usize;let mut grid_removed=0usize;
             let mut grid_workspace=GridWorkspace::default();
             let old_history_bytes=history_bytes;let mut touched=0usize;
@@ -2638,15 +2673,17 @@ impl NativeJourneyCore {
                 if h.len()<2{continue}
                 let base=stage_bytes.saturating_add(history_bytes).max(self.retained_input_bytes).saturating_mul(WORKING_COPIES).saturating_add(STORAGE_SCRATCH_RESERVE).saturating_add(dwell_bytes);
                 let scratch=self.storage_budget.unwrap_or(usize::MAX).checked_sub(base).ok_or_else(||CoreError::resource("receipt sweep owner budget"))?;
-                let grid=self.research_receipt_grid_step.filter(|_|flags[i]!=2);
+                let schedule=self.research_schedule_receipts&&flags[i]!=0&&hidden[i]!=0;
+                let grid=self.research_receipt_grid_step.filter(|_|flags[i]!=2&&!schedule);
                 let next=if let Some(dt)=grid{
                     h.compact_grid_buckets(end,dwell[i],dt,scratch,&mut grid_workspace)?
                 }else{
                     let available=scratch.checked_sub(grid_workspace.retained_bytes()).ok_or_else(||CoreError::resource("receipt sweep retained grid workspace"))?;
-                    h.compact_mature(end,dwell[i],available)?
+                    h.compact_mature(end,if schedule{0.}else{dwell[i]},available)?
                 };
                 if let Some(next)=next{
                     if grid.is_some(){grid_touched+=1;grid_removed=grid_removed.saturating_add(h.len()-next.len());}
+                    if schedule{schedule_touched+=1;schedule_removed=schedule_removed.saturating_add(h.len()-next.len());}
                     removed=removed.checked_add(h.len()-next.len()).ok_or_else(||CoreError::resource("receipt removed count overflow"))?;
                     history_bytes=history_bytes.checked_sub(h.storage_bytes()).and_then(|v|v.checked_add(next.storage_bytes())).ok_or_else(||CoreError::resource("receipt owner census overflow"))?;
                     *h=next;touched+=1;
@@ -2657,6 +2694,8 @@ impl NativeJourneyCore {
             history_decoded_final=0;history_decode_extra_max=0;
             for h in &s.6{let b=h.decoded_final_storage_upper_bytes();history_decoded_final=history_decoded_final.saturating_add(b);history_decode_extra_max=history_decode_extra_max.max(h.decoded_storage_upper_bytes().saturating_sub(b));}
             crate::v1_trace::add("receipt_closure.sweeps",1);
+            crate::v1_trace::add("receipt_schedule.touched",schedule_touched as u64);
+            crate::v1_trace::add("receipt_schedule.removed_rows",schedule_removed as u64);
             crate::v1_trace::add("receipt_grid.touched",grid_touched as u64);crate::v1_trace::add("receipt_grid.removed_rows",grid_removed as u64);
             crate::v1_trace::add("receipt_closure.touched",touched as u64);
             crate::v1_trace::add("receipt_closure.removed_rows",removed as u64);
@@ -2804,5 +2843,28 @@ mod observable_clock_lazy_tests{
                 }
             }
         }}
+    }
+}
+
+#[cfg(test)]
+mod schedule_receipt_tests{
+    use super::*;
+    #[test]
+    fn schedule_closure_preserves_all_observable_queries_and_moment(){
+        let profile=vec![(100.,110.,1.)];
+        let h=ReceiptHistory::from_rows(vec![(1.,0.125),(5.,0.25),(20.,0.625)]).unwrap();
+        let c=h.compact_mature(20.,0.,1_000_000).unwrap().unwrap();
+        assert_eq!(c.len(),1);
+        for d in [10.,80.]{
+            assert!(private_profile_hides_old_history(20.,d,1,&profile));
+            for u in (20..=130).step_by(10){
+                let p=fraction(&profile,u as f64);
+                assert_eq!(p.min(h.eligible(d,u as f64)),p.min(c.eligible(d,u as f64)));
+            }
+        }
+        assert!(!private_profile_hides_old_history(20.,81.,1,&profile));
+        assert!(!private_profile_hides_old_history(20.,10.,0,&profile));
+        assert_eq!(h.total(),c.total());
+        assert_eq!(h.iter().map(|r|r.0*r.1).sum::<f64>(),c.iter().map(|r|r.0*r.1).sum::<f64>());
     }
 }
