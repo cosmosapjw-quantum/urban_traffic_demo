@@ -1366,3 +1366,5 @@ pub use v1_road::PackedRankProbe;
 pub use v1_road::allocation_probe_rank_moments;
 #[cfg(feature="native-cli")]
 pub use v1_engine::compare_native_rank_states;
+#[cfg(feature="native-cli")]
+pub use v1_journey::allocation_probe_outlet_and_wire;

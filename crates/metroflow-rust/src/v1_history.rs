@@ -325,6 +325,12 @@ impl ReceiptHistory {
         blocks.into_iter().rev().flat_map(|block| block.rows.iter())
     }
 
+    pub(crate) fn visit_ordered(&self,mut visit:impl FnMut(Receipt)->CoreResult<()>)->CoreResult<()>{
+        let mut blocks=smallvec::SmallVec::<[&Block;16]>::new();let mut cursor=self.0.as_deref();
+        while let Some(b)=cursor{if blocks.len()==blocks.capacity(){blocks.try_reserve(1).map_err(|_|CoreError::resource("receipt ordered visitor workspace"))?;}blocks.push(b);cursor=b.previous.as_deref();}
+        for b in blocks.into_iter().rev(){for &row in &b.rows{visit(row)?;}}
+        Ok(())
+    }
     pub(crate) fn to_vec(&self) -> Vec<Receipt> {
         let mut result = Vec::with_capacity(self.len());
         result.extend(self.iter().copied());

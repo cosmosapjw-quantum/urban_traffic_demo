@@ -1269,6 +1269,18 @@ impl NativeJourneyCore {
         Self::write_snapshot(w,&self.state)
     }
     pub(crate) fn write_snapshot<W:Write>(w:&mut W,s:&Journey)->CoreResult<()> {
+        if cfg!(all(feature="native-cli",not(feature="python-extension")))&&std::env::var_os("METROFLOW_NATIVE_SCALAR_JOURNEY_WIRE").as_deref()!=Some(std::ffi::OsStr::new("1")){return Self::write_snapshot_batched(w,s)}
+        Self::write_snapshot_scalar(w,s)
+    }
+    fn write_snapshot_batched<W:Write>(w:&mut W,s:&Journey)->CoreResult<()>{
+        let mut b=JourneyWords::new(w);b.word(s.0.to_bits())?;
+        for stage in [&s.1,&s.2,&s.3]{b.word(stage.len()as u64)?;for a in stage{b.word(a.0 as u64)?;for x in [a.1,a.2,a.3]{b.word(x.to_bits())?;}}}
+        for values in [&s.4,&s.5]{b.word(values.len()as u64)?;for &v in values{b.word(v.to_bits())?;}}
+        b.word(s.6.len()as u64)?;for h in &s.6{b.word(h.len()as u64)?;h.visit_ordered(|(t,v)|{b.word(t.to_bits())?;b.word(v.to_bits())})?;}
+        b.word(s.7.len()as u64)?;for &v in &s.7{b.word(v.to_bits())?;}
+        b.flush()
+    }
+    fn write_snapshot_scalar<W:Write>(w:&mut W,s:&Journey)->CoreResult<()> {
         write_f64(w, s.0)?;
         for stage in [&s.1, &s.2, &s.3] {
             write_len(w, stage.len())?;
@@ -2691,7 +2703,8 @@ impl NativeJourneyCore {
 // Do not change physical last-tick event owner or service sink processing.
 #[derive(Clone,Copy,Debug)]
 struct OutletAtom { leg:usize, stamp:f64, mass:f64, ordinal:usize }
-fn group_outlet_atoms(rows:&mut Vec<OutletAtom>)->CoreResult<()>{
+fn group_outlet_atoms(rows:&mut Vec<OutletAtom>)->CoreResult<()>{let n=group_outlet_slice(rows)?;rows.truncate(n);Ok(())}
+fn group_outlet_slice(rows:&mut [OutletAtom])->CoreResult<usize>{
     if rows.iter().any(|r|!nonnegative([r.stamp,r.mass])){return Err(bad("invalid grouped outlet atom"))}
     rows.sort_unstable_by_key(|r|(r.leg,r.stamp.to_bits(),r.ordinal));
     let mut read=0usize;let mut write=0usize;
@@ -2702,7 +2715,7 @@ fn group_outlet_atoms(rows:&mut Vec<OutletAtom>)->CoreResult<()>{
         if !row.mass.is_finite()||row.mass<0.{return Err(bad("grouped outlet sum overflow"))}
         rows[write]=row;write+=1;read=end;
     }
-    rows.truncate(write);Ok(())
+    Ok(write)
 }
 #[cfg(test)]
 mod outlet_group_tests{
@@ -2724,4 +2737,33 @@ mod outlet_group_tests{
         assert_eq!(a.len(),3);assert_eq!(a[0].mass,0.5);assert_eq!(distribution(&a),reference);
         a[0].mass=f64::NAN;assert!(group_outlet_atoms(&mut a).is_err());
     }
+}
+
+// Same little-endian journey wire, only the writer call granularity changes.
+struct JourneyWords<'a,W:Write>{writer:&'a mut W,buffer:[u8;8192],len:usize}
+impl<'a,W:Write> JourneyWords<'a,W>{
+    fn new(writer:&'a mut W)->Self{Self{writer,buffer:[0;8192],len:0}}
+    fn word(&mut self,x:u64)->CoreResult<()>{
+        if self.len==self.buffer.len(){self.flush()?}
+        self.buffer[self.len..self.len+8].copy_from_slice(&x.to_le_bytes());self.len+=8;Ok(())
+    }
+    fn flush(&mut self)->CoreResult<()>{self.writer.write_all(&self.buffer[..self.len]).map_err(|e|CoreError::io(e.to_string()))?;self.len=0;Ok(())}
+}
+#[cfg(feature="native-cli")]
+pub fn allocation_probe_outlet_and_wire()->CoreResult<[u64;2]>{
+    let mut r=[OutletAtom{leg:2,stamp:1.,mass:0.125,ordinal:0},OutletAtom{leg:1,stamp:2.,mass:0.25,ordinal:1},OutletAtom{leg:2,stamp:1.,mass:0.375,ordinal:2},OutletAtom{leg:1,stamp:3.,mass:0.25,ordinal:3}];
+    let n=group_outlet_slice(&mut r)?;
+    let mut sink=std::io::sink();let mut w=JourneyWords::new(&mut sink);
+    let mut check=0u64;
+    for x in &r[..n]{w.word(x.leg as u64)?;w.word(x.stamp.to_bits())?;w.word(x.mass.to_bits())?;check=check.wrapping_add(x.mass.to_bits());}
+    w.flush()?;Ok([n as u64,check])
+}
+#[cfg(test)]mod journey_batch_wire_tests{
+ use super::*;
+ #[test]fn scalar_and_batch_identical_with_long_and_short_histories(){
+  let mut a=StageQueue::new();for i in 0..2049{a.push((i%3,0.125,i as f64,0.25));}
+  let mut h=ReceiptHistory::new();for i in 0..1300{h.push((i as f64,0.125)).unwrap()}
+  let s=(2000.,a,StageQueue::new(),StageQueue::new(),vec![1.,2.,3.],vec![0.5,1.,2.],vec![h,ReceiptHistory::from_rows(vec![(2.,0.5)]).unwrap(),ReceiptHistory::new()],vec![0.,1.,2.]);
+  let(mut old,mut new)=(vec![],vec![]);NativeJourneyCore::write_snapshot_scalar(&mut old,&s).unwrap();NativeJourneyCore::write_snapshot_batched(&mut new,&s).unwrap();assert_eq!(old,new);
+ }
 }

@@ -1,0 +1,153 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "candidate_checkpoint_sha256": "2ca7332c1f1624129ab0a14d051ce22e525a1b487177184e3326e624de40cbcb",
+  "candidate_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10",
+  "candidate_manifest_sha256": "e23ed04001651bc5c0bdf130e2f095625c77788f42c8445adc44d45f3ee4deec",
+  "cells": {
+    "active_veh": {
+      "bit_different_entries": 0,
+      "entries": 1586,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 1361.6370616419542,
+      "relative_l1": 0.0
+    },
+    "cumulative_entry_veh": {
+      "bit_different_entries": 0,
+      "entries": 1586,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 71406.3124985689,
+      "relative_l1": 0.0
+    },
+    "cumulative_exit_veh": {
+      "bit_different_entries": 0,
+      "entries": 1586,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 70044.67543692696,
+      "relative_l1": 0.0
+    },
+    "distance_veh_m": {
+      "bit_different_entries": 0,
+      "entries": 1586,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 13637639.735544534,
+      "relative_l1": 0.0
+    },
+    "occupied_lane_m": {
+      "bit_different_entries": 0,
+      "entries": 1586,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 6808.185308209771,
+      "relative_l1": 0.0
+    },
+    "speed_m_s": {
+      "bit_different_entries": 0,
+      "entries": 1586,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 8754.897584086024,
+      "relative_l1": 0.0
+    }
+  },
+  "executable_sha256": "b713a182d3b180567398bbfbca9912b9cbe3890eaa6184161df4114aacfbc7d2",
+  "journey_legs": {
+    "completed_persons": {
+      "bit_different_entries": 0,
+      "entries": 918450,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 3769.843486202154,
+      "relative_l1": 0.0
+    },
+    "completed_veh": {
+      "bit_different_entries": 0,
+      "entries": 918450,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 3008.0073964354433,
+      "relative_l1": 0.0
+    },
+    "since_completion_person_s": {
+      "bit_different_entries": 41890,
+      "entries": 918450,
+      "l1": 6.827388931984757e-10,
+      "linf": 6.821210263296962e-13,
+      "reference_l1": 2296736.14957813,
+      "relative_l1": 2.972648352854475e-16
+    },
+    "since_completion_veh_s": {
+      "bit_different_entries": 41789,
+      "entries": 918450,
+      "l1": 5.424969501399701e-10,
+      "linf": 5.684341886080801e-13,
+      "reference_l1": 1830124.983005625,
+      "relative_l1": 2.964261759046774e-16
+    }
+  },
+  "last_tick_outlet": {
+    "birth_to_exit_veh_s": {
+      "bit_different_entries": 0,
+      "entries": 304856,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 17648.291175197315,
+      "relative_l1": 0.0
+    },
+    "outlet_veh": {
+      "bit_different_entries": 0,
+      "entries": 304856,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 26.424939328030383,
+      "relative_l1": 0.0
+    }
+  },
+  "peak_rss_bytes": 1264791552,
+  "reference_checkpoint_sha256": "502639cffc452ed5b980411a8326c3983164e42b9cce7ea7bea6b8f596810e92",
+  "reference_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1",
+  "reference_manifest_sha256": "5381bf2e08225d564493b26235804d8f79eef181c21f448d94572a7cea63ac9e",
+  "road_tags": {
+    "active_veh": {
+      "bit_different_entries": 0,
+      "entries": 304856,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 1361.6370616419542,
+      "relative_l1": 0.0
+    },
+    "birth_veh_s": {
+      "bit_different_entries": 0,
+      "entries": 304856,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 36276366.14754776,
+      "relative_l1": 0.0
+    },
+    "entry_clock_veh_s": {
+      "bit_different_entries": 0,
+      "entries": 304856,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 36912991.66082969,
+      "relative_l1": 0.0
+    },
+    "route_offset_veh": {
+      "bit_different_entries": 0,
+      "entries": 304856,
+      "l1": 0.0,
+      "linf": 0.0,
+      "reference_l1": 14983.055405876607,
+      "relative_l1": 0.0
+    }
+  },
+  "schema": "metroflow_rank_state_compare_v1",
+  "scope": "strict loaded snapshots same physical declaration/time/tag registry; numerical observable differences, not global error theorem or release acceptance",
+  "status": "EXECUTED_FOR_REVIEW",
+  "tag_order_sha256": "1afae786b6800f1e8705b0a64cedd6b4d018fa440176937d9ad919c758a25eb8",
+  "time_s": 27120.0,
+  "wall_s": 44.202382345
+}
