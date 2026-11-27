@@ -1,0 +1,88 @@
+{
+  "nodes_total": 21,
+  "nodes_accepted": 5,
+  "nodes_verified_scoped": 14,
+  "nodes_blocked": 1,
+  "nodes_planned": 1,
+  "direct_dependencies": [
+    {
+      "id": "P01",
+      "status": "VERIFIED_SCOPED"
+    },
+    {
+      "id": "V01",
+      "status": "VERIFIED_SCOPED"
+    },
+    {
+      "id": "V02",
+      "status": "VERIFIED_SCOPED"
+    }
+  ],
+  "direct_scoped_or_accepted": 3,
+  "direct_accepted": 0,
+  "original_cases_prepared": 3,
+  "prior_60s_prefixes_validated": 3,
+  "original_cases_total": 3,
+  "original_full_days_accepted": 0,
+  "original_full_days_required": 9,
+  "original_8h_refinement_completed": 0,
+  "original_8h_refinement_required": 3,
+  "computed_frontier_s": 25740,
+  "independently_recovered_frontier_s": 25740,
+  "research_frontiers": [
+    {
+      "bins": 4,
+      "start_s": 25320,
+      "recovered_s": 25800,
+      "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:4",
+      "evidence": "artifacts/v03_causal_rank_20261127/S05_r4_recover25800.json"
+    },
+    {
+      "bins": 1,
+      "start_s": 25320,
+      "recovered_s": 26220,
+      "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1",
+      "evidence": "artifacts/v03_causal_rank_20261127/S08_r1_recovered.json"
+    },
+    {
+      "bins": 1,
+      "ready_milli_veh": 500,
+      "start_s": 25800,
+      "ancestral_source_s": 25320,
+      "recovered_s": 27000,
+      "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60",
+      "evidence": "artifacts/v03_causal_rank_20261127/S08_ready500_recover27000.json"
+    },
+    {
+      "bins": 1,
+      "receipt_grid_step_s": 10,
+      "receipt_sweep_s": 60,
+      "ancestral_source_s": 25320,
+      "start_s": 27060,
+      "recovered_s": 28020,
+      "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10",
+      "evidence": "artifacts/v03_receipt_closure_20261127/S08_grid28020_recover.json"
+    },
+    {
+      "receipt_grid_step_s": 10,
+      "receipt_sweep_s": 60,
+      "observable_schedule": true,
+      "ancestral_source_s": 25320,
+      "start_s": 28020,
+      "recovered_s": 28500,
+      "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1",
+      "evidence": "artifacts/v03_observable_buckets_20261127/S09_schedule28500_recovery.json"
+    },
+    {
+      "streaming_receipts": true,
+      "egress_retirement_buckets": true,
+      "ancestral_source_s": 25320,
+      "start_s": 28500,
+      "recovered_s": 29340,
+      "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1",
+      "evidence": "artifacts/v03_streaming_observer_20261127/S09_egress29340_recovery.json"
+    }
+  ],
+  "definition": "Original V03 status unchanged. Separate streaming/egress identity recovered 29340, 840s new/4020s ancestry; not full-day or 8h refinement acceptance.",
+  "current_loop_stages": 10
+}
