@@ -1,0 +1,45 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "checkpoint_bytes": 1893,
+  "checkpoint_sha256": "43a57072bb7adce870b7b49636029309b02843ad3f073341b391ec10c071adb8",
+  "executable_sha256": "1cd4f6fdd6bfd1f66f8c15ea77a5034cfeecab798902b3c867144353331bd239",
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 100.0,
+      "pending": 0.0,
+      "released": 100.0,
+      "released_intent_first_moment": 750.0,
+      "requested": 100.0
+    },
+    "persons": {
+      "active": 7.199999999999999,
+      "completed": 10.0,
+      "pending": 2.8000000000000007,
+      "released": 17.2,
+      "released_intent_first_moment": 370.4000000000001,
+      "requested": 20.0
+    },
+    "vehicles": {
+      "active": 5.76,
+      "completed": 6.58,
+      "pending": 0.7200000000000006,
+      "released": 12.34,
+      "released_intent_first_moment": 289.47,
+      "requested": 13.06
+    }
+  },
+  "manifest_sha256": "b21a78b2595f9c9e2693505870a979c34a75168126b0ed4248093659cbd93b4c",
+  "native_identity": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3:marked-time-bin-v1:4",
+  "peak_rss_bytes": 7684096,
+  "python_runtime_dependency": "none",
+  "research_interval_bins": 4,
+  "schema": "metroflow_marked_time_bin_migration_v1",
+  "scope": "unchanged initial physical owners, changed future time-bin closure, not original V03 acceptance",
+  "source_checkpoint_sha256": "7921676f670008728b65157bdf045d506556253dbbadaa42c89e06405042f226",
+  "source_manifest_sha256": "2dbedc0ab2720529b71ef1377f9def399bb40e6e400ac22a6073e33bbf4f6a21",
+  "source_native_identity": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3",
+  "status": "EXECUTED_FOR_REVIEW",
+  "time_s": 50.0,
+  "wall_s": 0.012033018
+}

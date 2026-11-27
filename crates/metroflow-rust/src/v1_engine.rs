@@ -2197,12 +2197,42 @@ fn build_native_input(manifest:serde_json::Value,threads:usize)->CoreResult<(Nat
     let calendar_legs=calendar.owned_legs().len();
     let calendar_totals=calendar.totals();
     let parallel=ParallelPolicy::new(threads).map_err(bad)?;
-    let engine=NativeWholeEngine::build(&calendar,s,budget,parallel,"bounded_bytes_v1".to_owned())?;
+    let mut engine=NativeWholeEngine::build(&calendar,s,budget,parallel,"bounded_bytes_v1".to_owned())?;
     drop(calendar);
+    if let Some(v)=manifest.get("research_interval_bins"){
+        let bins=v.as_u64().and_then(|v|usize::try_from(v).ok()).ok_or_else(||bad("invalid research interval bins"))?;
+        enable_research_bins(&mut engine,bins)?;
+    }
 
     Ok((engine,calendar_legs,calendar_totals))
 }
 
+#[cfg(feature="native-cli")]
+fn enable_research_bins(engine:&mut NativeWholeEngine,bins:usize)->CoreResult<()>{
+    engine.road.set_research_interval_bins(bins)?;
+    engine.identity.push_str(&format!(":marked-time-bin-v1:{bins}"));
+    Ok(())
+}
+/// Explicit model migration. Same physical owners at conversion, different
+/// future numerical closure and native identity. Target declaration must
+/// differ ONLY by the added research field.
+#[cfg(feature="native-cli")]
+pub fn migrate_native_time_bins(source:serde_json::Value,target:serde_json::Value,threads:usize,input:&str,checkpoint:&str)->CoreResult<serde_json::Value>{
+    use serde_json::json;
+    let mut comparison=target.clone();
+    let bins=comparison.as_object_mut().and_then(|o|o.remove("research_interval_bins"))
+        .and_then(|v|v.as_u64()).and_then(|v|usize::try_from(v).ok()).ok_or_else(||bad("missing target interval bins"))?;
+    if source.get("research_interval_bins").is_some()||comparison!=source{return Err(bad("research migration declarations differ beyond bins"))}
+    let (mut engine,_,_)=build_native_input(source,threads)?;
+    let state=engine.load(input.to_owned())?;
+    let source_identity=engine.identity.clone();let ledger=ledger_json(&engine,&state)?;
+    enable_research_bins(&mut engine,bins)?;
+    let next=NativeWholeState{identity:engine.identity.clone(),value:state.value};
+    engine.validate_bundle(&next.value)?;
+    if ledger_json(&engine,&next)?!=ledger{return Err(bad("research migration ledger differs"))}
+    save_atomic_native(&mut engine,checkpoint,&next)?;
+    Ok(json!({"schema":"metroflow_marked_time_bin_migration_v1","status":"EXECUTED_FOR_REVIEW","scope":"unchanged initial physical owners, changed future time-bin closure, not original V03 acceptance","time_s":next.time_s(),"native_identity":engine.identity,"source_native_identity":source_identity,"research_interval_bins":bins,"ledger":ledger["ledger"]}))
+}
 /// Strict full decoder recovery: no stepping and no acceptance credit.
 #[cfg(feature="native-cli")]
 pub fn recover_native_checkpoint(manifest:serde_json::Value,threads:usize,path:&str)->CoreResult<serde_json::Value>{
@@ -2308,7 +2338,7 @@ pub fn run_native_declaration_with_plan(
     }
     let (totals,classes)=state.value.road.summary();
     let tick_times=ticks;let peak_records=peak;
-    let mut result=json!({"schema":"metroflow_native_rust_host_v1","scope":"original native engine from typed declared input; not original city construction or V03 acceptance",
+    let mut result=json!({"schema":"metroflow_native_rust_host_v1","scope":if engine.identity.contains(":marked-time-bin-v1:"){"research time-bin closure on typed declaration; not original V03 acceptance"}else{"original native engine from typed declared input; not original city construction or V03 acceptance"},
         "city_identity":engine.city,"schedule_identity":engine.schedule,"native_identity":engine.identity,
         "start_s":begin,"time_s":state.time_s(),"calendar_legs":calendar_legs,"threads":threads,"byte_budget":budget,
         "build_s":build_s,"advance_s":advance_s,"ledger":ledger,"road_totals":totals,"road_class_ledgers":classes,

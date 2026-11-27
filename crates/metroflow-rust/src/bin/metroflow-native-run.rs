@@ -1,4 +1,4 @@
-use _metroflow_rust::{run_native_declaration_with_plan,recover_native_checkpoint,run_native_phase,run_native_suffix};
+use _metroflow_rust::{run_native_declaration_with_plan,recover_native_checkpoint,run_native_phase,run_native_suffix,migrate_native_time_bins};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::{
@@ -56,6 +56,23 @@ fn address_cap() -> std::io::Result<u64> {
 }
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let a: Vec<_> = std::env::args().collect();
+    if a.get(1).is_some_and(|x|x=="--migrate-time-bins"){
+        if a.len()!=9{return Err("usage: --migrate-time-bins SOURCE_MANIFEST TARGET_MANIFEST PRIOR_RECEIPT PRIOR_CHECKPOINT OUTPUT_RECEIPT OUTPUT_CHECKPOINT THREADS".into())}
+        let start=Instant::now();let cap=address_cap()?;
+        if Path::new(&a[6]).exists()||Path::new(&a[7]).exists(){return Err("output exists".into())}
+        let mh=digest(Path::new(&a[2]))?;let th=digest(Path::new(&a[3]))?;let ch=digest(Path::new(&a[5]))?;
+        let prior:Value=serde_json::from_reader(BufReader::new(File::open(&a[4])?))?;
+        if prior["manifest_sha256"]!=mh||prior["checkpoint_sha256"]!=ch{return Err("migration source binding differs".into())}
+        let source=serde_json::from_reader(BufReader::new(File::open(&a[2])?))?;
+        let target=serde_json::from_reader(BufReader::new(File::open(&a[3])?))?;
+        let mut out=migrate_native_time_bins(source,target,a[8].parse()?,&a[5],&a[7])?;
+        if mh!=digest(Path::new(&a[2]))?||th!=digest(Path::new(&a[3]))?||ch!=digest(Path::new(&a[5]))?{return Err("migration input changed".into())}
+        out["manifest_sha256"]=json!(th);out["source_manifest_sha256"]=json!(mh);out["source_checkpoint_sha256"]=json!(ch);
+        out["checkpoint_sha256"]=json!(digest(Path::new(&a[7]))?);out["checkpoint_bytes"]=json!(std::fs::metadata(&a[7])?.len());out["executable_sha256"]=json!(digest(&std::env::current_exe()?)?);
+        out["address_space_limit_bytes"]=json!(cap);out["peak_rss_bytes"]=json!(rss());out["wall_s"]=json!(start.elapsed().as_secs_f64());out["python_runtime_dependency"]=json!("none");
+        serde_json::to_writer_pretty(OpenOptions::new().write(true).create_new(true).open(&a[6])?,&out)?;
+        println!("{}",serde_json::to_string(&out)?);return Ok(())
+    }
     if a.get(1).is_some_and(|x|x=="--suffix"){
         if a.len()!=11{return Err("usage: metroflow-native-run --suffix MANIFEST PRIOR_RECEIPT PRIOR_CHECKPOINT CELL OLD_TAG NEW_TAG OUTPUT_RECEIPT OUTPUT_CHECKPOINT THREADS".into())}
         let start=Instant::now();let cap=address_cap()?;

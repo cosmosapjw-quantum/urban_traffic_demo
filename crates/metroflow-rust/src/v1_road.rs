@@ -1789,6 +1789,7 @@ pub struct V1Road {
     event_resolution: Mutex<EventResolutionStats>,
     event_budget: Option<usize>,
     intervals: bool,
+    research_interval_bins:Option<usize>,
     state: RoadState,
 }
 // Route registry is validated before this call. A terminal successor uses n.
@@ -2895,10 +2896,18 @@ fn ordered_interval_packet<I: Iterator<Item=usize>>(
     previous:Option<&Arc<Vec<(u32,u32)>>>,
     before_allocate:impl FnOnce(usize)->CoreResult<()>,
 )->CoreResult<(Option<PacketParts>,usize)> {
+    ordered_interval_packet_impl(parts,selected,a,b,previous,false,before_allocate)
+}
+fn ordered_interval_packet_impl<I: Iterator<Item=usize>>(
+    parts:&[Part], selected:impl Fn()->I, a:f64,b:f64,
+    previous:Option<&Arc<Vec<(u32,u32)>>>,clip:bool,
+    before_allocate:impl FnOnce(usize)->CoreResult<()>,
+)->CoreResult<(Option<PacketParts>,usize)> {
     let width=b-a;
+    let overlap=|p:Part|if clip{(b.min(p.b.unwrap())-a.max(p.a.unwrap())).max(0.)}else{width};
     let scaled=|i:usize| {
         let p=parts[i]; let duration=p.b.unwrap()-p.a.unwrap();
-        (p,p.mass*width/duration)
+        (p,if clip{p.mass*(overlap(p)/duration)}else{p.mass*width/duration})
     };
     let mut last=None;
     let mut groups=0usize;
@@ -2948,7 +2957,8 @@ fn ordered_interval_packet<I: Iterator<Item=usize>>(
             let (key,mass,birth)=pending.take().unwrap();emit(key,mass,birth);
         }
         let (_,mass,birth)=pending.get_or_insert_with(||(k,RoadExpansion::default(),RoadExpansion::default()));
-        mass.add(m);birth.add(p.birth*width/(p.b.unwrap()-p.a.unwrap()));
+        if clip{mass.add_finite(m)?;birth.add_finite(p.birth*(overlap(p)/(p.b.unwrap()-p.a.unwrap())))?;}
+        else{mass.add(m);birth.add(p.birth*width/(p.b.unwrap()-p.a.unwrap()));}
     }
     if let Some((k,mass,birth))=pending {emit(k,mass,birth);}
     let result=if separate {
@@ -2960,7 +2970,69 @@ fn ordered_interval_packet<I: Iterator<Item=usize>>(
         debug_assert_eq!(core.len(),groups);
         PacketParts::Uniform{a:aa,b:bb,rows:Arc::new(core)}
     };
+    if clip && result.iter().any(|p|!finite_nonnegative(p.mass)||!finite_nonnegative(p.birth)){return Err(arithmetic("nonfinite projected moment"))}
     Ok((Some(result),owned_bytes))
+}
+
+
+// Separate research approximation: integrate overlap into bounded time bins.
+// No change of route key, target, mass/birth ledger or original exact fallback.
+// Input has already been canonical-combined. Points at max clock are exact.
+fn project_time_bins(parts:&[Part],target:f64,bins:usize,dt:f64,record_budget:usize,work:&mut RoadWorkBudget)->CoreResult<Option<Vec<Packet>>>{
+    if parts.is_empty()||!(1..=64).contains(&bins)||parts.windows(2).any(|w|(w[0].tag,w[0].offset)>(w[1].tag,w[1].offset)){return Ok(None)}
+    let mut lo=f64::INFINITY;let mut hi=f64::NEG_INFINITY;let mut points=0usize;let mut intervals=0usize;
+    for p in parts{
+        if compact_indices(p.tag,p.offset).is_none(){return Ok(None)}
+        let (Some(a),Some(b))=(p.a.map_or(None,Some),p.b.map_or(None,Some))else{return Ok(None)};
+        if !a.is_finite()||!b.is_finite()||b<a||!finite_nonnegative(p.mass)||!finite_nonnegative(p.birth){return Err(val("invalid projection source"))}
+        lo=lo.min(a);hi=hi.max(b);
+        if a==b{points+=1}else{intervals+=1}
+    }
+    if intervals==0||hi-lo>dt+1e-8||hi<=lo{return Ok(None)}
+    if parts.iter().any(|p|p.a.map_or(None,Some)==p.b.map_or(None,Some)&&(p.a.0!=hi.to_bits()||p.b.0!=hi.to_bits())){return Ok(None)}
+    let shell=(bins+1)*std::mem::size_of::<Packet>();
+    work.interval(shell.saturating_add(256))?;
+    let mut out:Vec<Packet>=checkpoint_vec(bins+1)?;
+    let mut max_width=0.0f64;let mut a=lo;let mut last_shared:Option<usize>=None;let mut records=0usize;
+    for k in 1..=bins{
+        let b=if k==bins{hi}else{lo+(hi-lo)*(k as f64/bins as f64)};
+        if b<=a{continue}
+        max_width=max_width.max(b-a);
+        let selected=|| (0..parts.len()).filter(|&i|{let p=parts[i];p.a.unwrap()<p.b.unwrap()&&p.b.unwrap()>a&&p.a.unwrap()<b});
+        let prev=last_shared.and_then(|i|match &out[i].parts{PacketParts::SharedKeys{keys,..}=>Some(keys),_=>None});
+        let (packet,bytes)=ordered_interval_packet_impl(parts,selected,a,b,prev,true,|n|work.interval(shell.saturating_add(n)))?;
+        if let Some(parts)=packet{
+            records=records.checked_add(parts.len()).ok_or_else(||budget("projection record overflow"))?;
+            if records>record_budget{return Err(budget("projected interval record budget"))}
+            if matches!(parts,PacketParts::SharedKeys{..}){last_shared=Some(out.len())}
+            work.retain_interval(bytes.saturating_add(std::mem::size_of::<Packet>()));
+            out.push(Packet{target,parts});
+        }
+        a=b;
+    }
+    if points>0{
+        work.interval(shell.saturating_add(points.saturating_mul(32)).saturating_add(128*1024+96))?;
+        let mut core=checkpoint_vec(points)?;
+        core.extend(parts.iter().copied().filter(|p|p.a.0==hi.to_bits()&&p.b.0==hi.to_bits()&&p.mass>0.).map(compact_core_part));
+        records=records.checked_add(core.len()).ok_or_else(||budget("projection point record overflow"))?;
+        if records>record_budget{return Err(budget("projected point record budget"))}
+        if !core.is_empty(){
+            let p=PacketParts::Uniform{a:PackedTime::new(Some(hi))?,b:PackedTime::new(Some(hi))?,rows:Arc::new(core)};
+            work.retain_interval(p.allocated_bytes().saturating_add(96+std::mem::size_of::<Packet>()));out.push(Packet{target,parts:p});
+        }
+    }
+    let m0=sum(parts.iter().map(|p|p.mass));let b0=sum(parts.iter().map(|p|p.birth));
+    let m1=sum(out.iter().flat_map(|p|p.parts.iter().map(|r|r.mass)));let b1=sum(out.iter().flat_map(|p|p.parts.iter().map(|r|r.birth)));
+    if ![m0,b0,m1,b1].iter().all(|x|x.is_finite())||(m0-m1).abs()>1e-10*m0.max(1.)||(b0-b1).abs()>1e-10*b0.max(1.){
+        return Err(arithmetic("projected interval mass/birth discrepancy"))
+    }
+    work.end_interval();
+    crate::v1_trace::add("projection.cells",1);
+    crate::v1_trace::add("projection.in_rows",parts.len()as u64);
+    crate::v1_trace::add("projection.out_rows",records as u64);
+    crate::v1_trace::add("projection.out_packets",out.len()as u64);
+    crate::v1_trace::add("projection.local_mass_time_bound_veh_s_ceil",(m0*max_width).ceil()as u64);
+    Ok(Some(out))
 }
 
 /// Only the identical (a_bits,b_bits) case can be represented with one
@@ -3367,6 +3439,11 @@ impl V1Road {
     }
     #[cfg(feature="native-cli")]
     pub(crate) fn class_for_route(&self,tag:usize)->Option<usize>{self.routes.get(tag).map(|x|x.1)}
+    #[cfg(feature="native-cli")]
+    pub(crate) fn set_research_interval_bins(&mut self,bins:usize)->CoreResult<()>{
+        if !self.intervals||!(1..=64).contains(&bins){return Err(val("research interval bins outside supported domain"))}
+        self.research_interval_bins=Some(bins);Ok(())
+    }
     pub(crate) fn owned_time(&self) -> f64 {
         self.state.t
     }
@@ -3874,6 +3951,10 @@ impl V1Road {
         // and sorted/deduped them. The sorted event streams now yield exactly
         // k unique numeric edges, so no 2*n endpoint buffer ever exists.
         let (nonpoint_rows, point_rows) = count_sweep_row_kinds(&parts)?;
+        if let Some(bins)=self.research_interval_bins{
+            if let Some(projected)=project_time_bins(&parts,target,bins,self.dt,self.record_budget,work)?{return Ok(projected)}
+            crate::v1_trace::add("projection.exact_fallback_cells",1);
+        }
         // One source-wide check, outside the edge loop. If *any* legacy
         // row requires wide tag/offset, retain exact old Part backed storage.
         let compactable_source = parts.iter()
@@ -5613,6 +5694,7 @@ impl V1Road {
             event_resolution: Mutex::new(EventResolutionStats::default()),
             event_budget,
             intervals,
+            research_interval_bins:None,
             state: RoadState {
                 t: 0.,
                 cells: vec![],
@@ -5648,6 +5730,26 @@ mod workspace_accounting_tests {
         }
     }
 
+    #[test]
+    fn bounded_projection_retains_marked_mass_birth_and_endpoint_atom(){
+        let mut w=budget(10_000_000);
+        let mut parts=Vec::new();
+        for tag in 0..64{for j in 0..21{
+            let a=j as f64/4.;let b=a+1.25;
+            parts.push(Part{tag,offset:1,mass:0.5,birth:2.5,a:PackedTime::new(Some(a)).unwrap(),b:PackedTime::new(Some(b)).unwrap()});
+        }parts.push(Part{tag,offset:1,mass:0.25,birth:1.25,a:PackedTime::new(Some(6.25)).unwrap(),b:PackedTime::new(Some(6.25)).unwrap()});}
+        let out=project_time_bins(&parts,123.,4,10.,10000,&mut w).unwrap().unwrap();
+        assert!(out.len()<=5);
+        for tag in 0..64{
+            let m=sum(out.iter().flat_map(|p|p.parts.iter()).filter(|p|p.tag==tag).map(|p|p.mass));
+            let b=sum(out.iter().flat_map(|p|p.parts.iter()).filter(|p|p.tag==tag).map(|p|p.birth));
+            assert!((m-10.75).abs()<1e-12);assert!((b-53.75).abs()<1e-12);
+        }
+        assert_eq!(out.last().unwrap().parts.iter().next().unwrap().a.0,6.25f64.to_bits());
+        assert!(out.iter().map(|p|p.parts.len()).sum::<usize>()<=5*64);
+        let mut invalid=parts.clone();invalid[0].b=invalid[0].a;
+        assert!(project_time_bins(&invalid,123.,4,10.,10000,&mut w).unwrap().is_none());
+    }
     #[test]
     fn interval_transient_is_released_and_only_packed_rows_are_retained() {
         let mut w = budget(10_000);
