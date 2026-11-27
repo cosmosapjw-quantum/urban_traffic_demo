@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.42",
+  "version": "1.1.43",
   "date": "2026-11-27",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -371,11 +371,11 @@
       "V03"
     ],
     "native_subagent": "NOT_RUN_NO_TOOL",
-    "scope": "R1-R10 scoped original V03 research and C01-C10 Rust coding; exact MFWHOLE3 event runs, immutable event-index incoming/lifetime opt-in, direct borrowed sinks and cached exact head/class work; strict 25730 calculated twice and saved byte-identically, independent reload fails journey guard; 25720 independently recoverable; explicit canonical journey suffix with actual CLI replay, 13/15 pure Rust scoped, 2 partial, 0 unported; 0/9 full days.",
+    "scope": "Integrated ten-stage V03 research: same-identity restart independently recovered 25730 s; computed frontier 25730 s; finite FIFO causal shadow proposition and intervention, exact route support bound, restartable medium observation window, measured scoped zero heap allocations, 3/3 native 60s matrix prefixes; 13/15 pure Rust scoped; original 0/9 full days.",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "BLOCKED_RESOURCE_AND_MIGRATION_0_OF_9",
     "main_modified": false,
-    "evidence": "artifacts/v03_rust_event_owner_20261127/C10_RESEARCH_RECEIPT.json",
+    "evidence": "artifacts/v03_causal_restart_20261127/S10_RESEARCH_RECEIPT.json",
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
@@ -384,20 +384,20 @@
       "status": "success"
     },
     "parallel_agents": [],
-    "active_branch": "research/v03-rust-event-owner-20261127",
-    "production_commit": "2967ac3245711bc969ed8a478103cd331a934d56",
+    "active_branch": "research/v03-causal-restart-20261127",
+    "production_commit": "ea150efc2c31db6093eab126e199cfbce21d303c",
     "research_stages_completed": 10,
     "research_stages_total": 10,
-    "source_commit": "45e7a5df483581bb37ebd5c84fa678b2b93d77f1",
-    "native_source_sha256": "a829582346592ee409033cc238d9300aaf007f879df9b186850063d1b00b9d4f",
-    "native_binary_sha256": "868445eaaf3211cf1ffbbc6eac1386d97af1544815ceac2f731ac108971286de",
+    "source_commit": "ea150efc2c31db6093eab126e199cfbce21d303c",
+    "native_source_sha256": "7faac44c469a9178583dad16314c7656f353c1e7150cf8d77b1693f72d4069fa",
+    "native_binary_sha256": "14d083220110e29f8fd3c148acafee35f542a12804c94ab45351464a6b54d39b",
     "current_loop_stages_completed": 10,
     "current_loop_stages_total": 10,
     "current_loop_native_subagent": "NOT_RUN_NO_TOOL",
-    "native_source_hash_method": "SHA256 of C10_tracked_rust_sources.sha256; executable is byte-identical to measured C07 build; fixture declaration added C09",
-    "native_binary_feature": "native-cli no Python; exact measured binary and final build byte identical",
-    "rust_backend_scoped": "13/15 pure Rust scoped; 2 partial; zero unported; computed25730, independently recoverable25720",
-    "theory_loop_scope": "R1-R10 scoped exact representation, owner and restart research; no release acceptance"
+    "native_source_hash_method": "SHA256 of S10_tracked_rust_sources.sha256; measured binaries separately identified by receipts; final tracked source content before S10 commit; S10 source diff is included in final commit, not implementation_head_before_S10",
+    "native_binary_feature": "native-cli no Python; final build bound separately from measured binaries",
+    "rust_backend_scoped": "13/15 pure Rust scoped; 2 partial; zero unported; computed 25730, independently recovered 25730",
+    "theory_loop_scope": "S01-S10 integrated exact restart and finite-storage causal physical proposition; no release acceptance"
   },
   "nodes": [
     {
@@ -1902,7 +1902,7 @@
       "failure_classification": [
         "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
       ],
-      "positive_next_action": "B15/V03: separate computed 25730 from independently recoverable 25720; isolate journey read/validate 3-working-copy bound after road+event decode, prove concurrent owner and scratch lifetime bounds, and rerun 25730 recovery then 25740 at original 6 GiB accounting, 8 GiB RSS/AS, 7200 s per-case limits. B10: exact streaming medium-window observation accumulation across committed ticks and resume, bind measured causal link observations and endogenous choice to canonical variants, graph edit and release-scale phase integration. Keep exact physical identity, no cap bypass. Original 3x3 and matched refinement remain. Historical distinct identity not cleared. Python explicit opt-in tests only.",
+      "positive_next_action": "V03/B15: continue from independently recovered 25730 s at original 6 GiB accounting, 8 GiB RSS/AS, 7200 s/case; inspect latest exact guard {\"kind\":\"Resource\",\"message\":\"native whole checkpointability storage budget exceeded: required_bytes=6080774604, budget_bytes=5788793055\"}, prove physical work-owner bounds and retry loaded tick(s). Advance cold-start prefixes toward true 8h refinement and 3x3 24h. B10: real causal link observations and endogenous suffix/graph edit, release-scale phase memory/runtime; medium outlet window restart is scoped fixed. Separate delayed FIFO shadow from original kinetic multiclass acceptance, derive marked-flow/kinetic correspondence before substitution. Explicit opt-in Python oracles only.",
       "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
       "contracts": [
         "C_RUNTIME",
@@ -2035,6 +2035,11 @@
           "path": "artifacts/v03_rust_event_owner_20261127/C10_RESEARCH_RECEIPT.json",
           "sha256": "772ecfce1343a21b153d718cba5c4b886bc062bc4654b9ddcd2f1456994b635c",
           "scope": "Loaded current identity 25720 recovery, exact MFWHOLE3 roundtrip, twice identical 25730 computed checkpoint; strict reload refused, no full-day acceptance"
+        },
+        {
+          "path": "artifacts/v03_causal_restart_20261127/S10_RESEARCH_RECEIPT.json",
+          "sha256": "e7b227468d52a1b5ca7d22379cc60ba6a78cb990a38467ea6d10324bbda411ec",
+          "scope": "Sequential owner restart recovered same-identity 25730; registered route support, bounded phase window, scoped allocation measurement, exact matrix prefixes; no full-day acceptance"
         }
       ],
       "historical_blocked_evidence": [
@@ -2076,14 +2081,14 @@
         }
       ],
       "current_research_evidence": {
-        "path": "artifacts/v03_rust_event_owner_20261127/C10_RESEARCH_RECEIPT.json",
-        "sha256": "772ecfce1343a21b153d718cba5c4b886bc062bc4654b9ddcd2f1456994b635c",
-        "status": "R1-R10 scoped and C01-C10; 13/15 pure Rust; 2 partial; computed25730, recoverable25720; V03 blocked",
-        "baseline_commit": "f2995086877d6c1d4a379beb7604010724ab8d23",
-        "source_sha256": "a829582346592ee409033cc238d9300aaf007f879df9b186850063d1b00b9d4f",
-        "native_sha256": "868445eaaf3211cf1ffbbc6eac1386d97af1544815ceac2f731ac108971286de",
-        "source_hash_method": "SHA256 of C10_tracked_rust_sources.sha256; executable is byte-identical to measured C07 build; fixture declaration added C09",
-        "theory_path": "docs/research/V03_RUST_EVENT_OWNER_20261127.md"
+        "path": "artifacts/v03_causal_restart_20261127/S10_RESEARCH_RECEIPT.json",
+        "sha256": "e7b227468d52a1b5ca7d22379cc60ba6a78cb990a38467ea6d10324bbda411ec",
+        "status": "S01-S10 integrated research; 13/15 pure Rust; 3/3 current 60s prefixes; V03 blocked",
+        "baseline_commit": "e29e2ca5e93a7f75f8b68f0382c45e1734321be6",
+        "source_sha256": "7faac44c469a9178583dad16314c7656f353c1e7150cf8d77b1693f72d4069fa",
+        "native_sha256": "14d083220110e29f8fd3c148acafee35f542a12804c94ab45351464a6b54d39b",
+        "source_hash_method": "SHA256 of S10_tracked_rust_sources.sha256; measured binaries separately identified by receipts; final tracked source content before S10 commit; S10 source diff is included in final commit, not implementation_head_before_S10",
+        "theory_path": "docs/research/V03_CAUSAL_RESTART_20261127.md"
       },
       "historical_research_evidence": [
         {
@@ -2211,6 +2216,16 @@
           "native_sha256": "24497d99c9bbb67ca50f78d9869ebee122553d822c8e980e09e66269a073f7a7",
           "source_hash_method": "SHA256 of C10_tracked_rust_sources.sha256; code-only source inventory; frontier executable and final build hashes separately bound",
           "theory_path": "docs/research/V03_RUST_SPAN_OWNER_20261127.md"
+        },
+        {
+          "path": "artifacts/v03_rust_event_owner_20261127/C10_RESEARCH_RECEIPT.json",
+          "sha256": "772ecfce1343a21b153d718cba5c4b886bc062bc4654b9ddcd2f1456994b635c",
+          "status": "R1-R10 scoped and C01-C10; 13/15 pure Rust; 2 partial; computed25730, recoverable25720; V03 blocked",
+          "baseline_commit": "f2995086877d6c1d4a379beb7604010724ab8d23",
+          "source_sha256": "a829582346592ee409033cc238d9300aaf007f879df9b186850063d1b00b9d4f",
+          "native_sha256": "868445eaaf3211cf1ffbbc6eac1386d97af1544815ceac2f731ac108971286de",
+          "source_hash_method": "SHA256 of C10_tracked_rust_sources.sha256; executable is byte-identical to measured C07 build; fixture declaration added C09",
+          "theory_path": "docs/research/V03_RUST_EVENT_OWNER_20261127.md"
         }
       ],
       "secondary_blocked_evidence": {
@@ -2434,7 +2449,7 @@
     "authorized_on": "2026-11-16",
     "supersedes": "pure Python core restriction in PLAN v1.1.17 and AGENTS.md",
     "target": "Rust-owned backend, input preparation, measurement, headless execution and acceptance; Python frontend serialization or explicit opt-in test oracle only",
-    "mode": "Pure Rust native CLI; optional Python frontend; exact opt-in compact event checkpoint and explicit canonical ready-head suffix; live causal selection and full campaign remain.",
+    "mode": "Pure Rust native CLI; optional Python frontend; explicit canonical suffix and restartable completed-outlet window; endogenous selection and full campaign remain.",
     "current_scope": [
       "Persistent f64 legal-turn routing in V1 preparation",
       "Direct factorized Rust calendar construction without Python per-leg objects",
@@ -2460,11 +2475,12 @@
       "Independent original atlas: all 38 archived maps, 3 portal patches, restored interchange grammar 8 opt-in comparisons; worker parity; actual completed feedback to native next-epoch city/demand; immutable snapshot serialization and loaded Valley 25620 s.",
       "Native C01 phase and growth checkpoint orchestration, direct exact uniform decode, strict recovered25640 and loaded25660, matched batched wire/optional immutable hardlink evidence, capped campaign failure receipts.",
       "Exact MFWHOLE2 packet/key codec, fused finite streaming road validation, compact decoded-owner and packet-count workspace, extended-real phase costs, checked actual FIFO head suffix fixture and loaded strict Valley 25710 s.",
-      "MFWHOLE3 exact event run wire; direct sink and cached head/class work; canonical whole-engine route aliases and explicit native suffix replay; computed Valley 25730 s twice bit-identical, independent 25720 s recovery, 25730 reload blocked."
+      "MFWHOLE3 exact event run wire; direct sink and cached head/class work; canonical whole-engine route aliases and explicit native suffix replay; computed Valley 25730 s twice bit-identical, independent 25720 s recovery, 25730 reload blocked.",
+      "Sequential decode/install owner accounting, streaming source scratch and route successor support, phase world v2 outlet window, isolated zero-allocation probes, causal finite FIFO shadow with frozen projected demand; current independently recovered 25730 s."
     ],
     "remaining": [
-      "B15/V03: separate computed 25730 from independently recoverable 25720; isolate journey read/validate 3-working-copy bound after road+event decode, prove concurrent owner and scratch lifetime bounds, and rerun 25730 recovery then 25740 at original 6 GiB accounting, 8 GiB RSS/AS, 7200 s per-case limits. B10: exact streaming medium-window observation accumulation across committed ticks and resume, bind measured causal link observations and endogenous choice to canonical variants, graph edit and release-scale phase integration. Keep exact physical identity, no cap bypass. Original 3x3 and matched refinement remain. Historical distinct identity not cleared. Python explicit opt-in tests only.",
-      "Current identity 25730 calculated and saved, not restart-qualified; independent recovery 25720. Investigate journey decode/read/validate guard and actual owner lifetimes.",
+      "V03/B15: continue from independently recovered 25730 s at original 6 GiB accounting, 8 GiB RSS/AS, 7200 s/case; inspect latest exact guard {\"kind\":\"Resource\",\"message\":\"native whole checkpointability storage budget exceeded: required_bytes=6080774604, budget_bytes=5788793055\"}, prove physical work-owner bounds and retry loaded tick(s). Advance cold-start prefixes toward true 8h refinement and 3x3 24h. B10: real causal link observations and endogenous suffix/graph edit, release-scale phase memory/runtime; medium outlet window restart is scoped fixed. Separate delayed FIFO shadow from original kinetic multiclass acceptance, derive marked-flow/kinetic correspondence before substitution. Explicit opt-in Python oracles only.",
+      "Original current identity computed 25730 s, independently recoverable 25730 s. Full-day acceptance and matched 8h refinement remain.",
       "Integrate source-aligned rank/span views into the actual ordered interval consumer and checkpoint expansion; retain finite response and commodity/birth observables. Separate bit-exact event sharing, real-arithmetic rank equivalence and explicitly approximate block closure; require complete-tick, ledger and checkpoint evidence.",
       "Frozen candidate3cases x3 full-day completion, matched refinement and full-day checkpoint replay; current completion0/9",
       "Separate final review, RLS01 packaging/fresh-install acceptance and full repository CI/integration deferred by user"
@@ -2473,13 +2489,13 @@
     "historical_local_patch_sha256": "7d89e8be20339709a9c0dc894a26dc7db75bdc0d857637ffb30f7bc7fe4a1326",
     "last_completed_work": {
       "date": "2026-11-27",
-      "scope": "R1-R10 scoped original V03 research and C01-C10 Rust coding; exact MFWHOLE3 event runs, immutable event-index incoming/lifetime opt-in, direct borrowed sinks and cached exact head/class work; strict 25730 calculated twice and saved byte-identically, independent reload fails journey guard; 25720 independently recoverable; explicit canonical journey suffix with actual CLI replay, 13/15 pure Rust scoped, 2 partial, 0 unported; 0/9 full days.",
-      "evidence": "artifacts/v03_rust_event_owner_20261127/C10_RESEARCH_RECEIPT.json"
+      "scope": "Integrated ten-stage V03 research: same-identity restart independently recovered 25730 s; computed frontier 25730 s; finite FIFO causal shadow proposition and intervention, exact route support bound, restartable medium observation window, measured scoped zero heap allocations, 3/3 native 60s matrix prefixes; 13/15 pure Rust scoped; original 0/9 full days.",
+      "evidence": "artifacts/v03_causal_restart_20261127/S10_RESEARCH_RECEIPT.json"
     },
-    "active_work": "B15/V03: separate computed 25730 from independently recoverable 25720; isolate journey read/validate 3-working-copy bound after road+event decode, prove concurrent owner and scratch lifetime bounds, and rerun 25730 recovery then 25740 at original 6 GiB accounting, 8 GiB RSS/AS, 7200 s per-case limits. B10: exact streaming medium-window observation accumulation across committed ticks and resume, bind measured causal link observations and endogenous choice to canonical variants, graph edit and release-scale phase integration. Keep exact physical identity, no cap bypass. Original 3x3 and matched refinement remain. Historical distinct identity not cleared. Python explicit opt-in tests only.",
+    "active_work": "V03/B15: continue from independently recovered 25730 s at original 6 GiB accounting, 8 GiB RSS/AS, 7200 s/case; inspect latest exact guard {\"kind\":\"Resource\",\"message\":\"native whole checkpointability storage budget exceeded: required_bytes=6080774604, budget_bytes=5788793055\"}, prove physical work-owner bounds and retry loaded tick(s). Advance cold-start prefixes toward true 8h refinement and 3x3 24h. B10: real causal link observations and endogenous suffix/graph edit, release-scale phase memory/runtime; medium outlet window restart is scoped fixed. Separate delayed FIFO shadow from original kinetic multiclass acceptance, derive marked-flow/kinetic correspondence before substitution. Explicit opt-in Python oracles only.",
     "backend_census": {
-      "path": "artifacts/v03_rust_event_owner_20261127/C10_backend_coverage.json",
-      "sha256": "581a4f99d306b265a71b3ccc6d66354e00fbc12eeacd6b284b054be112d615d6",
+      "path": "artifacts/v03_causal_restart_20261127/S10_backend_coverage.json",
+      "sha256": "17444056384a0d178325021a477f663e0414a6be93f20e5eba5c5628a09aa4b6",
       "denominator": 15,
       "implemented_scoped": 13,
       "pure_rust_scoped": 13,

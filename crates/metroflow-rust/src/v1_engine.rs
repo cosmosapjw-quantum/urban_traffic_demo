@@ -1157,13 +1157,19 @@ impl NativeWholeEngine {
         );
         crate::v1_trace::add("engine_admission.verified_future_capture_arc_credit",
             captured_arc_credit as u64);
+        // In the native capture path input and current are the only event
+        // allocations. capture() clones the immutable event Arc, not its payload.
+        // Charge input + current conservatively, even if those themselves alias.
+        let event_charge=if exact_native_restart() && validate {
+            if let Some(input)=input {service_event_storage_bytes(&input.service).saturating_add(event_bytes.max(self.service.event_storage_bytes()))} else {e.saturating_mul(3)}
+        }else{e.saturating_mul(3)};
         let required = accounting
             .base()
             .saturating_add(accounting.call_binding.max(scratch))
             .saturating_add(r.saturating_mul(3))
             .saturating_sub(captured_arc_credit)
             .saturating_add(d.saturating_mul(3))
-            .saturating_add(e.saturating_mul(3));
+            .saturating_add(event_charge);
         let observed = crate::v1_trace::guard(
             "engine_admission",
             if validate {
@@ -1182,6 +1188,7 @@ impl NativeWholeEngine {
                 ("road_3max_without_credit",r.saturating_mul(3)),
                 ("journey", d),
                 ("events", e),
+                ("event_charge",event_charge),
             ],
         );
         if required > self.byte_budget && !observed {

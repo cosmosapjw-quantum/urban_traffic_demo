@@ -1,0 +1,144 @@
+{
+  "baseline_rust_core": 5,
+  "denominator": 15,
+  "method": "unweighted, fixed C01 functional inventory; scoped evidence reviewed; not LOC, full-city completeness or release acceptance",
+  "native_host_linked_python_scoped": 0,
+  "original_dag_accepted": 5,
+  "original_dag_scoped_or_accepted": 19,
+  "original_dag_total": 21,
+  "original_v03_direct_dependencies_ready": 3,
+  "original_v03_direct_dependencies_total": 3,
+  "original_v03_full_days": 0,
+  "original_v03_rust_only_city_preparations_verified": 3,
+  "original_v03_total": 9,
+  "partial_functions": 2,
+  "pure_rust_percent": 86.66666666666667,
+  "pure_rust_verified_scoped": 13,
+  "remaining_functions": 2,
+  "rows": [
+    {
+      "baseline": "PYTHON",
+      "component": "city geometry generation and map validation",
+      "evidence": "../v03_rust_atlas_integration_20261127/C06_all8.json",
+      "evidence_sha256": "857d457e5c32a58630e1918c69416806eab30c3551acdedd76a2e32dd205f5f2",
+      "id": "B01",
+      "status": "PURE_RUST_SCOPED"
+    },
+    {
+      "baseline": "PYTHON",
+      "component": "activity geometry and finite access-law construction",
+      "evidence": "../v03_pure_rust_core_20261127/C06_oracle.log",
+      "evidence_sha256": "0b533f343de868b64ed7e4f0cd8eada19f1bd3a00ec176032214d89509726f79",
+      "id": "B02",
+      "status": "PURE_RUST_SCOPED"
+    },
+    {
+      "baseline": "PYTHON",
+      "component": "factorized demand declarations and inventory",
+      "evidence": "../v03_rust_atlas_integration_20261127/valley_next.engine10.json",
+      "evidence_sha256": "7fc1f9f20b108e9686eb2a91aa8333b6f21a0ebe97534e3bb20c9775d3d354ea",
+      "id": "B03",
+      "status": "PURE_RUST_SCOPED"
+    },
+    {
+      "baseline": "RUST_PYO3",
+      "component": "native factorized OD enumeration",
+      "evidence": "river_weekday_s17.engine10.json",
+      "evidence_sha256": "f9d331a4accf22e08fc6aa5b09483b9f759234f7a9828dbea905e99f84796dcf",
+      "id": "B04",
+      "status": "PURE_RUST_SCOPED"
+    },
+    {
+      "baseline": "RUST_PYO3",
+      "component": "legal graph route search and cache",
+      "evidence": "../v03_pure_rust_core_20261127/C07-c07-2.json",
+      "evidence_sha256": "3cfd20377ae0cf444cf30c049fd9518a1fc8bcad2b524edb06c91d9aba13b077",
+      "id": "B05",
+      "status": "PURE_RUST_SCOPED"
+    },
+    {
+      "baseline": "MIXED",
+      "component": "fleet and freight route preparation",
+      "evidence": "../v03_pure_rust_core_20261127/C06_oracle.log",
+      "evidence_sha256": "0b533f343de868b64ed7e4f0cd8eada19f1bd3a00ec176032214d89509726f79",
+      "id": "B06",
+      "status": "PURE_RUST_SCOPED"
+    },
+    {
+      "baseline": "RUST_PYO3",
+      "component": "road kinetic transport and node allocation",
+      "evidence": "../v03_rust_event_owner_20261127/C08_matched25730.json",
+      "evidence_sha256": "14176fe8ba45672059136efe3c3af36fcea00485777f53ed76d09208bbe80cbd",
+      "id": "B07",
+      "status": "PURE_RUST_SCOPED"
+    },
+    {
+      "baseline": "RUST_PYO3",
+      "component": "service and journey coupling",
+      "evidence": "../v03_rust_event_owner_20261127/C08_matched25730.json",
+      "evidence_sha256": "14176fe8ba45672059136efe3c3af36fcea00485777f53ed76d09208bbe80cbd",
+      "id": "B08",
+      "status": "PURE_RUST_SCOPED"
+    },
+    {
+      "baseline": "RUST_PYO3",
+      "component": "whole engine orchestration and checkpoint",
+      "evidence": "S03_green.json",
+      "evidence_sha256": "caa775fe29a3d572fae02e2f58aeb79b094622c731010e4b7ae5da0e089074ec",
+      "id": "B09",
+      "status": "PURE_RUST_SCOPED"
+    },
+    {
+      "baseline": "PYTHON",
+      "component": "causal routing adaptation and delayed land-use",
+      "evidence": "S07_window_replay.json",
+      "evidence_sha256": "f30018ef7162f9861a1e0f27dd6e3a5ad6a09754b370c3b2de18ebc3a5436fb1",
+      "id": "B10",
+      "status": "PARTIAL"
+    },
+    {
+      "baseline": "PYTHON",
+      "component": "access-coupling research preprocessing",
+      "evidence": "../v03_rust_only_backend_20261126/C03_test.log",
+      "evidence_sha256": "41b47ea4c68ff1f201d6a9d71c5c9e736ec68ce0b508c9458023a751dd3509ff",
+      "id": "B11",
+      "status": "PURE_RUST_SCOPED"
+    },
+    {
+      "baseline": "PYTHON",
+      "component": "route passage generation and validation",
+      "evidence": "../v03_rust_only_backend_20261126/C04_test.log",
+      "evidence_sha256": "07791a61eaf987cc0e20c00354b3645a8ade3817d68c57a4bb3134fbd9047638",
+      "id": "B12",
+      "status": "PURE_RUST_SCOPED"
+    },
+    {
+      "baseline": "CPP",
+      "component": "multiclass shared-access projection solver",
+      "evidence": "../v03_rust_only_backend_20261126/C09_parity.json",
+      "evidence_sha256": "1015116457d11089f1df668a3ef26e0f7c8cb0d896a33abb35de65ec1b75d377",
+      "id": "B13",
+      "status": "PURE_RUST_SCOPED"
+    },
+    {
+      "baseline": "PYTHON",
+      "component": "research execution receipt and metrics",
+      "evidence": "S09_campaign60.json",
+      "evidence_sha256": "9753ebb2eac76d80828405eb9f7f9b72e4d121aecba561050132fa869810d823",
+      "id": "B14",
+      "status": "PURE_RUST_SCOPED"
+    },
+    {
+      "baseline": "PYTHON",
+      "component": "original V03 campaign runner and acceptance",
+      "evidence": "S09_campaign60.json",
+      "evidence_sha256": "9753ebb2eac76d80828405eb9f7f9b72e4d121aecba561050132fa869810d823",
+      "id": "B15",
+      "status": "PARTIAL"
+    }
+  ],
+  "rust_implemented_percent": 86.66666666666667,
+  "rust_implemented_scoped": 13,
+  "schema": "metroflow_backend_functional_census_v1",
+  "unimplemented_functions": 0
+}

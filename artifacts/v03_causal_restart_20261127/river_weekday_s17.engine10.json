@@ -1,0 +1,93 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "advance_s": 1.092402953,
+  "build_s": 43.127989825,
+  "byte_budget": 6442450944,
+  "calendar_legs": 5093765,
+  "checkpoint_bytes": 163298698,
+  "checkpoint_sha256": "3e32c71717eb9a7479974cc18df1563b667887fb8cab6b70d802a61c6479fe8f",
+  "city_identity": "85d1c4351f39ded22781779f16bbbbb454bc29e73c500b18c030cd523c7bb088",
+  "class_names": [
+    "car",
+    "freight",
+    "scheduled_bus"
+  ],
+  "events": 0,
+  "executable_sha256": "3373526e8017887fd198ef17a89d193733d4a543dbdc437a318bb84982aced76",
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    },
+    "vehicles": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    }
+  },
+  "manifest_sha256": "dfea9809dd226bf655fd2151959605b35bffa8c7179d5c1010bfc813fd2edb1f",
+  "native_identity": "native-whole-v1:7656ce9aaa3b70e53d0f39159d56a00f30fbf1d593659a344c468d72ad8f9a05:6442450944:bounded_bytes_v1:retained_capacity_v3",
+  "peak_records": 0,
+  "peak_rss_bytes": 2132234240,
+  "python_runtime_dependency": "none",
+  "road_class_ledgers": [
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  ],
+  "road_totals": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "save_s": 0.379669487,
+  "schedule_identity": "0eb9a13b0878b39793c1d50033d9898c8728a0cb4446536607d8982aeba5f225",
+  "schema": "metroflow_native_rust_host_v1",
+  "scope": "original native engine from typed declared input; not original city construction or V03 acceptance",
+  "start_s": 0.0,
+  "threads": 8,
+  "tick_times_s": [
+    0.127221053
+  ],
+  "time_s": 10.0,
+  "unique_paths": 243048,
+  "unsupported_legs": 3392401,
+  "wall_s": 45.384009676
+}

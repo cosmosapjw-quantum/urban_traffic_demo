@@ -1430,6 +1430,11 @@ pub fn advance_native_joint(
 }
 
 // After proposal, each of the three independently retained owners is known.
+// Arc::ptr_eq must be established on the actual live source and current event
+// histories. Equal row counts or equal content alone never earns credit.
+fn event_alias_credit(input:usize,current:usize,identical_allocation:bool)->usize {
+    if identical_allocation {input.min(current)} else {0}
+}
 fn service_phase_owner_bytes(input:usize,current:usize,candidate:usize,exact:bool)->usize {
     if exact {input.saturating_add(current).saturating_add(candidate)}
     else {input.max(current).max(candidate).saturating_mul(3)}
@@ -1595,6 +1600,11 @@ pub(crate) fn advance_owned_joint(
             let result = road.propose_owned_step(step_s, physical, call_input);
             journey.phase_metrics.road_step_s += phase_started.elapsed().as_secs_f64();
             let (road_candidate, events) = result?;
+            let event_alias_credit=event_alias_credit(input_event_bytes,current_event_bytes,
+                exact_service_lifetime && cfg!(all(feature="native-cli",not(feature="python-extension")))
+                && std::env::var("METROFLOW_NATIVE_EXACT_RESTART").as_deref()==Ok("1")
+                && Arc::ptr_eq(&call_input_events,&service.last_events));
+            let charged_current_event_bytes=current_event_bytes.saturating_sub(event_alias_credit);
             let candidate_road_bytes = if dynamic_budget.is_some() {
                 road_candidate.retained_storage_bytes()
             } else {
@@ -1632,7 +1642,7 @@ pub(crate) fn advance_owned_joint(
                     .saturating_mul(WORKING_COPIES);
                 let road_live = service_phase_owner_bytes(input_road_bytes,current_road_bytes,
                     candidate_road_bytes,exact_service_lifetime);
-                let event_live = service_phase_owner_bytes(input_event_bytes,current_event_bytes,
+                let event_live = service_phase_owner_bytes(input_event_bytes,charged_current_event_bytes,
                     candidate_event_bytes,exact_service_lifetime);
                 let required = journey_live
                     .saturating_add(road_live)
@@ -1652,6 +1662,7 @@ pub(crate) fn advance_owned_joint(
                         ("road_candidate",candidate_road_bytes),
                         ("event_input",input_event_bytes),("event_current",current_event_bytes),
                         ("event_candidate",candidate_event_bytes),
+                        ("event_pointer_verified_credit",event_alias_credit),
                         ("exact_owner_sum",usize::from(exact_service_lifetime)),
                         ("exit_rows", exits),
                         ("sink_envelope", sink_bytes),
@@ -1688,7 +1699,7 @@ pub(crate) fn advance_owned_joint(
                 });
                 let other_live = service_phase_owner_bytes(input_road_bytes,current_road_bytes,
                     candidate_road_bytes,exact_service_lifetime)
-                    .saturating_add(service_phase_owner_bytes(input_event_bytes,current_event_bytes,
+                    .saturating_add(service_phase_owner_bytes(input_event_bytes,charged_current_event_bytes,
                         candidate_event_bytes,exact_service_lifetime))
                     .saturating_add(sink_bytes);
                 journey.set_phase_storage_budget(phase_storage_allowance(
@@ -1749,7 +1760,7 @@ pub(crate) fn advance_owned_joint(
                     journey_new:new_journey_bytes,
                     journey_decoded:decoded_journey,
                     event_input:input_event_bytes,
-                    event_current:current_event_bytes,
+                    event_current:charged_current_event_bytes,
                     event_candidate:candidate_event_bytes,
                     validation_scratch:scratch,
                     call_binding_reserve,
@@ -1772,6 +1783,7 @@ pub(crate) fn advance_owned_joint(
                         ("decoded_journey", decoded_journey),
                         ("input_event", input_event_bytes),
                         ("current_event", current_event_bytes),
+                        ("event_pointer_verified_credit",event_alias_credit),
                         ("candidate_event", candidate_event_bytes),
                         ("validation_scratch", scratch),
                         ("call_binding_reserve", call_binding_reserve),
@@ -1783,7 +1795,7 @@ pub(crate) fn advance_owned_joint(
                             .saturating_add(old_journey_bytes)
                             .saturating_add(new_journey_bytes.max(decoded_journey))),
                         ("phase_event_charge",input_event_bytes
-                            .saturating_add(current_event_bytes)
+                            .saturating_add(charged_current_event_bytes)
                             .saturating_add(candidate_event_bytes)),
                     ],
                 );
@@ -2309,6 +2321,13 @@ mod retained_timed_event_history_contract_tests;
 #[cfg(test)]
 mod service_phase_actual_owner_tests {
     use super::*;
+    #[test]
+    fn same_arc_credit_requires_pointer_equality(){
+        let a=Arc::new(ChunkedEvents::new(true));let b=a.clone();let c=Arc::new(ChunkedEvents::new(true));
+        assert_eq!(event_alias_credit(100,100,Arc::ptr_eq(&a,&b)),100);
+        assert_eq!(event_alias_credit(100,100,Arc::ptr_eq(&a,&c)),0);
+        assert_eq!(service_phase_owner_bytes(100,100-event_alias_credit(100,100,true),150,true),250);
+    }
     #[test]
     fn three_unequal_live_owners_are_all_charged_without_fictitious_largest_copies(){
         assert_eq!(service_phase_owner_bytes(20,30,40,true),90);
