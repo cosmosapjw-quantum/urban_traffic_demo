@@ -942,6 +942,7 @@ pub struct NativeJourneyCore {
     research_receipt_grid_step:Option<f64>,
     research_schedule_receipts:bool,
     research_stream_receipts:bool,
+    research_egress_buckets:bool,
     history_bytes: usize,
     history_decoded_final: usize,
     history_decode_extra_max: usize,
@@ -1212,6 +1213,11 @@ impl NativeJourneyCore {
     pub(crate) fn enable_research_stream_receipts(&mut self)->CoreResult<()>{
         if !self.research_schedule_receipts{return Err(bad("streaming receipts require schedule receipt identity"))}
         self.research_stream_receipts=true;Ok(())
+    }
+    #[cfg(feature="native-cli")]
+    pub(crate) fn enable_research_egress_buckets(&mut self)->CoreResult<()>{
+        if !self.research_stream_receipts{return Err(bad("egress buckets require streaming receipt identity"))}
+        self.research_egress_buckets=true;Ok(())
     }
     pub(crate) fn owned_time(&self) -> f64 {
         self.state.0
@@ -2292,6 +2298,7 @@ impl NativeJourneyCore {
             research_receipt_grid_step:None,
             research_schedule_receipts:false,
             research_stream_receipts:false,
+            research_egress_buckets:false,
             history_bytes: 0,
             history_decoded_final: 0,
             history_decode_extra_max: 0,
@@ -2530,8 +2537,55 @@ impl NativeJourneyCore {
             let raw=rows.len();let scratch=rows.capacity().saturating_mul(size).saturating_add(128*1024);
             group_outlet_atoms(&mut rows)?;
             crate::v1_trace::add("outlet_group.raw",raw as u64);crate::v1_trace::add("outlet_group.grouped",rows.len()as u64);
-            for e in rows{let i=e.leg;check_storage_limit(self.storage_budget,self.retained_input_bytes,self.history_bytes.saturating_add(s.1.storage_bytes()).saturating_add(s.3.storage_bytes()).saturating_add(s.2.append_upper_bytes(self.legs[i].7.len())),scratch)?;
-                generated_egress+=self.legs[i].7.len();s.2.extend(self.legs[i].7.iter().map(|w|(i,e.mass*w.1,e.stamp,w.0)));
+            if self.research_egress_buckets{
+                let n=self.legs.len();
+                let extra=n.saturating_mul(std::mem::size_of::<f64>()).saturating_add(EgressWorkspace::storage_upper()).saturating_add(RETAINED_ALLOCATION_PADDING);
+                let scratch=scratch.saturating_add(extra);
+                check_storage_limit(self.storage_budget,self.retained_input_bytes,stage_storage_bytes(&s).saturating_add(self.history_bytes),scratch)?;
+                let mut horizon=checkpoint_vec(n)?;
+                if horizon.capacity()!=n{return Err(CoreError::resource("egress horizon capacity differs"))}
+                horizon.resize(n,f64::INFINITY);
+                for child in &self.legs{
+                    if let Some(p)=child.2{
+                        if p>=n{return Err(bad("invalid egress observer parent"))}
+                        let h=if child.5==0{-1.}else{
+                            private_hidden_horizon(child.3,&child.4)
+                        };
+                        horizon[p]=horizon[p].min(h);
+                    }
+                }
+                for i in self.bus.iter().map(|b|b.0).chain(self.freight.iter().map(|f|f.0)){
+                    if let Some(p)=self.legs[i].2{
+                        if p>=n{return Err(bad("invalid egress service observer parent"))}
+                        horizon[p]=-1.;
+                    }
+                }
+                let dt=self.research_receipt_grid_step.ok_or_else(||bad("missing egress grid"))?;
+                let mut work=EgressWorkspace::new()?;
+                let mut raw_products=0usize;let mut stored=0usize;let mut reduced_legs=0usize;
+                for chunk in rows.chunk_by(|a,b|a.leg==b.leg){
+                    let i=chunk[0].leg;let law=&self.legs[i].7;
+                    let count=chunk.len().checked_mul(law.len()).ok_or_else(||CoreError::resource("egress product count overflow"))?;
+                    raw_products=raw_products.checked_add(count).ok_or_else(||CoreError::resource("egress raw count overflow"))?;
+                    if work.project(chunk,law,t,end,dt,horizon[i]){
+                        check_storage_limit(self.storage_budget,self.retained_input_bytes,self.history_bytes.saturating_add(s.1.storage_bytes()).saturating_add(s.3.storage_bytes()).saturating_add(s.2.append_upper_bytes(work.out.len())),scratch)?;
+                        generated_egress+=work.out.len();stored+=work.out.len();reduced_legs+=1;
+                        s.2.extend(work.out.iter().copied());
+                    }else{
+                        for e in chunk{
+                            check_storage_limit(self.storage_budget,self.retained_input_bytes,self.history_bytes.saturating_add(s.1.storage_bytes()).saturating_add(s.3.storage_bytes()).saturating_add(s.2.append_upper_bytes(law.len())),scratch)?;
+                            generated_egress+=law.len();stored+=law.len();
+                            s.2.extend(law.iter().map(|w|(i,e.mass*w.1,e.stamp,w.0)));
+                        }
+                    }
+                }
+                crate::v1_trace::add("egress_bucket.raw_products",raw_products as u64);
+                crate::v1_trace::add("egress_bucket.stored_rows",stored as u64);
+                crate::v1_trace::add("egress_bucket.reduced_legs",reduced_legs as u64);
+            }else{
+                for e in rows{let i=e.leg;check_storage_limit(self.storage_budget,self.retained_input_bytes,self.history_bytes.saturating_add(s.1.storage_bytes()).saturating_add(s.3.storage_bytes()).saturating_add(s.2.append_upper_bytes(self.legs[i].7.len())),scratch)?;
+                    generated_egress+=self.legs[i].7.len();s.2.extend(self.legs[i].7.iter().map(|w|(i,e.mass*w.1,e.stamp,w.0)));
+                }
             }
         }else{
         for e in events {let e=e?;
@@ -2848,6 +2902,132 @@ impl NativeJourneyCore {
 // Do not change physical last-tick event owner or service sink processing.
 #[derive(Clone,Copy,Debug)]
 struct OutletAtom { leg:usize, stamp:f64, mass:f64, ordinal:usize }
+// Positive stage projection under frozen private observer horizon.
+// Key 0 is already ready at tick start; key 1 retires this tick;
+// larger keys distinguish all future retirement ticks. Unsupported horizons
+// and floating boundary cases fall back to the original per-product stream.
+const EGRESS_SLOTS:usize=512;
+fn private_hidden_horizon(dwell:f64,profile:&Profile)->f64{
+    let Some(start)=profile.iter().map(|w|w.0).reduce(f64::min)else{return -1.};
+    if start<dwell{return -1.}
+    let mut h=start-dwell;
+    if h+dwell>start{h=h.next_down();}
+    if h<0.||h+dwell>start{-1.}else{h}
+}
+fn egress_key(r:f64,t:f64,end:f64,dt:f64)->Option<usize>{
+    if !r.is_finite()||r<0.||!dt.is_finite()||dt<=0.{return None}
+    if r<=t{return Some(0)}
+    // Keep raw near an epsilon-only completion beyond committed time.
+    if r<=end+1e-10{return if r<=end{Some(1)}else{None}}
+    let raw=((r-end)/dt).ceil();
+    if !raw.is_finite()||raw<1.||raw>=(EGRESS_SLOTS-2)as f64{return None}
+    let mut k=raw as usize;
+    if k>1&&r<=end+(k-1)as f64*dt+1e-10{k-=1;}
+    if r>end+k as f64*dt+1e-10{k+=1;}
+    if k+1>=EGRESS_SLOTS||r<=end+(k-1)as f64*dt+1e-10||r>end+k as f64*dt+1e-10{return None}
+    // A later epsilon-only retirement would also violate valid_at.
+    if r>end+k as f64*dt{return None}
+    Some(k+1)
+}
+#[derive(Default)]
+struct EgressBin{birth:ReceiptAccumulator,ready:ReceiptAccumulator,first:Access}
+struct EgressWorkspace{
+    slots:[u16;EGRESS_SLOTS],bins:Vec<EgressBin>,out:Vec<Access>,
+}
+impl EgressWorkspace{
+    fn storage_upper()->usize{
+        std::mem::size_of::<Self>().saturating_add(EGRESS_SLOTS.saturating_mul(std::mem::size_of::<EgressBin>()+std::mem::size_of::<Access>())).saturating_add(2*RETAINED_ALLOCATION_PADDING)
+    }
+    fn new()->CoreResult<Self>{
+        let bins=checkpoint_vec(EGRESS_SLOTS)?;let out=checkpoint_vec(EGRESS_SLOTS)?;
+        if bins.capacity()!=EGRESS_SLOTS||out.capacity()!=EGRESS_SLOTS{return Err(CoreError::resource("egress workspace capacity differs"))}
+        Ok(Self{slots:[u16::MAX;EGRESS_SLOTS],bins,out})
+    }
+    fn project(&mut self,rows:&[OutletAtom],law:&[(f64,f64)],t:f64,end:f64,dt:f64,horizon:f64)->bool{
+        self.bins.clear();self.out.clear();self.slots.fill(u16::MAX);
+        if rows.is_empty()||law.is_empty()||end>horizon||end-t!=dt||t%dt!=0.||end%dt!=0.{return false}
+        let i=rows[0].leg;
+        let Some(raw)=rows.len().checked_mul(law.len())else{return false};
+        if raw<2{return false}
+        let mut max_key=0;
+        for e in rows{
+            if e.leg!=i{return false}
+            for &(d,w) in law{
+                let b=e.stamp;let r=b+d;let m=e.mass*w;
+                if r>horizon||b>end+1e-8{return false}
+                let Some(key)=egress_key(r,t,end,dt)else{return false};
+                max_key=max_key.max(key);
+                if self.slots[key]==u16::MAX{
+                    if self.bins.len()==self.bins.capacity(){return false}
+                    self.slots[key]=self.bins.len()as u16;
+                    self.bins.push(EgressBin{first:(i,m,b,d),..Default::default()});
+                }
+                let bin=&mut self.bins[self.slots[key]as usize];
+                if bin.birth.add(b,m,end+1e-8).is_err()||bin.ready.add(r,m,f64::MAX).is_err(){return false}
+            }
+        }
+        if self.bins.len()>=raw{return false}
+        for key in 0..=max_key{
+            let slot=self.slots[key];
+            if slot==u16::MAX{continue}
+            let bin=&self.bins[slot as usize];
+            if bin.birth.count()==1{self.out.push(bin.first);continue}
+            let Ok((b,m))=bin.birth.representative()else{return false};
+            let Ok((r,m2))=bin.ready.representative()else{return false};
+            if m.to_bits()!=m2.to_bits()||r<b{return false}
+            let d=r-b;let actual=b+d;
+            if egress_key(actual,t,end,dt)!=Some(key)||actual>horizon||b>end+1e-8||(actual-r).abs()>1e-11*r.abs()+4.*f64::from_bits(1){return false}
+            self.out.push((i,m,b,d));
+        }
+        true
+    }
+}
+
+#[cfg(test)]
+mod egress_projection_tests{
+    use super::*;
+    #[test]
+    fn projected_egress_preserves_retirement_ticks_and_moments(){
+        let rows=[OutletAtom{leg:3,stamp:1.,mass:0.25,ordinal:0},OutletAtom{leg:3,stamp:2.,mass:0.75,ordinal:1}];
+        let law=vec![(3.,0.5),(13.,0.5)];
+        let mut work=EgressWorkspace::new().unwrap();
+        assert!(work.project(&rows,&law,0.,10.,10.,100.));
+        assert_eq!(work.out.len(),2);
+        let mut expected=std::collections::BTreeMap::<usize,[f64;3]>::new();
+        for e in &rows{for &(d,w) in &law{
+            let k=egress_key(e.stamp+d,0.,10.,10.).unwrap();let v=expected.entry(k).or_default();let m=e.mass*w;
+            v[0]+=m;v[1]+=m*e.stamp;v[2]+=m*(e.stamp+d);
+        }}
+        for a in &work.out{
+            let k=egress_key(a.2+a.3,0.,10.,10.).unwrap();
+            assert_eq!([a.1,a.1*a.2,a.1*(a.2+a.3)],expected[&k]);
+        }
+        assert!(!work.project(&rows,&law,0.,10.,10.,14.));
+        assert_eq!(egress_key(10.+5e-11,0.,10.,10.),None);
+        assert_eq!(private_hidden_horizon(80.,&vec![(100.,110.,1.)]),20.);
+    }
+    #[test]
+    fn early_clock_clamp_and_future_boundaries_are_distinct(){
+        assert_eq!(egress_key(9.,10.,20.,10.),Some(0));
+        assert_eq!(egress_key(10.,10.,20.,10.),Some(0));
+        assert_eq!(egress_key(10.00001,10.,20.,10.),Some(1));
+        assert_eq!(egress_key(30.,10.,20.,10.),Some(2));
+        assert_eq!(egress_key(30.0001,10.,20.,10.),Some(3));
+    }
+}
+#[cfg(feature="native-cli")]
+pub struct EgressBucketProbe(EgressWorkspace);
+#[cfg(feature="native-cli")]
+impl EgressBucketProbe{
+    pub fn new()->CoreResult<Self>{Ok(Self(EgressWorkspace::new()?))}
+    pub fn run(&mut self)->CoreResult<[f64;2]>{
+        let rows=[OutletAtom{leg:3,stamp:1.,mass:0.25,ordinal:0},OutletAtom{leg:3,stamp:2.,mass:0.75,ordinal:1}];
+        // Use a slice adapter to avoid allocating the law on each probe.
+        let law=[(3.,0.5),(13.,0.5)];
+        if !self.0.project(&rows,&law,0.,10.,10.,100.){return Err(bad("egress probe projection failed"))}
+        Ok([self.0.out.len()as f64,self.0.out.iter().map(|a|a.1).sum()])
+    }
+}
 fn group_outlet_atoms(rows:&mut Vec<OutletAtom>)->CoreResult<()>{let n=group_outlet_slice(rows)?;rows.truncate(n);Ok(())}
 fn group_outlet_slice(rows:&mut [OutletAtom])->CoreResult<usize>{
     if rows.iter().any(|r|!nonnegative([r.stamp,r.mass])){return Err(bad("invalid grouped outlet atom"))}
