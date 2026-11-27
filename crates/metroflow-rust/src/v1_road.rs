@@ -1074,7 +1074,8 @@ impl RoadWorkBudget {
         // charges actual raw+packed capacity; it does not borrow future max-cell
         // scratch. Ordinary packet/interval packing retains the full reserve.
         let before_cell_combination = matches!(phase,
-            "transfer candidates" | "source remainder packing");
+            "transfer candidates" | "source remainder packing" |
+            "source tick preflight" | "source offer packing");
         let phase_base=if before_cell_combination {
             self.base.saturating_sub(self.transfer_exclusive_cell_scratch)
         } else {self.base};
@@ -3725,7 +3726,12 @@ impl V1Road {
                 if cfg!(all(feature="native-cli",not(feature="python-extension"))) && std::env::var("METROFLOW_NATIVE_PACKED_REF").as_deref()==Ok("1"){work.packed_ref_saved=Some(0);}
             }
         }
-        work.require(0, "tick preflight")?;
+        // Only the timed indexed consumer with explicitly disjoint source /
+        // receiving lifetimes has its own later per-cell allocation guard.
+        let phase=if work.timed_referenced_rows.is_some()&&receiving_lifetime_enabled(){
+            "source tick preflight"
+        }else{"tick preflight"};
+        work.require(0,phase)?;
         Ok(work)
     }
     /// Called only after the entire road step_state frame returns. At this
@@ -4370,7 +4376,12 @@ impl V1Road {
                 &mut out.pending[i],
                 Packet {
                     target: t,
-                    parts: work.pack_parts(combine(p)?)?,
+                    parts: if work.timed_referenced_rows.is_some()&&receiving_lifetime_enabled(){
+                        // Raw offered vectors and the source-only combine
+                        // index/output are already in the offer reserve.
+                        // Charge the new packed allocation independently.
+                        PacketParts::pack(combine(p)?,|bytes|work.require(bytes,"source offer packing"))?
+                    }else{work.pack_parts(combine(p)?)?},
                 },
             )?;
         }
@@ -7984,6 +7995,15 @@ mod original_transfer_exclusive_cell_scratch_tests {
         assert!(work.require(0,"packet interval packing").is_err());
         assert!(work.require(0,"entry interval split").is_err());
         assert_eq!(work.base,1000);
+    }
+    #[test]
+    fn local_receiver_source_only_checks_exclude_future_cell_workspace(){
+        let work=phase_source_budget();
+        assert!(work.require(0,"source tick preflight").is_ok());
+        assert!(work.require(49,"source offer packing").is_ok());
+        assert!(work.require(51,"source offer packing").is_err());
+        assert!(work.require(0,"tick preflight").is_err());
+        assert!(work.require(0,"packet interval packing").is_err());
     }
     #[test]
     fn no_unearned_transfer_credit_for_zero_extra_or_nontransfer_call(){
