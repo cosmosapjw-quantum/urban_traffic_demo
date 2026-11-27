@@ -1940,10 +1940,13 @@ crate::optional_binding::optional_pymethods!(NativeWholeEngine,
                 .retained_storage_bytes()
                 .max(self.road.owned_storage_bytes());
             let event_byte_limit = if self.runtime_storage.is_some() {
-                let remaining = self.pool_after(
-                    road_bytes.saturating_add(old_journey).saturating_mul(3),
-                    "service decode",
-                )?;
+                // At this seam the road decoder is gone. Only old road and
+                // new complete road coexist; dense service and call scratch
+                // are in the fixed base. Retain the existing 3x allowance for
+                // old journey and the actual service decoder.
+                let reserved=if exact_native_restart() && event_runs {self.road.owned_storage_bytes().saturating_add(road.retained_storage_bytes()).saturating_add(old_journey.saturating_mul(3))}else{road_bytes.saturating_add(old_journey).saturating_mul(3)};
+                let remaining=self.pool_after(reserved,"service decode")?;
+                crate::v1_trace::guard("engine_admission","service decode other owners",reserved,self.road_storage_bytes.unwrap_or(usize::MAX),&[("old_road",self.road.owned_storage_bytes()),("decoded_road",road.retained_storage_bytes()),("old_journey",old_journey),("legacy_reserved",road_bytes.saturating_add(old_journey).saturating_mul(3))]);
                 if old_events.saturating_mul(3) > remaining {
                     return Err(CoreError::resource(
                         "native retained service event storage budget exceeded before decode",
