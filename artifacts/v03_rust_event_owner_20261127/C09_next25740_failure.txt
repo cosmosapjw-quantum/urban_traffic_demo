@@ -1,0 +1,2 @@
+attempted horizon=25740; process exit=1; no output receipt/checkpoint
+Error: "native journey stored/working byte budget"

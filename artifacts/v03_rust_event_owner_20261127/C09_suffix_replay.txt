@@ -1,0 +1,2 @@
+checkpoint replay workers 1 and 8: byte identical
+unknown variant: exit 1; no output checkpoint/receipt

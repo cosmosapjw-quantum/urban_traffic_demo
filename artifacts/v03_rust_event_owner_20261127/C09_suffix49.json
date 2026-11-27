@@ -1,0 +1,48 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "cell": "ax",
+  "checkpoint_bytes": 2612,
+  "checkpoint_sha256": "98846b87b49478ace4249cd413dea4a348b8585c0f061fff1dcf7dc6a6002067",
+  "city_identity": "rust-host-fixture-city",
+  "executable_sha256": "868445eaaf3211cf1ffbbc6eac1386d97af1544815ceac2f731ac108971286de",
+  "ledger": {
+    "cargo_kg": {
+      "active": 100.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 100.0,
+      "released_intent_first_moment": 750.0,
+      "requested": 100.0
+    },
+    "persons": {
+      "active": 10.0,
+      "completed": 0.0,
+      "pending": 9.0,
+      "released": 10.0,
+      "released_intent_first_moment": 50.000000000000014,
+      "requested": 19.0
+    },
+    "vehicles": {
+      "active": 6.58,
+      "completed": 0.0,
+      "pending": 5.831999999999999,
+      "released": 6.58,
+      "released_intent_first_moment": 33.15000000000001,
+      "requested": 12.411999999999999
+    }
+  },
+  "manifest_sha256": "35cad31fcaed0f873c7704d85551a505d9ae03c45b158fe51bf54b58b86a2bf8",
+  "native_identity": "native-whole-v1:rust-host-fixture-static:variants:b85263e89f6d49bd343cd204f90b8f45e5a96e0c765f561fc9b69547d02e92bd:268435456:bounded_bytes_v1:retained_capacity_v3",
+  "new_tag": "__variant__:alternate",
+  "old_tag": "c0:out",
+  "peak_rss_bytes": 6504448,
+  "physical_suffix_applied": true,
+  "python_runtime_dependency": "none",
+  "schedule_identity": "rust-host-fixture-schedule",
+  "schema": "metroflow_native_suffix_v1",
+  "scope": "explicit checked ready-head route variant, canonical car journey; not endogenous route selection",
+  "source_checkpoint_sha256": "f1ad7944baa0d4da21fea12de7c8486decc3a7f0cb1c119b13ffa4220332df65",
+  "status": "EXECUTED_FOR_REVIEW",
+  "time_s": 49.0,
+  "wall_s": 0.012054634
+}
