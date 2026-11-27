@@ -486,7 +486,8 @@ impl NativeServiceCore {
         }
         Self::write_snapshot(w,&self.state,&self.last_events)
     }
-    pub(crate) fn write_snapshot<W:Write>(w:&mut W,s:&Service,events:&ChunkedEvents)->CoreResult<()> {
+    pub(crate) fn write_snapshot<W:Write>(w:&mut W,s:&Service,events:&ChunkedEvents)->CoreResult<()> {Self::write_snapshot_codec(w,s,events,false)}
+    pub(crate) fn write_snapshot_codec<W:Write>(w:&mut W,s:&Service,events:&ChunkedEvents,event_runs:bool)->CoreResult<()> {
         write_len(w, s.0.len())?;
         for v in &s.0 {
             write_len(w, v.0)?;
@@ -514,6 +515,7 @@ impl NativeServiceCore {
             write_u64(w, u64::from(v))?;
         }
         write_len(w, events.len())?;
+        if event_runs{let packed=events.can_write_runs();write_u64(w,u64::from(packed))?;if packed{return events.write_runs(w)}}
         for e in events.iter() {
             write_len(w, e.0)?;
             write_len(w, e.1)?;
@@ -533,7 +535,8 @@ impl NativeServiceCore {
         event_limit: usize,
         event_byte_limit: Option<usize>,
         compressed: bool,
-    ) -> CoreResult<ServiceCheckpoint> {
+    ) -> CoreResult<ServiceCheckpoint> {self.read_state_codec(r,event_limit,event_byte_limit,compressed,false)}
+    pub(crate) fn read_state_codec<R:Read>(&self,r:&mut R,event_limit:usize,event_byte_limit:Option<usize>,compressed:bool,event_runs:bool)->CoreResult<ServiceCheckpoint>{
         fn flag<R: Read>(r: &mut R) -> CoreResult<bool> {
             match read_u64(r)? {
                 0 => Ok(false),
@@ -579,6 +582,7 @@ impl NativeServiceCore {
             cars.push(flag(r)?);
         }
         let n = read_len(r, event_limit)?;
+        if event_runs&&flag(r)?{if !compressed{return Err(bad("event run wire outside compact domain"))}let events=ChunkedEvents::read_runs(r,n,event_byte_limit)?;let state=(runs,people,released,completed,cars);self.validate(&state)?;return Ok((state,Arc::new(events)))}
         // Consume the unchanged logical wire directly into its immutable carrier.
         // No flat EventRow buffer coexists with the encoded history during load.
         let mut events = ChunkedEvents::new(compressed);

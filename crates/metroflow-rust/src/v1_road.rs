@@ -8784,3 +8784,103 @@ mod ready_suffix_owner_tests {
         road.check_state(&road.state).unwrap();
     }
 }
+
+// MFWHOLE3 event section: consecutive source/time control runs followed by
+// exact ordered payloads. No flat EventRow copy, no sorting, no arithmetic.
+impl ChunkedEvents {
+    pub(crate) fn can_write_runs(&self)->bool {self.compressed}
+    pub(crate) fn write_runs<W:Write>(&self,w:&mut W)->CoreResult<()> {
+        if !self.compressed{return Err(val("run wire needs compact event domain"))}
+        let mut starts=self.flag_chunks.iter().flatten().enumerate().flat_map(|(word,&bits)|{
+            let mut bits=bits;
+            std::iter::from_fn(move ||{
+                if bits==0{return None}
+                let b=bits.trailing_zeros() as usize;bits&=bits-1;Some(word*64+b)
+            })
+        }).peekable();
+        let mut controls=self.control_chunks.iter().flatten();
+        let mut payload=self.compact_chunks.iter().flatten();
+        let mut done=0usize;
+        while let Some(start)=starts.next(){
+            if start!=done||start>=self.len{return Err(arithmetic("event run boundary differs"))}
+            let stop=starts.peek().copied().unwrap_or(self.len);
+            if stop<=start||stop>self.len{return Err(arithmetic("event run length differs"))}
+            let &(source,time)=controls.next().ok_or_else(||arithmetic("event run control missing"))?;
+            let &(a,b)=self.time_chunks.get(time as usize/EVENT_PAGE_ROWS)
+                .and_then(|p|p.get(time as usize%EVENT_PAGE_ROWS)).ok_or_else(||arithmetic("event run time missing"))?;
+            write_len(w,stop-start)?;wire_u32(w,source)?;write_u64(w,a)?;write_u64(w,b)?;
+            for _ in start..stop{
+                let p=payload.next().ok_or_else(||arithmetic("event run payload missing"))?;
+                let mut row=[0u8;24];row[..4].copy_from_slice(&p.tag.to_le_bytes());
+                row[4..8].copy_from_slice(&p.dest.to_le_bytes());
+                row[8..16].copy_from_slice(&p.mass.to_bits().to_le_bytes());
+                row[16..].copy_from_slice(&p.birth.to_bits().to_le_bytes());
+                w.write_all(&row).map_err(|e|CoreError::io(e.to_string()))?;
+            }
+            done=stop;
+        }
+        if done!=self.len||controls.next().is_some()||payload.next().is_some(){return Err(arithmetic("event run census differs"))}
+        Ok(())
+    }
+    pub(crate) fn read_runs<R:Read>(r:&mut R,n:usize,limit:Option<usize>)->CoreResult<Self>{
+        let mut events=Self::new(true);
+        if limit.is_some_and(|x|events.retained_storage_bytes()>x){return Err(budget("event run initial storage budget"))}
+        while events.len<n{
+            let count=read_len(r,n-events.len)?;
+            if count==0{return Err(val("empty event wire run"))}
+            let source=read_wire_u32(r)?;let a=read_f64(r)?;let b=read_f64(r)?;
+            if !finite_nonnegative(a)||!finite_nonnegative(b)||a>b{return Err(val("invalid event wire run time"))}
+            if events.last_source()==Some(source)&&events.last_time==Some((a.to_bits(),b.to_bits())){return Err(val("redundant event wire run"))}
+            // Every append in this run has the same source and time. The
+            // final fixed-page bound covers all monotonic intermediate
+            // page counts and both old/new outer Vec descriptor allocations.
+            let required=events.projected_candidate_bytes(count,source as usize,a,b)?;
+            if limit.is_some_and(|x|required>x){return Err(budget("native service event run decode storage budget exceeded"))}
+            for _ in 0..count{
+                let mut bytes=[0u8;24];r.read_exact(&mut bytes).map_err(|e|CoreError::io(e.to_string()))?;
+                let tag=u32::from_le_bytes(bytes[..4].try_into().unwrap());
+                let dest=u32::from_le_bytes(bytes[4..8].try_into().unwrap());
+                let mass=f64::from_bits(u64::from_le_bytes(bytes[8..16].try_into().unwrap()));
+                let birth=f64::from_bits(u64::from_le_bytes(bytes[16..24].try_into().unwrap()));
+                if !finite_nonnegative(mass)||!finite_nonnegative(birth){return Err(val("invalid event wire moment"))}
+                events.push_checked((tag as usize,source as usize,
+                    if dest==u32::MAX{None}else{Some(dest as usize)},mass,a,b,birth))?;
+            }
+        }
+        Ok(events)
+    }
+}
+#[cfg(test)]
+mod exact_event_run_wire_tests {
+    use super::*;
+    fn bits(e:EventRow)->(usize,usize,Option<usize>,u64,u64,u64,u64){
+        (e.0,e.1,e.2,e.3.to_bits(),e.4.to_bits(),e.5.to_bits(),e.6.to_bits())
+    }
+    #[test]
+    fn run_wire_roundtrip_crosses_payload_flag_control_and_time_pages() {
+        let mut e=ChunkedEvents::new(true);
+        // Repeated controls, source-only changes, signed-zero clocks,
+        // more than one time/control page, and exact tail.
+        for i in 0..33001usize{
+            let run=i/7;
+            let a=if run==0{-0.0}else{run as f64};
+            e.push_checked((i%321,run%91,if i%11==0{None}else{Some(i%9)},0.125,a,a+0.5,i as f64/8.)).unwrap();
+        }
+        let mut buf=vec![];e.write_runs(&mut buf).unwrap();
+        let decoded=ChunkedEvents::read_runs(&mut &buf[..],e.len(),None).unwrap();
+        assert_eq!(decoded.iter().map(bits).collect::<Vec<_>>(),e.iter().map(bits).collect::<Vec<_>>());
+        assert_eq!(decoded.retained_storage_bytes(),e.retained_storage_bytes());
+        let mut again=vec![];decoded.write_runs(&mut again).unwrap();assert_eq!(again,buf);
+        assert!(buf.len()<e.len()*32);
+        assert!(ChunkedEvents::read_runs(&mut &buf[..buf.len()-1],e.len(),None).is_err());
+        assert!(ChunkedEvents::read_runs(&mut &buf[..],e.len(),Some(1000)).is_err());
+        let mut empty=vec![];ChunkedEvents::new(true).write_runs(&mut empty).unwrap();
+        assert!(empty.is_empty());assert_eq!(ChunkedEvents::read_runs(&mut &empty[..],0,None).unwrap().len(),0);
+    }
+    #[test] fn run_wire_rejects_bad_count_before_payload(){
+        let mut b=vec![];write_len(&mut b,0).unwrap();
+        assert!(ChunkedEvents::read_runs(&mut &b[..],1,None).is_err());
+        let mut b=vec![];write_len(&mut b,999).unwrap();
+        assert!(ChunkedEvents::read_runs(&mut &b[..],1,None).is_err());
+    }
+}

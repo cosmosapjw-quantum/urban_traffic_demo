@@ -1846,10 +1846,10 @@ crate::optional_binding::optional_pymethods!(NativeWholeEngine,
     ] {
 
     fn load(&mut self, path: String) -> CoreResult<NativeWholeState> {
-        let mut f = BufReader::new(File::open(path).map_err(io)?);
+        let mut f = BufReader::with_capacity(1024*1024,File::open(path).map_err(io)?);
         let mut magic = [0u8; 8];
         f.read_exact(&mut magic).map_err(io)?;
-        let compact=&magic==b"MFWHOLE2";
+        let event_runs=&magic==b"MFWHOLE3";let compact=&magic==b"MFWHOLE2"||event_runs;
         if &magic!=b"MFWHOLE1"&&!compact{return Err(bad("native whole checkpoint schema differs"));}
         let mut raw = [0u8; 8];
         f.read_exact(&mut raw).map_err(io)?;
@@ -1894,9 +1894,7 @@ crate::optional_binding::optional_pymethods!(NativeWholeEngine,
             // Logical row count and actual retained allocation are separate
             // contracts. u32::MAX is reserved for destination=None by the codec.
             let compressed_events = self.road.can_compact_candidate_events();
-            let service = self.service.read_state(
-                &mut f, self.event_limit, event_byte_limit, compressed_events,
-            )?;
+            let service=self.service.read_state_codec(&mut f,self.event_limit,event_byte_limit,compressed_events,event_runs)?;
             let events = service_event_storage_bytes(&service).max(old_events);
             if self.runtime_storage.is_some() {
                 let journey_limit = self.pool_after(
@@ -2191,7 +2189,7 @@ pub fn run_native_declaration_with_plan(
                     let source=std::fs::canonicalize(source).map_err(io)?;
                     if !std::fs::metadata(&source).map_err(io)?.is_file(){return Err(bad("resume source not regular file"))}
                     let mut magic=[0u8;8];File::open(&source).map_err(io)?.read_exact(&mut magic).map_err(io)?;
-                    let wanted=if crate::v1_road::compact_checkpoint_enabled(){b"MFWHOLE2"}else{b"MFWHOLE1"};
+                    let wanted=native_checkpoint_magic();
                     if &magic!=wanted{false}else{match std::fs::hard_link(&source,checkpoint){Ok(())=>{sync_parent_native(checkpoint)?;true},Err(e) if e.kind()==std::io::ErrorKind::AlreadyExists=>return Err(io(e)),Err(_)=>false}}
                 }else{false}
             }else{false};
@@ -2246,7 +2244,7 @@ pub fn run_native_declaration_with_plan(
     result["save_s"]=json!(clock.elapsed().as_secs_f64());
     result["checkpoint_write_s"]=json!(checkpoint_write_s);
     result["initial_checkpoint_method"]=json!(initial_checkpoint_method);
-    result["wire_writer"]=json!(if crate::v1_road::compact_checkpoint_enabled(){"compact_v2"}else if std::env::var_os("METROFLOW_NATIVE_SCALAR_WIRE").is_some(){"scalar"}else{"batched_stack"});
+    result["wire_writer"]=json!(if native_checkpoint_magic()==b"MFWHOLE3"{"compact_v3_events"}else if crate::v1_road::compact_checkpoint_enabled(){"compact_v2"}else if std::env::var_os("METROFLOW_NATIVE_SCALAR_WIRE").is_some(){"scalar"}else{"batched_stack"});
     result["checkpoint_writer"]=json!(if std::env::var("METROFLOW_NATIVE_LEGACY_SAVE").as_deref()==Ok("1"){"legacy_restore"}else{"immutable_snapshot"});
     if let Ok(cursor)=std::env::var("METROFLOW_NATIVE_COMPLETED_SINCE_S"){
         let since:f64=cursor.parse().map_err(|_|bad("invalid completed observation cursor"))?;
@@ -2287,6 +2285,8 @@ fn sync_parent_native(path:&str)->CoreResult<()>{
     std::fs::File::open(p).map_err(io)?.sync_all().map_err(io)
 }
 #[cfg(feature="native-cli")]
+fn native_checkpoint_magic()->&'static [u8;8]{if crate::v1_road::compact_checkpoint_enabled(){if std::env::var("METROFLOW_NATIVE_EVENT_WIRE").as_deref()==Ok("1"){b"MFWHOLE3"}else{b"MFWHOLE2"}}else{b"MFWHOLE1"}}
+#[cfg(feature="native-cli")]
 fn save_atomic_native(engine:&mut NativeWholeEngine,path:&str,state:&NativeWholeState)->CoreResult<()>{
     // Unique scratch path, same filesystem as destination. A failed save
     // never replaces the last known-valid checkpoint.
@@ -2300,11 +2300,11 @@ fn save_atomic_native(engine:&mut NativeWholeEngine,path:&str,state:&NativeWhole
             engine.checked(state)?;
             let mut f=BufWriter::with_capacity(1024*1024,std::fs::OpenOptions::new().write(true).create_new(true).open(&tmp).map_err(io)?);
             let compact=crate::v1_road::compact_checkpoint_enabled();
-            f.write_all(if compact{b"MFWHOLE2"}else{b"MFWHOLE1"}).map_err(io)?;
+            let magic=native_checkpoint_magic();f.write_all(magic).map_err(io)?;
             f.write_all(&(engine.identity.len()as u64).to_le_bytes()).map_err(io)?;
             f.write_all(engine.identity.as_bytes()).map_err(io)?;
             engine.road.write_snapshot_codec(&mut f,&state.value.road,compact)?;
-            NativeServiceCore::write_snapshot(&mut f,&state.value.service.0,&state.value.service.1)?;
+            NativeServiceCore::write_snapshot_codec(&mut f,&state.value.service.0,&state.value.service.1,magic==b"MFWHOLE3")?;
             NativeJourneyCore::write_snapshot(&mut f,&state.value.journey)?;
             f.flush().map_err(io)?;
         }
