@@ -8884,3 +8884,7 @@ mod exact_event_run_wire_tests {
         assert!(ChunkedEvents::read_runs(&mut &b[..],1,None).is_err());
     }
 }
+
+pub(crate) fn stream_sink_envelope_bytes(service_rows:usize,max_tag_bytes:usize)->usize{
+    service_rows.saturating_mul(256).saturating_add(64).saturating_add(max_tag_bytes).saturating_add(32)
+}

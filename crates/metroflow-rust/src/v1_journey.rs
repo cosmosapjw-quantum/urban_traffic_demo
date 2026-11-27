@@ -853,62 +853,7 @@ crate::optional_binding::optional_pymethods!(NativeServiceCore,
 
     ] {
 
-    fn finish(&mut self, end: f64, events: Vec<Sink>) -> CoreResult<()> {
-        // Finish consumes its uncommitted candidate. On any failure the
-        // committed state remains intact and the transaction is aborted.
-        let (t, mut s) = self
-            .pending
-            .take()
-            .ok_or_else(|| bad("native service finish without prepare"))?;
-        if !end.is_finite()
-            || end <= t
-            || events
-                .iter()
-                .any(|e| !nonnegative([e.1, e.2]) || e.2 > end + 1e-8)
-        {
-            return Err(bad("invalid native service sink/clock"));
-        }
-        let mut sink_mass: HashMap<&str, Vec<f64>> = HashMap::new();
-        for e in &events {
-            sink_mass.entry(&e.0).or_default().push(e.1);
-        }
-        for (i, b) in self.buses.iter().enumerate() {
-            let v = s.0[i];
-            if v.1 != 1 {
-                continue;
-            }
-            let tag = format!("bus:{}:{}", b.0, v.0);
-            let mass = v.3 + fsum(sink_mass.get(tag.as_str()).into_iter().flatten().copied());
-            if mass < 1.0 - 1e-9 {
-                s.0[i].3 = mass;
-                continue;
-            }
-            let stop = v.0 + 1;
-            for &k in &self.people_by_run[i] {
-                let x = &mut s.1[k];
-                if self.people[k].2 == stop {
-                    x.2 += x.1;
-                    x.4 += x.1 * end;
-                    x.1 = 0.0;
-                }
-            }
-            s.0[i] = (
-                stop,
-                if stop == b.1.len() { 2 } else { 0 },
-                end + b.3,
-                0.0,
-                v.4,
-            );
-        }
-        for (i, f) in self.freight.iter().enumerate() {
-            let tag = format!("freight:{}", f.0);
-            s.3[i] += fsum(sink_mass.get(tag.as_str()).into_iter().flatten().copied());
-        }
-        self.validate(&s)?;
-        self.state = s;
-        self.pending = None;
-        Ok(())
-    }
+    fn finish(&mut self,end:f64,events:Vec<Sink>)->CoreResult<()>{self.finish_borrowed(end,events.iter().map(|e|Ok((e.0.as_str(),e.1,e.2))),false)}
     }
 );
 
@@ -1513,6 +1458,7 @@ pub(crate) fn advance_owned_joint(
         tags.iter().map(String::capacity).max().unwrap_or(0),
         Arc::ptr_eq(&call_input_events, &service.last_events),
     );
+    let stream_sinks=std::env::var("METROFLOW_NATIVE_STREAM_SINKS").as_deref()==Ok("1");
     let exact_service_lifetime=std::env::var_os("METROFLOW_EXPERIMENTAL_RECEIVING_LIFETIMES").as_deref()
         ==Some(std::ffi::OsStr::new("1"))
         && std::env::var_os("METROFLOW_EXPERIMENTAL_EVENT_INDEX_INCOMING").as_deref()
@@ -1669,7 +1615,13 @@ pub(crate) fn advance_owned_joint(
                 let tag_bytes = road
                     .service_sink_tag_bytes()
                     .unwrap_or_else(|| tags.iter().map(String::capacity).max().unwrap_or(0));
-                let sink_bytes = crate::v1_road::sink_envelope_bytes(exits, tag_bytes);
+                let sink_bytes=if stream_sinks{
+                    let service_exits=events.iter().filter(|e|e.2.is_none()).try_fold(0usize,|n,e|{
+                        let tag=tags.get(e.0).ok_or_else(||bad("native road event route index differs"))?;
+                        Ok::<_,CoreError>(n.saturating_add(usize::from(tag.starts_with("bus:")||tag.starts_with("freight:"))))
+                    })?;
+                    crate::v1_road::stream_sink_envelope_bytes(service_exits,tag_bytes)
+                }else{crate::v1_road::sink_envelope_bytes(exits,tag_bytes)};
                 let current_journey =
                     stage_storage_bytes(&journey.state).saturating_add(journey.history_bytes);
                 let pending_journey = journey.pending.as_ref().map_or(0, |state| {
@@ -1713,19 +1665,20 @@ pub(crate) fn advance_owned_joint(
                     )));
                 }
             }
-            let mut sinks = Vec::new();
-            for e in events.iter() {
+            let mut sinks=Vec::new();
+            if !stream_sinks {for e in events.iter() {
                 if e.2.is_none() {
                     let tag = tags
                         .get(e.0)
                         .ok_or_else(|| bad("native road event route index differs"))?;
                     sinks.push((tag.clone(), e.3, e.5));
                 }
-            }
+            }}
+            let sink_iter=||events.iter().filter(|e|e.2.is_none()).map(|e|tags.get(e.0).map(|tag|(tag.as_str(),e.3,e.5)).ok_or_else(||bad("native road event route index differs")));
             let end = road_candidate.time();
             journey.phase("service_finish");
             let phase_started = Instant::now();
-            let result = service.finish(end, sinks.clone());
+            let result=if stream_sinks{service.finish_borrowed(end,sink_iter(),true)}else{service.finish(end,sinks.clone())};
             journey.phase_metrics.service_finish_s += phase_started.elapsed().as_secs_f64();
             result?;
             if let Some(total) = dynamic_budget {
@@ -1748,7 +1701,8 @@ pub(crate) fn advance_owned_joint(
                 journey.begin_deferred_finish()?;
             }
             let phase_started = Instant::now();
-            let result = journey.finish(
+            let result=if stream_sinks{journey.finish_borrowed(end,sink_iter(),service_before.1.clone(),service.state.1.clone(),service_before.2.clone(),service.state.2.clone(),service_before.3.clone(),service.state.3.clone())}else{
+            journey.finish(
                 end,
                 sinks,
                 service_before.1.clone(),
@@ -1757,7 +1711,8 @@ pub(crate) fn advance_owned_joint(
                 service.state.2.clone(),
                 service_before.3.clone(),
                 service.state.3.clone(),
-            );
+            )
+            };
             journey.phase_metrics.journey_finish_s += phase_started.elapsed().as_secs_f64();
             result?;
             if let Some(total) = dynamic_budget {
@@ -2162,187 +2117,7 @@ crate::optional_binding::optional_pymethods!(NativeJourneyCore,
         before_completed: Vec<f64>,
         after_completed: Vec<f64>,
     ) -> CoreResult<()> {
-        // The committed state remains available throughout finish. Consume
-        // the candidate instead of duplicating all active queues a third time.
-        let mut s = self
-            .pending
-            .take()
-            .ok_or_else(|| bad("native journey finish without prepare"))?;
-        if let Some(attempt) = &mut self.last_attempt {
-            attempt.phase = "journey_finish";
-            attempt.end_s = end;
-        }
-        let mut generated_egress = 0usize;
-        let t = s.0;
-        if !end.is_finite()
-            || end <= t
-            || before_people.len() != self.bus.len()
-            || after_people.len() != self.bus.len()
-            || before_freight.len() != self.freight.len()
-            || after_freight.len() != self.freight.len()
-            || before_completed.len() != self.freight.len()
-            || after_completed.len() != self.freight.len()
-        {
-            return Err(bad("invalid native journey service shape/clock"));
-        }
-        for e in events {
-            if !nonnegative([e.1, e.2]) || e.2 > end + 1e-8 {
-                return Err(bad("invalid native journey road sink"));
-            }
-            if let Some(&i) = self.route_indices.get(&e.0) {
-                check_storage_limit(
-                    self.storage_budget,
-                    self.retained_input_bytes,
-                    self.history_bytes
-                        .saturating_add(s.1.storage_bytes())
-                        .saturating_add(s.3.storage_bytes())
-                        .saturating_add(s.2.append_upper_bytes(self.legs[i].7.len())),
-                    0,
-                )?;
-                generated_egress += self.legs[i].7.len();
-                s.2.extend(self.legs[i].7.iter().map(|w| (i, e.1 * w.1, e.2, w.0)));
-            }
-        }
-        for (k, b) in self.bus.iter().enumerate() {
-            let before = before_people[k];
-            let after = after_people[k];
-            if !nonnegative([before.0, before.1, before.2, after.0, after.1, after.2]) {
-                return Err(bad("invalid native journey passenger update"));
-            }
-            let boarded = (after.1 + after.2) - (before.1 + before.2);
-            let arrived = after.2 - before.2;
-            let factor = self.legs[b.0].1 / b.1;
-            if boarded < 0.0 || arrived < 0.0 {
-                return Err(bad("native passenger totals decreased"));
-            }
-            s.4[b.0] += boarded * factor;
-            s.7[b.0] += boarded * factor * b.3 / b.2;
-            if arrived != 0.0 {
-                check_storage_limit(
-                    self.storage_budget,
-                    self.retained_input_bytes,
-                    self.history_bytes
-                        .saturating_add(s.1.storage_bytes())
-                        .saturating_add(s.3.storage_bytes())
-                        .saturating_add(s.2.append_upper_bytes(b.5.len())),
-                    0,
-                )?;
-                generated_egress += b.5.len();
-                s.2.extend(b.5.iter().map(|w| (b.0, arrived * factor * w.1, end, w.0)));
-            }
-        }
-        for (k, f) in self.freight.iter().enumerate() {
-            if before_freight[k] && !after_freight[k] {
-                return Err(bad("native freight release reversed"));
-            }
-            if after_freight[k] && !before_freight[k] {
-                s.4[f.0] += f.1;
-                s.7[f.0] += f.2;
-            }
-            let arrival = after_completed[k] - before_completed[k];
-            if !nonnegative([arrival]) {
-                return Err(bad("native freight arrival decreased"));
-            }
-            if arrival != 0.0 {
-                check_storage_limit(
-                    self.storage_budget,
-                    self.retained_input_bytes,
-                    self.history_bytes
-                        .saturating_add(s.1.storage_bytes())
-                        .saturating_add(s.3.storage_bytes())
-                        .saturating_add(s.2.append_upper_bytes(f.3.len())),
-                    0,
-                )?;
-                generated_egress += f.3.len();
-                s.2.extend(f.3.iter().map(|w| (f.0, arrival * w.1, end, w.0)));
-            }
-        }
-        let mut retired = [0usize; 2];
-        let before_retirement_bytes = stage_storage_bytes(&s);
-        let mut history_bytes = self.history_bytes;
-        let mut history_decoded_final = self.history_decoded_final;
-        let mut history_decode_extra_max = self.history_decode_extra_max;
-        for (kind, stage) in [&mut s.2, &mut s.3].into_iter().enumerate() {
-            let mut receipt_error = None;
-            retired[kind] = stage.retire_due(end + 1e-10, |a| {
-                if receipt_error.is_some() {
-                    return;
-                }
-                let history = &mut s.6[a.0];
-                let previous_bytes = history.storage_bytes();
-                let previous_decoded = history.decoded_final_storage_upper_bytes();
-                let projected = before_retirement_bytes
-                    .saturating_add(history_bytes - previous_bytes)
-                    .saturating_add(history.append_upper_bytes());
-                if let Err(error) = check_storage_limit(
-                    self.storage_budget,
-                    self.retained_input_bytes,
-                    projected,
-                    0,
-                ) {
-                    receipt_error = Some(error);
-                    return;
-                }
-                s.5[a.0] += a.1;
-                if let Err(error) = history.push((t.max(a.2 + a.3), a.1 / self.legs[a.0].1)) {
-                    receipt_error = Some(bad(error));
-                    return;
-                }
-                history_bytes = history_bytes - previous_bytes + history.storage_bytes();
-                history_decoded_final = history_decoded_final - previous_decoded
-                    + history.decoded_final_storage_upper_bytes();
-                // Only one history is decoded at a time. Keep a conservative
-                // ever-max transient delta within this call; restore/install
-                // recomputes the current maximum in the existing history pass.
-                history_decode_extra_max = history_decode_extra_max.max(
-                    history
-                        .decoded_storage_upper_bytes()
-                        .saturating_sub(history.decoded_final_storage_upper_bytes()),
-                );
-            });
-            if let Some(error) = receipt_error {
-                return Err(error);
-            }
-        }
-        let added = retired[0] + retired[1];
-        s.0 = end;
-        if let Some(attempt) = &mut self.last_attempt {
-            attempt.generated[1] = generated_egress;
-            attempt.retired[1] = retired[0];
-            attempt.retired[2] = retired[1];
-            attempt.receipts_added = added;
-            attempt.candidate = [s.1.len(), s.2.len(), s.3.len(), self.history_rows + added];
-            attempt.phase = "journey_validation";
-        }
-        self.validate(&s)?;
-        for stage in [&mut s.1, &mut s.2, &mut s.3] {
-            release_unused_stage_capacity(stage);
-        }
-        if self.defer_finish_commit {
-            let previous = std::mem::replace(&mut self.state, s);
-            self.deferred_previous = Some((
-                previous,
-                self.history_rows,
-                self.history_bytes,
-                self.history_decoded_final,
-                self.history_decode_extra_max,
-            ));
-        } else {
-            self.state = s;
-        }
-        self.history_rows += added;
-        self.history_bytes = history_bytes;
-        self.history_decoded_final = history_decoded_final;
-        self.history_decode_extra_max = history_decode_extra_max;
-        if let Some(attempt) = &mut self.last_attempt {
-            attempt.committed = !self.defer_finish_commit;
-            attempt.phase = if self.defer_finish_commit {
-                "whole_storage_validation"
-            } else {
-                "committed"
-            };
-        }
-        Ok(())
+        self.finish_borrowed(end,events.iter().map(|e|Ok((e.0.as_str(),e.1,e.2))),before_people,after_people,before_freight,after_freight,before_completed,after_completed)
     }
     }
 );
@@ -2542,5 +2317,255 @@ mod service_phase_actual_owner_tests {
         assert_eq!(service_phase_owner_bytes(20,30,40,false),120);
         assert_eq!(service_phase_owner_bytes(20,20,20,true),60);
         assert_eq!(service_phase_owner_bytes(usize::MAX,1,2,true),usize::MAX);
+    }
+}
+
+impl NativeServiceCore {
+    fn finish_borrowed<'a>(&mut self,end:f64,events:impl Iterator<Item=CoreResult<(&'a str,f64,f64)>>,service_only:bool)->CoreResult<()>{
+        // Finish consumes its uncommitted candidate. On any failure the
+        // committed state remains intact and the transaction is aborted.
+        let (t, mut s) = self
+            .pending
+            .take()
+            .ok_or_else(|| bad("native service finish without prepare"))?;
+        if !end.is_finite()||end<=t{
+            return Err(bad("invalid native service sink/clock"));
+        }
+        let mut sink_mass: HashMap<&str, Vec<f64>> = HashMap::new();
+        for e in events {let (tag,mass,stamp)=e?;
+            if !nonnegative([mass,stamp])||stamp>end+1e-8{return Err(bad("invalid native service sink/clock"))}
+            if !service_only||tag.starts_with("bus:")||tag.starts_with("freight:"){sink_mass.entry(tag).or_default().push(mass);}
+        }
+        for (i, b) in self.buses.iter().enumerate() {
+            let v = s.0[i];
+            if v.1 != 1 {
+                continue;
+            }
+            let tag = format!("bus:{}:{}", b.0, v.0);
+            let mass = v.3 + fsum(sink_mass.get(tag.as_str()).into_iter().flatten().copied());
+            if mass < 1.0 - 1e-9 {
+                s.0[i].3 = mass;
+                continue;
+            }
+            let stop = v.0 + 1;
+            for &k in &self.people_by_run[i] {
+                let x = &mut s.1[k];
+                if self.people[k].2 == stop {
+                    x.2 += x.1;
+                    x.4 += x.1 * end;
+                    x.1 = 0.0;
+                }
+            }
+            s.0[i] = (
+                stop,
+                if stop == b.1.len() { 2 } else { 0 },
+                end + b.3,
+                0.0,
+                v.4,
+            );
+        }
+        for (i, f) in self.freight.iter().enumerate() {
+            let tag = format!("freight:{}", f.0);
+            s.3[i] += fsum(sink_mass.get(tag.as_str()).into_iter().flatten().copied());
+        }
+        self.validate(&s)?;
+        self.state = s;
+        self.pending = None;
+        Ok(())
+    }
+}
+impl NativeJourneyCore {
+    fn finish_borrowed<'a>(
+        &mut self,
+        end: f64,
+        events: impl Iterator<Item=CoreResult<(&'a str,f64,f64)>>,
+        before_people: Vec<People>,
+        after_people: Vec<People>,
+        before_freight: Vec<bool>,
+        after_freight: Vec<bool>,
+        before_completed: Vec<f64>,
+        after_completed: Vec<f64>,
+    ) -> CoreResult<()> {
+        // The committed state remains available throughout finish. Consume
+        // the candidate instead of duplicating all active queues a third time.
+        let mut s = self
+            .pending
+            .take()
+            .ok_or_else(|| bad("native journey finish without prepare"))?;
+        if let Some(attempt) = &mut self.last_attempt {
+            attempt.phase = "journey_finish";
+            attempt.end_s = end;
+        }
+        let mut generated_egress = 0usize;
+        let t = s.0;
+        if !end.is_finite()
+            || end <= t
+            || before_people.len() != self.bus.len()
+            || after_people.len() != self.bus.len()
+            || before_freight.len() != self.freight.len()
+            || after_freight.len() != self.freight.len()
+            || before_completed.len() != self.freight.len()
+            || after_completed.len() != self.freight.len()
+        {
+            return Err(bad("invalid native journey service shape/clock"));
+        }
+        for e in events {let e=e?;
+            if !nonnegative([e.1, e.2]) || e.2 > end + 1e-8 {
+                return Err(bad("invalid native journey road sink"));
+            }
+            if let Some(&i) = self.route_indices.get(e.0) {
+                check_storage_limit(
+                    self.storage_budget,
+                    self.retained_input_bytes,
+                    self.history_bytes
+                        .saturating_add(s.1.storage_bytes())
+                        .saturating_add(s.3.storage_bytes())
+                        .saturating_add(s.2.append_upper_bytes(self.legs[i].7.len())),
+                    0,
+                )?;
+                generated_egress += self.legs[i].7.len();
+                s.2.extend(self.legs[i].7.iter().map(|w| (i, e.1 * w.1, e.2, w.0)));
+            }
+        }
+        for (k, b) in self.bus.iter().enumerate() {
+            let before = before_people[k];
+            let after = after_people[k];
+            if !nonnegative([before.0, before.1, before.2, after.0, after.1, after.2]) {
+                return Err(bad("invalid native journey passenger update"));
+            }
+            let boarded = (after.1 + after.2) - (before.1 + before.2);
+            let arrived = after.2 - before.2;
+            let factor = self.legs[b.0].1 / b.1;
+            if boarded < 0.0 || arrived < 0.0 {
+                return Err(bad("native passenger totals decreased"));
+            }
+            s.4[b.0] += boarded * factor;
+            s.7[b.0] += boarded * factor * b.3 / b.2;
+            if arrived != 0.0 {
+                check_storage_limit(
+                    self.storage_budget,
+                    self.retained_input_bytes,
+                    self.history_bytes
+                        .saturating_add(s.1.storage_bytes())
+                        .saturating_add(s.3.storage_bytes())
+                        .saturating_add(s.2.append_upper_bytes(b.5.len())),
+                    0,
+                )?;
+                generated_egress += b.5.len();
+                s.2.extend(b.5.iter().map(|w| (b.0, arrived * factor * w.1, end, w.0)));
+            }
+        }
+        for (k, f) in self.freight.iter().enumerate() {
+            if before_freight[k] && !after_freight[k] {
+                return Err(bad("native freight release reversed"));
+            }
+            if after_freight[k] && !before_freight[k] {
+                s.4[f.0] += f.1;
+                s.7[f.0] += f.2;
+            }
+            let arrival = after_completed[k] - before_completed[k];
+            if !nonnegative([arrival]) {
+                return Err(bad("native freight arrival decreased"));
+            }
+            if arrival != 0.0 {
+                check_storage_limit(
+                    self.storage_budget,
+                    self.retained_input_bytes,
+                    self.history_bytes
+                        .saturating_add(s.1.storage_bytes())
+                        .saturating_add(s.3.storage_bytes())
+                        .saturating_add(s.2.append_upper_bytes(f.3.len())),
+                    0,
+                )?;
+                generated_egress += f.3.len();
+                s.2.extend(f.3.iter().map(|w| (f.0, arrival * w.1, end, w.0)));
+            }
+        }
+        let mut retired = [0usize; 2];
+        let before_retirement_bytes = stage_storage_bytes(&s);
+        let mut history_bytes = self.history_bytes;
+        let mut history_decoded_final = self.history_decoded_final;
+        let mut history_decode_extra_max = self.history_decode_extra_max;
+        for (kind, stage) in [&mut s.2, &mut s.3].into_iter().enumerate() {
+            let mut receipt_error = None;
+            retired[kind] = stage.retire_due(end + 1e-10, |a| {
+                if receipt_error.is_some() {
+                    return;
+                }
+                let history = &mut s.6[a.0];
+                let previous_bytes = history.storage_bytes();
+                let previous_decoded = history.decoded_final_storage_upper_bytes();
+                let projected = before_retirement_bytes
+                    .saturating_add(history_bytes - previous_bytes)
+                    .saturating_add(history.append_upper_bytes());
+                if let Err(error) = check_storage_limit(
+                    self.storage_budget,
+                    self.retained_input_bytes,
+                    projected,
+                    0,
+                ) {
+                    receipt_error = Some(error);
+                    return;
+                }
+                s.5[a.0] += a.1;
+                if let Err(error) = history.push((t.max(a.2 + a.3), a.1 / self.legs[a.0].1)) {
+                    receipt_error = Some(bad(error));
+                    return;
+                }
+                history_bytes = history_bytes - previous_bytes + history.storage_bytes();
+                history_decoded_final = history_decoded_final - previous_decoded
+                    + history.decoded_final_storage_upper_bytes();
+                // Only one history is decoded at a time. Keep a conservative
+                // ever-max transient delta within this call; restore/install
+                // recomputes the current maximum in the existing history pass.
+                history_decode_extra_max = history_decode_extra_max.max(
+                    history
+                        .decoded_storage_upper_bytes()
+                        .saturating_sub(history.decoded_final_storage_upper_bytes()),
+                );
+            });
+            if let Some(error) = receipt_error {
+                return Err(error);
+            }
+        }
+        let added = retired[0] + retired[1];
+        s.0 = end;
+        if let Some(attempt) = &mut self.last_attempt {
+            attempt.generated[1] = generated_egress;
+            attempt.retired[1] = retired[0];
+            attempt.retired[2] = retired[1];
+            attempt.receipts_added = added;
+            attempt.candidate = [s.1.len(), s.2.len(), s.3.len(), self.history_rows + added];
+            attempt.phase = "journey_validation";
+        }
+        self.validate(&s)?;
+        for stage in [&mut s.1, &mut s.2, &mut s.3] {
+            release_unused_stage_capacity(stage);
+        }
+        if self.defer_finish_commit {
+            let previous = std::mem::replace(&mut self.state, s);
+            self.deferred_previous = Some((
+                previous,
+                self.history_rows,
+                self.history_bytes,
+                self.history_decoded_final,
+                self.history_decode_extra_max,
+            ));
+        } else {
+            self.state = s;
+        }
+        self.history_rows += added;
+        self.history_bytes = history_bytes;
+        self.history_decoded_final = history_decoded_final;
+        self.history_decode_extra_max = history_decode_extra_max;
+        if let Some(attempt) = &mut self.last_attempt {
+            attempt.committed = !self.defer_finish_commit;
+            attempt.phase = if self.defer_finish_commit {
+                "whole_storage_validation"
+            } else {
+                "committed"
+            };
+        }
+        Ok(())
     }
 }
