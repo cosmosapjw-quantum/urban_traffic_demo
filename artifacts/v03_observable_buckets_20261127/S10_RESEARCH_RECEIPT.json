@@ -1,0 +1,1009 @@
+{
+  "schema": "metroflow_v03_observable_bucket_research_v1",
+  "scope": "Integrated S01-S10: original exact frontier 25740 unchanged; mixed-dwell observable-clock quotient and lazy exact release queries; bounded direct-key bucket accumulation; separate schedule receipt identity. Actual Valley 28080 history 11542512 -> 51230 with bit-identical road and completion totals, age moment relative L1 <1.7e-15. Independently recovered 28080,28200,28500 (480s new,3180s ancestry); zero warmed bucket alloc/realloc in 1M calls; 13/15 Rust scoped; original 0/9 full days.",
+  "baseline_commit": "c854e4d7cd0701ac3206dbb47de075aea74cac5f",
+  "implementation_head_before_S10": "5e2c594d87b96b3a139f585d8aea10fcef4ed8da",
+  "final_native_build_sha256": "fce8f24de1cd94fa7d7e060d316c9152c13603556c972c3ee9b00750b5eecd1a",
+  "tracked_rust_source_manifest_sha256": "5362436b8788f6706e6f1beebf18c30e1c6221f4be25dab95a146a8f966e1f36",
+  "source_hash_method": "SHA256 of tracked source manifest at S09; individual binary and manifest binding in execution receipts",
+  "stages": [
+    {
+      "commit": "bf8e48f88abceaed144d8e889b18190813fd864c",
+      "description": "S01 Bind observable-bucket study to original physics and V03 frontier"
+    },
+    {
+      "commit": "e6bdfff05c2dacd3066556b39d15f0bd2c1ff157",
+      "description": "S02 Prove mixed-dwell observable-clock quotient and lazy release bound"
+    },
+    {
+      "commit": "45be29f44df5a099d5f6239bd149e0cba1e4877f",
+      "description": "S03 Skip unobservable private and tolerance-covered eligibility queries"
+    },
+    {
+      "commit": "dc25e392f6b7a54e1e288da9cccf5daf4a6af66d",
+      "description": "S04 Implement fixed inline exact expansion with explicit overflow"
+    },
+    {
+      "commit": "29735029b85237340cf6cdd039632602a3428d6c",
+      "description": "S05 Implement bounded observable-clock buckets with sorted reference fallback"
+    },
+    {
+      "commit": "7ce5c06cccd107e68d00eb4c5e3835e190c60d82",
+      "description": "S06 Integrate reusable bucket sweep and actual allocation probe"
+    },
+    {
+      "commit": "9cc8cb0628e62f5f71c8e17741bd327db352bfa6",
+      "description": "S07 Add schedule-aware private-receipt closure as distinct research identity"
+    },
+    {
+      "commit": "4ed67ffde888bec315e3eff67ccc2f8f92f225e6",
+      "description": "S08 verify warmed zero-allocation kernel and fixture replay"
+    },
+    {
+      "commit": "5e2c594d87b96b3a139f585d8aea10fcef4ed8da",
+      "description": "S09 Run matched Valley schedule quotient and progressive 60 120 300 second checkpoints"
+    }
+  ],
+  "S10": "Update PLAN/DAG, scoped census, push, independently verify backup before dedup",
+  "theory_path": "docs/research/V03_OBSERVABLE_BUCKETS_20261127.md",
+  "readiness": {
+    "nodes_total": 21,
+    "nodes_accepted": 5,
+    "nodes_verified_scoped": 14,
+    "nodes_blocked": 1,
+    "nodes_planned": 1,
+    "direct_dependencies": [
+      {
+        "id": "P01",
+        "status": "VERIFIED_SCOPED"
+      },
+      {
+        "id": "V01",
+        "status": "VERIFIED_SCOPED"
+      },
+      {
+        "id": "V02",
+        "status": "VERIFIED_SCOPED"
+      }
+    ],
+    "direct_scoped_or_accepted": 3,
+    "direct_accepted": 0,
+    "original_cases_prepared": 3,
+    "prior_60s_prefixes_validated": 3,
+    "original_cases_total": 3,
+    "original_full_days_accepted": 0,
+    "original_full_days_required": 9,
+    "original_8h_refinement_completed": 0,
+    "original_8h_refinement_required": 3,
+    "computed_frontier_s": 25740,
+    "independently_recovered_frontier_s": 25740,
+    "research_frontiers": [
+      {
+        "bins": 4,
+        "start_s": 25320,
+        "recovered_s": 25800,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:4",
+        "evidence": "artifacts/v03_causal_rank_20261127/S05_r4_recover25800.json"
+      },
+      {
+        "bins": 1,
+        "start_s": 25320,
+        "recovered_s": 26220,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1",
+        "evidence": "artifacts/v03_causal_rank_20261127/S08_r1_recovered.json"
+      },
+      {
+        "bins": 1,
+        "ready_milli_veh": 500,
+        "start_s": 25800,
+        "ancestral_source_s": 25320,
+        "recovered_s": 27000,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60",
+        "evidence": "artifacts/v03_causal_rank_20261127/S08_ready500_recover27000.json"
+      },
+      {
+        "bins": 1,
+        "receipt_grid_step_s": 10,
+        "receipt_sweep_s": 60,
+        "ancestral_source_s": 25320,
+        "start_s": 27060,
+        "recovered_s": 28020,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10",
+        "evidence": "artifacts/v03_receipt_closure_20261127/S08_grid28020_recover.json"
+      },
+      {
+        "receipt_grid_step_s": 10,
+        "receipt_sweep_s": 60,
+        "observable_schedule": true,
+        "ancestral_source_s": 25320,
+        "start_s": 28020,
+        "recovered_s": 28500,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1",
+        "evidence": "artifacts/v03_observable_buckets_20261127/S09_schedule28500_recovery.json"
+      }
+    ],
+    "definition": "Original V03 status unchanged. Schedule quotient is a distinct identity, 480s new research horizon, 3180s ancestral horizon; not original acceptance.",
+    "current_loop_stages": 10
+  },
+  "backend_coverage": {
+    "baseline_rust_core": 5,
+    "denominator": 15,
+    "method": "unweighted, fixed C01 functional inventory; scoped evidence reviewed; not LOC, full-city completeness or release acceptance",
+    "native_host_linked_python_scoped": 0,
+    "original_dag_accepted": 5,
+    "original_dag_scoped_or_accepted": 19,
+    "original_dag_total": 21,
+    "original_v03_direct_dependencies_ready": 3,
+    "original_v03_direct_dependencies_total": 3,
+    "original_v03_full_days": 0,
+    "original_v03_rust_only_city_preparations_verified": 3,
+    "original_v03_total": 9,
+    "partial_functions": 2,
+    "pure_rust_percent": 86.66666666666667,
+    "pure_rust_verified_scoped": 13,
+    "remaining_functions": 2,
+    "rows": [
+      {
+        "baseline": "PYTHON",
+        "component": "city geometry generation and map validation",
+        "evidence": "../v03_rust_atlas_integration_20261127/C06_all8.json",
+        "evidence_sha256": "857d457e5c32a58630e1918c69416806eab30c3551acdedd76a2e32dd205f5f2",
+        "id": "B01",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "activity geometry and finite access-law construction",
+        "evidence": "../v03_pure_rust_core_20261127/C06_oracle.log",
+        "evidence_sha256": "0b533f343de868b64ed7e4f0cd8eada19f1bd3a00ec176032214d89509726f79",
+        "id": "B02",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "factorized demand declarations and inventory",
+        "evidence": "../v03_rust_atlas_integration_20261127/valley_next.engine10.json",
+        "evidence_sha256": "7fc1f9f20b108e9686eb2a91aa8333b6f21a0ebe97534e3bb20c9775d3d354ea",
+        "id": "B03",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "native factorized OD enumeration",
+        "evidence": "river_weekday_s17.engine10.json",
+        "evidence_sha256": "f9d331a4accf22e08fc6aa5b09483b9f759234f7a9828dbea905e99f84796dcf",
+        "id": "B04",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "legal graph route search and cache",
+        "evidence": "../v03_pure_rust_core_20261127/C07-c07-2.json",
+        "evidence_sha256": "3cfd20377ae0cf444cf30c049fd9518a1fc8bcad2b524edb06c91d9aba13b077",
+        "id": "B05",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "MIXED",
+        "component": "fleet and freight route preparation",
+        "evidence": "../v03_pure_rust_core_20261127/C06_oracle.log",
+        "evidence_sha256": "0b533f343de868b64ed7e4f0cd8eada19f1bd3a00ec176032214d89509726f79",
+        "id": "B06",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "road kinetic transport and node allocation",
+        "evidence": "../v03_marked_owner_20261127/S03_25740.json",
+        "evidence_sha256": "d74089162965c0387affa5f879bbbe02bd99872f7c844b5c1d94f83265d448c4",
+        "id": "B07",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "service and journey coupling",
+        "evidence": "../v03_marked_owner_20261127/S03_25740.json",
+        "evidence_sha256": "d74089162965c0387affa5f879bbbe02bd99872f7c844b5c1d94f83265d448c4",
+        "id": "B08",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "whole engine orchestration and checkpoint",
+        "evidence": "../v03_marked_owner_20261127/S04_recovery.json",
+        "evidence_sha256": "821fdb4aad9342aef8f21e2838653b49504d3f95f4edca8aee8d2dab5c4f0e00",
+        "id": "B09",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "causal routing adaptation and delayed land-use",
+        "evidence": "../v03_marked_owner_20261127/S09_phase_parity.json",
+        "evidence_sha256": "a539fa90d97776be82955f79e82301821ce20f3450e3a4fe34078d1b7ee660e0",
+        "id": "B10",
+        "status": "PARTIAL"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "access-coupling research preprocessing",
+        "evidence": "../v03_rust_only_backend_20261126/C03_test.log",
+        "evidence_sha256": "41b47ea4c68ff1f201d6a9d71c5c9e736ec68ce0b508c9458023a751dd3509ff",
+        "id": "B11",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "route passage generation and validation",
+        "evidence": "../v03_rust_only_backend_20261126/C04_test.log",
+        "evidence_sha256": "07791a61eaf987cc0e20c00354b3645a8ade3817d68c57a4bb3134fbd9047638",
+        "id": "B12",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "CPP",
+        "component": "multiclass shared-access projection solver",
+        "evidence": "../v03_rust_only_backend_20261126/C09_parity.json",
+        "evidence_sha256": "1015116457d11089f1df668a3ef26e0f7c8cb0d896a33abb35de65ec1b75d377",
+        "id": "B13",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "research execution receipt and metrics",
+        "evidence": "S09_original25380.json",
+        "evidence_sha256": "0732d7ff2b5eafc9e3d8ab67d679ff978d128e34ac058bb01151337df187342e",
+        "id": "B14",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "original V03 campaign runner and acceptance",
+        "evidence": "../v03_span_measure_20261127/S04_25750.json",
+        "evidence_sha256": "d1a6069fb79b0efc4aa8339335398edb444f44070c8e0cbc05135e7f3a1a1e69",
+        "id": "B15",
+        "status": "PARTIAL"
+      }
+    ],
+    "rust_implemented_percent": 86.66666666666667,
+    "rust_implemented_scoped": 13,
+    "schema": "metroflow_backend_functional_census_v1",
+    "unimplemented_functions": 0,
+    "current_loop": "Native receipt-grid bucket and schedule closure, 275 native tests and 9 headless tests; scoped functional denominator and B10/B15 partial unchanged."
+  },
+  "original_frontier": {
+    "computed": 25740,
+    "recovered": 25740,
+    "new_original_city_run": false,
+    "original_fixture_byte_identical": true
+  },
+  "runs": [
+    {
+      "start_s": 28020,
+      "recovered_s": 28080,
+      "advanced_s": 60,
+      "wall_s": 42.514761458,
+      "advance_s": 17.710557855,
+      "peak_rss_bytes": 1822339072,
+      "max_traced_guard_required_bytes": 2522018781,
+      "guard_exceedances": 0,
+      "checkpoint_bytes": 514277909,
+      "history_rows": 51230,
+      "history_bytes": 20082160,
+      "journey_records": {
+        "dynamic_bytes": 202507088,
+        "egress": 3147479,
+        "enter": 2330693,
+        "history": 51230,
+        "history_bytes": 20082160,
+        "internal": 73212,
+        "nonempty_histories": 51230,
+        "stage_bytes": [
+          76609104,
+          103409200,
+          2406624
+        ]
+      },
+      "peak_records": 20669003,
+      "execution": "artifacts/v03_observable_buckets_20261127/S09_schedule28080.json",
+      "recovery": "artifacts/v03_observable_buckets_20261127/S09_schedule28080_recovery.json"
+    },
+    {
+      "start_s": 28080,
+      "recovered_s": 28200,
+      "advanced_s": 120,
+      "wall_s": 56.289715051,
+      "advance_s": 37.006380622,
+      "peak_rss_bytes": 1548484608,
+      "max_traced_guard_required_bytes": 1805852685,
+      "guard_exceedances": 0,
+      "checkpoint_bytes": 514277909,
+      "history_rows": 51230,
+      "history_bytes": 20082160,
+      "journey_records": {
+        "dynamic_bytes": 202507088,
+        "egress": 3147479,
+        "enter": 2330693,
+        "history": 51230,
+        "history_bytes": 20082160,
+        "internal": 73212,
+        "nonempty_histories": 51230,
+        "stage_bytes": [
+          76609104,
+          103409200,
+          2406624
+        ]
+      },
+      "peak_records": 9485073,
+      "execution": "artifacts/v03_observable_buckets_20261127/S09_schedule28200.json",
+      "recovery": "artifacts/v03_observable_buckets_20261127/S09_schedule28200_recovery.json"
+    },
+    {
+      "start_s": 28200,
+      "recovered_s": 28500,
+      "advanced_s": 300,
+      "wall_s": 98.959933751,
+      "advance_s": 77.377414547,
+      "peak_rss_bytes": 1587871744,
+      "max_traced_guard_required_bytes": 1806503277,
+      "guard_exceedances": 0,
+      "checkpoint_bytes": 514687797,
+      "history_rows": 51230,
+      "history_bytes": 20082160,
+      "journey_records": {
+        "dynamic_bytes": 202540688,
+        "egress": 3148427,
+        "enter": 2330693,
+        "history": 51230,
+        "history_bytes": 20082160,
+        "internal": 73212,
+        "nonempty_histories": 51230,
+        "stage_bytes": [
+          76609104,
+          103442800,
+          2406624
+        ]
+      },
+      "peak_records": 9485073,
+      "execution": "artifacts/v03_observable_buckets_20261127/S09_schedule28500.json",
+      "recovery": "artifacts/v03_observable_buckets_20261127/S09_schedule28500_recovery.json"
+    }
+  ],
+  "matched_comparison": {
+    "address_space_limit_bytes": 8589934592,
+    "candidate_checkpoint_sha256": "54ecc0ab861cc823d8caffe0d15252af5ceb2f67538238c2288d8c1905398a2f",
+    "candidate_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1",
+    "candidate_manifest_sha256": "a8df78fd4f2e71b177819d3b4968fe7fd7705d9b77e572966dc7758195d66ae0",
+    "cells": {
+      "active_veh": {
+        "bit_different_entries": 0,
+        "entries": 1586,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 1361.8083713101398,
+        "relative_l1": 0.0
+      },
+      "cumulative_entry_veh": {
+        "bit_different_entries": 0,
+        "entries": 1586,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 118388.72524777999,
+        "relative_l1": 0.0
+      },
+      "cumulative_exit_veh": {
+        "bit_different_entries": 0,
+        "entries": 1586,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 117026.91687646987,
+        "relative_l1": 0.0
+      },
+      "distance_veh_m": {
+        "bit_different_entries": 0,
+        "entries": 1586,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 22715890.643722188,
+        "relative_l1": 0.0
+      },
+      "occupied_lane_m": {
+        "bit_different_entries": 0,
+        "entries": 1586,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 6809.041856550699,
+        "relative_l1": 0.0
+      },
+      "speed_m_s": {
+        "bit_different_entries": 0,
+        "entries": 1586,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 8754.85806086483,
+        "relative_l1": 0.0
+      }
+    },
+    "executable_sha256": "fce8f24de1cd94fa7d7e060d316c9152c13603556c972c3ee9b00750b5eecd1a",
+    "journey_legs": {
+      "completed_persons": {
+        "bit_different_entries": 0,
+        "entries": 918450,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 6974.421980813182,
+        "relative_l1": 0.0
+      },
+      "completed_veh": {
+        "bit_different_entries": 0,
+        "entries": 918450,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 5567.566968764266,
+        "relative_l1": 0.0
+      },
+      "since_completion_person_s": {
+        "bit_different_entries": 49540,
+        "entries": 918450,
+        "l1": 1.2423754247592456e-08,
+        "linf": 1.546140993013978e-11,
+        "reference_l1": 7453592.880571474,
+        "relative_l1": 1.6668141722599577e-15
+      },
+      "since_completion_veh_s": {
+        "bit_different_entries": 49292,
+        "entries": 918450,
+        "l1": 9.92022619605848e-09,
+        "linf": 1.2278178473934531e-11,
+        "reference_l1": 5946082.256766833,
+        "relative_l1": 1.6683634311935295e-15
+      }
+    },
+    "last_tick_outlet": {
+      "birth_to_exit_veh_s": {
+        "bit_different_entries": 0,
+        "entries": 304856,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 17658.713692629157,
+        "relative_l1": 0.0
+      },
+      "outlet_veh": {
+        "bit_different_entries": 0,
+        "entries": 304856,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 26.434621532591073,
+        "relative_l1": 0.0
+      }
+    },
+    "peak_rss_bytes": 955179008,
+    "reference_checkpoint_sha256": "41ac8f50c8e6dedaedef362e1fe1d2017c362fca12afcae9f18cc21910d8602c",
+    "reference_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10",
+    "reference_manifest_sha256": "e23ed04001651bc5c0bdf130e2f095625c77788f42c8445adc44d45f3ee4deec",
+    "road_tags": {
+      "active_veh": {
+        "bit_different_entries": 0,
+        "entries": 304856,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 1361.8083713101398,
+        "relative_l1": 0.0
+      },
+      "birth_veh_s": {
+        "bit_different_entries": 0,
+        "entries": 304856,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 37588182.43199942,
+        "relative_l1": 0.0
+      },
+      "entry_clock_veh_s": {
+        "bit_different_entries": 0,
+        "entries": 304856,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 38224974.013688505,
+        "relative_l1": 0.0
+      },
+      "route_offset_veh": {
+        "bit_different_entries": 0,
+        "entries": 304856,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 14987.101775827285,
+        "relative_l1": 0.0
+      }
+    },
+    "schema": "metroflow_rank_state_compare_v1",
+    "scope": "strict loaded snapshots same physical declaration/time/tag registry; numerical observable differences, not global error theorem or release acceptance",
+    "status": "EXECUTED_FOR_REVIEW",
+    "tag_order_sha256": "1afae786b6800f1e8705b0a64cedd6b4d018fa440176937d9ad919c758a25eb8",
+    "time_s": 28080.0,
+    "wall_s": 20.877723472
+  },
+  "matched_reference_recovery": {
+    "address_space_limit_bytes": 8589934592,
+    "build_s": 5.129549,
+    "byte_budget": 6442450944,
+    "calendar_legs": 918450,
+    "calendar_totals": [
+      120000.0,
+      58801.0,
+      1000.0
+    ],
+    "checkpoint_bytes": 698138401,
+    "checkpoint_sha256": "41ac8f50c8e6dedaedef362e1fe1d2017c362fca12afcae9f18cc21910d8602c",
+    "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+    "class_names": [
+      "car",
+      "freight",
+      "scheduled_bus"
+    ],
+    "completed_event_rows": 2042034,
+    "decode_envelopes": {
+      "compact_owner_bytes": 54257672,
+      "compact_validation_scratch_bytes": 2334336,
+      "historical_legacy_owner_estimate_bytes": 54602840,
+      "historical_legacy_validation_scratch_bytes": 44166832
+    },
+    "executable_sha256": "fce8f24de1cd94fa7d7e060d316c9152c13603556c972c3ee9b00750b5eecd1a",
+    "journey_records": {
+      "dynamic_bytes": 447696528,
+      "egress": 3147479,
+      "enter": 2330693,
+      "history": 11542512,
+      "history_bytes": 265271600,
+      "internal": 73212,
+      "nonempty_histories": 51230,
+      "stage_bytes": [
+        76609104,
+        103409200,
+        2406624
+      ]
+    },
+    "ledger": {
+      "cargo_kg": {
+        "active": 0.0,
+        "completed": 0.0,
+        "pending": 0.0,
+        "released": 0.0,
+        "released_intent_first_moment": 0.0,
+        "requested": 0.0
+      },
+      "persons": {
+        "active": 2607.5783460661523,
+        "completed": 6974.421980813139,
+        "pending": 6417.999673120508,
+        "released": 9582.000326879292,
+        "released_intent_first_moment": 255216578.70642325,
+        "requested": 15999.9999999998
+      },
+      "vehicles": {
+        "active": 2085.7663645692483,
+        "completed": 5567.566968764219,
+        "pending": 186.66666666632682,
+        "released": 7653.333333333468,
+        "released_intent_first_moment": 203846533.3333348,
+        "requested": 7839.999999999794
+      }
+    },
+    "load_s": 3.255489153,
+    "manifest_sha256": "e23ed04001651bc5c0bdf130e2f095625c77788f42c8445adc44d45f3ee4deec",
+    "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10",
+    "peak_rss_bytes": 949686272,
+    "python_runtime_dependency": "none",
+    "road_class_ledgers": [
+      [
+        7207.553739412872,
+        5845.74536816944,
+        72075.53739491127,
+        123157.85098972778,
+        657121.6980939191
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        4.0,
+        4.0,
+        40.0,
+        42.546830484469325,
+        619.9681412956854
+      ]
+    ],
+    "road_records": {
+      "cell_packets": 2913,
+      "cell_parts": 2751429,
+      "mixed_parts": 0,
+      "pending_packets": 0,
+      "pending_parts": 0,
+      "retained_storage_bytes": 54257672,
+      "uniform_parts": 2751429
+    },
+    "road_totals": [
+      7211.553739473067,
+      5849.745368163082,
+      191555965.7918284,
+      157653318.816095,
+      72115.53739473234,
+      657741.6662336317,
+      1043293.8867795386
+    ],
+    "schedule_identity": "61bf90204d22e3442c565f3f62b8ef4cba7d7be3e74b1d33e6c8bcf96208c920",
+    "schema": "metroflow_native_recovery_v1",
+    "scope": "strict complete decode, cross-owner ledger validation and original identity; no execution or elapsed-horizon claim",
+    "status": "RECOVERED_CHECKPOINT_ONLY",
+    "threads": 8,
+    "time_s": 28080.0,
+    "wall_s": 9.657466437
+  },
+  "fixture_comparison": {
+    "address_space_limit_bytes": 8589934592,
+    "candidate_checkpoint_sha256": "37b8793a2abe7337e34cf81f671fbb82ee61e4c5bf965c4737520b44a950306e",
+    "candidate_identity": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3:mature-receipt-v1:10:group-outlets-v1:receipt-grid-v1:1:receipt-schedule-v1",
+    "candidate_manifest_sha256": "5a7004d8ed19249ba83977a31e1e7e04efb68cf465b86cb1b05dc13806f961ee",
+    "cells": {
+      "active_veh": {
+        "bit_different_entries": 0,
+        "entries": 2,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      },
+      "cumulative_entry_veh": {
+        "bit_different_entries": 0,
+        "entries": 2,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 14.9,
+        "relative_l1": 0.0
+      },
+      "cumulative_exit_veh": {
+        "bit_different_entries": 0,
+        "entries": 2,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 14.9,
+        "relative_l1": 0.0
+      },
+      "distance_veh_m": {
+        "bit_different_entries": 0,
+        "entries": 2,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 1490.0000000000002,
+        "relative_l1": 0.0
+      },
+      "occupied_lane_m": {
+        "bit_different_entries": 0,
+        "entries": 2,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      },
+      "speed_m_s": {
+        "bit_different_entries": 0,
+        "entries": 2,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      }
+    },
+    "executable_sha256": "fce8f24de1cd94fa7d7e060d316c9152c13603556c972c3ee9b00750b5eecd1a",
+    "journey_legs": {
+      "completed_persons": {
+        "bit_different_entries": 0,
+        "entries": 5,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 20.0,
+        "relative_l1": 0.0
+      },
+      "completed_veh": {
+        "bit_different_entries": 0,
+        "entries": 5,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 13.06,
+        "relative_l1": 0.0
+      },
+      "since_completion_person_s": {
+        "bit_different_entries": 0,
+        "entries": 5,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 1524.6522365923192,
+        "relative_l1": 0.0
+      },
+      "since_completion_veh_s": {
+        "bit_different_entries": 0,
+        "entries": 5,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 1043.9817892738554,
+        "relative_l1": 0.0
+      }
+    },
+    "last_tick_outlet": {
+      "birth_to_exit_veh_s": {
+        "bit_different_entries": 0,
+        "entries": 5,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      },
+      "outlet_veh": {
+        "bit_different_entries": 0,
+        "entries": 5,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      }
+    },
+    "peak_rss_bytes": 7671808,
+    "reference_checkpoint_sha256": "667fa1ba8a3aed4f0b5cbcf82ff01cc0d91c71b7c61cafcd36d302bdb00a00a6",
+    "reference_identity": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3:mature-receipt-v1:10:group-outlets-v1:receipt-grid-v1:1",
+    "reference_manifest_sha256": "64bb791f6d4e1dbbc82081a4e933276902409cf5f378bf8e2f7cb38cce848cb3",
+    "road_tags": {
+      "active_veh": {
+        "bit_different_entries": 0,
+        "entries": 5,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      },
+      "birth_veh_s": {
+        "bit_different_entries": 0,
+        "entries": 5,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      },
+      "entry_clock_veh_s": {
+        "bit_different_entries": 0,
+        "entries": 5,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      },
+      "route_offset_veh": {
+        "bit_different_entries": 0,
+        "entries": 5,
+        "l1": 0.0,
+        "linf": 0.0,
+        "reference_l1": 0.0,
+        "relative_l1": null
+      }
+    },
+    "schema": "metroflow_rank_state_compare_v1",
+    "scope": "strict loaded snapshots same physical declaration/time/tag registry; numerical observable differences, not global error theorem or release acceptance",
+    "status": "EXECUTED_FOR_REVIEW",
+    "tag_order_sha256": "133d106ee0c5ad48bd141a8a61f99a3f5e36733c8bcd0bdaa1c43e817d4f9d25",
+    "time_s": 120.0,
+    "wall_s": 0.002493784
+  },
+  "allocation_probes": [
+    {
+      "iterations_per_kernel": 1000000,
+      "journey_fsum": {
+        "allocation_calls": 0,
+        "last_value": 3.5,
+        "reallocation_calls": 0,
+        "wall_s": 0.121846351
+      },
+      "link_step": {
+        "allocation_calls": 0,
+        "final_counts": {
+          "admitted": 1000000.0,
+          "departed": 999997.0,
+          "on_link": 3.0,
+          "pending": 0.0,
+          "requested": 1000000.0,
+          "residence_veh_s": 2999994.0
+        },
+        "reallocation_calls": 0,
+        "wall_s": 0.052137845
+      },
+      "scope": "single process, initialized ring, tested six-term finite cancellation input; other inputs may spill; no full-engine zero heap claim"
+    },
+    {
+      "allocation_calls": 0,
+      "iterations": 100000,
+      "kernel": "marked_fifo_diverge_step",
+      "metrics": {
+        "age_identity_residual": [
+          -5.820766091346741e-11,
+          -1.4551915228366852e-11
+        ],
+        "blocked_mixed_ticks": 14285,
+        "completed_elapsed_veh_s": [
+          248561.39999965587,
+          82853.80000013339
+        ],
+        "exited": {
+          "birth": [
+            2999790003.6,
+            999930001.2
+          ],
+          "mass": [
+            59997.599999901235,
+            19999.200000037694
+          ]
+        },
+        "max_birth_residual": 2.3178290575742722e-07,
+        "max_mass_residual": 7.275513524973576e-12,
+        "on_link": {
+          "birth": [
+            239996.4,
+            79998.8
+          ],
+          "mass": [
+            2.4,
+            0.8
+          ]
+        },
+        "peak_pending_veh": 0.0,
+        "peak_queue_rows": [
+          1,
+          3,
+          3,
+          3
+        ],
+        "pending": {
+          "birth": [
+            0.0,
+            0.0
+          ],
+          "mass": [
+            0.0,
+            0.0
+          ]
+        },
+        "requested": {
+          "birth": [
+            3000030000.0,
+            1000010000.0
+          ],
+          "mass": [
+            59999.99999990123,
+            20000.000000037697
+          ]
+        },
+        "reserved_queue_payload_bytes": 36000160,
+        "residence_veh_s": [
+          248564.99999965585,
+          82855.00000013338
+        ],
+        "time_s": 100000.0
+      },
+      "reallocation_calls": 0,
+      "scope": "preallocated marked network; 2 classes, unequal footprints, intermittent receiving restriction; no full V03 zero heap claim",
+      "wall_s": 0.033893241
+    },
+    {
+      "allocation_calls": 0,
+      "checksum": 2594073418108802610,
+      "iterations": 1000000,
+      "kernel": "packed_reference_and_event_random_access",
+      "reallocation_calls": 0,
+      "scope": "initialized exact packed ranks and event pages; encoding allocates per sealed page",
+      "sealed_saved_bytes": [
+        671744,
+        1459552
+      ],
+      "wall_s": 0.049127045
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        1.0,
+        3.0
+      ],
+      "iterations": 1000000,
+      "kernel": "rank_positive_mass_birth_accumulation",
+      "reallocation_calls": 0,
+      "scope": "actual compensated per-mark accumulator; excludes sort and packet output allocations",
+      "wall_s": 0.033969746
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        0.5,
+        4.75,
+        0.5,
+        10.375
+      ],
+      "iterations": 1000000,
+      "kernel": "warmed_receipt_grid_bucket",
+      "reallocation_calls": 0,
+      "scope": "actual warmed bucket insertion and inline positive mass/moment sums; output history and source visitor excluded",
+      "wall_s": 0.071111568
+    },
+    {
+      "allocation_calls": 0,
+      "checksum": [
+        3,
+        13799029258263199744
+      ],
+      "iterations": 1000000,
+      "kernel": "outlet_group_and_stack_wire",
+      "reallocation_calls": 0,
+      "scope": "actual fixed-slice grouped outlet and stack word writer; no allocation for tested small fsum; full histories may spill",
+      "wall_s": 0.148319618
+    }
+  ],
+  "validation": {
+    "native_lib_pass": 275,
+    "native_lib_ignored": 2,
+    "headless_pass": 9,
+    "native_release_bins": "PASS",
+    "full_repository_ci": "NOT_RUN_DEFERRED_BY_USER",
+    "native_subagent": "NOT_RUN_NO_TOOL",
+    "source_diff_check": "PASS",
+    "raw_log_trailing_whitespace": "preserved"
+  },
+  "limits": {
+    "address_space_bytes": 8589934592,
+    "accounting_bytes": 6442450944,
+    "original_wall_s_per_case": 7200,
+    "full_day_cases_completed": 0,
+    "full_day_cases_required": 9
+  },
+  "full_day_acceptance": "BLOCKED_RESOURCE_AND_MIGRATION_0_OF_9",
+  "limitations": [
+    "General mixed-dwell cut theorem derived, production schedule closure only strong all-hidden subset; existing grid/maturity fallback otherwise.",
+    "Actual matched 60s, longer continuation not matched against grid; real evening returns, refinement and full day untested. Timing shared host, not isolated repeated benchmark.",
+    "Only warmed bucket insertions measured allocation-free; source visitor, outputs, fallback, raw stage and sweep transients remain.",
+    "No original acceptance credit; original exact city not extended; main unchanged; no independent subagents available."
+  ],
+  "next_action": "V03/B15: retain original 6GiB/8GiB/7200s caps and 3x3 full days plus 8h refinement, no credit from distinct model. In schedule identity, move receipt accumulation before raw retirement append using leg and protected observable cell, transactional rollback, exact rounded predicate and positive first moments. Profile and reduce 3.15M egress/2.33M entry stage rows: retire tick and effective completion clock max(t,ready), preserve service binding, route/rank/birth/old-clock observers; egress law convolution into bounded buckets, entry only after road semantics proof. Stream per-leg egress mass with ordered exact expansion rather than per-tick HashMap<Vec>; reuse workspace across sweeps, profile allocation spills and actual phase times. Extend matched 10s/5s and actual return clocks, 3600s/8h/24h, River/Coastal, independent repeated timings. B10 actual link-entry/outlet marks, endogenous ready-head suffix and graph edit drain remain partial. Original exact frontier unchanged; no production merge or gate changes.",
+  "evidence_files": {
+    "artifacts/v03_observable_buckets_20261127/S01_identity.txt": "355e13b7ab6f8f6293485aeb7bc07e9d808f6b87dfa98cad04be19055931056f",
+    "artifacts/v03_observable_buckets_20261127/S01_original_PRD.md": "7a92057a44f8cb744ba76b56cba58d576a6d6b060c7dcd9c08cc08a81f96ee27",
+    "artifacts/v03_observable_buckets_20261127/S01_readiness.json": "6ea0ccbf40fe15b74b56b66b89547dad4ea15f925e845815f0c943dc9f43e1a3",
+    "artifacts/v03_observable_buckets_20261127/S02_cas.txt": "dc0f2929fbb58523375d8ce316e627538d49e6768cf15c2dcde12fdf0bcf515a",
+    "artifacts/v03_observable_buckets_20261127/S03_test.log": "60accaaa89f29278f91f46c24a195e7cf4439107608554e6c29e393fbae1f8e8",
+    "artifacts/v03_observable_buckets_20261127/S04_test.log": "018d40d273d783063ac71483decb313b1d073f7778b31a5f419ecf86427b7103",
+    "artifacts/v03_observable_buckets_20261127/S05_test.log": "58e1d452ed7790b38008762f6423b28676a63e34f3b1ee407157b593b0dfecd9",
+    "artifacts/v03_observable_buckets_20261127/S06_native_tests.log": "2b67f162f81781c9a9ccca878f2fb314c62161d4a29937094420a51d68b42976",
+    "artifacts/v03_observable_buckets_20261127/S07_test.log": "2210600212592d3bf6eb19088f81ee486dae020dc5c7f443daa25d735071c059",
+    "artifacts/v03_observable_buckets_20261127/S08_binaries.sha256": "2c01cf43be093c4e7ef136b2d875e64e6ac3a1c0ae30fdca91d613f0feae2382",
+    "artifacts/v03_observable_buckets_20261127/S08_build.log": "8655b942013cafb4a4bd8f8049c402d726283374a326202ff4b59c658b1dced7",
+    "artifacts/v03_observable_buckets_20261127/S08_fixture_compare120.json": "e2d6fe2391013ed71d8a384265dc6a3d0595a66e6cc2090734734a5858c2062b",
+    "artifacts/v03_observable_buckets_20261127/S08_fixture_grid120.json": "731d78e3f176d0516298b19400a05e5946c4b33a9b795a32e872c528296c6163",
+    "artifacts/v03_observable_buckets_20261127/S08_fixture_old120.json": "4c1919ab940dd6bce4e3759a6ca7754a87da43f0df4ffbbf2d8bf0d98cfba0c5",
+    "artifacts/v03_observable_buckets_20261127/S08_fixture_schedule.manifest.json": "5a7004d8ed19249ba83977a31e1e7e04efb68cf465b86cb1b05dc13806f961ee",
+    "artifacts/v03_observable_buckets_20261127/S08_fixture_schedule120.json": "cf0a3e6a7c238ab8390879561f1d1594f5b9880a60c8ac1a944d263fe894be98",
+    "artifacts/v03_observable_buckets_20261127/S08_fixture_schedule120_recovery.json": "1314cbf4249acda2102ab0c6e428641043219a99ebd6fce145f73f467cbb8d87",
+    "artifacts/v03_observable_buckets_20261127/S08_zero_alloc.jsonl": "781dfd5cc90be02f20d78b3fed9ded44ed1d3782464348aace31f31f05a86daa",
+    "artifacts/v03_observable_buckets_20261127/S09_compare28080.json": "be51cbf6b08c9902374f9660904c775222147fbdae2b79c1539f2ba583b697ee",
+    "artifacts/v03_observable_buckets_20261127/S09_fixture_original.manifest.json": "a21cee0416a23913a01790d5e61fcce50eab197d0cdb89454f8dd157503c94ce",
+    "artifacts/v03_observable_buckets_20261127/S09_fixture_original_new.json": "22554c4092d99660dc8a659acb7714bcaba01dbe557c8a8f8ee105f9aeb9c552",
+    "artifacts/v03_observable_buckets_20261127/S09_fixture_original_old.json": "86b66d559eea9721fd07df217d8c1ded88334cdd28caef43d0729b8c6af03f86",
+    "artifacts/v03_observable_buckets_20261127/S09_grid28080.json": "c51c401e5cbf04ef87a6926d2e9ae01f5789f79dc1d6d7c581ac52081dcec9bf",
+    "artifacts/v03_observable_buckets_20261127/S09_grid28080_recovery.json": "da763c954b56eff29c0ca57ec27d270bf6752a22b532759cbedf7db6a4f9cc86",
+    "artifacts/v03_observable_buckets_20261127/S09_headless_tests.log": "c3533aac50a57094e2a0648c5ed14aa33760688eeadefccf05f1a59ef6e59287",
+    "artifacts/v03_observable_buckets_20261127/S09_native_tests.log": "9a57b0a7724920966cc7a4fe9282a95e17a7d00ff1d8f46ea776f25fa53321ab",
+    "artifacts/v03_observable_buckets_20261127/S09_review.md": "0aee32731e8b5c1812804e596bde0d4b81f0ca7b1f12d95aa36c2dbd1b228dde",
+    "artifacts/v03_observable_buckets_20261127/S09_schedule28020_migrate.json": "58cde0f7dafae0d5af5763448380a68c2f73908cb26a41f3ff6668eeecc367f5",
+    "artifacts/v03_observable_buckets_20261127/S09_schedule28080.json": "928f0ec7af16ccc81adf93ab2bbdb2ed7ca2cd1160bbdee26049c4419139c4fc",
+    "artifacts/v03_observable_buckets_20261127/S09_schedule28080_recovery.json": "359607a377c1991d962ae1ae6db2ad94ebf4a06e96ad14e3301b908cafb48c20",
+    "artifacts/v03_observable_buckets_20261127/S09_schedule28200.json": "b357df16467fd0c57ceb0796957acd3b1749ea9200b982c077fb28a079190d03",
+    "artifacts/v03_observable_buckets_20261127/S09_schedule28200_recovery.json": "358d08ebe00767bc1bafd4662a7b896ac62d8679667d792fea8e899382ed1717",
+    "artifacts/v03_observable_buckets_20261127/S09_schedule28500.json": "557f3b4b2a992938f045ba0a086de8913a204abfd24cd40693f69b1990d1f8ce",
+    "artifacts/v03_observable_buckets_20261127/S09_schedule28500_recovery.json": "7cd5b40a83cb6f02ede1dfbe63997bc5269d60306af6f0d0a90bd36fc5d2a6c7",
+    "artifacts/v03_observable_buckets_20261127/S09_tracked_rust_sources.sha256": "5362436b8788f6706e6f1beebf18c30e1c6221f4be25dab95a146a8f966e1f36"
+  }
+}

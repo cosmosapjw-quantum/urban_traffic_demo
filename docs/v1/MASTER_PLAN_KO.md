@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.47**, 2026-11-27. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.48**, 2026-11-27. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -2122,7 +2122,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-V03/B15: preserve original identity and strict caps. For distinct receipt-grid research model, replace repeated sort/rebuild sweeps with bounded incremental eligibility bucket accumulators (mass, first moment, boundary key proof and rollback). Profile egress/access stages (~3.15M/~2.33M rows) and apply release-tick quotient before law expansion only after proving every future production predicate and carried birth/wait moment; preserve raw history where observations require it. Investigate schedule-aware quotient for private child departures: where fraction(profile,t)=0, eligibility is unobservable to release and already-released mass is zero; protect bus service eligibility queries and validators, mixed dwell, protected service/reroute boundaries. Validate actual post-dwell returns, matched 10/5s and longer 3600s/8h/24h, River/Coastal, before any separate acceptance proposal. Supply-sensitive adaptive rank deferred by measured journey bottleneck; resume with per-link error budget after profiling. B10 actual link-entry/outlet marks, endogenous ready-head suffix and graph edit drain still partial. Keep frozen original city/calendar, finite response, legal routes, accessibility/growth, 6GiB/8GiB/7200s, 3x3 full days and 8h refinement; no guard shaving or identity conflation.
+V03/B15: retain original 6GiB/8GiB/7200s caps and 3x3 full days plus 8h refinement, no credit from distinct model. In schedule identity, move receipt accumulation before raw retirement append using leg and protected observable cell, transactional rollback, exact rounded predicate and positive first moments. Profile and reduce 3.15M egress/2.33M entry stage rows: retire tick and effective completion clock max(t,ready), preserve service binding, route/rank/birth/old-clock observers; egress law convolution into bounded buckets, entry only after road semantics proof. Stream per-leg egress mass with ordered exact expansion rather than per-tick HashMap<Vec>; reuse workspace across sweeps, profile allocation spills and actual phase times. Extend matched 10s/5s and actual return clocks, 3600s/8h/24h, River/Coastal, independent repeated timings. B10 actual link-entry/outlet marks, endogenous ready-head suffix and graph edit drain remain partial. Original exact frontier unchanged; no production merge or gate changes.
 
 **예산·종료조건**
 
@@ -2306,11 +2306,11 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "V03"
   ],
   "native_subagent": "NOT_RUN_NO_TOOL",
-  "scope": "Integrated S01-S10: original exact computed/recovered 25740 unchanged; journey-history bottleneck identified; maturity-only and exact-clock grouping negative in actual Valley; fixed-tick eligibility quotient and first-moment closure removed 19860324 receipts at 27120, independently recovered 28020 research seconds (2700s ancestry); same-clock matched physical observable parity; exact original 60s wire replay; zero-allocation scoped grouping/writer; 13/15 pure Rust scoped; 0/9 original full days.",
+  "scope": "Integrated S01-S10: original exact frontier 25740 unchanged; mixed-dwell observable-clock quotient and lazy exact release queries; bounded direct-key bucket accumulation; separate schedule receipt identity. Actual Valley 28080 history 11542512 -> 51230 with bit-identical road and completion totals, age moment relative L1 <1.7e-15. Independently recovered 28080,28200,28500 (480s new,3180s ancestry); zero warmed bucket alloc/realloc in 1M calls; 13/15 Rust scoped; original 0/9 full days.",
   "full_repository_ci": "DEFERRED_BY_USER",
   "full_day_100k": "BLOCKED_RESOURCE_AND_MIGRATION_0_OF_9",
   "main_modified": false,
-  "evidence": "artifacts/v03_receipt_closure_20261127/S10_RESEARCH_RECEIPT.json",
+  "evidence": "artifacts/v03_observable_buckets_20261127/S10_RESEARCH_RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
@@ -2319,20 +2319,20 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "status": "success"
   },
   "parallel_agents": [],
-  "active_branch": "research/v03-receipt-closure-20261127",
-  "production_commit": "7dfea08745e3d793d63d1acb6435e47235fa789d",
+  "active_branch": "research/v03-observable-buckets-20261127",
+  "production_commit": "5e2c594d87b96b3a139f585d8aea10fcef4ed8da",
   "research_stages_completed": 10,
   "research_stages_total": 10,
-  "source_commit": "7dfea08745e3d793d63d1acb6435e47235fa789d",
-  "native_source_sha256": "f5e51aacab75bc3c63ae989cf512fd6466c6fbd43cdf93b73e913fa8e9a99ece",
-  "native_binary_sha256": "b713a182d3b180567398bbfbca9912b9cbe3890eaa6184161df4114aacfbc7d2",
+  "source_commit": "5e2c594d87b96b3a139f585d8aea10fcef4ed8da",
+  "native_source_sha256": "5362436b8788f6706e6f1beebf18c30e1c6221f4be25dab95a146a8f966e1f36",
+  "native_binary_sha256": "fce8f24de1cd94fa7d7e060d316c9152c13603556c972c3ee9b00750b5eecd1a",
   "current_loop_stages_completed": 10,
   "current_loop_stages_total": 10,
   "current_loop_native_subagent": "NOT_RUN_NO_TOOL",
-  "native_source_hash_method": "SHA256 of tracked source manifest at S09 source commit; experiment binaries separately bound",
-  "native_binary_feature": "native-cli no Python; S04/S06/S07/S09 separately bound",
+  "native_source_hash_method": "SHA256 of tracked source manifest at S09; individual binary and manifest binding in execution receipts",
+  "native_binary_feature": "native-cli no Python; S08/S09 bound",
   "rust_backend_scoped": "13/15 pure Rust scoped; 2 partial; zero unported; original recovered 25740",
-  "theory_loop_scope": "S01-S10 fixed-dwell maturity and eligibility-grid sufficient statistics, exact-clock convolution, measured actual receipt reduction and negative results; original release unchanged"
+  "theory_loop_scope": "Mixed-dwell observable-clock quotient, exact lazy release, bounded bucket and schedule-hidden closure; distinct research identity; original acceptance unchanged"
 }
 ```
 
