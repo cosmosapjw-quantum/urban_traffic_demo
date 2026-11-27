@@ -1,0 +1,8 @@
+S05_r1_t25380_exit=0
+S05_r1_t25500_exit=0
+S05_r1_t25800_exit=0
+S05_r1_recover25800_exit=0
+S05_r4_t25380_exit=0
+S05_r4_t25500_exit=0
+S05_r4_t25800_exit=0
+S05_r4_recover25800_exit=0

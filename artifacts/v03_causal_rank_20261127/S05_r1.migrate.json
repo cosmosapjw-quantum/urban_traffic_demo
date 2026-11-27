@@ -1,0 +1,48 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "checkpoint_bytes": 85096747,
+  "checkpoint_sha256": "34a3b826db9b615f406601aec841d695753b3465c2f892f2ceaed1b6e2984c4d",
+  "executable_sha256": "49d9a7156b5ed8f47be211df925e862c9471cb0fb4a85ce1fa300f3de252b3cd",
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 365.7434725756902,
+      "completed": 1.5108953534669758,
+      "pending": 299.4122987375375,
+      "released": 367.2543679291572,
+      "released_intent_first_moment": 9275009.062051168,
+      "requested": 666.6666666666947
+    },
+    "vehicles": {
+      "active": 292.3661552257055,
+      "completed": 0.9671781076231313,
+      "pending": 33.33333333333388,
+      "released": 293.3333333333286,
+      "released_intent_first_moment": 7408133.333333216,
+      "requested": 326.6666666666625
+    }
+  },
+  "manifest_sha256": "fc4e684304f8c091ca4ebb907c17c1cd581bcd78084370ef9653a687659dc2a9",
+  "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1",
+  "peak_rss_bytes": 421896192,
+  "python_runtime_dependency": "none",
+  "research_bins": 1,
+  "research_closure": "research_rank_bins",
+  "research_interval_bins": null,
+  "research_rank_bins": 1,
+  "schema": "metroflow_marked_time_bin_migration_v1",
+  "scope": "unchanged initial physical owners, changed future time-bin closure, not original V03 acceptance",
+  "source_checkpoint_sha256": "e7bbb23f52e271e0d520110cf7fb6c1c4c8c89ba9b01776924d4613d0d745ad0",
+  "source_manifest_sha256": "2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3",
+  "source_native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3",
+  "status": "EXECUTED_FOR_REVIEW",
+  "time_s": 25320.0,
+  "wall_s": 5.939949607
+}
