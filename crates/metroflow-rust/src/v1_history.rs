@@ -331,6 +331,48 @@ impl ReceiptHistory {
         result
     }
 
+    /// Research-only sufficient statistic at fixed child dwell horizon.
+    /// Does not modify this immutable owner or claim historical-CDF equality.
+    pub(crate) fn compact_mature(&self,now:f64,dwell:f64,scratch:usize)->CoreResult<Option<Self>>{
+        if !now.is_finite()||now<0.||!dwell.is_finite()||dwell<0.{return Err(CoreError::value("invalid receipt maturity horizon"))}
+        let Some(head)=&self.0 else{return Ok(None)};
+        if head.count<2||head.min_time+dwell>now{return Ok(None)}
+        let fixed=128*1024usize;
+        if scratch<fixed{return Err(CoreError::resource("receipt compact scratch"))}
+        let mut count=0usize;let mut mn=f64::INFINITY;let mut mx=0.0f64;
+        let(mut mass,mut moment)=(Expansion::default(),Expansion::default());
+        let mut cursor=Some(head.as_ref());
+        while let Some(block)=cursor{
+            for &(t,f) in &block.rows{if t+dwell<=now{
+                count+=1;mn=mn.min(t);mx=mx.max(t);
+                mass.add(f).map_err(CoreError::value)?;
+                moment.add(t*f).map_err(CoreError::value)?;
+            }}
+            cursor=block.previous.as_deref();
+        }
+        if count<2{return Ok(None)}
+        let m=mass.total();let b=moment.total();
+        if !m.is_finite()||m<=0.||!b.is_finite(){return Err(CoreError::arithmetic("receipt centroid overflow"))}
+        let t=(b/m).clamp(mn,mx);
+        if !t.is_finite()||t+dwell>now{return Err(CoreError::arithmetic("receipt centroid not mature"))}
+        // iter() retains a geometrically grown block-pointer vector only
+        // when immature rows exist. Bound both its growth and new history
+        // append allocations; old history stays live throughout.
+        let pointer=if count==head.count{0}else{self.block_count().saturating_mul(4*std::mem::size_of::<&Block>()).saturating_add(128)};
+        let available=scratch.checked_sub(fixed.saturating_add(pointer)).ok_or_else(||CoreError::resource("receipt compact pointer workspace"))?;
+        let mut out=Self::new();
+        let append=|out:&mut Self,row:Receipt|->CoreResult<()>{
+            if out.append_upper_bytes()>available{return Err(CoreError::resource("receipt compact output budget"))}
+            out.push(row).map_err(CoreError::value)?;
+            if out.storage_bytes()>available{return Err(CoreError::resource("receipt compact actual bytes"))}
+            Ok(())
+        };
+        append(&mut out,(t,m))?;
+        if count<head.count{for &row in self.iter(){if row.0+dwell>now{append(&mut out,row)?;}}}
+        let close=|a:f64,b:f64|a.is_finite()&&b.is_finite()&&(a-b).abs()<=1e-11*a.abs().max(b.abs())+4.*f64::from_bits(1);
+        if !close(self.total(),out.total())||!close(b,t*m)||out.len()!=head.count-count+1{return Err(CoreError::arithmetic("receipt compact mass/moment invariant"))}
+        Ok(Some(out))
+    }
     fn block_count(&self) -> usize {
         self.len().div_ceil(BLOCK_ROWS)
     }
@@ -508,3 +550,22 @@ crate::optional_binding::optional_pymethods!(NativeReceiptHistory,
     }
     }
 );
+
+#[cfg(test)]
+mod mature_closure_tests {
+ use super::*;
+ #[test] fn mature_centroid_preserves_future_eligibility_and_immature_bits(){
+   let mut h=ReceiptHistory::new();for row in [(2.,0.125),(15.,0.25),(4.,0.125),(18.,0.5)]{h.push(row).unwrap()}
+   let c=h.compact_mature(20.,10.,1_000_000).unwrap().unwrap();
+   assert_eq!(c.to_vec(),vec![(3.,0.25),(15.,0.25),(18.,0.5)]);
+   for now in 20..40{for dwell in 0..=10{assert_eq!(h.eligible(dwell as f64,now as f64),c.eligible(dwell as f64,now as f64));}}
+   assert_eq!(h.total(),c.total());
+   assert_eq!(h.iter().map(|r|r.0*r.1).sum::<f64>(),c.iter().map(|r|r.0*r.1).sum::<f64>());
+ }
+ #[test] fn mature_closure_rejects_workspace_shortfall_and_noop(){
+   let h=ReceiptHistory::from_rows(vec![(1.,0.25),(2.,0.25)]).unwrap();
+   assert!(h.compact_mature(10.,0.,1).is_err());
+   assert!(h.compact_mature(2.,10.,1_000_000).unwrap().is_none());
+   assert_eq!(h.len(),2);
+ }
+}
