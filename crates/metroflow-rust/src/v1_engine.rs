@@ -171,7 +171,60 @@ impl NativeRouteMetrics {
 /// exactly the same `Sum::add` sequence as the former per-key HashMap entry.
 /// Workspace: 16 bytes per stage row plus one dense f64 per leg; no map growth.
 pub(crate) const STAGE_SUM_ROW_BYTES: usize = std::mem::size_of::<(u64, f64)>();
-fn stage_sums(j: &Journey, legs: usize) -> CoreResult<Vec<f64>> {
+
+// Direct-index ordered expansion. Retain precisely the same per-key add
+// sequence as the sorted reference. On capacity/finite-range failure discard
+// scratch and use the old reference, never truncate low-order components.
+#[derive(Clone, Copy, Default)]
+struct FixedStageSum { partials: [f64;4], len: usize }
+impl FixedStageSum {
+    fn add(&mut self, mut x:f64)->bool{
+        let mut i=0;
+        for j in 0..self.len{
+            let mut y=self.partials[j];
+            if x.abs()<y.abs(){std::mem::swap(&mut x,&mut y);}
+            let hi=x+y;
+            if !hi.is_finite(){return false}
+            let lo=y-(hi-x);
+            if lo!=0.{self.partials[i]=lo;i+=1;}
+            x=hi;
+        }
+        if !x.is_finite(){return false}
+        if x!=0.{
+            if i==self.partials.len(){return false}
+            self.partials[i]=x;i+=1;
+        }
+        self.len=i;true
+    }
+    fn finish(&self)->f64{fsum(self.partials[..self.len].iter().copied())}
+}
+fn stage_sums_dense(j:&Journey,legs:usize)->CoreResult<Option<Vec<f64>>>{
+    let rows=j.1.len()+j.2.len()+j.3.len();
+    let allowed=rows.saturating_mul(STAGE_SUM_ROW_BYTES);
+    if legs.saturating_mul(std::mem::size_of::<FixedStageSum>())>allowed{return Ok(None)}
+    let mut sums=Vec::new();
+    if sums.try_reserve_exact(legs).is_err(){return Ok(None)}
+    if sums.capacity().saturating_mul(std::mem::size_of::<FixedStageSum>())>allowed{return Ok(None)}
+    sums.resize(legs,FixedStageSum::default());
+    for part in [&j.1,&j.2,&j.3]{
+        for a in part{
+            let v=sums.get_mut(a.0).ok_or_else(||bad("native stage row leg index differs"))?;
+            if !v.add(a.1){return Ok(None)}
+        }
+    }
+    let mut mass=Vec::new();
+    mass.try_reserve_exact(legs).map_err(|_|CoreError::resource("native stage validation allocation failed"))?;
+    mass.extend(sums.iter().map(FixedStageSum::finish));
+    crate::v1_trace::add("stage_validation.dense_rows",rows as u64);
+    crate::v1_trace::add("stage_validation.dense_scratch",sums.capacity().saturating_mul(std::mem::size_of::<FixedStageSum>()) as u64);
+    Ok(Some(mass))
+}
+fn stage_sums(j:&Journey,legs:usize)->CoreResult<Vec<f64>>{
+    if legs>u32::MAX as usize||j.1.len()+j.2.len()+j.3.len()>u32::MAX as usize{return Err(bad("native stage validation index exceeds u32"))}
+    if let Some(mass)=stage_sums_dense(j,legs)?{return Ok(mass)}
+    stage_sums_sorted(j,legs)
+}
+fn stage_sums_sorted(j: &Journey, legs: usize) -> CoreResult<Vec<f64>> {
     let rows = j.1.len() + j.2.len() + j.3.len();
     if legs > u32::MAX as usize || rows > u32::MAX as usize {
         return Err(bad("native stage validation index exceeds u32"));
@@ -2067,6 +2120,19 @@ mod stage_sum_tests {
         assert!(got[61..].iter().all(|x| x.to_bits() == 0f64.to_bits()));
     }
 
+    #[test]
+    fn direct_stage_sum_matches_reference_and_spill_fallback(){
+        let mut a=StageQueue::new();
+        for i in 0..1000{a.push((i%3,(i%17+1)as f64*0.125,0.,1.));}
+        let j:Journey=(0.,a,StageQueue::new(),StageQueue::new(),vec![],vec![],vec![],vec![]);
+        assert_eq!(stage_sums_dense(&j,3).unwrap().unwrap(),stage_sums_sorted(&j,3).unwrap());
+        let mut a=StageQueue::new();
+        for i in 0..12{a.push((0,2f64.powi(-60*i),0.,1.));}
+        let j:Journey=(0.,a,StageQueue::new(),StageQueue::new(),vec![],vec![],vec![],vec![]);
+        assert!(stage_sums_dense(&j,1).unwrap().is_none());
+        assert_eq!(stage_sums(&j,1).unwrap(),stage_sums_sorted(&j,1).unwrap());
+        assert!(stage_sums_dense(&j,100).unwrap().is_none());
+    }
     #[test]
     fn stage_sums_empty_journey_is_all_zero() {
         let j: Journey = (
