@@ -1,0 +1,2 @@
+S09_exact25750_exit=124
+S09_exact25750 checkpoint still aliases original immutable 25740 source; no committed next tick

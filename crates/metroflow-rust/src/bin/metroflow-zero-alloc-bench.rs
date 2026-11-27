@@ -41,6 +41,14 @@ mod probe {
         let m=net.metrics().unwrap();
         println!("{}",json!({"kernel":"marked_fifo_diverge_step","iterations":count,"allocation_calls":a3,"reallocation_calls":r3,"wall_s":w3,"metrics":m,"scope":"preallocated marked network; 2 classes, unequal footprints, intermittent receiving restriction; no full V03 zero heap claim"}));
         assert_eq!((a3,r3),(0,0));
+        let probe=_metroflow_rust::PackedRankProbe::new(65536).unwrap();
+        let t=start();
+        let mut check=0u64;
+        for i in 0..n{let x=black_box(probe.get(black_box(i.wrapping_mul(7919))));check=check.wrapping_add(x[0]^x[1]^x[2]^x[3]^x[4]);}
+        let(a4,r4,w4)=finish(t);
+        println!("{}",json!({"kernel":"packed_reference_and_event_random_access","iterations":n,"allocation_calls":a4,"reallocation_calls":r4,"wall_s":w4,"checksum":check,"sealed_saved_bytes":probe.saved_bytes(),"scope":"initialized exact packed ranks and event pages; encoding allocates per sealed page"}));
+        assert_eq!((a4,r4),(0,0));
+
     }
 }
 #[cfg(not(feature="budget_trace"))] fn main(){probe::run()}

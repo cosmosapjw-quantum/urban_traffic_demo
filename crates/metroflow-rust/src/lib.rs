@@ -1360,3 +1360,5 @@ pub mod phase_window;
 pub fn allocation_probe_fsum(values:&[f64])->f64{v1_journey::fsum(values.iter().copied())}
 #[cfg(feature="native-cli")]
 pub mod marked_fifo;
+#[cfg(feature="native-cli")]
+pub use v1_road::PackedRankProbe;

@@ -15,6 +15,8 @@ use std::sync::{Arc, Mutex};
 mod lineage_shadow;
 #[path = "v1_ref_blocks.rs"]
 mod v1_ref_blocks;
+#[path = "v1_event_blocks.rs"]
+mod v1_event_blocks;
 #[path = "v1_timed_incoming.rs"]
 mod timed_incoming;
 use timed_incoming::{TimedIncomingControls, TimedIncomingRows};
@@ -590,6 +592,7 @@ fn ensure_event_slot<T>(pages: &mut Vec<Vec<T>>, rows_per_page: usize) -> CoreRe
 pub(crate) struct ChunkedEvents {
     chunks: Vec<Vec<EventRow>>,
     compact_chunks: Vec<Vec<EventPayload>>,
+    packed_payload: Option<v1_event_blocks::PackedEvents>,
     time_chunks: Vec<Vec<(u64, u64)>>,
     flag_chunks: Vec<Vec<u64>>,
     control_chunks: Vec<Vec<(u32, u32)>>,
@@ -601,16 +604,18 @@ pub(crate) struct ChunkedEvents {
 }
 impl ChunkedEvents {
     pub(crate) fn new(compressed: bool) -> Self {
-        Self { compressed, ..Self::default() }
+        let packed=compressed && cfg!(all(feature="native-cli",not(feature="python-extension"))) && std::env::var_os("METROFLOW_NATIVE_PACKED_EVENTS").as_deref()==Some(std::ffi::OsStr::new("1"));
+        Self { compressed, packed_payload:packed.then(Default::default), ..Self::default() }
     }
     pub(crate) fn len(&self) -> usize { self.len }
-    fn compact_payload(&self,index:usize)->Option<&EventPayload> {
+    fn compact_payload(&self,index:usize)->Option<EventPayload> {
         if !self.compressed || index>=self.len {return None;}
-        self.compact_chunks.get(index/EVENT_PAGE_ROWS)?.get(index%EVENT_PAGE_ROWS)
+        if let Some(p)=&self.packed_payload{return p.get(index)}
+        self.compact_chunks.get(index/EVENT_PAGE_ROWS)?.get(index%EVENT_PAGE_ROWS).copied()
     }
     fn capacity(&self) -> usize {
         if self.compressed {
-            self.compact_chunks.iter().map(Vec::capacity).sum()
+            if let Some(p)=&self.packed_payload{p.capacity()}else{self.compact_chunks.iter().map(Vec::capacity).sum()}
         } else {
             self.chunks.iter().map(Vec::capacity).sum()
         }
@@ -618,6 +623,7 @@ impl ChunkedEvents {
     fn descriptor_capacity(&self) -> usize {
         self.chunks.capacity()
             .saturating_add(self.compact_chunks.capacity())
+            .saturating_add(self.packed_payload.as_ref().map_or(0,|p|p.descriptor_capacity()))
             .saturating_add(self.time_chunks.capacity())
             .saturating_add(self.flag_chunks.capacity())
             .saturating_add(self.control_chunks.capacity())
@@ -628,13 +634,15 @@ impl ChunkedEvents {
                 .saturating_mul(std::mem::size_of::<T>())
         }
         payload(&self.chunks).saturating_add(payload(&self.compact_chunks))
+            .saturating_add(self.packed_payload.as_ref().map_or(0,|p|p.physical_bytes()))
             .saturating_add(payload(&self.time_chunks))
             .saturating_add(payload(&self.flag_chunks))
             .saturating_add(payload(&self.control_chunks))
     }
     pub(crate) fn retained_storage_bytes(&self) -> usize {
         let pages = self.chunks.len() + self.compact_chunks.len() + self.time_chunks.len()
-            + self.flag_chunks.len() + self.control_chunks.len();
+            + self.flag_chunks.len() + self.control_chunks.len()
+            + self.packed_payload.as_ref().map_or(0,|p|p.pages()+1);
         self.physical_capacity_bytes()
             .saturating_add(self.descriptor_capacity().saturating_mul(std::mem::size_of::<Vec<EventRow>>()))
             .saturating_add(pages.saturating_mul(32))
@@ -671,12 +679,14 @@ impl ChunkedEvents {
             .filter(|&n| n <= u32::MAX as usize).ok_or_else(|| budget("event time index exceeds compact domain"))?;
         let controls = self.control_len.checked_add(usize::from(new_control))
             .ok_or_else(|| budget("event control count overflow"))?;
-        Ok(paged_run_event_candidate_bytes(rows, controls, times))
+        let raw=paged_run_event_candidate_bytes(rows, controls, times);
+        Ok(if let Some(p)=&self.packed_payload{raw.saturating_add(v1_event_blocks::EXTRA).saturating_sub(p.saved())}else{raw})
     }
     pub(crate) fn iter(&self) -> impl Iterator<Item=EventRow> + '_ {
         let mut controls = self.control_chunks.iter().flatten();
         let mut current = (0, (0, 0));
-        let compact = self.compact_chunks.iter().flatten().enumerate().map(move |(i, row)| {
+        let compact = (0..if self.compressed{self.len}else{0}).map(move |i| {
+            let row=self.compact_payload(i).expect("event payload index");
             let word = self.flag_chunks[i / EVENT_PAGE_ROWS][(i % EVENT_PAGE_ROWS) / 64];
             if (word >> (i % 64)) & 1 != 0 {
                 let &(source, time) = controls.next().expect("event run has one control");
@@ -702,7 +712,7 @@ impl ChunkedEvents {
         if new_time && self.time_len >= u32::MAX as usize {
             return Err(budget("event time index exceeds compact domain"));
         }
-        ensure_event_slot(&mut self.compact_chunks, EVENT_PAGE_ROWS)?;
+        if self.packed_payload.is_none(){ensure_event_slot(&mut self.compact_chunks, EVENT_PAGE_ROWS)?;}
         if self.len % 64 == 0 { ensure_event_slot(&mut self.flag_chunks, FLAG_WORDS_PER_PAGE)?; }
         if new_time { ensure_event_slot(&mut self.time_chunks, EVENT_PAGE_ROWS)?; }
         if new_control { ensure_event_slot(&mut self.control_chunks, CONTROL_PAGE_ROWS)?; }
@@ -718,9 +728,8 @@ impl ChunkedEvents {
             self.control_chunks.last_mut().unwrap().push((packed.source, (self.time_len - 1) as u32));
             self.control_len += 1;
         }
-        self.compact_chunks.last_mut().unwrap().push(EventPayload {
-            tag: packed.tag, dest: packed.dest, mass: packed.mass, birth: packed.birth,
-        });
+        let payload=EventPayload{tag:packed.tag,dest:packed.dest,mass:packed.mass,birth:packed.birth};
+        if let Some(p)=&mut self.packed_payload{p.push(payload)?;}else{self.compact_chunks.last_mut().unwrap().push(payload);}
         self.len += 1;
         Ok(())
     }
@@ -8978,7 +8987,7 @@ impl ChunkedEvents {
             })
         }).peekable();
         let mut controls=self.control_chunks.iter().flatten();
-        let mut payload=self.compact_chunks.iter().flatten();
+        let mut payload=(0..self.len).map(|i|self.compact_payload(i).expect("event payload index"));
         let mut done=0usize;
         while let Some(start)=starts.next(){
             if start!=done||start>=self.len{return Err(arithmetic("event run boundary differs"))}
@@ -9076,4 +9085,50 @@ mod registered_width_tests {
   assert_eq!(registered_successor_width(&[vec![0,1,0,1]],2),2);
  }
  #[test] fn wide_registry_falls_back_to_universal_bound(){assert_eq!(registered_successor_width(&[vec![0]],100000),100001);}
+}
+
+#[cfg(test)]
+mod packed_event_carrier_tests {
+    use super::*;
+    fn row(i:usize)->EventRow{
+        let run=i/11;
+        (i%113,run%31,if i%7==0{None}else{Some(i%23)},if i%3==0{0.125}else{0.25},run as f64,run as f64+0.5,(i%5)as f64)
+    }
+    fn bits(e:EventRow)->(usize,usize,Option<usize>,u64,u64,u64,u64){(e.0,e.1,e.2,e.3.to_bits(),e.4.to_bits(),e.5.to_bits(),e.6.to_bits())}
+    #[test] fn packed_candidate_exact_bits_projection_and_wire(){
+        let mut plain=ChunkedEvents{compressed:true,..Default::default()};
+        let mut packed=ChunkedEvents{compressed:true,packed_payload:Some(Default::default()),..Default::default()};
+        for i in 0..EVENT_PAGE_ROWS*3+17{
+            let e=row(i);
+            let limit=packed.projected_append_storage_bytes(e).unwrap();
+            plain.push_checked(e).unwrap();packed.push_checked(e).unwrap();
+            assert!(packed.retained_storage_bytes()<=limit);
+            let p=packed.compact_payload(i).unwrap();
+            assert_eq!((p.tag as usize,p.mass.to_bits(),p.birth.to_bits()),(e.0,e.3.to_bits(),e.6.to_bits()));
+        }
+        assert!(plain.iter().map(bits).eq(packed.iter().map(bits)));
+        assert!(packed.retained_storage_bytes()<plain.retained_storage_bytes());
+        let(mut a,mut b)=(vec![],vec![]);
+        plain.write_runs(&mut a).unwrap();packed.write_runs(&mut b).unwrap();assert_eq!(a,b);
+    }
+}
+
+#[cfg(feature="native-cli")]
+pub struct PackedRankProbe{refs:v1_ref_blocks::PackedRefs,events:v1_event_blocks::PackedEvents,len:usize}
+#[cfg(feature="native-cli")]
+impl PackedRankProbe{
+    pub fn new(len:usize)->CoreResult<Self>{
+        if len>u32::MAX as usize||len==0{return Err(val("probe length"))}
+        let mut refs=v1_ref_blocks::PackedRefs::default();let mut events=v1_event_blocks::PackedEvents::default();
+        for i in 0..len{
+            refs.push(v1_ref_blocks::ReceivingRef{event:i as u32,offset:(i%13)as u32,control:(i/57)as u32})?;
+            events.push(EventPayload{tag:(i%311)as u32,dest:(i%7)as u32,mass:0.125,birth:0.25})?;
+        }
+        Ok(Self{refs,events,len})
+    }
+    pub fn saved_bytes(&self)->[usize;2]{[self.refs.saved_bytes(),self.events.saved()]}
+    pub fn get(&self,i:usize)->[u64;5]{
+        let r=self.refs.get(i%self.len).unwrap();let e=self.events.get(r.event as usize).unwrap();
+        [r.event as u64,r.offset as u64,r.control as u64,e.mass.to_bits(),e.birth.to_bits()]
+    }
 }
