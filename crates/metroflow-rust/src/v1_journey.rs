@@ -880,6 +880,17 @@ fn birth_between(profile: &Profile, lo: f64, hi: f64) -> f64 {
     }
     moment / (hi - lo)
 }
+// Profile and released fraction are checked by the journey contract.
+ // Do not visit parent receipts when even the profile cap cannot release.
+fn release_high(profile:f64,lo:f64,eligible:impl FnOnce()->f64)->Option<f64>{
+    if profile<=lo {return None}
+    let hi=profile.min(eligible());
+    if hi<=lo{None}else{Some(hi)}
+}
+// Eligibility is a finite nonnegative subset sum of positive receipts.
+fn released_eligible(released:f64, mass:f64, tol:f64, eligible:impl FnOnce()->f64)->bool{
+    released<=tol || released<=mass*eligible()+tol
+}
 fn eligible(legs: &[SharedJourneyLeg], s: &Journey, i: usize) -> f64 {
     match legs[i].2 {
         None => 1.0,
@@ -1409,7 +1420,7 @@ impl NativeJourneyCore {
                     && s.4[i] <= l.1 * fraction(&l.4, s.0) + tol
                     && s.6[i].valid_at(s.0)
                     && (s.6[i].total() * l.1 - s.5[i]).abs() <= tol
-                    && s.4[i] <= l.1 * eligible(&self.legs, s, i) + tol
+                    && released_eligible(s.4[i],l.1,tol,||eligible(&self.legs,s,i))
             })
         });
         if valid.into_iter().any(|valid| !valid) {
@@ -2071,10 +2082,7 @@ crate::optional_binding::optional_pymethods!(NativeJourneyCore,
                     continue;
                 }
                 let lo = self.state.4[i] / l.1;
-                let hi = fraction(&l.4, t).min(eligible(&self.legs, &self.state, i));
-                if hi <= lo {
-                    continue;
-                }
+                let Some(hi)=release_high(fraction(&l.4,t),lo,||eligible(&self.legs,&self.state,i)) else{continue};
                 let mass = l.1 * (hi - lo);
                 let born = birth_between(&l.4, lo, hi);
                 let hold = if l.2.is_some() { t - born } else { 0.0 };
@@ -2766,4 +2774,29 @@ pub fn allocation_probe_outlet_and_wire()->CoreResult<[u64;2]>{
   let s=(2000.,a,StageQueue::new(),StageQueue::new(),vec![1.,2.,3.],vec![0.5,1.,2.],vec![h,ReceiptHistory::from_rows(vec![(2.,0.5)]).unwrap(),ReceiptHistory::new()],vec![0.,1.,2.]);
   let(mut old,mut new)=(vec![],vec![]);NativeJourneyCore::write_snapshot_scalar(&mut old,&s).unwrap();NativeJourneyCore::write_snapshot_batched(&mut new,&s).unwrap();assert_eq!(old,new);
  }
+}
+
+#[cfg(test)]
+mod observable_clock_lazy_tests{
+    use super::*;
+    #[test]
+    fn dormant_private_and_unreleased_validator_do_not_read_parent(){
+        assert_eq!(release_high(0.,0.,||panic!("dormant parent query")),None);
+        assert_eq!(release_high(0.25,0.25,||panic!("saturated profile query")),None);
+        assert!(released_eligible(1e-9,10.,1e-9,||panic!("zero tolerance query")));
+    }
+    #[test]
+    fn lazy_matches_eager_for_valid_finite_domain(){
+        for p in [0.,0.125,0.5,1.]{for lo in [0.,0.125,0.5,1.,1.0000000001]{
+            for e in [0.,0.125,0.5,1.,1.0000000001]{
+                let hi:f64=f64::min(p,e);
+                assert_eq!(release_high(p,lo,||e),if hi<=lo{None}else{Some(hi)});
+                for m in [0.,0.5,1.,100.]{
+                    let r=lo*m;
+                    let tol=1e-9*m.max(1.);
+                    assert_eq!(released_eligible(r,m,tol,||e),r<=m*e+tol);
+                }
+            }
+        }}
+    }
 }
