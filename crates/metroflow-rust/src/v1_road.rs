@@ -1273,6 +1273,15 @@ fn check_storage_limit(limit: Option<usize>, required: usize, phase: &str) -> Co
     }
     Ok(())
 }
+// Structural bound (not allocator/RSS theorem). At most three class
+// expansions, all/residence, two cell accumulators and one packet
+// accumulator, plus sequential finishing. Each checked expansion has
+// <=4096 finite partials; 128 KiB each covers Vec growth overlap.
+// 2 MiB covers these accumulators and local metadata. A key-pointer
+// HashSet census needs O(packet count), not O(physical row count).
+fn road_stream_validation_bound(packets:usize,cells:usize)->usize{
+    (2*1024*1024usize).saturating_add(packets.saturating_mul(64)).saturating_add(cells.saturating_mul(32))
+}
 impl RoadState {
     pub(crate) fn time(&self) -> f64 {
         self.t
@@ -1763,6 +1772,23 @@ impl RoadExpansion {
             p.push(x);
         }
     }
+    // Checked finite reduction for checkpoint/state validation. The same
+    // arithmetic and final rounding as add(), but malformed overflowing
+    // inputs cannot manufacture an unbounded list of NaN partials.
+    fn add_finite(&mut self,mut x:f64)->CoreResult<()> {
+        if !x.is_finite(){return Err(arithmetic("nonfinite validation summand"))}
+        let p=&mut self.p;let mut i=0;
+        for j in 0..p.len(){
+            let mut y=p[j];if x.abs()<y.abs(){std::mem::swap(&mut x,&mut y)}
+            let hi=x+y;if !hi.is_finite(){return Err(arithmetic("validation expansion overflow"))}
+            let lo=y-(hi-x);if !lo.is_finite(){return Err(arithmetic("validation expansion residual"))}
+            if lo!=0.{p[i]=lo;i+=1;}x=hi;
+        }
+        p.truncate(i);
+        if x!=0.{if p.len()==4096{return Err(budget("validation expansion exceeds finite binary64 envelope"))}p.push(x);}
+        Ok(())
+    }
+    fn finish_finite(self)->CoreResult<f64>{let x=self.finish();if x.is_finite(){Ok(x)}else{Err(arithmetic("validation sum overflow"))}}
     fn finish(self) -> f64 {
         let mut p = self.p;
         let mut hi = 0.0;
@@ -3179,7 +3205,7 @@ impl V1Road {
                 0
             },
             decoded: std::mem::size_of::<RoadState>().saturating_add(3 * 32),
-            validation: 0,
+            validation: if compact{2*1024*1024}else{0},
         };
         // Include empty tree roots and both packet-queue buffer allowances for
         // every cell, before constructing the first outer vector.
@@ -3952,123 +3978,57 @@ impl V1Road {
         }
         Ok(q)
     }
-    fn check_state(&self, s: &RoadState) -> CoreResult<()> {
-        if s.cells.len() != self.groups.len()
-            || s.pending.len() != self.groups.len()
-            || s.ledger.len() != self.classes.len()
-            || !finite_nonnegative(s.t)
-            || s.totals.iter().any(|v| !finite_nonnegative(*v))
-        {
-            return Err(val("invalid native road state schema/ledger"));
+    fn check_state(&self,s:&RoadState)->CoreResult<()> {
+        if s.cells.len()!=self.groups.len()||s.pending.len()!=self.groups.len()||s.ledger.len()!=self.classes.len()||!finite_nonnegative(s.t)||s.totals.iter().any(|v|!finite_nonnegative(*v)){return Err(val("invalid native road state schema/ledger"))}
+        let packets=s.cells.iter().map(|c|c.packets.len()).chain(s.pending.iter().map(Vec::len)).fold(0usize,usize::saturating_add);
+        let scratch=road_stream_validation_bound(packets,s.cells.len());
+        if self.storage_budget.is_some(){
+            // debug_stats/retained_storage_bytes has a key-pointer census,
+            // not an array of physical rows. Admit that transient first.
+            check_storage_limit(self.storage_budget,scratch,"streaming validation census")?;
+            let bytes=s.retained_storage_bytes().max(self.retained_input_bytes).saturating_mul(3).saturating_add(scratch);
+            check_storage_limit(self.storage_budget,bytes,"state validation workspace")?;
         }
-        if self.storage_budget.is_some() {
-            let stats = s.debug_stats();
-            let rows = stats.cell_parts.saturating_add(stats.pending_parts);
-            let packets = stats.cell_packets.saturating_add(stats.pending_packets);
-            let bytes = s
-                .retained_storage_bytes()
-                .max(self.retained_input_bytes)
-                .saturating_mul(3)
-                .saturating_add(rows.saturating_mul(16))
-                .saturating_add(packets.saturating_add(s.cells.len()).saturating_mul(32));
-            check_storage_limit(self.storage_budget, bytes, "state validation workspace")?;
-        }
-        let mut stored: Vec<_> = (0..self.classes.len()).map(|_| RoadExpansion::default()).collect();
-        let mut all = RoadExpansion::default();
-        let mut residence = RoadExpansion::default();
-        let mut records = 0;
-        for (i, c) in s.cells.iter().enumerate() {
-            if !c.v[0].is_finite()
-                || !c.v[1].is_finite()
-                || !(0.0..=1.0).contains(&c.v[1])
-                || c.v[2..].iter().any(|x| !finite_nonnegative(*x))
-                || c.latent.iter().any(|(k, x)| {
-                    *k >= self.classes.len() || !x.is_finite() || !(0.0..=1.0).contains(x)
-                })
-            {
-                return Err(val("invalid native cell state"));
-            }
-            if c.packets
-                .windows(2)
-                .any(|w| w[0].target > w[1].target + 1e-10)
-                || s.pending[i].windows(2).any(|w| w[0].target > w[1].target)
-            {
-                return Err(arithmetic("packet/source order"));
-            }
-            let occ = self.occupancy(c);
-            if (c.v[2] - c.v[3] - occ).abs() > 1e-9 * c.v[2].max(1.) {
-                return Err(arithmetic("cell mass ledger"));
-            }
-            if self.occupied(c) > self.groups[i][4] + 1e-9 * self.groups[i][4].max(1.) {
-                return Err(arithmetic("cell storage"));
-            }
-            residence.add((c.v[2] - c.v[3]) * s.t - c.v[4] + c.v[5]);
-            all.add(occ);
-            for (pending, packets) in [(false, &c.packets), (true, &s.pending[i])] {
-                for packet in packets {
-                    if packet.parts.is_empty()
-                        || !packet.target.is_finite()
-                        || (pending && !(0.0..=s.t).contains(&packet.target))
-                    {
-                        return Err(val("empty/invalid native packet"));
+        let mut stored:Vec<_>=(0..self.classes.len()).map(|_|RoadExpansion::default()).collect();
+        let mut all=RoadExpansion::default();let mut residence=RoadExpansion::default();let mut records=0usize;
+        // Each reduction sees exactly its old input order: packet mass
+        // nested for occupancy, flat row order for length occupancy, class
+        // streams across road then pending, no change to arithmetic barriers.
+        for (i,c) in s.cells.iter().enumerate(){
+            if !c.v[0].is_finite()||!c.v[1].is_finite()||!(0.0..=1.0).contains(&c.v[1])||c.v[2..].iter().any(|x|!finite_nonnegative(*x))||c.latent.iter().any(|(k,x)|*k>=self.classes.len()||!x.is_finite()||!(0.0..=1.0).contains(x)){return Err(val("invalid native cell state"))}
+            if c.packets.windows(2).any(|w|w[0].target>w[1].target+1e-10)||s.pending[i].windows(2).any(|w|w[0].target>w[1].target){return Err(arithmetic("packet/source order"))}
+            let mut occupancy=RoadExpansion::default();let mut occupied=RoadExpansion::default();
+            for (pending,qs) in [(false,&c.packets),(true,&s.pending[i])]{
+                if pending{
+                    let occ=std::mem::take(&mut occupancy).finish_finite()?;
+                    if (c.v[2]-c.v[3]-occ).abs()>1e-9*c.v[2].max(1.){return Err(arithmetic("cell mass ledger"))}
+                    if std::mem::take(&mut occupied).finish_finite()?>self.groups[i][4]+1e-9*self.groups[i][4].max(1.){return Err(arithmetic("cell storage"))}
+                    residence.add_finite((c.v[2]-c.v[3])*s.t-c.v[4]+c.v[5])?;all.add_finite(occ)?;
+                }
+                for packet in qs{
+                    if packet.parts.is_empty()||!packet.target.is_finite()||pending&&!(0.0..=s.t).contains(&packet.target){return Err(val("empty/invalid native packet"))}
+                    let mut packet_mass=RoadExpansion::default();
+                    for p in &packet.parts{
+                        records=records.checked_add(1).ok_or_else(||budget("packet row count overflow"))?;
+                        if records>self.record_budget{return Err(budget("packet state budget"))}
+                        if p.tag>=self.routes.len()||!p.mass.is_finite()||p.mass<=0.||!finite_nonnegative(p.birth)||p.birth>p.mass*s.t+1e-8{return Err(val("invalid homogeneous native part"))}
+                        if self.path(p.tag).get(p.offset)!=Some(&i){return Err(val("native route suffix mismatch"))}
+                        if p.a.is_some()!=p.b.is_some()||p.a.is_some_and(|a|!a.is_finite()||a<0.||!p.b.unwrap().is_finite()||a>p.b.unwrap()||p.b.unwrap()>s.t+1e-9){return Err(val("invalid native entry interval"))}
+                        packet_mass.add_finite(p.mass)?;stored[self.class(&p)].add_finite(p.mass)?;
+                        if !pending{occupied.add_finite(p.mass*self.footprint(p.tag))?;}
                     }
-                    for p in &packet.parts {
-                        records += 1;
-                        if p.tag >= self.routes.len()
-                            || !p.mass.is_finite()
-                            || p.mass <= 0.
-                            || !finite_nonnegative(p.birth)
-                            || p.birth > p.mass * s.t + 1e-8
-                        {
-                            return Err(val("invalid homogeneous native part"));
-                        }
-                        if self.path(p.tag).get(p.offset) != Some(&i) {
-                            return Err(val("native route suffix mismatch"));
-                        }
-                        if p.a.is_some() != p.b.is_some()
-                            || p.a.is_some_and(|a| {
-                                !a.is_finite()
-                                    || a < 0.
-                                    || !p.b.unwrap().is_finite()
-                                    || a > p.b.unwrap()
-                                    || p.b.unwrap() > s.t + 1e-9
-                            })
-                        {
-                            return Err(val("invalid native entry interval"));
-                        }
-                        stored[self.class(&p)].add(p.mass);
-                    }
-                    if pending {
-                        all.add(mass(packet));
-                    }
+                    let m=packet_mass.finish_finite()?;
+                    if pending{all.add_finite(m)?;}else{occupancy.add_finite(m)?;}
                 }
             }
         }
-        if records > self.record_budget {
-            return Err(budget("packet state budget"));
-        }
-        let tol = 1e-9 * s.totals[0].max(1.);
-        if (s.totals[0] - s.totals[1] - all.finish()).abs() > tol {
-            return Err(arithmetic("network mass ledger"));
-        }
-        let total_residence = residence.finish() + s.totals[4] + s.totals[5] + s.totals[6];
-        let system = (s.totals[0] - s.totals[1]) * s.t - s.totals[2] + s.totals[3];
-        if (total_residence - system).abs() > 1e-8 * total_residence.max(1.) {
-            return Err(arithmetic("residence ledger"));
-        }
-        for (l, acc) in s.ledger.iter().zip(stored) {
-            if l.iter().any(|x| !finite_nonnegative(*x))
-                || (l[0] - l[1] - acc.finish()).abs() > 1e-9 * l[0].max(1.)
-            {
-                return Err(arithmetic("class mass/ledger mismatch"));
-            }
-        }
-        for (a, b) in [(0, 0), (1, 1), (2, 4), (4, 5)] {
-            let observed = sum(s.ledger.iter().map(|l| l[a]));
-            if (observed - s.totals[b]).abs() > 1e-8 * observed.max(s.totals[b]).max(1.) {
-                return Err(arithmetic("class/global ledger mismatch"));
-            }
-        }
+        let tol=1e-9*s.totals[0].max(1.);
+        if (s.totals[0]-s.totals[1]-all.finish_finite()?).abs()>tol{return Err(arithmetic("network mass ledger"))}
+        let total_residence=residence.finish_finite()?+s.totals[4]+s.totals[5]+s.totals[6];
+        let system=(s.totals[0]-s.totals[1])*s.t-s.totals[2]+s.totals[3];
+        if !total_residence.is_finite()||!system.is_finite()||(total_residence-system).abs()>1e-8*total_residence.max(1.){return Err(arithmetic("residence ledger"))}
+        for (l,acc) in s.ledger.iter().zip(stored){if l.iter().any(|x|!finite_nonnegative(*x))||(l[0]-l[1]-acc.finish_finite()?).abs()>1e-9*l[0].max(1.){return Err(arithmetic("class mass/ledger mismatch"))}}
+        for (a,b) in [(0,0),(1,1),(2,4),(4,5)]{let mut acc=RoadExpansion::default();for l in &s.ledger{acc.add_finite(l[a])?;}let observed=acc.finish_finite()?;if (observed-s.totals[b]).abs()>1e-8*observed.max(s.totals[b]).max(1.){return Err(arithmetic("class/global ledger mismatch"))}}
         Ok(())
     }
     fn step_state(
@@ -8562,7 +8522,7 @@ impl V1Road{
     }
     fn read_packets_compact<R:Read>(&self,r:&mut R,remaining:&mut usize,work:&mut RoadDecodeBudget)->CoreResult<Vec<Packet>>{
         let n=read_len(r,*remaining)?;
-        work.reserve(n.saturating_mul(std::mem::size_of::<Packet>()+32),n.saturating_mul(32))?;
+        work.reserve(n.saturating_mul(std::mem::size_of::<Packet>()+32),n.saturating_mul(64))?;
         let mut out=checkpoint_vec(n)?;
         let mut previous:Option<Arc<Vec<(u32,u32)>>>=None;
         let check_key=|tag:usize,offset:usize|->CoreResult<()>{
@@ -8572,7 +8532,6 @@ impl V1Road{
         for _ in 0..n{
             let target=read_f64(r)?;let m=read_len(r,*remaining)?;
             if m==0{return Err(val("empty compact wire packet"))}*remaining-=m;
-            work.reserve(0,m.saturating_mul(16))?;
             let kind=read_u64(r)?;
             let parts=match kind{
                 0=>{
@@ -8640,5 +8599,22 @@ mod compact_checkpoint_wire_tests{
         let mut work=RoadDecodeBudget{limit:None,retained_input:0,decoded:0,validation:0};
         assert!(road.read_packets_compact(&mut &bad_wire[..],&mut 100000,&mut work).is_err());
         assert!(road.read_packets_compact(&mut &compact[..compact.len()-1],&mut 100000,&mut work).is_err());
+    }
+}
+
+#[cfg(test)]
+mod streaming_validation_tests{
+    use super::*;
+    #[test]
+    fn checked_finite_expansion_matches_exact_order_and_rejects_overflow(){
+        let xs=[1e-300,1e100,0.5,-1e100,0.25,2e-300];
+        let mut checked=RoadExpansion::default();for x in xs{checked.add_finite(x).unwrap();}
+        assert_eq!(checked.finish_finite().unwrap().to_bits(),sum(xs).to_bits());
+        let mut bad=RoadExpansion::default();bad.add_finite(f64::MAX).unwrap();assert!(bad.add_finite(f64::MAX).is_err());
+        assert!(RoadExpansion::default().add_finite(f64::NAN).is_err());
+    }
+    #[test]
+    fn validation_workspace_depends_on_packet_shells_not_rows(){
+        assert_eq!(road_stream_validation_bound(100,20),2*1024*1024+6400+640);
     }
 }
