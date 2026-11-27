@@ -1,0 +1,2 @@
+S05_compact27060 exit=0
+S05_base27060 exit=0

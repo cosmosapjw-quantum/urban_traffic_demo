@@ -1,0 +1,45 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "checkpoint_bytes": 689857005,
+  "checkpoint_sha256": "c082dc9df080d98fa1aa1846e051acb9d5820546b3819a0c30e574e47f5dd185",
+  "executable_sha256": "14b9f5c2048aa481d146ffd6cf684679398705e330eeb258adcb652962608016",
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 2606.5319493265943,
+      "completed": 3369.698219702652,
+      "pending": 4023.7698309704865,
+      "released": 5976.230169029246,
+      "released_intent_first_moment": 155949726.2608195,
+      "requested": 9999.999999999733
+    },
+    "vehicles": {
+      "active": 2084.9292471773074,
+      "completed": 2688.404086155893,
+      "pending": 126.66666666678793,
+      "released": 4773.3333333332,
+      "released_intent_first_moment": 124560133.33333252,
+      "requested": 4899.999999999988
+    }
+  },
+  "manifest_sha256": "f982aecceca3ddd4a49576837289d3fbc933708f99cdf814ba4c47dbfd5adb77",
+  "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60",
+  "peak_rss_bytes": 1229508608,
+  "python_runtime_dependency": "none",
+  "research_receipt_period_s": 60,
+  "schema": "metroflow_mature_receipt_migration_v1",
+  "scope": "unchanged initial physical owners; future mature receipt summaries; not original acceptance",
+  "source_checkpoint_sha256": "ee0bb6d8dfe2fa30780413198f21a7b88bff24215a8a712f1171c38448d601de",
+  "source_manifest_sha256": "ab96131eb01aaa5e12d247bf967e39d63820ce901019918b370636fc08a9f95b",
+  "source_native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60",
+  "status": "EXECUTED_FOR_REVIEW",
+  "time_s": 27000.0,
+  "wall_s": 23.793988957
+}
