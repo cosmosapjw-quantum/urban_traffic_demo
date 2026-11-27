@@ -2140,6 +2140,8 @@ pub fn recover_native_checkpoint(manifest:serde_json::Value,threads:usize,path:&
     let ledger=ledger_json(&engine,&state)?;let (totals,classes)=state.value.road.summary();
     let road=state.value.road.debug_stats();
     let mut out=json!({"schema":"metroflow_native_recovery_v1","status":"RECOVERED_CHECKPOINT_ONLY","scope":"strict complete decode, cross-owner ledger validation and original identity; no execution or elapsed-horizon claim","time_s":state.time_s(),"city_identity":engine.city,"schedule_identity":engine.schedule,"native_identity":engine.identity,"calendar_legs":calendar_legs,"calendar_totals":calendar_totals,"byte_budget":engine.byte_budget,"threads":threads,"build_s":build_s,"load_s":t.elapsed().as_secs_f64(),"ledger":ledger["ledger"],"road_totals":totals,"road_class_ledgers":classes,"class_names":engine.class_names,"road_records":{"cell_parts":road.cell_parts,"pending_parts":road.pending_parts,"cell_packets":road.cell_packets,"pending_packets":road.pending_packets,"uniform_parts":road.uniform_parts,"mixed_parts":road.mixed_parts,"retained_storage_bytes":state.value.road.retained_storage_bytes()},"completed_event_rows":state.value.service.1.len()});
+    let (owner,scratch)=state.value.road.compact_decode_envelope();let (old_owner,old_scratch)=state.value.road.legacy_decode_envelope();
+    out["decode_envelopes"]=json!({"compact_owner_bytes":owner,"compact_validation_scratch_bytes":scratch,"historical_legacy_owner_estimate_bytes":old_owner,"historical_legacy_validation_scratch_bytes":old_scratch});
     if crate::v1_trace::enabled(){out["budget_trace"]=crate::v1_trace::native_snapshot();}
     Ok(out)
 }

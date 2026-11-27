@@ -1279,6 +1279,7 @@ fn check_storage_limit(limit: Option<usize>, required: usize, phase: &str) -> Co
 // <=4096 finite partials; 128 KiB each covers Vec growth overlap.
 // 2 MiB covers these accumulators and local metadata. A key-pointer
 // HashSet census needs O(packet count), not O(physical row count).
+fn compact_checkpoint_enabled()->bool{cfg!(feature="native-cli")&&std::env::var("METROFLOW_NATIVE_COMPACT_WIRE").as_deref()==Ok("1")&&std::env::var("METROFLOW_NATIVE_LEGACY_SAVE").as_deref()!=Ok("1")}
 fn road_stream_validation_bound(packets:usize,cells:usize)->usize{
     (2*1024*1024usize).saturating_add(packets.saturating_mul(64)).saturating_add(cells.saturating_mul(32))
 }
@@ -1675,8 +1676,41 @@ impl RoadState {
     /// rows before releasing the raw buffer for a Uniform packet. Relative to
     /// the final decoded owner, the largest such overlap is one raw packet;
     /// all preceding packet/tree/outer-vector charges remain retained below.
-    pub(crate) fn checkpoint_decode_envelope(&self) -> (usize, usize) {
-        let stats = self.debug_stats();
+    pub(crate) fn checkpoint_decode_envelope(&self)->(usize,usize){
+        if compact_checkpoint_enabled(){return self.compact_decode_envelope();}
+        self.legacy_decode_envelope()
+    }
+    /// Exact structural owner projection for the actual MFWHOLE2 decoder.
+    /// Reuse is ONLY within a queue and only for the preceding shared-key
+    /// allocation, exactly as write_packets_compact emits. No optimistic
+    /// alias credit across an independently reconstructed snapshot.
+    pub(crate) fn compact_decode_envelope(&self)->(usize,usize){
+        let cells=self.cells.len();
+        let mut owner=std::mem::size_of::<RoadState>().saturating_add(3*32)
+            .saturating_add(cells.saturating_mul(std::mem::size_of::<Cell>()+256+2*32+std::mem::size_of::<Vec<Packet>>()))
+            .saturating_add(self.ledger.len().saturating_mul(std::mem::size_of::<[f64;5]>()));
+        for c in &self.cells{owner=owner.saturating_add(c.latent.len().saturating_mul(256));}
+        let mut packets=0usize;
+        for queue in self.cells.iter().map(|c|&c.packets).chain(&self.pending){
+            let mut previous:Option<&Arc<Vec<(u32,u32)>>>=None;
+            packets=packets.saturating_add(queue.len());
+            owner=owner.saturating_add(queue.len().saturating_mul(std::mem::size_of::<Packet>()+32));
+            for packet in queue{
+                let n=packet.parts.len();
+                let bytes=match &packet.parts{
+                    PacketParts::Uniform{..}=>n.saturating_mul(std::mem::size_of::<CorePart>()),
+                    PacketParts::Mixed(_)=>n.saturating_mul(std::mem::size_of::<Part>()),
+                    PacketParts::SharedKeys{keys,..}=>{
+                        let reuse=previous.is_some_and(|p|Arc::ptr_eq(p,keys));previous=Some(keys);
+                        n.saturating_mul(16).saturating_add(if reuse{0}else{n.saturating_mul(8).saturating_add(96)})
+                    }
+                };owner=owner.saturating_add(bytes);
+            }
+        }
+        (owner,road_stream_validation_bound(packets,cells))
+    }
+    pub(crate) fn legacy_decode_envelope(&self)->(usize,usize){
+        let stats=self.debug_stats();
         let largest_packet = self
             .cells
             .iter()
@@ -3215,7 +3249,7 @@ impl V1Road {
                 .saturating_mul(std::mem::size_of::<Cell>() + 256 + 2 * 32),
             self.groups.len().saturating_mul(32),
         )?;
-        let mut cells = checkpoint_vec(self.groups.len())?;
+        let mut cells = if compact{compact_checkpoint_vec(self.groups.len())?}else{checkpoint_vec(self.groups.len())?};
         for _ in &self.groups {
             let mut v = [0.; 8];
             for x in &mut v {
@@ -3241,7 +3275,7 @@ impl V1Road {
                 .saturating_mul(std::mem::size_of::<Vec<Packet>>()),
             0,
         )?;
-        let mut pending = checkpoint_vec(self.groups.len())?;
+        let mut pending = if compact{compact_checkpoint_vec(self.groups.len())?}else{checkpoint_vec(self.groups.len())?};
         for _ in &self.groups {
             pending.push(if compact{self.read_packets_compact(r,&mut remaining,&mut work)?}else{self.read_packets(r,&mut remaining,&mut work)?});
         }
@@ -3256,7 +3290,7 @@ impl V1Road {
                 .saturating_mul(std::mem::size_of::<[f64; 5]>()),
             0,
         )?;
-        let mut ledger = checkpoint_vec(self.classes.len())?;
+        let mut ledger = if compact{compact_checkpoint_vec(self.classes.len())?}else{checkpoint_vec(self.classes.len())?};
         for _ in &self.classes {
             let mut row = [0.; 5];
             for v in &mut row {
@@ -3271,7 +3305,7 @@ impl V1Road {
             totals,
             ledger,
         };
-        self.check_state(&state)?;
+        self.check_state_codec(&state,compact)?;
         // State restoration is a strict source-bound, post-decode lifetime.
         // Exact ordered-keyset interning replaces independent full CorePart
         // payloads with actually shared immutable key arrays only in capped
@@ -3978,10 +4012,16 @@ impl V1Road {
         }
         Ok(q)
     }
-    fn check_state(&self,s:&RoadState)->CoreResult<()> {
+    fn check_state(&self,s:&RoadState)->CoreResult<()>{self.check_state_codec(s,compact_checkpoint_enabled())}
+    fn check_state_codec(&self,s:&RoadState,compact:bool)->CoreResult<()> {
         if s.cells.len()!=self.groups.len()||s.pending.len()!=self.groups.len()||s.ledger.len()!=self.classes.len()||!finite_nonnegative(s.t)||s.totals.iter().any(|v|!finite_nonnegative(*v)){return Err(val("invalid native road state schema/ledger"))}
         let packets=s.cells.iter().map(|c|c.packets.len()).chain(s.pending.iter().map(Vec::len)).fold(0usize,usize::saturating_add);
-        let scratch=road_stream_validation_bound(packets,s.cells.len());
+        let scratch=if compact{road_stream_validation_bound(packets,s.cells.len())}else{
+            // Keep the established small-budget/legacy admission contract
+            // until the compact codec is selected explicitly.
+            let rows=s.cells.iter().flat_map(|c|&c.packets).chain(s.pending.iter().flatten()).map(|p|p.parts.len()).fold(0usize,usize::saturating_add);
+            rows.saturating_mul(16).saturating_add(packets.saturating_add(s.cells.len()).saturating_mul(32))
+        };
         if self.storage_budget.is_some(){
             // debug_stats/retained_storage_bytes has a key-pointer census,
             // not an array of physical rows. Admit that transient first.
@@ -8473,6 +8513,7 @@ mod inline_expansion_storage_tests {
     }
 }
 
+fn compact_checkpoint_vec<T>(n:usize)->CoreResult<Vec<T>>{let v=checkpoint_vec(n)?;if v.capacity()!=n{return Err(budget("compact checkpoint exact allocation capacity differs"))}Ok(v)}
 fn wire_u32<W:Write>(w:&mut W,x:u32)->CoreResult<()>{
     w.write_all(&x.to_le_bytes()).map_err(|e|CoreError::io(e.to_string()))
 }
@@ -8523,7 +8564,7 @@ impl V1Road{
     fn read_packets_compact<R:Read>(&self,r:&mut R,remaining:&mut usize,work:&mut RoadDecodeBudget)->CoreResult<Vec<Packet>>{
         let n=read_len(r,*remaining)?;
         work.reserve(n.saturating_mul(std::mem::size_of::<Packet>()+32),n.saturating_mul(64))?;
-        let mut out=checkpoint_vec(n)?;
+        let mut out=compact_checkpoint_vec(n)?;
         let mut previous:Option<Arc<Vec<(u32,u32)>>>=None;
         let check_key=|tag:usize,offset:usize|->CoreResult<()>{
             let &(p,_)=self.routes.get(tag).ok_or_else(||val("compact wire route tag"))?;
@@ -8537,7 +8578,7 @@ impl V1Road{
                 0=>{
                     let a=packed_from_wire(read_u64(r)?)?;let b=packed_from_wire(read_u64(r)?)?;
                     work.reserve(m.saturating_mul(std::mem::size_of::<CorePart>()),0)?;
-                    let mut rows=checkpoint_vec(m)?;
+                    let mut rows=compact_checkpoint_vec(m)?;
                     for _ in 0..m{
                         let tag=read_wire_u32(r)?;let offset=read_wire_u32(r)?;check_key(tag as usize,offset as usize)?;
                         rows.push(CorePart{tag,offset,mass:read_f64(r)?,birth:read_f64(r)?});
@@ -8546,7 +8587,7 @@ impl V1Road{
                 }
                 1=>{
                     work.reserve(m.saturating_mul(std::mem::size_of::<Part>()),0)?;
-                    let mut rows=checkpoint_vec(m)?;
+                    let mut rows=compact_checkpoint_vec(m)?;
                     for _ in 0..m{
                         let tag=read_len(r,self.routes.len())?;let offset=read_len(r,usize::MAX)?;check_key(tag,offset)?;
                         rows.push(Part{tag,offset,mass:read_f64(r)?,birth:read_f64(r)?,a:packed_from_wire(read_u64(r)?)?,b:packed_from_wire(read_u64(r)?)?});
@@ -8559,12 +8600,12 @@ impl V1Road{
                         previous.as_ref().filter(|k|k.len()==m).ok_or_else(||val("compact wire key reference absent or wrong length"))?.clone()
                     }else{
                         work.reserve(m.saturating_mul(8).saturating_add(96),0)?;
-                        let mut keys=checkpoint_vec(m)?;
+                        let mut keys=compact_checkpoint_vec(m)?;
                         for _ in 0..m{let tag=read_wire_u32(r)?;let offset=read_wire_u32(r)?;check_key(tag as usize,offset as usize)?;keys.push((tag,offset));}
                         Arc::new(keys)
                     };
                     work.reserve(m.saturating_mul(16),0)?;
-                    let mut moments=checkpoint_vec(m)?;for _ in 0..m{moments.push((read_f64(r)?,read_f64(r)?));}
+                    let mut moments=compact_checkpoint_vec(m)?;for _ in 0..m{moments.push((read_f64(r)?,read_f64(r)?));}
                     previous=Some(keys.clone());
                     PacketParts::SharedKeys{a,b,keys,moments:Arc::new(moments)}
                 }
@@ -8616,5 +8657,30 @@ mod streaming_validation_tests{
     #[test]
     fn validation_workspace_depends_on_packet_shells_not_rows(){
         assert_eq!(road_stream_validation_bound(100,20),2*1024*1024+6400+640);
+    }
+}
+
+#[cfg(test)]
+mod compact_decode_envelope_tests{
+    use super::*;
+    #[test]
+    fn bound_matches_actual_decode_accounting_for_aliases_and_mixed_rows(){
+        let road=V1Road::new("compact-bound".into(),1.,vec![vec![1.;6]],vec![None],vec![(vec![0],0)],vec![vec![1.;13]],vec![vec![0]],vec![],100000,None,true).unwrap();
+        let a=PackedTime::new(Some(0.)).unwrap();let b=PackedTime::new(Some(1.)).unwrap();
+        let keys=Arc::new(vec![(0,0);32]);
+        let p=||Packet{target:1.,parts:PacketParts::SharedKeys{a,b,keys:keys.clone(),moments:Arc::new(vec![(0.125,0.);32])}};
+        let mut s=road.blank(1.);
+        s.cells[0].packets=vec![p(),p(),Packet{target:1.,parts:PacketParts::Mixed(Arc::new(vec![Part{tag:0,offset:0,mass:0.25,birth:0.,a,b}]))}];
+        s.pending[0]=vec![p(),p()]; // queue boundary forces a new key declaration.
+        let (bound,scratch)=s.compact_decode_envelope();
+        let mut work=RoadDecodeBudget{limit:None,retained_input:0,
+            decoded:std::mem::size_of::<RoadState>()+3*32+std::mem::size_of::<Cell>()+256+2*32+std::mem::size_of::<Vec<Packet>>()+std::mem::size_of::<[f64;5]>(),
+            validation:2*1024*1024+32};
+        for q in [&s.cells[0].packets,&s.pending[0]]{
+            let mut wire=vec![];road.write_packets_compact(&mut wire,q).unwrap();
+            let got=road.read_packets_compact(&mut &wire[..],&mut 100000,&mut work).unwrap();
+            let mut out=vec![];let mut old=vec![];road.write_packets(&mut out,&got).unwrap();road.write_packets(&mut old,q).unwrap();assert_eq!(out,old);
+        }
+        assert_eq!(bound,work.decoded);assert_eq!(scratch,work.validation);
     }
 }

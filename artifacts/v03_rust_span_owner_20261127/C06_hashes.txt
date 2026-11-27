@@ -1,0 +1,2 @@
+26a333d2a04984a1c5530f4d8fa0f8178f7087e1a071d6883a0c6eb4e7f907a2  /tmp/metroflow_rust_span_owner_20261127/native-run-c06
+89b21cee8901f62ffad289ee0d8389f973da3ef2ebef07781be357a17233fada  /tmp/metroflow_rust_span_owner_20261127/C06_fixture.bin
