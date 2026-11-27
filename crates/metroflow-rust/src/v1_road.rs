@@ -1771,6 +1771,8 @@ pub struct V1Road {
     groups: Vec<Vec<f64>>,
     signals: Vec<Option<(f64, f64, f64)>>,
     paths: Vec<Vec<usize>>,
+    // Bound on distinct next cells (including terminal) for one immutable head.
+    registered_successor_width: usize,
     routes: Vec<(usize, usize)>,
     classes: Vec<Vec<f64>>,
     incoming: Vec<Vec<usize>>,
@@ -1783,6 +1785,20 @@ pub struct V1Road {
     event_budget: Option<usize>,
     intervals: bool,
     state: RoadState,
+}
+// Route registry is validated before this call. A terminal successor uses n.
+// A bounded construction-only bitmap avoids quadratic scans and per-edge heaps.
+fn registered_successor_width(paths:&[Vec<usize>],n:usize)->usize{
+    let words=n.saturating_add(1).div_ceil(64);
+    let Some(len)=n.checked_mul(words) else{return n.saturating_add(1)};
+    if len>262144{return n.saturating_add(1)}
+    let mut bits=Vec::<u64>::new();if bits.try_reserve_exact(len).is_err(){return n.saturating_add(1)}
+    bits.resize(len,0);
+    for path in paths{
+        for pair in path.windows(2){let i=pair[0];let j=pair[1];bits[i*words+j/64]|=1u64<<(j%64);}
+        if let Some(&i)=path.last(){bits[i*words+n/64]|=1u64<<(n%64);}
+    }
+    bits.chunks_exact(words).map(|r|r.iter().map(|w|w.count_ones() as usize).sum()).max().unwrap_or(0)
 }
 fn val(s: &str) -> CoreError {
     CoreError::value(s.to_owned())
@@ -3475,7 +3491,7 @@ impl V1Road {
         // Two per-destination moment maps for ONE currently inspected head;
         // all prior heads retain only scalar beta maps. 128KiB per finite
         // expansion covers 4096 f64 components and growth overlap.
-        let reductions=128usize.saturating_mul(1024).saturating_mul(2usize.saturating_mul(cells.saturating_add(1)).saturating_add(3*workers).saturating_add(16));
+        let reductions=128usize.saturating_mul(1024).saturating_mul(2usize.saturating_mul(self.registered_successor_width).saturating_add(3*workers).saturating_add(16));
         let maps=1024usize.saturating_mul(cells.saturating_add(1)).saturating_mul(max_inc.saturating_mul(4).saturating_add(8));
         let workspace=packets.saturating_mul(64).saturating_add(shared_rows.saturating_mul(8))
             .saturating_add(stats.pending_parts.saturating_mul(4*std::mem::size_of::<Part>()+std::mem::size_of::<Offer>()))
@@ -3547,6 +3563,7 @@ impl V1Road {
                     ("rows",rows),
                     ("source_observation_bytes",source_observation_bytes),
                     ("legacy_source_observation_bytes",rows.saturating_mul(32)),
+                    ("registered_successor_width",self.registered_successor_width),
                     ("offers",offers.len()),
                     ("max_cell_parts", stats.max_cell_parts),
                     ("groups", groups),
@@ -5559,12 +5576,14 @@ impl V1Road {
         {
             return Err(val("invalid native route"));
         }
+        let registered_successor_width=registered_successor_width(&paths,n);
         let mut r = Self {
             identity,
             dt,
             groups,
             signals,
             paths,
+            registered_successor_width,
             routes,
             classes,
             incoming,
@@ -8927,4 +8946,14 @@ mod exact_event_run_wire_tests {
 
 pub(crate) fn stream_sink_envelope_bytes(service_rows:usize,max_tag_bytes:usize)->usize{
     service_rows.saturating_mul(256).saturating_add(64).saturating_add(max_tag_bytes).saturating_add(32)
+}
+
+#[cfg(test)]
+mod registered_width_tests {
+ use super::*;
+ #[test] fn exact_union_counts_terminal_and_deduplicates_repeated_routes(){
+  assert_eq!(registered_successor_width(&[vec![0,1],vec![0,2],vec![0],vec![0,1],vec![3,0,2]],4),3);
+  assert_eq!(registered_successor_width(&[vec![0,1,0,1]],2),2);
+ }
+ #[test] fn wide_registry_falls_back_to_universal_bound(){assert_eq!(registered_successor_width(&[vec![0]],100000),100001);}
 }

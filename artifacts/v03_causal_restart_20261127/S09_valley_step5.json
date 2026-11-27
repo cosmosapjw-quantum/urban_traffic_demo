@@ -1,0 +1,133 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "advance_s": 2.385833406,
+  "build_s": 3.735222368,
+  "byte_budget": 6442450944,
+  "calendar_legs": 918450,
+  "calendar_totals": [
+    120000.0,
+    58801.0,
+    1000.0
+  ],
+  "checkpoint_bytes": 29539682,
+  "checkpoint_sha256": "f80ced3f7ce29abbeae3ef615dc7a6741ded8b678cce6f81b13771de2e1dbc33",
+  "checkpoint_write_s": 1.6934016440000002,
+  "checkpoint_writer": "immutable_snapshot",
+  "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+  "class_names": [
+    "car",
+    "freight",
+    "scheduled_bus"
+  ],
+  "events": 0,
+  "executable_sha256": "3d158e8b0ba087a4e6d103cd05bbd84b22c1059921cb08d4de28ab5dc6ae2512",
+  "failure": null,
+  "initial_checkpoint_method": "serialize",
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    },
+    "vehicles": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    }
+  },
+  "manifest_sha256": "aeff65f650c1031eb152ff122e16f00536dd9c6d991ace4741d3a2bae2298848",
+  "native_identity": "native-whole-v1:5346e352a86c9507c92dde9fdee949ceca10bba116c0c3a68b16bacc517c259d:6442450944:bounded_bytes_v1:retained_capacity_v3",
+  "native_route_latency": {
+    "failed_calls": 0,
+    "max_ns": 6735668,
+    "min_ns": 50,
+    "observed_calls": 304601,
+    "p99_ns": {
+      "lower": 110080,
+      "upper": 110591
+    },
+    "pair_cache_hits": 265684,
+    "scope": "native whole-engine OD requests including pair-cache hits",
+    "search_calls": 38917,
+    "source": "native_whole_router.route",
+    "status": "MEASURED_INTERVAL"
+  },
+  "peak_records": 0,
+  "peak_rss_bytes": 413253632,
+  "python_runtime_dependency": "none",
+  "refinement_prefix": null,
+  "resume_verified": true,
+  "road_class_ledgers": [
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  ],
+  "road_totals": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "save_s": 4e-8,
+  "schedule_identity": "61bf90204d22e3442c565f3f62b8ef4cba7d7be3e74b1d33e6c8bcf96208c920",
+  "schema": "metroflow_native_rust_host_v1",
+  "scope": "original native engine from typed declared input; not original city construction or V03 acceptance",
+  "segments": 2,
+  "start_s": 0.0,
+  "status": "EXECUTED_FOR_REVIEW",
+  "threads": 8,
+  "tick_times_s": [
+    0.027214733,
+    0.029490069,
+    0.015042978,
+    0.021975347,
+    0.015386996,
+    0.021865009,
+    0.019866986,
+    0.023861131,
+    0.01825736,
+    0.021447485,
+    0.012916202,
+    0.012996614
+  ],
+  "time_s": 60.0,
+  "unique_paths": 38916,
+  "unsupported_legs": 610820,
+  "wall_s": 6.297153423,
+  "wire_writer": "compact_v3_events"
+}

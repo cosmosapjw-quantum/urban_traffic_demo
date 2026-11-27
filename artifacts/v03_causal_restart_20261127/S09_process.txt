@@ -1,0 +1,3 @@
+25740_exit=2
+campaign60_exit=0
+valley_step5_60_exit=0
