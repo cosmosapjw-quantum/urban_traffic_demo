@@ -1371,3 +1371,6 @@ pub use v1_journey::allocation_probe_outlet_and_wire;
 
 #[cfg(feature="native-cli")]
 pub use v1_history::ReceiptBucketProbe;
+
+#[cfg(feature="native-cli")]
+pub use v1_history::allocation_probe_streaming_receipt;

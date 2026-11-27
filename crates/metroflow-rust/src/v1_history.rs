@@ -129,6 +129,45 @@ impl GridExpansion {
     }
 }
 
+/// A transaction-local positive receipt measure, one bucket per hidden
+/// parent. Capacity overflow is an explicit failure; the enclosing candidate
+/// is discarded, not committed partially.
+#[derive(Default)]
+pub(crate) struct ReceiptAccumulator(GridBucket);
+impl ReceiptAccumulator{
+    pub(crate) fn add(&mut self,t:f64,f:f64,now:f64)->CoreResult<()>{
+        if !t.is_finite()||t<0.||t>now||!f.is_finite()||f<=0.{
+            return Err(CoreError::value("invalid streaming receipt"))
+        }
+        self.0.add(t,f).map_err(CoreError::arithmetic)
+    }
+    pub(crate) fn seed(&mut self,h:&ReceiptHistory,now:f64)->CoreResult<()>{
+        // No pointer-vector allocation: reverse block traversal. Order may
+        // change low bits, hence the explicit streaming research identity.
+        let mut cursor=h.0.as_deref();
+        while let Some(block)=cursor{
+            for &(t,f) in &block.rows{self.add(t,f,now)?;}
+            cursor=block.previous.as_deref();
+        }
+        Ok(())
+    }
+    pub(crate) fn count(&self)->usize{self.0.count}
+    pub(crate) fn representative(&self)->CoreResult<Receipt>{
+        let g=&self.0;
+        let m=g.mass.total();let b=g.moment.total();
+        if g.count==0||m<=0.||!m.is_finite()||!b.is_finite(){return Err(CoreError::arithmetic("streaming receipt mass/moment"))}
+        let t=if g.count==1{g.first}else{(b/m).clamp(g.lo,g.hi)};
+        if (t*m-b).abs()>1e-11*b.abs()+4.*f64::from_bits(1){return Err(CoreError::arithmetic("streaming receipt moment differs"))}
+        Ok((t,m))
+    }
+}
+#[cfg(feature="native-cli")]
+pub fn allocation_probe_streaming_receipt()->CoreResult<[f64;2]>{
+    let mut a=ReceiptAccumulator::default();
+    for (t,f) in [(1.,0.125),(5.,0.25),(20.,0.625)]{a.add(t,f,20.)?;}
+    let (t,m)=a.representative()?;Ok([t,m])
+}
+
 // One reusable workspace per serial sweep. Key slots are relative to the
 // committed tick; distant horizons or expansion overflow take the old sort.
 const GRID_SLOTS:usize=1024;
@@ -852,5 +891,32 @@ impl ReceiptBucketProbe{
         let a=&self.0.buckets[self.0.slots[1]as usize];
         let b=&self.0.buckets[self.0.slots[2]as usize];
         Ok([a.mass.total(),a.moment.total(),b.mass.total(),b.moment.total()])
+    }
+}
+
+#[cfg(test)]
+mod streaming_receipt_tests{
+    use super::*;
+    #[test]
+    fn streaming_centroid_preserves_mass_age_and_later_queries(){
+        let h=ReceiptHistory::from_rows(vec![(1.,0.125),(5.,0.25)]).unwrap();
+        let mut a=ReceiptAccumulator::default();a.seed(&h,20.).unwrap();
+        a.add(20.,0.625,20.).unwrap();
+        assert_eq!(a.count(),3);
+        let (t,m)=a.representative().unwrap();assert_eq!(m,1.);
+        assert_eq!(t,13.875);
+        let c=ReceiptHistory::from_rows(vec![(t,m)]).unwrap();
+        let raw=ReceiptHistory::from_rows(vec![(1.,0.125),(5.,0.25),(20.,0.625)]).unwrap();
+        for d in [10.,80.]{for u in [100.,110.,120.]{
+            assert_eq!(c.eligible(d,u),raw.eligible(d,u));
+            assert_eq!(u*c.total()-t*m,raw.iter().map(|&(r,f)|(u-r)*f).sum::<f64>());
+        }}
+        assert!(a.add(21.,0.1,20.).is_err());assert!(a.add(1.,0.,20.).is_err());
+    }
+    #[test]
+    fn streaming_inline_overflow_fails_closed(){
+        let mut a=ReceiptAccumulator::default();let mut failed=false;
+        for i in 0..20{if a.add(1.,2f64.powi(-60*i),20.).is_err(){failed=true;break}}
+        assert!(failed);
     }
 }
