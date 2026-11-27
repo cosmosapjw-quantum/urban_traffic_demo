@@ -13,6 +13,8 @@ use std::sync::{Arc, Mutex};
 #[cfg(test)]
 #[path = "v1_lineage_shadow.rs"]
 mod lineage_shadow;
+#[path = "v1_ref_blocks.rs"]
+mod v1_ref_blocks;
 #[path = "v1_timed_incoming.rs"]
 mod timed_incoming;
 use timed_incoming::{TimedIncomingControls, TimedIncomingRows};
