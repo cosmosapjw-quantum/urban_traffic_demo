@@ -1657,6 +1657,7 @@ impl RoadState {
         out.vector_capacity_bytes += out.packet_capacity * std::mem::size_of::<Packet>();
         out
     }
+    pub(crate) fn restart_metadata_scratch_bytes(&self)->usize{let packets=self.cells.iter().map(|c|c.packets.len()).chain(self.pending.iter().map(Vec::len)).fold(0usize,usize::saturating_add);road_stream_validation_bound(packets,self.cells.len())}
     pub(crate) fn retained_storage_bytes(&self) -> usize {
         let stats = self.debug_stats();
         // Current native std BTreeMap entries are tiny (<=3 classes/cell).
@@ -3053,6 +3054,7 @@ impl V1Road {
             .saturating_add(nested_bytes(&self.incoming))
             .saturating_add(vector_bytes(&self.windows))
     }
+    pub(crate) fn restart_metadata_scratch_bytes(&self)->usize{self.state.restart_metadata_scratch_bytes()}
     pub(crate) fn owned_storage_bytes(&self) -> usize {
         self.state.retained_storage_bytes()
     }

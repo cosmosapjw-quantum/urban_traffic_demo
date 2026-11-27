@@ -261,9 +261,7 @@ fn check_storage_limit(
         }
     }
     if limit.is_some_and(|cap| required > cap) {
-        return Err(CoreError::resource(
-            "native journey stored/working byte budget",
-        ));
+        return Err(CoreError::resource(format!("native journey stored/working byte budget: required_bytes={required}, budget_bytes={}, retained_bytes={retained}, dynamic_bytes={dynamic}, scratch_bytes={scratch}",limit.unwrap())));
     }
     Ok(())
 }

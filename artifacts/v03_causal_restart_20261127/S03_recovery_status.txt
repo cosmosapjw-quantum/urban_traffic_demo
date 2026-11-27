@@ -1,0 +1,3 @@
+old_guard_exit=1
+exact_restart_exit=0
+Error: CoreError { kind: Resource, message: "native journey stored/working byte budget: required_bytes=899662456, budget_bytes=899662319, retained_bytes=0, dynamic_bytes=299865640, scratch_bytes=0" }

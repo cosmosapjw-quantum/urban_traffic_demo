@@ -540,6 +540,16 @@ fn capture_road_clone_credit(
     } else {0}
 }
 
+// Scoped to native-only CLI callers, where the initial snapshot and dense
+// storage are already charged and no additional user-held snapshots exist.
+fn exact_native_restart()->bool{cfg!(all(feature="native-cli",not(feature="python-extension")))&&std::env::var("METROFLOW_NATIVE_EXACT_RESTART").as_deref()==Ok("1")}
+fn restart_install_dynamic(old:[usize;3],new:[usize;3])->usize{
+    old.into_iter().fold(0usize,usize::saturating_add)
+        .saturating_add(new[0].saturating_mul(2)).saturating_add(new[1].saturating_mul(2)).saturating_add(new[2])
+}
+#[cfg(test)]mod restart_owner_tests{use super::*;
+ #[test]fn full_clone_charge_but_only_one_new_event_owner(){assert_eq!(restart_install_dynamic([10,20,30],[100,200,300]),960);assert_eq!(restart_install_dynamic([usize::MAX,0,0],[1,0,0]),usize::MAX);}
+}
 impl NativeWholeEngine {
     fn build(
         calendar: &NativeCalendar,
@@ -1180,6 +1190,20 @@ impl NativeWholeEngine {
         }
         Ok(())
     }
+    fn restart_install_admission(&self,decoded:&Bundle)->CoreResult<()> {
+        let Some(a)=&self.runtime_storage else{return Ok(())};
+        let old=[self.road.owned_storage_bytes(),journey_storage_bytes(self.journey.state()),self.service.event_storage_bytes()];
+        let new=[decoded.road.retained_storage_bytes(),journey_storage_bytes(&decoded.journey),service_event_storage_bytes(&decoded.service)];
+        let scratch=self.road.restart_metadata_scratch_bytes().max(decoded.road.restart_metadata_scratch_bytes());
+        // Both complete states may coexist, plus an entire road and journey
+        // clone. Event history is Arc cloned, never copied. No alias credit
+        // for road or journey; their cloned capacity is bounded by source.
+        let dynamic=restart_install_dynamic(old,new);
+        let required=a.base().saturating_add(a.call_binding).saturating_add(dynamic).saturating_add(scratch);
+        crate::v1_trace::guard("engine_admission","exact restart install",required,self.byte_budget,&[("fixed",a.base()),("call_binding",a.call_binding),("old_road",old[0]),("new_road",new[0]),("old_journey",old[1]),("new_journey",new[1]),("old_events",old[2]),("new_events",new[2]),("metadata_scratch",scratch)]);
+        if required>self.byte_budget{return Err(CoreError::resource(format!("exact restart install requires {required} bytes; cap {}",self.byte_budget)))}
+        Ok(())
+    }
     fn load_validation_admission(&self, decoded: &Bundle, road_rows: usize) -> CoreResult<()> {
         let Some(accounting) = &self.runtime_storage else {
             return Ok(());
@@ -1315,14 +1339,14 @@ impl NativeWholeEngine {
     fn restore(&mut self, state: &NativeWholeState) -> CoreResult<()> {
         self.checked(state)?;
         self.reset_phase_ceilings()?;
-        self.storage_admission(
+        if exact_native_restart(){self.restart_install_admission(&state.value)?;}else{self.storage_admission(
             &state.value.journey,
             state.value.road.retained_storage_bytes(),
             0,
             service_event_storage_bytes(&state.value.service),
             None,
             false,
-        )?;
+        )?;}
         self.road.rollback(state.value.road.clone());
         self.service.rollback(state.value.service.clone());
         self.journey.rollback(state.value.journey.clone());
@@ -1928,10 +1952,17 @@ crate::optional_binding::optional_pymethods!(NativeWholeEngine,
             let service=self.service.read_state_codec(&mut f,self.event_limit,event_byte_limit,compressed_events,event_runs)?;
             let events = service_event_storage_bytes(&service).max(old_events);
             if self.runtime_storage.is_some() {
-                let journey_limit = self.pool_after(
-                    road_bytes.saturating_add(events).saturating_mul(3),
-                    "journey decode",
-                )?;
+                let old_road=self.road.owned_storage_bytes();
+                let decoded_road=road.retained_storage_bytes();
+                let decoded_events=service_event_storage_bytes(&service);
+                let reserved=if exact_native_restart(){
+                    // Sequential decode: old engine and decoded owners only.
+                    // No restore clone until read and validation return.
+                    old_road.saturating_add(decoded_road).saturating_add(old_events).saturating_add(decoded_events)
+                }else{road_bytes.saturating_add(events).saturating_mul(3)};
+                let pool=self.road_storage_bytes.unwrap_or(usize::MAX);
+                crate::v1_trace::guard("engine_admission","journey decode other owners",reserved,pool,&[("old_road",old_road),("decoded_road",decoded_road),("old_events",old_events),("decoded_events",decoded_events),("legacy_reserved",road_bytes.saturating_add(events).saturating_mul(3))]);
+                let journey_limit=self.pool_after(reserved,"journey decode")?;
                 self.journey.set_phase_storage_budget(journey_limit)?;
             }
             let journey = self.journey.read_state(&mut f)?;
