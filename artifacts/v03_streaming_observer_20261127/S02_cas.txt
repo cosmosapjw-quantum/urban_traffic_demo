@@ -1,0 +1,1 @@
+Wolfram FullSimplify: {True, True, True, True}; symbolic T warning; direct proof in research note
