@@ -805,6 +805,15 @@ fn postroad_continuous_owner_sum(
 )->usize {
     committed.saturating_add(input).saturating_add(candidate)
 }
+/// Distinct immutable input and committed road owners remain alive throughout
+/// keyset interning. Charge all shells/candidate storage, subtract ONLY the
+/// established nonallocating lower bound for their duplicate live payload.
+/// Input must be the actual charged snapshot, not a merely equal value.
+fn postroad_input_payload_credit(committed:&RoadState,input:Option<&RoadState>,charged_input:usize,charged_current:usize)->usize{
+    let Some(input)=input else{return 0};
+    if std::ptr::eq(input,committed)||input.retained_storage_bytes()>charged_input{return 0}
+    committed.paired_shared_payload_lower_bound(input).min(charged_input).min(charged_current)
+}
 fn postroad_continuous_keyset_peak_bytes(
     owner_sum:usize, old_events:usize,
     flat_rows:usize, core_rows:usize, packet_owners:usize,
@@ -3756,21 +3765,24 @@ impl V1Road {
         // before keyset interning; the native proposal below skips this export.
         let flat = pages.into_flat_checked()?;
         self.intern_candidate_keysets(candidate,
-            flat.capacity().saturating_mul(std::mem::size_of::<EventRow>()))?;
+            flat.capacity().saturating_mul(std::mem::size_of::<EventRow>()),None)?;
         Ok(flat)
     }
 
     fn intern_candidate_keysets(
         &self, candidate: &mut RoadState, candidate_event_bytes: usize,
+        call_input:Option<&RoadState>,
     ) -> CoreResult<()> {
         if let Some(limit) = self.storage_budget {
             let stats = candidate.debug_stats();
             let committed_retained = self.state.retained_storage_bytes();
             let supplied_retained = self.retained_input_bytes;
             let candidate_retained = candidate.retained_storage_bytes();
-            let owner_sum = postroad_continuous_owner_sum(
+            let gross_owner_sum = postroad_continuous_owner_sum(
                 committed_retained, supplied_retained, candidate_retained,
             );
+            let input_credit=postroad_input_payload_credit(&self.state,call_input,supplied_retained,committed_retained);
+            let owner_sum=gross_owner_sum.saturating_sub(input_credit);
             let old_events = self.service_event_accounting.map_or(0, |v|
                 v.input_bytes.saturating_add(
                     if v.shared_input_current { 0 } else { v.current_bytes }
@@ -3787,7 +3799,8 @@ impl V1Road {
                 &[("committed_road_retained", committed_retained),
                   ("supplied_input_road_retained", supplied_retained),
                   ("candidate_road_retained", candidate_retained),
-                  ("road_owner_sum", owner_sum), ("old_event_bytes", old_events),
+                  ("road_owner_sum", owner_sum), ("gross_road_owner_sum",gross_owner_sum),
+                  ("input_committed_pointer_credit",input_credit), ("old_event_bytes", old_events),
                   ("candidate_event_storage_bytes", candidate_event_bytes),
                   ("candidate_uniform_rows", stats.uniform_parts),
                   ("candidate_keyset_allocation_rows", allocation_rows),
@@ -3823,7 +3836,7 @@ impl V1Road {
         call_input: Option<&RoadState>,
     ) -> CoreResult<(RoadState, ChunkedEvents)> {
         let (mut state, pages) = self.step_state(&self.state, dt, offers, call_input)?;
-        self.intern_candidate_keysets(&mut state, pages.retained_storage_bytes())?;
+        self.intern_candidate_keysets(&mut state, pages.retained_storage_bytes(),call_input)?;
         crate::v1_trace::add("event_history.retained_rows", pages.len() as u64);
         crate::v1_trace::add("event_history.retained_storage_bytes", pages.retained_storage_bytes() as u64);
         Ok((state, pages))
@@ -6202,6 +6215,23 @@ mod conservative_arc_pair_credit_tests {
         assert_eq!(source.paired_shared_payload_lower_bound(&unrelated),0);
     }
 
+    #[test]
+    fn postroad_credit_requires_live_distinct_and_fully_charged_input(){
+        let input=one();let committed=input.clone();let candidate=one();
+        let a=input.retained_storage_bytes();let b=committed.retained_storage_bytes();let c=candidate.retained_storage_bytes();
+        let credit=postroad_input_payload_credit(&committed,Some(&input),a,b);
+        assert_eq!(credit,2*std::mem::size_of::<CorePart>());
+        assert_eq!(postroad_input_payload_credit(&committed,Some(&input),a-1,b),0);
+        assert_eq!(postroad_input_payload_credit(&committed,Some(&committed),b,b),0);
+        assert_eq!(postroad_input_payload_credit(&committed,Some(&candidate),c,b),0);
+        assert_eq!(postroad_input_payload_credit(&committed,None,a,b),0);
+        let gross=postroad_continuous_owner_sum(b,a,c);
+        let required=postroad_continuous_keyset_peak_event_bytes(gross-credit,17,31,2,1);
+        assert!(check_storage_limit(Some(required),postroad_continuous_keyset_peak_event_bytes(gross,17,31,2,1),"old double charge").is_err());
+        assert!(check_storage_limit(Some(required),required,"live distinct owners").is_ok());
+        let u=RoadState::arc_backing_union(&[&input,&committed,&candidate]);
+        assert!(credit<=u.duplicate_payload_bytes);
+    }
     #[test]
     fn unshared_original_input_earns_zero_after_the_committed_state_changes() {
         let original = one();
