@@ -1,0 +1,55 @@
+{
+  "schema": "metroflow_v03_readiness_scoped_v1",
+  "definition": "receipt-bound plan status and separately typed execution evidence; no release acceptance",
+  "nodes_total": 21,
+  "nodes_accepted": 5,
+  "nodes_verified_scoped": 14,
+  "nodes_blocked": 1,
+  "nodes_planned": 1,
+  "direct_dependencies": [
+    {
+      "id": "P01",
+      "status": "VERIFIED_SCOPED"
+    },
+    {
+      "id": "V01",
+      "status": "VERIFIED_SCOPED"
+    },
+    {
+      "id": "V02",
+      "status": "VERIFIED_SCOPED"
+    }
+  ],
+  "direct_scoped_or_accepted": 3,
+  "direct_accepted": 0,
+  "original_cases_prepared": 3,
+  "prior_60s_prefixes_validated": 3,
+  "original_cases_total": 3,
+  "original_full_days_accepted": 0,
+  "original_full_days_required": 9,
+  "original_8h_refinement_completed": 0,
+  "original_8h_refinement_required": 3,
+  "computed_frontier_s": 25740,
+  "independently_recovered_frontier_s": 25740,
+  "original_nonzero_loaded_intervals": [
+    {
+      "start_s": 25320,
+      "end_s": 25380,
+      "scope": "completed",
+      "receipt": "S08_25380.json"
+    },
+    {
+      "start_s": 25380,
+      "end_s": 25500,
+      "scope": "completed",
+      "receipt": "S08_25500.json"
+    },
+    {
+      "start_s": 25500,
+      "requested_end_s": 25740,
+      "independently_recovered_s": 25680,
+      "scope": "timeout with separately recovered last published prefix",
+      "receipt": "S08_early_recovery.json"
+    }
+  ]
+}

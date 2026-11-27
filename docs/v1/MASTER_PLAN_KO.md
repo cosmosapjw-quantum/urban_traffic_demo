@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.43**, 2026-11-27. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.44**, 2026-11-27. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -2122,7 +2122,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-V03/B15: continue from independently recovered 25730 s at original 6 GiB accounting, 8 GiB RSS/AS, 7200 s/case; inspect latest exact guard {"kind":"Resource","message":"native whole checkpointability storage budget exceeded: required_bytes=6080774604, budget_bytes=5788793055"}, prove physical work-owner bounds and retry loaded tick(s). Advance cold-start prefixes toward true 8h refinement and 3x3 24h. B10: real causal link observations and endogenous suffix/graph edit, release-scale phase memory/runtime; medium outlet window restart is scoped fixed. Separate delayed FIFO shadow from original kinetic multiclass acceptance, derive marked-flow/kinetic correspondence before substitution. Explicit opt-in Python oracles only.
+V03/B15: resume exact 25740 checkpoint; current 25750 transfer candidate guard requires 4668031610 vs 4668014703 B after 18666739 incoming rows. Stop tiny numerical credits; derive bounded source event/control spans and incremental receiving materialization with original row order and exact marks, then test actual loaded tick and independent recovery. Advance nonzero River/Coastal and matched 8h refinement. B10: actual link-entry/outlet marks, endogenous ready-head route variant choice and graph-edit drain; scoped phase wire remains exact. Marked diverge is a separate candidate closure: extend to heterogeneous kinetic memory/merge and compare against physical V03 before substitution. Original 6GiB/8GiB/7200s and 3x3 full days unchanged.
 
 **예산·종료조건**
 
@@ -2306,11 +2306,11 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "V03"
   ],
   "native_subagent": "NOT_RUN_NO_TOOL",
-  "scope": "Integrated ten-stage V03 research: same-identity restart independently recovered 25730 s; computed frontier 25730 s; finite FIFO causal shadow proposition and intervention, exact route support bound, restartable medium observation window, measured scoped zero heap allocations, 3/3 native 60s matrix prefixes; 13/15 pure Rust scoped; original 0/9 full days.",
+  "scope": "Integrated S01-S10: current exact Valley 25740 calculated and independently recovered; next 25750 install passed then transfer resource refusal; earlier nonzero 60/120 s completed and 180 s published/recovered under 240s attempted horizon; marked FIFO route/birth-moment network shadow; inline phase sums and zero-allocation bounded kernels; 13/15 pure Rust scoped; 0/9 original full days.",
   "full_repository_ci": "DEFERRED_BY_USER",
   "full_day_100k": "BLOCKED_RESOURCE_AND_MIGRATION_0_OF_9",
   "main_modified": false,
-  "evidence": "artifacts/v03_causal_restart_20261127/S10_RESEARCH_RECEIPT.json",
+  "evidence": "artifacts/v03_marked_owner_20261127/S10_RESEARCH_RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
@@ -2319,20 +2319,20 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "status": "success"
   },
   "parallel_agents": [],
-  "active_branch": "research/v03-causal-restart-20261127",
-  "production_commit": "ea150efc2c31db6093eab126e199cfbce21d303c",
+  "active_branch": "research/v03-marked-owner-20261127",
+  "production_commit": "ba322ec3b4584409f8ac869c9fd7957d2c5f1bbc",
   "research_stages_completed": 10,
   "research_stages_total": 10,
-  "source_commit": "ea150efc2c31db6093eab126e199cfbce21d303c",
-  "native_source_sha256": "7faac44c469a9178583dad16314c7656f353c1e7150cf8d77b1693f72d4069fa",
-  "native_binary_sha256": "14d083220110e29f8fd3c148acafee35f542a12804c94ab45351464a6b54d39b",
+  "source_commit": "ba322ec3b4584409f8ac869c9fd7957d2c5f1bbc",
+  "native_source_sha256": "b7987eaeb95bc61a07279cda00ca3e82b691e193ee9686a980b2911435a410e9",
+  "native_binary_sha256": "4f2d45ddf5a6741c1ccf17e2ea4f267ced6affb0c216a96a32492cf9551dd8fb",
   "current_loop_stages_completed": 10,
   "current_loop_stages_total": 10,
   "current_loop_native_subagent": "NOT_RUN_NO_TOOL",
-  "native_source_hash_method": "SHA256 of S10_tracked_rust_sources.sha256; measured binaries separately identified by receipts; final tracked source content before S10 commit; S10 source diff is included in final commit, not implementation_head_before_S10",
-  "native_binary_feature": "native-cli no Python; final build bound separately from measured binaries",
-  "rust_backend_scoped": "13/15 pure Rust scoped; 2 partial; zero unported; computed 25730, independently recovered 25730",
-  "theory_loop_scope": "S01-S10 integrated exact restart and finite-storage causal physical proposition; no release acceptance"
+  "native_source_hash_method": "SHA256 of tracked source manifest at S09 source commit; measured S03/S04/S07 binaries individually bound to their receipts",
+  "native_binary_feature": "native-cli no Python; final build separate from measured S03/S04/S07 binaries",
+  "rust_backend_scoped": "13/15 pure Rust scoped; 2 partial; zero unported; computed and independently recovered 25740",
+  "theory_loop_scope": "S01-S10 integrated exact owner lifetime and marked FIFO network proposition; no release acceptance"
 }
 ```
 
