@@ -9,10 +9,11 @@ pub(crate) type Access = (usize, f64, f64, f64);
 const BLOCK_ROWS: usize = 256;
 const ALLOCATION_PADDING: usize = 128;
 
-struct Block {
-    rows: Vec<Access>,
-    min_ready: f64,
-    max_ready: f64,
+pub(crate) struct Block {
+    pub(crate) rows: Vec<Access>,
+    pub(crate) min_ready: f64,
+    pub(crate) max_ready: f64,
+    sorted_leg: bool,
     max_leg: usize,
     max_born: f64,
     valid: bool,
@@ -25,6 +26,7 @@ impl Clone for Block {
             rows,
             min_ready: self.min_ready,
             max_ready: self.max_ready,
+            sorted_leg: self.sorted_leg,
             max_leg: self.max_leg,
             max_born: self.max_born,
             valid: self.valid,
@@ -43,10 +45,12 @@ impl Block {
         let max_leg = rows.iter().map(|a| a.0).max().unwrap_or(0);
         let max_born = rows.iter().map(|a| a.2).fold(0., f64::max);
         let valid = rows.iter().all(valid);
+        let sorted_leg=rows.windows(2).all(|p|p[0].0<=p[1].0);
         Self {
             rows,
             min_ready,
             max_ready,
+            sorted_leg,
             max_leg,
             max_born,
             valid,
@@ -146,8 +150,9 @@ impl StageQueue {
             )
             .saturating_add(ALLOCATION_PADDING)
     }
-    pub(crate) fn push(&mut self, row: Access) {
-        if self
+    pub(crate) fn push(&mut self, row: Access) { self.push_partitioned(row,false); }
+    pub(crate) fn push_partitioned(&mut self,row:Access,new_partition:bool){
+        if new_partition || self
             .blocks
             .last()
             .is_none_or(|b| b.rows.len() == BLOCK_ROWS)
@@ -162,6 +167,7 @@ impl StageQueue {
         let old_bytes = head.storage_bytes();
         let old_capacity = head.rows.capacity();
         let block = Arc::make_mut(head);
+        block.sorted_leg &= block.rows.last().is_none_or(|a|a.0<=row.0);
         block.rows.push(row);
         let ready = row.2 + row.3;
         block.min_ready = block.min_ready.min(ready);
@@ -180,6 +186,49 @@ impl StageQueue {
     }
     pub(crate) fn iter(&self) -> impl Iterator<Item = &Access> {
         self.blocks.iter().flat_map(|b| b.rows.iter())
+    }
+    pub(crate) fn blocks(&self)->&[Arc<Block>]{&self.blocks}
+    pub(crate) fn iter_from(&self,mut skip:usize)->impl Iterator<Item=&Access>{
+        let mut idx=0;
+        while idx<self.blocks.len()&&skip>=self.blocks[idx].rows.len(){skip-=self.blocks[idx].rows.len();idx+=1;}
+        self.blocks[idx..].iter().enumerate().flat_map(move |(i,b)|b.rows[if i==0{skip}else{0}..].iter())
+    }
+    // Canonical partitions have homogeneous clock keys and nondecreasing
+    // leg order. All non-tail blocks within one partition are full.
+    pub(crate) fn canonical_clock_order(&self,key:impl Fn(f64)->Option<u32>)->bool{
+        let mut prev:Option<(u32,usize,usize)>=None;
+        for b in &self.blocks{
+            if b.rows.is_empty()||!b.valid||!b.sorted_leg{return false}
+            let Some(k)=key(b.min_ready)else{return false};
+            if key(b.max_ready)!=Some(k){return false}
+            let first=b.rows[0].0;let last=b.rows.last().unwrap().0;
+            if let Some((pk,pl,pn))=prev{
+                if pk>k||pk==k&&(pl>first||pn!=BLOCK_ROWS){return false}
+            }
+            prev=Some((k,last,b.rows.len()));
+        }
+        true
+    }
+    pub(crate) fn partitioned_block_bound(rows:usize,partitions:usize)->usize{
+        rows.div_ceil(BLOCK_ROWS).saturating_add(partitions).saturating_add(1)
+    }
+    pub(crate) fn partitioned_storage_bound(rows:usize,partitions:usize)->usize{
+        let b=Self::partitioned_block_bound(rows,partitions);
+        let per=std::mem::size_of::<Block>()+2*std::mem::size_of::<usize>()+BLOCK_ROWS*std::mem::size_of::<Access>()+ALLOCATION_PADDING;
+        b.saturating_mul(per.saturating_add(std::mem::size_of::<Arc<Block>>())).saturating_add(2*ALLOCATION_PADDING)
+    }
+    pub(crate) fn with_partition_capacity(rows:usize,partitions:usize)->CoreResult<Self>{
+        let cap=Self::partitioned_block_bound(rows,partitions);
+        let mut blocks=Vec::new();
+        blocks.try_reserve_exact(cap).map_err(|_|CoreError::resource("delay calendar block registry allocation"))?;
+        if blocks.capacity()!=cap{return Err(CoreError::resource("delay calendar block registry capacity differs"))}
+        Ok(Self{blocks,..Self::default()})
+    }
+    pub(crate) fn append_shared_blocks(&mut self,blocks:&[Arc<Block>]){
+        for b in blocks{
+            self.len+=b.rows.len();self.payload_bytes+=b.storage_bytes();self.capacity_rows+=b.rows.capacity();
+            self.blocks.push(b.clone());
+        }
     }
     pub(crate) fn to_vec(&self) -> Vec<Access> {
         self.iter().copied().collect()
@@ -205,7 +254,10 @@ impl StageQueue {
     }
     /// Invoke callbacks in original global insertion order. Rows are not
     /// sorted, aggregated, rounded, expired, or removed before their predicate.
-    pub(crate) fn retire_due(&mut self, deadline: f64, mut finish: impl FnMut(&Access)) -> usize {
+    pub(crate) fn retire_due(&mut self,deadline:f64,finish:impl FnMut(&Access))->usize{
+        self.retire_due_mode(deadline,false,finish)
+    }
+    pub(crate) fn retire_due_mode(&mut self, deadline: f64, preserve_partitions:bool, mut finish: impl FnMut(&Access)) -> usize {
         let old = std::mem::take(&mut self.blocks);
         let mut blocks = Vec::with_capacity(old.len());
         let mut retired = 0;
@@ -250,7 +302,7 @@ impl StageQueue {
         // The original filtered blocks can retain most of a 256-row
         // allocation for only one live row. Stable, optional repacking changes
         // no logical row; it relieves a recurrent restore-vs-in-memory cost.
-        self.repack_sparse_stable();
+        if !preserve_partitions{self.repack_sparse_stable();}
         retired
     }
     /// Repartition only when actual fragmentation saves at least 256 KiB.
@@ -505,5 +557,28 @@ mod stable_capacity_normal_form_tests {
             "must pack exact FIFO survivors into bounded source blocks");
         assert!(q.storage_bytes() < 192*64,
             "capacity-normalized source still retains dense filtered payload");
+    }
+}
+
+#[cfg(test)]
+mod delay_partition_block_tests{
+    use super::*;
+    #[test]
+    fn immutable_clock_partitions_share_untouched_payload_and_survive_retire(){
+        let key=|r:f64|Some((r/10.).ceil()as u32);
+        let mut q=StageQueue::with_partition_capacity(520,3).unwrap();
+        for i in 0..260{q.push_partitioned((i,1.,0.,10.),i==0);}
+        for i in 0..260{q.push_partitioned((i,1.,0.,20.),i==0);}
+        assert!(q.canonical_clock_order(key));assert_eq!(q.block_count(),4);
+        assert_eq!(q.iter_from(259).count(),261);
+        assert_eq!(q.iter_from(260).next().unwrap().0,0);
+        let mut c=StageQueue::with_partition_capacity(520,3).unwrap();
+        c.append_shared_blocks(q.blocks());
+        assert_eq!(c.shared_rows(&q),520);
+        let mut retired=0;c.retire_due_mode(10.,true,|_|retired+=1);
+        assert_eq!(retired,260);assert_eq!(c.shared_rows(&q),260);
+        assert!(c.canonical_clock_order(key));assert_eq!(q.len(),520);
+        assert!(c.storage_bytes()<=StageQueue::partitioned_storage_bound(520,3));
+        c.push((0,1.,0.,10.));assert!(!c.canonical_clock_order(key));
     }
 }
