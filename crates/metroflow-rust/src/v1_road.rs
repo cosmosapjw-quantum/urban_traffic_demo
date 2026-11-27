@@ -3010,6 +3010,9 @@ impl V1Road {
         self.write_snapshot(w,&self.state)
     }
     pub(crate) fn write_snapshot<W: Write>(&self,w:&mut W,s:&RoadState)->CoreResult<()> {
+        self.write_snapshot_codec(w,s,false)
+    }
+    pub(crate) fn write_snapshot_codec<W:Write>(&self,w:&mut W,s:&RoadState,compact:bool)->CoreResult<()> {
         write_len(w, self.identity.len())?;
         w.write_all(self.identity.as_bytes())
             .map_err(|e| CoreError::io(e.to_string()))?;
@@ -3019,7 +3022,7 @@ impl V1Road {
             for &v in &c.v {
                 write_f64(w, v)?;
             }
-            self.write_packets(w, &c.packets)?;
+            if compact{self.write_packets_compact(w,&c.packets)?;}else{self.write_packets(w,&c.packets)?;}
             write_len(w, c.latent.len())?;
             for (&k, &v) in &c.latent {
                 write_len(w, k)?;
@@ -3028,7 +3031,7 @@ impl V1Road {
         }
         write_len(w, s.pending.len())?;
         for q in &s.pending {
-            self.write_packets(w, q)?;
+            if compact{self.write_packets_compact(w,q)?;}else{self.write_packets(w,q)?;}
         }
         for &v in &s.totals {
             write_f64(w, v)?;
@@ -3155,7 +3158,8 @@ impl V1Road {
         }
         Ok(q)
     }
-    pub(crate) fn read_state<R: Read>(&self, r: &mut R) -> CoreResult<RoadState> {
+    pub(crate) fn read_state<R: Read>(&self,r:&mut R)->CoreResult<RoadState>{self.read_state_codec(r,false)}
+    pub(crate) fn read_state_codec<R:Read>(&self,r:&mut R,compact:bool)->CoreResult<RoadState>{
         read_exact_len(r, self.identity.len())?;
         let mut identity = vec![0; self.identity.len()];
         r.read_exact(&mut identity)
@@ -3191,7 +3195,7 @@ impl V1Road {
             for x in &mut v {
                 *x = read_f64(r)?;
             }
-            let packets = self.read_packets(r, &mut remaining, &mut work)?;
+            let packets=if compact{self.read_packets_compact(r,&mut remaining,&mut work)?}else{self.read_packets(r,&mut remaining,&mut work)?};
             let n = read_len(r, self.classes.len())?;
             work.reserve(n.saturating_mul(256), 0)?;
             let mut latent = BTreeMap::new();
@@ -3213,7 +3217,7 @@ impl V1Road {
         )?;
         let mut pending = checkpoint_vec(self.groups.len())?;
         for _ in &self.groups {
-            pending.push(self.read_packets(r, &mut remaining, &mut work)?);
+            pending.push(if compact{self.read_packets_compact(r,&mut remaining,&mut work)?}else{self.read_packets(r,&mut remaining,&mut work)?});
         }
         let mut totals = [0.; 7];
         for v in &mut totals {
@@ -3246,7 +3250,7 @@ impl V1Road {
         // Exact ordered-keyset interning replaces independent full CorePart
         // payloads with actually shared immutable key arrays only in capped
         // native runs. Reconstructed Part values and wire stay identical.
-        if self.storage_budget.is_some() {
+        if self.storage_budget.is_some()&&!compact {
             state.intern_exact_keysets()?;
             self.check_state(&state)?;
         }
@@ -8506,5 +8510,135 @@ mod inline_expansion_storage_tests {
         }
         let mut a=RoadExpansion::default();for x in [1.,0.5,0.25,-0.]{a.add(x);}
         assert!(!a.p.spilled());assert_eq!(a.finish().to_bits(),1.75f64.to_bits());assert!(spill>0);
+    }
+}
+
+fn wire_u32<W:Write>(w:&mut W,x:u32)->CoreResult<()>{
+    w.write_all(&x.to_le_bytes()).map_err(|e|CoreError::io(e.to_string()))
+}
+fn read_wire_u32<R:Read>(r:&mut R)->CoreResult<u32>{
+    let mut b=[0u8;4];r.read_exact(&mut b).map_err(|e|CoreError::io(e.to_string()))?;
+    Ok(u32::from_le_bytes(b))
+}
+fn packed_from_wire(x:u64)->CoreResult<PackedTime>{
+    if x==PackedTime::NONE{Ok(PackedTime(x))}else{PackedTime::new(Some(f64::from_bits(x)))}
+}
+fn write_moments<W:Write>(w:&mut W,m:f64,b:f64)->CoreResult<()>{
+    let mut row=[0u8;16];row[..8].copy_from_slice(&m.to_bits().to_le_bytes());row[8..].copy_from_slice(&b.to_bits().to_le_bytes());
+    w.write_all(&row).map_err(|e|CoreError::io(e.to_string()))
+}
+impl V1Road{
+    /// MFWHOLE2 road section. Version 1's logical rows are unchanged.
+    /// Within a queue, only the most recent explicit shared key owner may be
+    /// reused. No pointer values enter the wire. All interval/birth/mass bits
+    /// are copied, never normalized or re-associated.
+    fn write_packets_compact<W:Write>(&self,w:&mut W,q:&[Packet])->CoreResult<()>{
+        write_len(w,q.len())?;
+        let mut previous:Option<&Arc<Vec<(u32,u32)>>>=None;
+        for p in q{
+            write_f64(w,p.target)?;write_len(w,p.parts.len())?;
+            match &p.parts{
+                PacketParts::Uniform{a,b,rows}=>{
+                    write_u64(w,0)?;write_u64(w,a.0)?;write_u64(w,b.0)?;
+                    for row in rows.iter(){wire_u32(w,row.tag)?;wire_u32(w,row.offset)?;write_moments(w,row.mass,row.birth)?;}
+                }
+                PacketParts::SharedKeys{a,b,keys,moments}=>{
+                    let reuse=previous.is_some_and(|old|Arc::ptr_eq(old,keys));
+                    write_u64(w,if reuse{3}else{2})?;write_u64(w,a.0)?;write_u64(w,b.0)?;
+                    if !reuse{for &(tag,offset) in keys.iter(){wire_u32(w,tag)?;wire_u32(w,offset)?;}}
+                    for &(m,b) in moments.iter(){write_moments(w,m,b)?;}
+                    previous=Some(keys);
+                }
+                PacketParts::Mixed(rows)=>{
+                    write_u64(w,1)?;
+                    for p in rows.iter(){
+                        write_len(w,p.tag)?;write_len(w,p.offset)?;write_moments(w,p.mass,p.birth)?;
+                        write_u64(w,p.a.0)?;write_u64(w,p.b.0)?;
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+    fn read_packets_compact<R:Read>(&self,r:&mut R,remaining:&mut usize,work:&mut RoadDecodeBudget)->CoreResult<Vec<Packet>>{
+        let n=read_len(r,*remaining)?;
+        work.reserve(n.saturating_mul(std::mem::size_of::<Packet>()+32),n.saturating_mul(32))?;
+        let mut out=checkpoint_vec(n)?;
+        let mut previous:Option<Arc<Vec<(u32,u32)>>>=None;
+        let check_key=|tag:usize,offset:usize|->CoreResult<()>{
+            let &(p,_)=self.routes.get(tag).ok_or_else(||val("compact wire route tag"))?;
+            if offset>=self.paths[p].len(){return Err(val("compact wire route offset"))}Ok(())
+        };
+        for _ in 0..n{
+            let target=read_f64(r)?;let m=read_len(r,*remaining)?;
+            if m==0{return Err(val("empty compact wire packet"))}*remaining-=m;
+            work.reserve(0,m.saturating_mul(16))?;
+            let kind=read_u64(r)?;
+            let parts=match kind{
+                0=>{
+                    let a=packed_from_wire(read_u64(r)?)?;let b=packed_from_wire(read_u64(r)?)?;
+                    work.reserve(m.saturating_mul(std::mem::size_of::<CorePart>()),0)?;
+                    let mut rows=checkpoint_vec(m)?;
+                    for _ in 0..m{
+                        let tag=read_wire_u32(r)?;let offset=read_wire_u32(r)?;check_key(tag as usize,offset as usize)?;
+                        rows.push(CorePart{tag,offset,mass:read_f64(r)?,birth:read_f64(r)?});
+                    }
+                    PacketParts::Uniform{a,b,rows:Arc::new(rows)}
+                }
+                1=>{
+                    work.reserve(m.saturating_mul(std::mem::size_of::<Part>()),0)?;
+                    let mut rows=checkpoint_vec(m)?;
+                    for _ in 0..m{
+                        let tag=read_len(r,self.routes.len())?;let offset=read_len(r,usize::MAX)?;check_key(tag,offset)?;
+                        rows.push(Part{tag,offset,mass:read_f64(r)?,birth:read_f64(r)?,a:packed_from_wire(read_u64(r)?)?,b:packed_from_wire(read_u64(r)?)?});
+                    }
+                    PacketParts::Mixed(Arc::new(rows))
+                }
+                2|3=>{
+                    let a=packed_from_wire(read_u64(r)?)?;let b=packed_from_wire(read_u64(r)?)?;
+                    let keys=if kind==3{
+                        previous.as_ref().filter(|k|k.len()==m).ok_or_else(||val("compact wire key reference absent or wrong length"))?.clone()
+                    }else{
+                        work.reserve(m.saturating_mul(8).saturating_add(96),0)?;
+                        let mut keys=checkpoint_vec(m)?;
+                        for _ in 0..m{let tag=read_wire_u32(r)?;let offset=read_wire_u32(r)?;check_key(tag as usize,offset as usize)?;keys.push((tag,offset));}
+                        Arc::new(keys)
+                    };
+                    work.reserve(m.saturating_mul(16),0)?;
+                    let mut moments=checkpoint_vec(m)?;for _ in 0..m{moments.push((read_f64(r)?,read_f64(r)?));}
+                    previous=Some(keys.clone());
+                    PacketParts::SharedKeys{a,b,keys,moments:Arc::new(moments)}
+                }
+                _=>return Err(val("compact wire packet kind")),
+            };
+            out.push(Packet{target,parts});
+        }
+        Ok(out)
+    }
+}
+#[cfg(test)]
+mod compact_checkpoint_wire_tests{
+    use super::*;
+    #[test]
+    fn explicit_shared_wire_roundtrip_reuses_keys_and_preserves_legacy_bytes(){
+        let road=V1Road::new("compact-wire".into(),1.,vec![vec![1.;6];2],vec![None;2],vec![(vec![0,1],0)],vec![vec![1.;13]],vec![vec![0,1]],vec![],100000,None,true).unwrap();
+        let keys=Arc::new(vec![(0,0);1024]);
+        let a=PackedTime::new(Some(-0.)).unwrap();let b=PackedTime::new(Some(1.)).unwrap();
+        let p=|v:f64|Packet{target:1.,parts:PacketParts::SharedKeys{a,b,keys:keys.clone(),moments:Arc::new(vec![(v,0.);1024])}};
+        let q=vec![p(0.5),p(0.25),Packet{target:2.,parts:PacketParts::Uniform{a,b,rows:Arc::new(vec![CorePart{tag:0,offset:1,mass:0.125,birth:0.}])}},p(0.75)];
+        let mut old=vec![];let mut compact=vec![];road.write_packets(&mut old,&q).unwrap();road.write_packets_compact(&mut compact,&q).unwrap();
+        assert!(compact.len()<old.len()/2);
+        let mut work=RoadDecodeBudget{limit:None,retained_input:0,decoded:0,validation:0};
+        let got=road.read_packets_compact(&mut &compact[..],&mut 100000,&mut work).unwrap();
+        let mut expanded=vec![];road.write_packets(&mut expanded,&got).unwrap();assert_eq!(expanded,old);
+        match (&got[0].parts,&got[1].parts,&got[3].parts){
+            (PacketParts::SharedKeys{keys:a,..},PacketParts::SharedKeys{keys:b,..},PacketParts::SharedKeys{keys:c,..})=>{assert!(Arc::ptr_eq(a,b));assert!(Arc::ptr_eq(a,c));}
+            _=>panic!("lost explicit shared keys"),
+        }
+        // First shared declaration cannot be a back-reference.
+        let mut bad_wire=compact.clone();bad_wire[24..32].copy_from_slice(&3u64.to_le_bytes());
+        let mut work=RoadDecodeBudget{limit:None,retained_input:0,decoded:0,validation:0};
+        assert!(road.read_packets_compact(&mut &bad_wire[..],&mut 100000,&mut work).is_err());
+        assert!(road.read_packets_compact(&mut &compact[..compact.len()-1],&mut 100000,&mut work).is_err());
     }
 }

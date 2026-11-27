@@ -1849,9 +1849,8 @@ crate::optional_binding::optional_pymethods!(NativeWholeEngine,
         let mut f = BufReader::new(File::open(path).map_err(io)?);
         let mut magic = [0u8; 8];
         f.read_exact(&mut magic).map_err(io)?;
-        if &magic != b"MFWHOLE1" {
-            return Err(bad("native whole checkpoint schema differs"));
-        }
+        let compact=&magic==b"MFWHOLE2";
+        if &magic!=b"MFWHOLE1"&&!compact{return Err(bad("native whole checkpoint schema differs"));}
         let mut raw = [0u8; 8];
         f.read_exact(&mut raw).map_err(io)?;
         let n = u64::from_le_bytes(raw);
@@ -1874,7 +1873,7 @@ crate::optional_binding::optional_pymethods!(NativeWholeEngine,
                 )?;
                 self.road.set_phase_storage_budget(road_limit)?;
             }
-            let road = self.road.read_state(&mut f)?;
+            let road=self.road.read_state_codec(&mut f,compact)?;
             let road_bytes = road
                 .retained_storage_bytes()
                 .max(self.road.owned_storage_bytes());
@@ -2189,7 +2188,9 @@ pub fn run_native_declaration_with_plan(
                 if let Some(source)=resume{
                     let source=std::fs::canonicalize(source).map_err(io)?;
                     if !std::fs::metadata(&source).map_err(io)?.is_file(){return Err(bad("resume source not regular file"))}
-                    match std::fs::hard_link(&source,checkpoint){Ok(())=>{sync_parent_native(checkpoint)?;true},Err(e) if e.kind()==std::io::ErrorKind::AlreadyExists=>return Err(io(e)),Err(_)=>false}
+                    let mut magic=[0u8;8];File::open(&source).map_err(io)?.read_exact(&mut magic).map_err(io)?;
+                    let wanted=if std::env::var("METROFLOW_NATIVE_COMPACT_WIRE").as_deref()==Ok("1"){b"MFWHOLE2"}else{b"MFWHOLE1"};
+                    if &magic!=wanted{false}else{match std::fs::hard_link(&source,checkpoint){Ok(())=>{sync_parent_native(checkpoint)?;true},Err(e) if e.kind()==std::io::ErrorKind::AlreadyExists=>return Err(io(e)),Err(_)=>false}}
                 }else{false}
             }else{false};
             if linked{initial_checkpoint_method="immutable_hardlink";}else{save_atomic_native(&mut engine,checkpoint,&state)?;initial_checkpoint_method="serialize";}
@@ -2243,7 +2244,7 @@ pub fn run_native_declaration_with_plan(
     result["save_s"]=json!(clock.elapsed().as_secs_f64());
     result["checkpoint_write_s"]=json!(checkpoint_write_s);
     result["initial_checkpoint_method"]=json!(initial_checkpoint_method);
-    result["wire_writer"]=json!(if std::env::var_os("METROFLOW_NATIVE_SCALAR_WIRE").is_some(){"scalar"}else{"batched_stack"});
+    result["wire_writer"]=json!(if std::env::var("METROFLOW_NATIVE_COMPACT_WIRE").as_deref()==Ok("1"){"compact_v2"}else if std::env::var_os("METROFLOW_NATIVE_SCALAR_WIRE").is_some(){"scalar"}else{"batched_stack"});
     result["checkpoint_writer"]=json!(if std::env::var("METROFLOW_NATIVE_LEGACY_SAVE").as_deref()==Ok("1"){"legacy_restore"}else{"immutable_snapshot"});
     if let Ok(cursor)=std::env::var("METROFLOW_NATIVE_COMPLETED_SINCE_S"){
         let since:f64=cursor.parse().map_err(|_|bad("invalid completed observation cursor"))?;
@@ -2296,10 +2297,11 @@ fn save_atomic_native(engine:&mut NativeWholeEngine,path:&str,state:&NativeWhole
             // committed owners directly; no restore clone or altered physics.
             engine.checked(state)?;
             let mut f=BufWriter::with_capacity(1024*1024,std::fs::OpenOptions::new().write(true).create_new(true).open(&tmp).map_err(io)?);
-            f.write_all(b"MFWHOLE1").map_err(io)?;
+            let compact=std::env::var("METROFLOW_NATIVE_COMPACT_WIRE").as_deref()==Ok("1");
+            f.write_all(if compact{b"MFWHOLE2"}else{b"MFWHOLE1"}).map_err(io)?;
             f.write_all(&(engine.identity.len()as u64).to_le_bytes()).map_err(io)?;
             f.write_all(engine.identity.as_bytes()).map_err(io)?;
-            engine.road.write_snapshot(&mut f,&state.value.road)?;
+            engine.road.write_snapshot_codec(&mut f,&state.value.road,compact)?;
             NativeServiceCore::write_snapshot(&mut f,&state.value.service.0,&state.value.service.1)?;
             NativeJourneyCore::write_snapshot(&mut f,&state.value.journey)?;
             f.flush().map_err(io)?;
