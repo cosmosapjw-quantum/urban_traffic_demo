@@ -83,6 +83,52 @@ impl Expansion {
     }
 }
 
+// Fixed scratch expansion for observable-key reduction. Overflow of the
+// inline capacity is an explicit fallback, never truncation of components.
+const GRID_INLINE_COMPONENTS: usize = 8;
+#[derive(Clone,Copy,Default)]
+struct GridExpansion {
+    values: [f64; GRID_INLINE_COMPONENTS],
+    len: usize,
+}
+impl GridExpansion {
+    fn add(&mut self, mut x:f64)->Result<(), &'static str>{
+        let mut i=0;
+        for j in 0..self.len{
+            let mut y=self.values[j];
+            if x.abs()<y.abs(){std::mem::swap(&mut x,&mut y);}
+            let hi=x+y;
+            if !hi.is_finite(){return Err("grid expansion arithmetic overflow")}
+            let lo=y-(hi-x);
+            if lo!=0.{self.values[i]=lo;i+=1;}
+            x=hi;
+        }
+        if x!=0.{
+            if i==self.values.len(){return Err("grid inline expansion capacity")}
+            self.values[i]=x;i+=1;
+        }
+        self.len=i;Ok(())
+    }
+    fn total(&self)->f64{
+        let mut n=self.len;
+        if n==0{return 0.}
+        n-=1;
+        let mut hi=self.values[n];
+        let mut lo=0.;
+        while n>0{
+            n-=1;let x=hi;let y=self.values[n];hi=x+y;lo=y-(hi-x);
+            if lo!=0.{break;}
+        }
+        if n>0{
+            let last=self.values[n-1];
+            if (lo<0.&&last<0.)||(lo>0.&&last>0.){
+                let y=lo*2.;let x=hi+y;if y==x-hi{hi=x;}
+            }
+        }
+        hi
+    }
+}
+
 struct Block {
     previous: Option<Arc<Block>>,
     rows: Vec<Receipt>,
@@ -624,4 +670,27 @@ mod mature_closure_tests {
 
 #[cfg(test)]mod grid_closure_tests{use super::*;
 #[test]fn future_grid_conserves_eligibility_even_for_immature_receipts(){let h=ReceiptHistory::from_rows(vec![(1.,0.125),(2.,0.125),(10.,0.25),(11.,0.25),(15.,0.25)]).unwrap();let c=h.compact_grid(20.,3600.,10.,1_000_000).unwrap().unwrap();assert_eq!(c.len(),2);for t in (20..=3650).step_by(10){assert_eq!(h.eligible(3600.,t as f64),c.eligible(3600.,t as f64));}assert_eq!(h.total(),c.total());assert_eq!(h.iter().map(|r|r.0*r.1).sum::<f64>(),c.iter().map(|r|r.0*r.1).sum::<f64>());assert!(h.compact_grid(21.,3600.,10.,1_000_000).is_err());assert!(h.compact_grid(20.,3600.,10.,1).is_err());}
+}
+
+#[cfg(test)]
+mod inline_grid_expansion_tests{
+    use super::*;
+    #[test]
+    fn inline_matches_existing_expansion_bitwise(){
+        let mut a=Expansion::default();let mut b=GridExpansion::default();
+        for i in 0..10000{
+            let v=(1.+(i%37)as f64/128.)*2f64.powi(-(i%40));
+            a.add(v).unwrap();b.add(v).unwrap();
+            assert_eq!(a.total().to_bits(),b.total().to_bits());
+        }
+    }
+    #[test]
+    fn inline_capacity_is_not_silent_truncation(){
+        let mut b=GridExpansion::default();
+        let mut overflow=false;
+        for i in 0..12{
+            if b.add(2f64.powi(-60*i)).is_err(){overflow=true;break}
+        }
+        assert!(overflow);
+    }
 }
