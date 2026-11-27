@@ -297,7 +297,7 @@ struct CheckpointabilityTerms {
 
 fn checkpointability_phase_lifetime_bytes(t:CheckpointabilityTerms)->usize {
     t.input_road
-        .saturating_add(t.current_road)
+        .saturating_add(t.current_road.saturating_sub(t.road_pair_credit.min(t.input_road).min(t.current_road)))
         .saturating_add(t.candidate_road.max(t.decoded_road))
         .saturating_add(t.journey_input)
         .saturating_add(t.journey_old)
@@ -1513,6 +1513,8 @@ pub(crate) fn advance_owned_joint(
         } else {
             0
         };
+        let road_pair_credit=if dynamic_budget.is_some() && exact_service_lifetime && cfg!(all(feature="native-cli",not(feature="python-extension"))) && std::env::var("METROFLOW_NATIVE_EXACT_RESTART").as_deref()==Ok("1"){call_input.map_or(0,|input|road.owned_paired_payload_credit(input)).min(input_road_bytes).min(current_road_bytes)}else{0};
+        let charged_current_road_bytes=current_road_bytes.saturating_sub(road_pair_credit);
         let current_event_bytes = if dynamic_budget.is_some() {
             service.event_storage_bytes()
         } else {
@@ -1641,7 +1643,7 @@ pub(crate) fn advance_owned_joint(
                     .max(current_journey)
                     .max(pending_journey)
                     .saturating_mul(WORKING_COPIES);
-                let road_live = service_phase_owner_bytes(input_road_bytes,current_road_bytes,
+                let road_live = service_phase_owner_bytes(input_road_bytes,charged_current_road_bytes,
                     candidate_road_bytes,exact_service_lifetime);
                 let event_live = service_phase_owner_bytes(input_event_bytes,charged_current_event_bytes,
                     candidate_event_bytes,exact_service_lifetime);
@@ -1661,6 +1663,7 @@ pub(crate) fn advance_owned_joint(
                         ("event_live", event_live),
                         ("road_input",input_road_bytes),("road_current",current_road_bytes),
                         ("road_candidate",candidate_road_bytes),
+                        ("road_pointer_verified_credit",road_pair_credit),
                         ("event_input",input_event_bytes),("event_current",current_event_bytes),
                         ("event_candidate",candidate_event_bytes),
                         ("event_pointer_verified_credit",event_alias_credit),
@@ -1698,7 +1701,7 @@ pub(crate) fn advance_owned_joint(
                 let sink_bytes = sinks.iter().fold(vec_storage_bytes(&sinks), |bytes, row| {
                     bytes.saturating_add(string_storage_bytes(&row.0))
                 });
-                let other_live = service_phase_owner_bytes(input_road_bytes,current_road_bytes,
+                let other_live = service_phase_owner_bytes(input_road_bytes,charged_current_road_bytes,
                     candidate_road_bytes,exact_service_lifetime)
                     .saturating_add(service_phase_owner_bytes(input_event_bytes,charged_current_event_bytes,
                         candidate_event_bytes,exact_service_lifetime))
@@ -1754,7 +1757,7 @@ pub(crate) fn advance_owned_joint(
                 let lifetime=CheckpointabilityTerms {
                     input_road:input_road_bytes,
                     current_road:current_road_bytes,
-                    road_pair_credit:0,
+                    road_pair_credit,
                     candidate_road:candidate_road_bytes,
                     decoded_road,
                     journey_input:journey.retained_input_bytes,
@@ -1777,6 +1780,7 @@ pub(crate) fn advance_owned_joint(
                     &[
                         ("input_road", input_road_bytes),
                         ("current_road", current_road_bytes),
+                        ("road_pointer_verified_credit",road_pair_credit),
                         ("candidate_road", candidate_road_bytes),
                         ("decoded_road", decoded_road),
                         ("journey_retained_input", journey.retained_input_bytes),
@@ -1791,7 +1795,7 @@ pub(crate) fn advance_owned_joint(
                         ("call_binding_reserve", call_binding_reserve),
                         ("road_decode_scratch", road_decode_scratch),
                         ("phase_road_charge", input_road_bytes
-                            .saturating_add(current_road_bytes)
+                            .saturating_add(charged_current_road_bytes)
                             .saturating_add(candidate_road_bytes.max(decoded_road))),
                         ("phase_journey_charge",journey.retained_input_bytes
                             .saturating_add(old_journey_bytes)

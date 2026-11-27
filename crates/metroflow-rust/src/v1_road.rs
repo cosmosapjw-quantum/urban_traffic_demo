@@ -3359,6 +3359,7 @@ impl V1Road {
     /// backings rather than physically re-allocating those row payloads.
     /// Use ACTUAL live immutable allocation identities only. This is the
     /// deduplicated unique data payload, not a bound on shell clones or RSS.
+    pub(crate) fn owned_paired_payload_credit(&self,input:&RoadState)->usize{self.state.paired_shared_payload_lower_bound(input)}
     pub(crate) fn owned_unique_immutable_arc_payload_bytes(&self)->usize {
         self.state.arc_backing_census().unique_payload_bytes
     }
