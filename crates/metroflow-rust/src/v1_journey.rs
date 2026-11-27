@@ -425,6 +425,7 @@ impl NativeServiceCore {
         }
         bytes
     }
+    pub(crate) fn event_backing_matches(&self,other:&ServiceCheckpoint)->bool{Arc::ptr_eq(&self.last_events,&other.1)}
     pub(crate) fn event_storage_bytes(&self) -> usize {
         self.last_events.retained_storage_bytes()
     }

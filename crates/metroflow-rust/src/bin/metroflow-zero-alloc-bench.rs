@@ -31,6 +31,16 @@ mod probe {
         assert_eq!(total,expected);
         println!("{}",json!({"iterations_per_kernel":n,"link_step":{"allocation_calls":a,"reallocation_calls":r,"wall_s":w,"final_counts":q.counts()},"journey_fsum":{"allocation_calls":a2,"reallocation_calls":r2,"wall_s":w2,"last_value":total},"scope":"single process, initialized ring, tested six-term finite cancellation input; other inputs may spill; no full-engine zero heap claim"}));
         assert_eq!((a,r,a2,r2),(0,0,0,0));
+        use _metroflow_rust::marked_fifo::{Diverge,Link};
+        let count=100_000usize;
+        let l=Link{storage_m:64.,lag:2,send_veh:2.,receive_veh:2.};
+        let mut net=Diverge::new(1.,count,[l;3],[5.,10.]).unwrap();
+        let t=start();
+        for k in 0..count{let f=if k%7==0{0.}else{1.};black_box(net.step(black_box([0.6,0.2]),[1.,f,1.],[1.;3]).unwrap());}
+        let (a3,r3,w3)=finish(t);
+        let m=net.metrics().unwrap();
+        println!("{}",json!({"kernel":"marked_fifo_diverge_step","iterations":count,"allocation_calls":a3,"reallocation_calls":r3,"wall_s":w3,"metrics":m,"scope":"preallocated marked network; 2 classes, unequal footprints, intermittent receiving restriction; no full V03 zero heap claim"}));
+        assert_eq!((a3,r3),(0,0));
     }
 }
 #[cfg(not(feature="budget_trace"))] fn main(){probe::run()}

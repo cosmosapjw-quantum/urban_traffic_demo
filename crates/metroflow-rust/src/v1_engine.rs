@@ -543,12 +543,14 @@ fn capture_road_clone_credit(
 // Scoped to native-only CLI callers, where the initial snapshot and dense
 // storage are already charged and no additional user-held snapshots exist.
 fn exact_native_restart()->bool{cfg!(all(feature="native-cli",not(feature="python-extension")))&&std::env::var("METROFLOW_NATIVE_EXACT_RESTART").as_deref()==Ok("1")}
-fn restart_install_dynamic(old:[usize;3],new:[usize;3])->usize{
-    old.into_iter().fold(0usize,usize::saturating_add)
+fn restart_install_dynamic(old:[usize;3],new:[usize;3],road_credit:usize,event_credit:usize)->usize{
+    old[0].saturating_sub(road_credit.min(old[0]).min(new[0]))
+        .saturating_add(old[1]).saturating_add(old[2].saturating_sub(event_credit.min(old[2]).min(new[2])))
         .saturating_add(new[0].saturating_mul(2)).saturating_add(new[1].saturating_mul(2)).saturating_add(new[2])
 }
 #[cfg(test)]mod restart_owner_tests{use super::*;
- #[test]fn full_clone_charge_but_only_one_new_event_owner(){assert_eq!(restart_install_dynamic([10,20,30],[100,200,300]),960);assert_eq!(restart_install_dynamic([usize::MAX,0,0],[1,0,0]),usize::MAX);}
+ #[test]fn install_shared_payload_credit(){assert_eq!(restart_install_dynamic([100,20,30],[100,200,30],80,30),670);assert_eq!(restart_install_dynamic([100,20,30],[100,200,30],usize::MAX,usize::MAX),650);}
+ #[test]fn full_clone_charge_but_only_one_new_event_owner(){assert_eq!(restart_install_dynamic([10,20,30],[100,200,300],0,0),960);assert_eq!(restart_install_dynamic([usize::MAX,0,0],[1,0,0],0,0),usize::MAX);}
 }
 impl NativeWholeEngine {
     fn build(
@@ -1202,12 +1204,14 @@ impl NativeWholeEngine {
         let old=[self.road.owned_storage_bytes(),journey_storage_bytes(self.journey.state()),self.service.event_storage_bytes()];
         let new=[decoded.road.retained_storage_bytes(),journey_storage_bytes(&decoded.journey),service_event_storage_bytes(&decoded.service)];
         let scratch=self.road.restart_metadata_scratch_bytes().max(decoded.road.restart_metadata_scratch_bytes());
-        // Both complete states may coexist, plus an entire road and journey
-        // clone. Event history is Arc cloned, never copied. No alias credit
-        // for road or journey; their cloned capacity is bounded by source.
-        let dynamic=restart_install_dynamic(old,new);
+        // Both complete states and the full future road/journey clones are
+        // charged. Credit only already shared immutable input/current payload,
+        // not the future clone or any journey buffers. Arc checks allocate none.
+        let road_credit=self.road.owned_paired_payload_credit(&decoded.road).min(old[0]).min(new[0]);
+        let event_credit=if self.service.event_backing_matches(&decoded.service){old[2].min(new[2])}else{0};
+        let dynamic=restart_install_dynamic(old,new,road_credit,event_credit);
         let required=a.base().saturating_add(a.call_binding).saturating_add(dynamic).saturating_add(scratch);
-        crate::v1_trace::guard("engine_admission","exact restart install",required,self.byte_budget,&[("fixed",a.base()),("call_binding",a.call_binding),("old_road",old[0]),("new_road",new[0]),("old_journey",old[1]),("new_journey",new[1]),("old_events",old[2]),("new_events",new[2]),("metadata_scratch",scratch)]);
+        crate::v1_trace::guard("engine_admission","exact restart install",required,self.byte_budget,&[("fixed",a.base()),("call_binding",a.call_binding),("old_road",old[0]),("new_road",new[0]),("old_journey",old[1]),("new_journey",new[1]),("old_events",old[2]),("new_events",new[2]),("metadata_scratch",scratch),("road_pointer_verified_credit",road_credit),("event_pointer_verified_credit",event_credit)]);
         if required>self.byte_budget{return Err(CoreError::resource(format!("exact restart install requires {required} bytes; cap {}",self.byte_budget)))}
         Ok(())
     }
