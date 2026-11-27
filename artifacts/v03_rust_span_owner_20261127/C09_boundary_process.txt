@@ -1,0 +1,4 @@
+process_exit=124
+strict_recovery=no_completed_receipt_within_120s
+last_verified=25710
+unverified_checkpoint_preserved=/tmp/metroflow_rust_span_owner_20261127/C09_loaded25730.bin
