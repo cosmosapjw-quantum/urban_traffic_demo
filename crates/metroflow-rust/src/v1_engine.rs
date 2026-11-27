@@ -234,10 +234,10 @@ fn stage_sums_partitioned(j:&Journey,legs:usize)->CoreResult<Option<Vec<f64>>>{
     if rows==0||rows>u32::MAX as usize||legs>u32::MAX as usize{return Ok(None)}
     let allowed=rows.saturating_mul(STAGE_SUM_ROW_BYTES);
     let scratch=rows.saturating_mul(8).saturating_add(legs.saturating_mul(8));
-    if scratch>allowed{return Ok(None)}
+    if scratch.saturating_add(256)>allowed{return Ok(None)}
     let mut ends=Vec::<u32>::new();let mut cursor=Vec::<u32>::new();let mut values=Vec::<f64>::new();
     if ends.try_reserve_exact(legs).is_err()||cursor.try_reserve_exact(legs).is_err()||values.try_reserve_exact(rows).is_err(){return Ok(None)}
-    if ends.capacity().saturating_add(cursor.capacity()).saturating_mul(4).saturating_add(values.capacity().saturating_mul(8))>allowed{return Ok(None)}
+    if ends.capacity().saturating_add(cursor.capacity()).saturating_mul(4).saturating_add(values.capacity().saturating_mul(8)).saturating_add(256)>allowed{return Ok(None)}
     ends.resize(legs,0);cursor.resize(legs,0);values.resize(rows,0.);
     for part in [&j.1,&j.2,&j.3]{for a in part{
         let v=ends.get_mut(a.0).ok_or_else(||bad("native stage row leg index differs"))?;
@@ -2363,6 +2363,8 @@ fn build_native_input(manifest:serde_json::Value,threads:usize)->CoreResult<(Nat
     if let Some(v)=manifest.get("research_stream_receipts"){if v.as_bool()!=Some(true){return Err(bad("stream receipt field must be true"))}enable_stream_receipts(&mut engine)?;}
     if let Some(v)=manifest.get("research_egress_buckets"){if v.as_bool()!=Some(true){return Err(bad("egress bucket field must be true"))}enable_egress_buckets(&mut engine)?;}
     if let Some(v)=manifest.get("research_entry_buckets"){if v.as_bool()!=Some(true){return Err(bad("entry bucket field must be true"))}enable_entry_buckets(&mut engine)?;}
+    if let Some(v)=manifest.get("research_delay_calendar"){if v.as_bool()!=Some(true){return Err(bad("delay calendar field must be true"))}enable_delay_calendar(&mut engine)?;}
+
 
 
 
@@ -2407,6 +2409,8 @@ fn enable_stream_receipts(engine:&mut NativeWholeEngine)->CoreResult<()>{engine.
 fn enable_egress_buckets(engine:&mut NativeWholeEngine)->CoreResult<()>{engine.journey.enable_research_egress_buckets()?;engine.identity.push_str(":egress-bucket-v1");Ok(())}
 #[cfg(feature="native-cli")]
 fn enable_entry_buckets(engine:&mut NativeWholeEngine)->CoreResult<()>{engine.journey.enable_research_entry_buckets()?;engine.identity.push_str(":entry-bucket-v1");Ok(())}
+#[cfg(feature="native-cli")]
+fn enable_delay_calendar(engine:&mut NativeWholeEngine)->CoreResult<()>{engine.journey.enable_research_delay_calendar()?;engine.identity.push_str(":delay-calendar-v1");Ok(())}
 /// Explicit model migration. Same physical owners at conversion, different
 /// future numerical closure and native identity. Target declaration must
 /// differ ONLY by the added research field.
@@ -2414,6 +2418,17 @@ fn enable_entry_buckets(engine:&mut NativeWholeEngine)->CoreResult<()>{engine.jo
 pub fn migrate_native_time_bins(source:serde_json::Value,target:serde_json::Value,threads:usize,input:&str,checkpoint:&str)->CoreResult<serde_json::Value>{
     use serde_json::json;
     let mut comparison=target.clone();
+    if source.get("research_delay_calendar").is_none()&&comparison.get("research_delay_calendar").is_some(){
+        if comparison.as_object_mut().and_then(|o|o.remove("research_delay_calendar")).and_then(|v|v.as_bool())!=Some(true)||comparison!=source{return Err(bad("delay calendar migration declaration differs"))}
+        let(mut engine,_,_)=build_native_input(source,threads)?;
+        let state=engine.load(input.to_owned())?;let source_identity=engine.identity.clone();let ledger=ledger_json(&engine,&state)?;
+        if state.time_s()%engine.step!=0.{return Err(bad("delay calendar migration clock differs"))}
+        enable_delay_calendar(&mut engine)?;
+        let next=NativeWholeState{identity:engine.identity.clone(),value:state.value};
+        engine.validate_bundle(&next.value)?;if ledger_json(&engine,&next)?!=ledger{return Err(bad("delay calendar migration ledger differs"))}
+        save_atomic_native(&mut engine,checkpoint,&next)?;
+        return Ok(json!({"schema":"metroflow_delay_calendar_migration_v1","status":"EXECUTED_FOR_REVIEW","scope":"same initial owners; sparse clock partition merge for private entry and protected egress; separate research identity","time_s":next.time_s(),"native_identity":engine.identity,"source_native_identity":source_identity,"ledger":ledger["ledger"]}))
+    }
     if source.get("research_entry_buckets").is_none()&&comparison.get("research_entry_buckets").is_some(){
         if comparison.as_object_mut().and_then(|o|o.remove("research_entry_buckets")).and_then(|v|v.as_bool())!=Some(true)||comparison!=source{return Err(bad("entry bucket migration declaration differs"))}
         let(mut engine,_,_)=build_native_input(source,threads)?;
@@ -2904,7 +2919,7 @@ pub fn compare_native_rank_states(left:serde_json::Value,right:serde_json::Value
     use serde_json::json;
     use sha2::{Digest,Sha256};
     fn physical(mut m:serde_json::Value)->serde_json::Value{
-        if let Some(o)=m.as_object_mut(){for k in ["research_rank_bins","research_interval_bins","research_ready_mass_milli","research_receipt_period_s","research_group_outlets","research_receipt_grid","research_schedule_receipts","research_stream_receipts","research_egress_buckets","research_entry_buckets"]{o.remove(k);}}
+        if let Some(o)=m.as_object_mut(){for k in ["research_rank_bins","research_interval_bins","research_ready_mass_milli","research_receipt_period_s","research_group_outlets","research_receipt_grid","research_schedule_receipts","research_stream_receipts","research_egress_buckets","research_entry_buckets","research_delay_calendar"]{o.remove(k);}}
         m
     }
     if physical(left.clone())!=physical(right.clone()){return Err(bad("rank audit physical declarations differ"))}

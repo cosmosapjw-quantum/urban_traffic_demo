@@ -947,6 +947,7 @@ pub struct NativeJourneyCore {
     research_stream_receipts:bool,
     research_egress_buckets:bool,
     research_entry_buckets:bool,
+    research_delay_calendar:bool,
     history_bytes: usize,
     history_decoded_final: usize,
     history_decode_extra_max: usize,
@@ -1230,6 +1231,11 @@ impl NativeJourneyCore {
     pub(crate) fn enable_research_entry_buckets(&mut self)->CoreResult<()>{
         if !self.research_egress_buckets||self.research_receipt_grid_step.is_none(){return Err(bad("entry buckets require egress and fixed grid identity"))}
         self.research_entry_buckets=true;Ok(())
+    }
+    #[cfg(feature="native-cli")]
+    pub(crate) fn enable_research_delay_calendar(&mut self)->CoreResult<()>{
+        if !self.research_entry_buckets||!self.research_egress_buckets{return Err(bad("delay calendar requires both entry and egress identities"))}
+        self.research_delay_calendar=true;Ok(())
     }
     pub(crate) fn owned_time(&self) -> f64 {
         self.state.0
@@ -2122,7 +2128,7 @@ crate::optional_binding::optional_pymethods!(NativeJourneyCore,
         }else{None};
         if let Some(dt)=entry_dt{
             if t%dt!=0.{return Err(bad("entry projection requires aligned prepare"))}
-            if self.research_receipt_period_s.is_some_and(|p|t%(p as f64)==0.){
+            if !self.research_delay_calendar&&self.research_receipt_period_s.is_some_and(|p|t%(p as f64)==0.){
                 let n=s.1.len();
                 let dynamic=stage_storage_bytes(&s).saturating_add(self.history_bytes);
                 let base=dynamic.max(self.retained_input_bytes).saturating_mul(WORKING_COPIES).saturating_add(STORAGE_SCRATCH_RESERVE);
@@ -2226,8 +2232,13 @@ crate::optional_binding::optional_pymethods!(NativeJourneyCore,
             crate::v1_trace::add("entry_projection.reduced_proposals",entry_reduced as u64);
         }
         drop(entry_work);
+        if self.research_delay_calendar{
+            let dt=entry_dt.ok_or_else(||bad("entry delay calendar grid missing"))?;
+            let dynamic=stage_storage_bytes(&s).saturating_add(self.history_bytes);
+            if let Some(next)=admitted_delay_calendar(&self.state.1,&s.1,t,dt,t,None,self.storage_budget,self.retained_input_bytes,dynamic,scratch,"entry")?{s.1=next;}
+        }
         let mut offers = Vec::new();
-        s.1.retire_due(t + 1e-10, |a| {
+        s.1.retire_due_mode(t + 1e-10,self.research_delay_calendar, |a| {
             offers.push((self.legs[a.0].0.clone(), a.1, a.1 * a.2));
         });
         attempt.retired[0] = offers.len();
@@ -2351,6 +2362,7 @@ impl NativeJourneyCore {
             research_stream_receipts:false,
             research_egress_buckets:false,
             research_entry_buckets:false,
+            research_delay_calendar:false,
             history_bytes: 0,
             history_decoded_final: 0,
             history_decode_extra_max: 0,
@@ -2713,6 +2725,38 @@ impl NativeJourneyCore {
                 s.2.extend(f.3.iter().map(|w| (f.0, arrival * w.1, end, w.0)));
             }
         }
+        if self.research_delay_calendar{
+            let dt=self.research_receipt_grid_step.ok_or_else(||bad("egress delay calendar grid missing"))?;
+            if end-t!=dt||t%dt!=0.||end%dt!=0.{return Err(bad("egress delay calendar requires aligned ticks"))}
+            let n=self.legs.len();
+            let horizon_bytes=n.saturating_mul(std::mem::size_of::<f64>()).saturating_add(RETAINED_ALLOCATION_PADDING);
+            let dynamic=stage_storage_bytes(&s).saturating_add(self.history_bytes);
+            let base=dynamic.max(self.retained_input_bytes).saturating_mul(WORKING_COPIES).saturating_add(STORAGE_SCRATCH_RESERVE);
+            if self.storage_budget.unwrap_or(usize::MAX).saturating_sub(base)>=horizon_bytes{
+                check_storage_limit(self.storage_budget,self.retained_input_bytes,dynamic,horizon_bytes)?;
+                let mut horizon=checkpoint_vec(n)?;
+                if horizon.capacity()!=n{return Err(CoreError::resource("delay calendar horizon capacity differs"))}
+                horizon.resize(n,f64::INFINITY);
+                for (i,l) in self.legs.iter().enumerate(){
+                    // Service egress owners are never projected.
+                    if l.5!=1{horizon[i]=-1.;}
+                    if let Some(p)=l.2{
+                        if p>=n{return Err(bad("invalid delay calendar parent index"))}
+                        let h=if l.5==0{-1.}else{private_hidden_horizon(l.3,&l.4)};
+                        horizon[p]=horizon[p].min(h);
+                    }
+                }
+                for i in self.bus.iter().map(|b|b.0).chain(self.freight.iter().map(|f|f.0)){
+                    if i>=n{return Err(bad("invalid delay calendar service index"))}
+                    horizon[i]=-1.;
+                    if let Some(p)=self.legs[i].2{
+                        if p>=n{return Err(bad("invalid delay calendar service parent index"))}
+                        horizon[p]=-1.;
+                    }
+                }
+                if let Some(next)=admitted_delay_calendar(&self.state.2,&s.2,t,dt,end+1e-8,Some(&horizon),self.storage_budget,self.retained_input_bytes,dynamic,horizon_bytes,"egress")?{s.2=next;}
+            }else{crate::v1_trace::add("delay_calendar.egress_fallback",1);}
+        }
         let mut retired = [0usize; 2];
         let before_retirement_bytes = stage_storage_bytes(&s);
         let mut history_bytes = self.history_bytes;
@@ -2751,7 +2795,7 @@ impl NativeJourneyCore {
         }
         for (kind, stage) in [&mut s.2, &mut s.3].into_iter().enumerate() {
             let mut receipt_error = None;
-            retired[kind] = stage.retire_due(end + 1e-10, |a| {
+            retired[kind] = stage.retire_due_mode(end + 1e-10,self.research_delay_calendar&&kind==0, |a| {
                 if receipt_error.is_some() {
                     return;
                 }
@@ -3118,6 +3162,23 @@ fn merge_delay_calendar(old:&StageQueue,combined:&StageQueue,t:f64,dt:f64,birth_
         return Err(CoreError::resource("delay calendar actual scratch exceeds preflight"))
     }
     Ok(Some((result,st)))
+}
+fn admitted_delay_calendar(old:&StageQueue,combined:&StageQueue,t:f64,dt:f64,birth_max:f64,horizon:Option<&[f64]>,budget:Option<usize>,retained:usize,dynamic:usize,other_scratch:usize,stage:&str)->CoreResult<Option<StageQueue>>{
+    let (sorted,shared,removed,rebuild,workspace,fallback)=if stage=="entry"{
+        ("delay_calendar.entry_sorted","delay_calendar.entry_shared","delay_calendar.entry_removed","delay_calendar.entry_rebuild","delay_calendar.entry_workspace","delay_calendar.entry_fallback")
+    }else{
+        ("delay_calendar.egress_sorted","delay_calendar.egress_shared","delay_calendar.egress_removed","delay_calendar.egress_rebuild","delay_calendar.egress_workspace","delay_calendar.egress_fallback")
+    };
+    if combined.is_empty(){return Ok(None)}
+    let base=dynamic.max(retained).saturating_mul(WORKING_COPIES).saturating_add(STORAGE_SCRATCH_RESERVE).saturating_add(other_scratch);
+    let available=budget.unwrap_or(usize::MAX).saturating_sub(base);
+    let Some((_,_,need))=delay_calendar_workspace(old,combined,t,dt)else{crate::v1_trace::add(fallback,1);return Ok(None)};
+    if need>available{crate::v1_trace::add(fallback,1);return Ok(None)}
+    check_storage_limit(budget,retained,dynamic,other_scratch.saturating_add(need))?;
+    let Some((next,st))=merge_delay_calendar(old,combined,t,dt,birth_max,horizon,available)?else{crate::v1_trace::add(fallback,1);return Ok(None)};
+    crate::v1_trace::add(sorted,st.sorted as u64);crate::v1_trace::add(shared,st.shared as u64);
+    crate::v1_trace::add(removed,st.removed as u64);crate::v1_trace::add(rebuild,u64::from(st.rebuild));crate::v1_trace::add(workspace,st.scratch as u64);
+    Ok(Some(next))
 }
 #[cfg(test)]
 mod persistent_delay_calendar_tests{
