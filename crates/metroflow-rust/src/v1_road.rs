@@ -193,7 +193,7 @@ enum PacketParts {
     Mixed(Arc<Vec<Part>>),
 }
 fn moment_dictionary_enabled()->bool{
-    cfg!(all(feature="native-cli",not(feature="python-extension"))) &&
+    cfg!(all(feature="native-cli",not(feature="python-extension"))) && compact_checkpoint_enabled() &&
         std::env::var_os("METROFLOW_NATIVE_MOMENT_DICT").as_deref()==Some(std::ffi::OsStr::new("1"))
 }
 impl PacketParts {
@@ -9472,6 +9472,16 @@ impl PackedRankProbe{
 
 #[cfg(feature="native-cli")]
 pub fn allocation_probe_rank_moments(values:&[(f64,f64)])->CoreResult<[f64;2]>{v1_rank_projection::moment_probe(values)}
+#[cfg(feature="native-cli")]
+pub fn allocation_probe_moment_dictionary()->CoreResult<[usize;2]>{
+    let xs=std::hint::black_box([(0.125,-0.),(0.125,0.),(0.25,1.),(0.5,2.)]);
+    let mut p=v1_moment_dict::MomentDictPlan::new();
+    for _ in 0..8{for &x in &xs{if !p.add(x){return Err(val("dictionary probe insert"))}}}
+    let mut checksum=0usize;
+    for &x in &xs{checksum+=p.lookup(x).ok_or_else(||val("dictionary probe lookup"))?as usize;}
+    Ok([p.bytes(),checksum])
+}
+
 
 #[cfg(feature="native-cli")]
 impl V1Road{

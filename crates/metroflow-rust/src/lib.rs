@@ -1383,3 +1383,6 @@ pub use v1_journey::EntryBucketProbe;
 
 #[cfg(feature="native-cli")]
 pub use v1_journey::allocation_probe_delay_cell;
+
+#[cfg(feature="native-cli")]
+pub use v1_road::allocation_probe_moment_dictionary;

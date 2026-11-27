@@ -1,0 +1,52 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
+     Running unittests src/lib.rs (target/debug/deps/metroflow_headless-ce2312ae8c9f8ae3)
+
+running 9 tests
+test preflight::tests::vector_matches_scalar ... ok
+test queue::tests::mirrored_ranks ... ok
+test kinetics::tests::passage_residual_and_limiting_cases ... ok
+test access::tests::repeated_atoms_invalid_and_dyadic ... ok
+test input::tests::parser_fail_closed ... ok
+test prepare::tests::typed_fixture_roundtrip_and_budget ... ok
+test queue::tests::mixed_constraints_and_replay ... ok
+test kinetics::tests::indexed_route_parallel_replay ... ok
+test access::tests::exact_marginals_900_cases ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running unittests src/bin/metroflow-backend-audit.rs (target/debug/deps/metroflow_backend_audit-59a7c2ab36d28f99)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/metroflow-headless.rs (target/debug/deps/metroflow_headless-c7b7e68149150df9)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/metroflow-preflight-bench.rs (target/debug/deps/metroflow_preflight_bench-b6defc819c740535)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/metroflow-prepare.rs (target/debug/deps/metroflow_prepare-45fdfc14a9bfaf30)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/metroflow-verify.rs (target/debug/deps/metroflow_verify-7a8b07b0573bacf1)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests metroflow_headless
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

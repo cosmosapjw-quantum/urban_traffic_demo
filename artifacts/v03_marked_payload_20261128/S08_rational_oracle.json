@@ -1,0 +1,16 @@
+{
+  "status": "PASS_EXACT_FINITE_ASSERTIONS",
+  "seed": 20261128,
+  "trajectories": 512,
+  "rank_partition_checks": 11069,
+  "ordered_bit_pairs": 12093,
+  "nonassociativity_counterexample": [
+    0.1,
+    0.1,
+    0.3,
+    0.0030000000000000005,
+    0.003
+  ],
+  "scope": "finite rational uniform head rank restriction and exact Python bit dictionary; not network-wide numerical equivalence",
+  "elapsed_s": 0.16567321098409593
+}
