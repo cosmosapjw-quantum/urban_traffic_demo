@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.51",
-  "date": "2026-11-27",
+  "version": "1.1.52",
+  "date": "2026-11-28",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
   "base_research_sha": "0a7c980d3934146a978280fe76045443ad12640e",
@@ -371,11 +371,11 @@
       "V03"
     ],
     "native_subagent": "NOT_RUN_NO_TOOL",
-    "scope": "Integrated S01-S10: original exact 25740->25750 computed/recovered with prior exact binary and final binary independent recovery, all original guards within cap; 25760 blocked preflight4809424815>4533044215. Distinct delay calendar: actual matched 30000 entry2924498->1752182, egress4558614->1727136, dynamic290472720->158837648 B; measured compute regression in matched60s. Recovered30000/30180/30540, 600s new/5220s ancestry, entry/egress stable near1.75M/1.74M, 29984043 total removal operations. Exact stable counting partition used at original and city scale; same-wire batch encoding, zero-heap scoped cell kernel; native291/headless9. Original full-day0/9, pure Rust13/15 scoped.",
+    "scope": "S01-S10: original 25750 dictionary-enabled independent recovery; 75,219,100 decoded rows, 344,185,460 B saved; source preflight 3,175,518,903 B, transfer max 4,018,728,439 B under 4,533,044,215 B, 584,088 checks zero exceedances; 25760 blocked timed incoming exact group allocation 4,533,180,239 B. Distinct same-identity delay model matched 30600 byte-identical and independently recovered30600/30780/31140, 600s new/5820s ancestry; stable bounded clock scatter removes ordered generation sorts, no measured speedup. Native295/headless9, pure Rust13/15 scoped, original full-day0/9.",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "BLOCKED_RESOURCE_AND_MIGRATION_0_OF_9",
     "main_modified": false,
-    "evidence": "artifacts/v03_delay_state_20261127/S10_RESEARCH_RECEIPT.json",
+    "evidence": "artifacts/v03_marked_payload_20261128/S10_RESEARCH_RECEIPT.json",
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
@@ -384,20 +384,20 @@
       "status": "success"
     },
     "parallel_agents": [],
-    "active_branch": "research/v03-delay-state-20261127",
-    "production_commit": "5fcc5f3f2e7db36d8dbf412707b20d1ec253c30b",
+    "active_branch": "research/v03-marked-payload-20261128",
+    "production_commit": "fbb154591012e30e902fc197bbea03a6da6658bd",
     "research_stages_completed": 10,
     "research_stages_total": 10,
-    "source_commit": "5fcc5f3f2e7db36d8dbf412707b20d1ec253c30b",
-    "native_source_sha256": "37ad6137b2a9790e0b21bb6559d65d8bc1607dbcfc8fb53087a8a25a248c8b9e",
-    "native_binary_sha256": "9e4f02f60a444c117fe5832e412860c3ecf11faa36dd5127c165f20ed23d02d7",
+    "source_commit": "fbb154591012e30e902fc197bbea03a6da6658bd",
+    "native_source_sha256": "41b472a0e75463af28dfa1bb056c3622345377cd6a263bc36b34102b77b28f97",
+    "native_binary_sha256": "b55db04ea6a8ca1083375e1fa0e681cb26fb0211e41a6d98e2fa90bf97f93137",
     "current_loop_stages_completed": 10,
     "current_loop_stages_total": 10,
     "current_loop_native_subagent": "NOT_RUN_NO_TOOL",
     "native_source_hash_method": "SHA256 of tracked Rust source manifest at S09; measured binaries bound individually in receipts",
-    "native_binary_feature": "native-cli no Python; S08/S09 bound",
+    "native_binary_feature": "native-cli no Python; final S09 bound; opt-in exact moment dictionary",
     "rust_backend_scoped": "13/15 pure Rust scoped; 2 partial; zero unported; original recovered25750",
-    "theory_loop_scope": "Finite-delay transport sufficient state, protected egress and entry sparse calendar, exact stable validation and wire encoding; distinct research identity; original acceptance unchanged"
+    "theory_loop_scope": "Marked FIFO rank restriction and exact bit-pair factorization, phase-local source admission, exact clock scatter; distinct research identity, original acceptance unchanged"
   },
   "nodes": [
     {
@@ -1902,7 +1902,7 @@
       "failure_classification": [
         "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
       ],
-      "positive_next_action": "V03/B15: preserve original 6GiB/8GiB/7200s caps, all 3x3 days and 8h refinement. Exact 25750 recovered, 25760 fails preflight due to 79.8M logical road rows; move beyond guard arithmetic to persistent marked FIFO rank/interval views with exact source ordering, interval boundaries and mass/birth reconstruction, actual owner lifetime proof. Establish exact road baseline and matched interval consumer tests, run 25760 with source/flags fixed. Distinct delay calendar: measure touched-partition merge cost and old/new sharing; persistent per-leg/tick moment expansions without repeated centroid rematerialization, preserve raw fallback; serialize partition layout or restore index without full sort; compare long matched horizons/real returns and 5s/10s. File sync varied substantially (0.267s/7.039s/21.603s); design byte-identified immutable block delta checkpoint with explicit fsync/atomic manifest and independent full restore, no relaxed durability. Actual 3600s/8h/24h, River/Coastal, B10 endogenous graph/route changes, full CI/main integration remain. No original gate change.",
+      "positive_next_action": "V03/B15: preserve original 6GiB/8GiB/7200s caps, all 3x3 original days and 8h refinement. Original 25760 passed source and transfer, now blocked timed incoming exact group allocation with 721499904 B interval_retained. Move bit-pair compression into ordered_interval_packet at production, not delayed end-of-tick interning; charge dense+dictionary overlap or plan directly in bounded passes, share keys, retain actual capacities, preserve bit-exact reduction/order and wire expansion. Verify interval-local density/mark transport and receiving lifetime, replay 25760 from bound checkpoint with identical flags and original ledger. No guard shaving. Extend persistent marked-rank views to reduce logical operation count; dictionary alone is not a logical-row closure. Delay calendar: persistent per-leg clock expansion and restart partition indexes, long matched return/5s vs 10s, durable delta snapshot with fsync/atomic manifest. Actual 3600s/8h/24h and River/Coastal remain; B10 endogenous graph/route edits and full CI/main integration remain. Do not alter original acceptance.",
       "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
       "contracts": [
         "C_RUNTIME",
@@ -2080,6 +2080,11 @@
           "path": "artifacts/v03_delay_state_20261127/S10_RESEARCH_RECEIPT.json",
           "sha256": "f54f2b6de392604b664f2c30724ac22c213863f1e5a9e4d637974fe3cb116ac3",
           "scope": "Original exact +10s recovered; protected persistent delay stage actual matched reduction and 600s independent continuation; no original-day acceptance"
+        },
+        {
+          "path": "artifacts/v03_marked_payload_20261128/S10_RESEARCH_RECEIPT.json",
+          "sha256": "2163383b5ab78aacfac5b4de6ab9bd13db51695388c8428ded0d421fb855a3b7",
+          "scope": "Actual original dictionary storage reduction, source/transfer complete, receiving blocked; same delay identity byte-identical matched and 600s continuation; no original acceptance"
         }
       ],
       "historical_blocked_evidence": [
@@ -2121,14 +2126,14 @@
         }
       ],
       "current_research_evidence": {
-        "path": "artifacts/v03_delay_state_20261127/S10_RESEARCH_RECEIPT.json",
-        "sha256": "f54f2b6de392604b664f2c30724ac22c213863f1e5a9e4d637974fe3cb116ac3",
-        "status": "S01-S10 integrated; original recovered25750; distinct delay research recovered30540; 13/15 pure Rust scoped; V03 blocked",
-        "baseline_commit": "3e5b8be9136743697f86a05c17cd61b9ef1e715e",
-        "source_sha256": "37ad6137b2a9790e0b21bb6559d65d8bc1607dbcfc8fb53087a8a25a248c8b9e",
-        "native_sha256": "9e4f02f60a444c117fe5832e412860c3ecf11faa36dd5127c165f20ed23d02d7",
+        "path": "artifacts/v03_marked_payload_20261128/S10_RESEARCH_RECEIPT.json",
+        "sha256": "2163383b5ab78aacfac5b4de6ab9bd13db51695388c8428ded0d421fb855a3b7",
+        "status": "S01-S10 integrated; original recovered25750; source/transfer pass receiving blocked; same delay research recovered31140; 13/15 pure Rust scoped; V03 blocked",
+        "baseline_commit": "d73a75a849834d1405f50160f43b278273b20b23",
+        "source_sha256": "41b472a0e75463af28dfa1bb056c3622345377cd6a263bc36b34102b77b28f97",
+        "native_sha256": "b55db04ea6a8ca1083375e1fa0e681cb26fb0211e41a6d98e2fa90bf97f93137",
         "source_hash_method": "SHA256 of tracked Rust source manifest at S09; measured binaries bound individually in receipts",
-        "theory_path": "docs/research/V03_DELAY_STATE_20261127.md"
+        "theory_path": "docs/research/V03_MARKED_PAYLOAD_20261128.md"
       },
       "historical_research_evidence": [
         {
@@ -2346,6 +2351,16 @@
           "native_sha256": "ef3425597917182abb8fc30155695eab52db62e98dc47986e2681de7dbc4ec6e",
           "source_hash_method": "SHA256 of tracked Rust source manifest at S09; measured binaries individually bound in receipts",
           "theory_path": "docs/research/V03_ENTRY_QUOTIENT_20261127.md"
+        },
+        {
+          "path": "artifacts/v03_delay_state_20261127/S10_RESEARCH_RECEIPT.json",
+          "sha256": "f54f2b6de392604b664f2c30724ac22c213863f1e5a9e4d637974fe3cb116ac3",
+          "status": "S01-S10 integrated; original recovered25750; distinct delay research recovered30540; 13/15 pure Rust scoped; V03 blocked",
+          "baseline_commit": "3e5b8be9136743697f86a05c17cd61b9ef1e715e",
+          "source_sha256": "37ad6137b2a9790e0b21bb6559d65d8bc1607dbcfc8fb53087a8a25a248c8b9e",
+          "native_sha256": "9e4f02f60a444c117fe5832e412860c3ecf11faa36dd5127c165f20ed23d02d7",
+          "source_hash_method": "SHA256 of tracked Rust source manifest at S09; measured binaries bound individually in receipts",
+          "theory_path": "docs/research/V03_DELAY_STATE_20261127.md"
         }
       ],
       "secondary_blocked_evidence": {
@@ -2604,11 +2619,12 @@
       "Integrated S01-S10: original exact frontier 25740 unchanged; mixed-dwell observable-clock quotient and lazy exact release queries; bounded direct-key bucket accumulation; separate schedule receipt identity. Actual Valley 28080 history 11542512 -> 51230 with bit-identical road and completion totals, age moment relative L1 <1.7e-15. Independently recovered 28080,28200,28500 (480s new,3180s ancestry); zero warmed bucket alloc/realloc in 1M calls; 13/15 Rust scoped; original 0/9 full days.",
       "Integrated S01-S10: original exact recovered 25740 unchanged; retirement pushforward and hidden-child streaming moment closure; exact service support and bounded ordered stage sums; distinct streaming/egress identity. Matched Valley 28560 egress products 1310368 -> 986552, 1338759 raw receipts avoided, road observables bit-identical and age moment relative L1 <=3.043e-15. Independently recovered 28560,28740,29340 (840s new,4020s ancestry), 16018235 raw receipts avoided total; 2 warmed 1M-call zero-heap probes. Original 0/9 full days; 13/15 pure Rust scoped.",
       "Integrated S01-S10: original lean continuous keyset guard 5087955648 ->3965258969 B within 4668014575 B by verified shared payload. Next capture 6444815725>6442450944; actual observer support corrected; final original retry timed out during atomic checkpoint write, no recovered 25750, original 25740 unchanged. Distinct source-clock entry quotient, bounded sweeps and direct product projection: matched Valley 29400 entry 4657671->2924498, road relative L1<=4.079e-19 and completed-leg/aggregate ledger exact; recovered 29400/29580/29940, 600s new/4620s ancestry, 13451223 sweep removal operations and 390480 products avoided. Warmed 1M-call zero-heap entry probe; 287 native/9 headless tests. Original 0/9 full days, 13/15 pure Rust scoped.",
-      "Integrated S01-S10: original exact 25740->25750 computed/recovered with prior exact binary and final binary independent recovery, all original guards within cap; 25760 blocked preflight4809424815>4533044215. Distinct delay calendar: actual matched 30000 entry2924498->1752182, egress4558614->1727136, dynamic290472720->158837648 B; measured compute regression in matched60s. Recovered30000/30180/30540, 600s new/5220s ancestry, entry/egress stable near1.75M/1.74M, 29984043 total removal operations. Exact stable counting partition used at original and city scale; same-wire batch encoding, zero-heap scoped cell kernel; native291/headless9. Original full-day0/9, pure Rust13/15 scoped."
+      "Integrated S01-S10: original exact 25740->25750 computed/recovered with prior exact binary and final binary independent recovery, all original guards within cap; 25760 blocked preflight4809424815>4533044215. Distinct delay calendar: actual matched 30000 entry2924498->1752182, egress4558614->1727136, dynamic290472720->158837648 B; measured compute regression in matched60s. Recovered30000/30180/30540, 600s new/5220s ancestry, entry/egress stable near1.75M/1.74M, 29984043 total removal operations. Exact stable counting partition used at original and city scale; same-wire batch encoding, zero-heap scoped cell kernel; native291/headless9. Original full-day0/9, pure Rust13/15 scoped.",
+      "S01-S10: original 25750 dictionary-enabled independent recovery; 75,219,100 decoded rows, 344,185,460 B saved; source preflight 3,175,518,903 B, transfer max 4,018,728,439 B under 4,533,044,215 B, 584,088 checks zero exceedances; 25760 blocked timed incoming exact group allocation 4,533,180,239 B. Distinct same-identity delay model matched 30600 byte-identical and independently recovered30600/30780/31140, 600s new/5820s ancestry; stable bounded clock scatter removes ordered generation sorts, no measured speedup. Native295/headless9, pure Rust13/15 scoped, original full-day0/9."
     ],
     "remaining": [
-      "V03/B15: preserve original 6GiB/8GiB/7200s caps, all 3x3 days and 8h refinement. Exact 25750 recovered, 25760 fails preflight due to 79.8M logical road rows; move beyond guard arithmetic to persistent marked FIFO rank/interval views with exact source ordering, interval boundaries and mass/birth reconstruction, actual owner lifetime proof. Establish exact road baseline and matched interval consumer tests, run 25760 with source/flags fixed. Distinct delay calendar: measure touched-partition merge cost and old/new sharing; persistent per-leg/tick moment expansions without repeated centroid rematerialization, preserve raw fallback; serialize partition layout or restore index without full sort; compare long matched horizons/real returns and 5s/10s. File sync varied substantially (0.267s/7.039s/21.603s); design byte-identified immutable block delta checkpoint with explicit fsync/atomic manifest and independent full restore, no relaxed durability. Actual 3600s/8h/24h, River/Coastal, B10 endogenous graph/route changes, full CI/main integration remain. No original gate change.",
-      "Original exact recovered25750; 25760 blocked; full days/refinement remain. Distinct delay research recovered30540; no acceptance credit.",
+      "V03/B15: preserve original 6GiB/8GiB/7200s caps, all 3x3 original days and 8h refinement. Original 25760 passed source and transfer, now blocked timed incoming exact group allocation with 721499904 B interval_retained. Move bit-pair compression into ordered_interval_packet at production, not delayed end-of-tick interning; charge dense+dictionary overlap or plan directly in bounded passes, share keys, retain actual capacities, preserve bit-exact reduction/order and wire expansion. Verify interval-local density/mark transport and receiving lifetime, replay 25760 from bound checkpoint with identical flags and original ledger. No guard shaving. Extend persistent marked-rank views to reduce logical operation count; dictionary alone is not a logical-row closure. Delay calendar: persistent per-leg clock expansion and restart partition indexes, long matched return/5s vs 10s, durable delta snapshot with fsync/atomic manifest. Actual 3600s/8h/24h and River/Coastal remain; B10 endogenous graph/route edits and full CI/main integration remain. Do not alter original acceptance.",
+      "Original exact recovered25750; 25760 blocked receiving; full days/refinement remain. Distinct delay research recovered31140; no acceptance credit.",
       "Integrate source-aligned rank/span views into the actual ordered interval consumer and checkpoint expansion; retain finite response and commodity/birth observables. Separate bit-exact event sharing, real-arithmetic rank equivalence and explicitly approximate block closure; require complete-tick, ledger and checkpoint evidence.",
       "Frozen candidate3cases x3 full-day completion, matched refinement and full-day checkpoint replay; current completion0/9",
       "Separate final review, RLS01 packaging/fresh-install acceptance and full repository CI/integration deferred by user"
@@ -2616,14 +2632,14 @@
     "dag_policy": "V03 internal migration work; no new DAG nodes, 19/21 unchanged until acceptance",
     "historical_local_patch_sha256": "7d89e8be20339709a9c0dc894a26dc7db75bdc0d857637ffb30f7bc7fe4a1326",
     "last_completed_work": {
-      "date": "2026-11-27",
-      "scope": "Integrated S01-S10: original exact 25740->25750 computed/recovered with prior exact binary and final binary independent recovery, all original guards within cap; 25760 blocked preflight4809424815>4533044215. Distinct delay calendar: actual matched 30000 entry2924498->1752182, egress4558614->1727136, dynamic290472720->158837648 B; measured compute regression in matched60s. Recovered30000/30180/30540, 600s new/5220s ancestry, entry/egress stable near1.75M/1.74M, 29984043 total removal operations. Exact stable counting partition used at original and city scale; same-wire batch encoding, zero-heap scoped cell kernel; native291/headless9. Original full-day0/9, pure Rust13/15 scoped.",
-      "evidence": "artifacts/v03_delay_state_20261127/S10_RESEARCH_RECEIPT.json"
+      "date": "2026-11-28",
+      "scope": "S01-S10: original 25750 dictionary-enabled independent recovery; 75,219,100 decoded rows, 344,185,460 B saved; source preflight 3,175,518,903 B, transfer max 4,018,728,439 B under 4,533,044,215 B, 584,088 checks zero exceedances; 25760 blocked timed incoming exact group allocation 4,533,180,239 B. Distinct same-identity delay model matched 30600 byte-identical and independently recovered30600/30780/31140, 600s new/5820s ancestry; stable bounded clock scatter removes ordered generation sorts, no measured speedup. Native295/headless9, pure Rust13/15 scoped, original full-day0/9.",
+      "evidence": "artifacts/v03_marked_payload_20261128/S10_RESEARCH_RECEIPT.json"
     },
-    "active_work": "V03/B15: preserve original 6GiB/8GiB/7200s caps, all 3x3 days and 8h refinement. Exact 25750 recovered, 25760 fails preflight due to 79.8M logical road rows; move beyond guard arithmetic to persistent marked FIFO rank/interval views with exact source ordering, interval boundaries and mass/birth reconstruction, actual owner lifetime proof. Establish exact road baseline and matched interval consumer tests, run 25760 with source/flags fixed. Distinct delay calendar: measure touched-partition merge cost and old/new sharing; persistent per-leg/tick moment expansions without repeated centroid rematerialization, preserve raw fallback; serialize partition layout or restore index without full sort; compare long matched horizons/real returns and 5s/10s. File sync varied substantially (0.267s/7.039s/21.603s); design byte-identified immutable block delta checkpoint with explicit fsync/atomic manifest and independent full restore, no relaxed durability. Actual 3600s/8h/24h, River/Coastal, B10 endogenous graph/route changes, full CI/main integration remain. No original gate change.",
+    "active_work": "V03/B15: preserve original 6GiB/8GiB/7200s caps, all 3x3 original days and 8h refinement. Original 25760 passed source and transfer, now blocked timed incoming exact group allocation with 721499904 B interval_retained. Move bit-pair compression into ordered_interval_packet at production, not delayed end-of-tick interning; charge dense+dictionary overlap or plan directly in bounded passes, share keys, retain actual capacities, preserve bit-exact reduction/order and wire expansion. Verify interval-local density/mark transport and receiving lifetime, replay 25760 from bound checkpoint with identical flags and original ledger. No guard shaving. Extend persistent marked-rank views to reduce logical operation count; dictionary alone is not a logical-row closure. Delay calendar: persistent per-leg clock expansion and restart partition indexes, long matched return/5s vs 10s, durable delta snapshot with fsync/atomic manifest. Actual 3600s/8h/24h and River/Coastal remain; B10 endogenous graph/route edits and full CI/main integration remain. Do not alter original acceptance.",
     "backend_census": {
-      "path": "artifacts/v03_delay_state_20261127/S10_backend_coverage.json",
-      "sha256": "709e65a220b0f9644d35e0d829b43aa009eaaefdd176cea52c69cd7461d609d6",
+      "path": "artifacts/v03_marked_payload_20261128/S10_backend_coverage.json",
+      "sha256": "9905d6813d70834c4e2e7d6909904327074895ef8f7be891d8b2f7fdc15e4bb0",
       "denominator": 15,
       "implemented_scoped": 13,
       "pure_rust_scoped": 13,

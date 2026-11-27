@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.51**, 2026-11-27. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.52**, 2026-11-28. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -2122,7 +2122,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-V03/B15: preserve original 6GiB/8GiB/7200s caps, all 3x3 days and 8h refinement. Exact 25750 recovered, 25760 fails preflight due to 79.8M logical road rows; move beyond guard arithmetic to persistent marked FIFO rank/interval views with exact source ordering, interval boundaries and mass/birth reconstruction, actual owner lifetime proof. Establish exact road baseline and matched interval consumer tests, run 25760 with source/flags fixed. Distinct delay calendar: measure touched-partition merge cost and old/new sharing; persistent per-leg/tick moment expansions without repeated centroid rematerialization, preserve raw fallback; serialize partition layout or restore index without full sort; compare long matched horizons/real returns and 5s/10s. File sync varied substantially (0.267s/7.039s/21.603s); design byte-identified immutable block delta checkpoint with explicit fsync/atomic manifest and independent full restore, no relaxed durability. Actual 3600s/8h/24h, River/Coastal, B10 endogenous graph/route changes, full CI/main integration remain. No original gate change.
+V03/B15: preserve original 6GiB/8GiB/7200s caps, all 3x3 original days and 8h refinement. Original 25760 passed source and transfer, now blocked timed incoming exact group allocation with 721499904 B interval_retained. Move bit-pair compression into ordered_interval_packet at production, not delayed end-of-tick interning; charge dense+dictionary overlap or plan directly in bounded passes, share keys, retain actual capacities, preserve bit-exact reduction/order and wire expansion. Verify interval-local density/mark transport and receiving lifetime, replay 25760 from bound checkpoint with identical flags and original ledger. No guard shaving. Extend persistent marked-rank views to reduce logical operation count; dictionary alone is not a logical-row closure. Delay calendar: persistent per-leg clock expansion and restart partition indexes, long matched return/5s vs 10s, durable delta snapshot with fsync/atomic manifest. Actual 3600s/8h/24h and River/Coastal remain; B10 endogenous graph/route edits and full CI/main integration remain. Do not alter original acceptance.
 
 **예산·종료조건**
 
@@ -2306,11 +2306,11 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "V03"
   ],
   "native_subagent": "NOT_RUN_NO_TOOL",
-  "scope": "Integrated S01-S10: original exact 25740->25750 computed/recovered with prior exact binary and final binary independent recovery, all original guards within cap; 25760 blocked preflight4809424815>4533044215. Distinct delay calendar: actual matched 30000 entry2924498->1752182, egress4558614->1727136, dynamic290472720->158837648 B; measured compute regression in matched60s. Recovered30000/30180/30540, 600s new/5220s ancestry, entry/egress stable near1.75M/1.74M, 29984043 total removal operations. Exact stable counting partition used at original and city scale; same-wire batch encoding, zero-heap scoped cell kernel; native291/headless9. Original full-day0/9, pure Rust13/15 scoped.",
+  "scope": "S01-S10: original 25750 dictionary-enabled independent recovery; 75,219,100 decoded rows, 344,185,460 B saved; source preflight 3,175,518,903 B, transfer max 4,018,728,439 B under 4,533,044,215 B, 584,088 checks zero exceedances; 25760 blocked timed incoming exact group allocation 4,533,180,239 B. Distinct same-identity delay model matched 30600 byte-identical and independently recovered30600/30780/31140, 600s new/5820s ancestry; stable bounded clock scatter removes ordered generation sorts, no measured speedup. Native295/headless9, pure Rust13/15 scoped, original full-day0/9.",
   "full_repository_ci": "DEFERRED_BY_USER",
   "full_day_100k": "BLOCKED_RESOURCE_AND_MIGRATION_0_OF_9",
   "main_modified": false,
-  "evidence": "artifacts/v03_delay_state_20261127/S10_RESEARCH_RECEIPT.json",
+  "evidence": "artifacts/v03_marked_payload_20261128/S10_RESEARCH_RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
@@ -2319,20 +2319,20 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "status": "success"
   },
   "parallel_agents": [],
-  "active_branch": "research/v03-delay-state-20261127",
-  "production_commit": "5fcc5f3f2e7db36d8dbf412707b20d1ec253c30b",
+  "active_branch": "research/v03-marked-payload-20261128",
+  "production_commit": "fbb154591012e30e902fc197bbea03a6da6658bd",
   "research_stages_completed": 10,
   "research_stages_total": 10,
-  "source_commit": "5fcc5f3f2e7db36d8dbf412707b20d1ec253c30b",
-  "native_source_sha256": "37ad6137b2a9790e0b21bb6559d65d8bc1607dbcfc8fb53087a8a25a248c8b9e",
-  "native_binary_sha256": "9e4f02f60a444c117fe5832e412860c3ecf11faa36dd5127c165f20ed23d02d7",
+  "source_commit": "fbb154591012e30e902fc197bbea03a6da6658bd",
+  "native_source_sha256": "41b472a0e75463af28dfa1bb056c3622345377cd6a263bc36b34102b77b28f97",
+  "native_binary_sha256": "b55db04ea6a8ca1083375e1fa0e681cb26fb0211e41a6d98e2fa90bf97f93137",
   "current_loop_stages_completed": 10,
   "current_loop_stages_total": 10,
   "current_loop_native_subagent": "NOT_RUN_NO_TOOL",
   "native_source_hash_method": "SHA256 of tracked Rust source manifest at S09; measured binaries bound individually in receipts",
-  "native_binary_feature": "native-cli no Python; S08/S09 bound",
+  "native_binary_feature": "native-cli no Python; final S09 bound; opt-in exact moment dictionary",
   "rust_backend_scoped": "13/15 pure Rust scoped; 2 partial; zero unported; original recovered25750",
-  "theory_loop_scope": "Finite-delay transport sufficient state, protected egress and entry sparse calendar, exact stable validation and wire encoding; distinct research identity; original acceptance unchanged"
+  "theory_loop_scope": "Marked FIFO rank restriction and exact bit-pair factorization, phase-local source admission, exact clock scatter; distinct research identity, original acceptance unchanged"
 }
 ```
 
