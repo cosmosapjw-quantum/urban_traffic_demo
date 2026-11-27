@@ -1,0 +1,1 @@
+Wolfram FullSimplify weighted centroid bounds and min saturation: {True, True, True}
