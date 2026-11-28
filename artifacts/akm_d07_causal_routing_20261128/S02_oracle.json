@@ -1,0 +1,6 @@
+{
+  "status": "PASS",
+  "linear_cases": 1620,
+  "logit_cases": 2048,
+  "scope": "fixed candidate set local response, no network stability theorem"
+}
