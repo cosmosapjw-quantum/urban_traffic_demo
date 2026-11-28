@@ -39,6 +39,13 @@ impl MomentDictPlan{
     }
     pub(super) fn bytes(&self)->usize{self.rows.saturating_add(self.len.saturating_mul(16)).saturating_add(DICT_OVERHEAD)}
     pub(super) fn worthwhile(&self)->bool{self.rows>=16&&self.bytes()<self.rows.saturating_mul(16)}
+    pub(super) fn finish_codes(&self,codes:Vec<u8>)->CoreResult<MomentDict>{
+        if codes.len()!=self.rows||codes.capacity()!=self.rows||!self.worthwhile()||codes.iter().any(|&c|c as usize>=self.len){return Err(val("direct dictionary code census differs"))}
+        let mut values=checkpoint_vec(self.len)?;
+        if values.capacity()!=self.len{return Err(budget("direct dictionary value capacity differs"))}
+        values.extend_from_slice(&self.values[..self.len]);
+        Ok(MomentDict{codes:Arc::new(codes),values})
+    }
     pub(super) fn build(&self,rows:&[(f64,f64)])->CoreResult<MomentDict>{
         if rows.len()!=self.rows||!self.worthwhile(){return Err(val("moment dictionary plan shape/cost differs"))}
         let mut codes=checkpoint_vec(rows.len())?;let mut values=checkpoint_vec(self.len)?;
