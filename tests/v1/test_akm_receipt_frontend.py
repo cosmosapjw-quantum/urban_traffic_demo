@@ -102,3 +102,19 @@ def test_d09_blocked_receipt_preserves_actual_not_requested_clock(tmp_path):
     q.write_text(json.dumps(d))
     with pytest.raises(ValueError, match="pilot sample"):
         read_akm_receipt(q)
+
+
+def test_d09_cohort_readonly_presentation_of_waiting_and_clock(tmp_path):
+    p = ROOT / "artifacts/akm_d09_final_cohort_20261128/S06_prefix.json"
+    v = read_akm_receipt(p)
+    d = json.loads(p.read_text())
+    assert v.payload["cohort"] == d["cohort"]
+    assert v.payload["support_census"] == d["support_census"]
+    assert v.time_s == d["time_s"]
+    assert v.model.startswith("akm-native-reserved-sealed-cohort-clock-v1:")
+    assert v.payload["cohort"]["waiting_rows"] == d["cohort"]["waiting_rows"]
+    d["pilot"]["samples"][-1]["time_s"] += 1
+    q = tmp_path / "wrong_cohort.json"
+    q.write_text(json.dumps(d))
+    with pytest.raises(ValueError, match="pilot sample"):
+        read_akm_receipt(q)

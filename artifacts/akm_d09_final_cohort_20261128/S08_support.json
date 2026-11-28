@@ -1,0 +1,28 @@
+{
+  "status": "UNCHANGED_ORIGINAL_SERVICE_SCOPE",
+  "manifest_sha256": "2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3",
+  "runs": 24,
+  "sum_single_run_seat_capacity": 960.0,
+  "bus_person_intent": 29999.999999995798,
+  "direct_unsupported_bus_person": 29998.32303749579,
+  "optimistic_all_run_seat_deficit_person": 29039.999999995798,
+  "parent_profile_bound": {
+    "optimistic_completion_ceiling": [
+      72115.96491075,
+      57601.02129515,
+      998.825
+    ],
+    "requested": [
+      120000.0,
+      58801.0,
+      1000.0
+    ],
+    "time_s": 86400.0,
+    "uncompleted_lower_bound": [
+      47884.03508925,
+      1199.97870485,
+      1.175000000000003
+    ]
+  },
+  "scope": "reused previous actual Rust owner census bound to identical manifest; additional independent seat upper bound for one-stop-to-one-stop fixed runs, assumes one passenger trip per seat per run; not new fleet, no reassignments; parent/dwell may further restrict"
+}

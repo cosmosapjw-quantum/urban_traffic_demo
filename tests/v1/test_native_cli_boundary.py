@@ -65,3 +65,13 @@ def test_pilot_and_support_are_explicit_rust_aliases(tmp_path):
     r = call(["native", "support", "m.json", "4", "support.json"], directory=tmp_path)
     assert r.returncode == 37
     assert r.stdout.splitlines() == ["m.json", "4", "support.json"]
+
+
+def test_sealed_cohort_explicit_native_dispatch(tmp_path):
+    p = tmp_path / "metroflow-akm-native"
+    p.write_text("#!/bin/sh\nprintf '%s\\n' \"$@\"\nexit 37\n")
+    p.chmod(0o755)
+    r = call(["run", "--manifest", "m.json", "--engine", "cohort", "--until", "360",
+              "--checkpoint", "s.bin", "--out", "r.json"], directory=tmp_path)
+    assert r.returncode == 37
+    assert r.stdout.splitlines() == ["cohort-fresh", "m.json", "-", "-", "360.0", "1", "s.bin", "r.json"]
