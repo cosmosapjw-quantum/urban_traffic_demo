@@ -72,3 +72,139 @@ mod graph_tests{
         let a=g.edit(&mut owners,600.,BYPASS,false).unwrap();assert!(a.accepted);assert!(!g.installed[BYPASS]);
     }
 }
+
+const ELL:f64=5.;
+const U:f64=10.;
+fn storage(i:usize)->f64{1.5*L[i]}
+fn no_entry(i:usize,t:f64)->bool{i==1&&(360. ..480.).contains(&t)}
+#[derive(Clone,Debug,Default,PartialEq,Serialize,Deserialize)]
+struct Passage{owner:usize,link:usize,entered:f64,exited:f64}
+#[derive(Clone,Debug,Default,PartialEq,Serialize,Deserialize)]
+struct Physical{
+    peak_storage:f64,peak_send:f64,peak_receive:f64,peak_metre:f64,
+    boundary_mass:f64,partial_steps:usize,peak_ready:usize,stock_integral:f64,
+    blocked_steps:usize,passages:Vec<Passage>
+}
+fn stock(owners:&[Owner])->CoreResult<[f64;E]>{
+    let mut s=[0.;E];
+    for o in owners{
+        if o.phase==2{continue}
+        if let Some(r)=&o.route{
+            let i=idx(r.links.get(r.position).ok_or_else(||bad("bad owner position"))?)?;
+            if o.phase==0{s[i]+=ELL*o.cross;}
+            else if o.phase==1{
+                s[i]+=ELL*(1.-o.cross);
+                if let Some(j)=r.links.get(r.position+1){s[idx(j)?]+=ELL*o.cross;}
+            }else{return Err(bad("bad phase"))}
+        }
+    }
+    Ok(s)
+}
+fn check(g:&Graph,owners:&[Owner],t:f64)->CoreResult<()>{
+    if owners.len()>MAX{return Err(CoreError::resource("D07 owner domain"))}
+    let mut seen=BTreeSet::new();
+    for o in owners{
+        if !seen.insert(o.id)||o.id>=MAX||!o.birth.is_finite()||o.birth<0.||o.birth>t||
+            !o.moment.valid(t)|| (o.moment.mass()-1.).abs()>1e-10||
+            (o.moment.birth-o.birth).abs()>1e-10*o.birth.max(1.)||
+            !o.cross.is_finite()||!(0. ..1.).contains(&o.cross)||
+            !o.distance.is_finite()||o.distance<0.||o.phase>2||
+            !o.entry.is_finite()||o.entry<o.birth||o.entry>t{
+            return Err(bad("owner mass/birth/phase invariant"))
+        }
+        if o.phase==2{if o.done.is_none_or(|x|!x.is_finite()||x<o.birth||x>t)||o.cross!=0.{return Err(bad("bad completed owner"))}continue}
+        if o.done.is_some(){return Err(bad("active owner marked complete"))}
+        if let Some(r)=&o.route{
+            if r.graph_id!=g.id||!legal(&r.links,g.installed)||r.position>=r.links.len(){return Err(bad("illegal active commitment"))}
+            let i=idx(&r.links[r.position])?;
+            if o.phase==0&&(r.position!=0||o.distance!=0.)||
+                o.phase==1&&(o.distance>L[i]||o.cross>0.&&o.distance<L[i]){return Err(bad("bad position or premature crossing"))}
+        }else if o.phase!=0||o.cross!=0.{return Err(bad("unassigned physical owner"))}
+    }
+    for (i,x) in stock(owners)?.iter().enumerate(){if !x.is_finite()||*x<0.||*x>storage(i)+1e-8||!g.installed[i]&&*x!=0.{return Err(bad("storage support"))}}
+    Ok(())
+}
+fn physical_step(g:&Graph,owners:&mut Vec<Owner>,p:&mut Physical,t:f64)->CoreResult<()>{
+    check(g,owners,t)?;
+    let before=stock(owners)?;
+    let mut send=[0.;E];let mut recv=[0.;E];let mut metres=[0.;E];
+    for i in 0..E{
+        if g.installed[i]{
+            send[i]=CAP[i];if !no_entry(i,t){recv[i]=CAP[i];metres[i]=(storage(i)-before[i]).max(0.)*5./L[i];}
+        }
+    }
+    let s0=send;let r0=recv;let m0=metres;
+    let mut next=owners.clone();let mut staged=p.clone();
+    staged.stock_integral+=owners.iter().filter(|o|o.phase!=2).count() as f64;
+    let mut ready=vec![];
+    for (k,o) in next.iter_mut().enumerate(){
+        if o.phase!=1{continue}
+        let r=o.route.as_ref().unwrap();let i=idx(&r.links[r.position])?;
+        let (m,dx)=react_with_distance(o.moment,Rates{alpha:0.2,nu:0.3*(before[i]/storage(i)).powi(2),tau:2.,target:1.},1.).map_err(CoreError::value)?;
+        o.moment=m;o.distance=(o.distance+U*dx).min(L[i]);
+        ready.push((i,o.entry,o.id,k));
+    }
+    ready.sort_by(|a,b|a.0.cmp(&b.0).then(a.1.total_cmp(&b.1)).then(a.2.cmp(&b.2)));
+    let mut blocked=[false;E];let mut nready=0;
+    for (i,_,_,k) in ready{
+        let o=&mut next[k];if o.distance<L[i]{blocked[i]=true;continue}
+        nready+=1;
+        if blocked[i]{staged.blocked_steps+=1;continue}
+        let r=o.route.as_mut().unwrap();let dst=r.links.get(r.position+1).map(|x|idx(x)).transpose()?;
+        let z=crate::v1_akm_interface::increment(1.,o.cross,send[i],dst.map_or(f64::INFINITY,|j|recv[j]),dst.map_or(f64::INFINITY,|j|metres[j]),ELL)?;
+        send[i]=(send[i]-z.amount).max(0.);
+        if let Some(j)=dst{recv[j]=(recv[j]-z.amount).max(0.);metres[j]=(metres[j]-ELL*z.amount).max(0.);}
+        staged.boundary_mass+=z.amount;
+        if z.done{
+            staged.passages.push(Passage{owner:o.id,link:i,entered:o.entry,exited:t+1.});
+            o.cross=0.;o.distance=0.;
+            if dst.is_some(){r.position+=1;o.entry=t+1.;}
+            else{o.phase=2;o.done=Some(t+1.);}
+        }else{
+            o.cross=z.progress;blocked[i]=true;staged.blocked_steps+=1;
+            if z.amount>0.{staged.partial_steps+=1;}
+        }
+    }
+    staged.peak_ready=staged.peak_ready.max(nready);
+    // Source queue by stable owner id; no route means explicitly pending.
+    for o in next.iter_mut().filter(|o|o.phase==0){
+        let Some(r)=&o.route else{continue};let i=idx(&r.links[0])?;
+        let z=crate::v1_akm_interface::increment(1.,o.cross,f64::INFINITY,recv[i],metres[i],ELL)?;
+        recv[i]=(recv[i]-z.amount).max(0.);metres[i]=(metres[i]-ELL*z.amount).max(0.);
+        staged.boundary_mass+=z.amount;
+        if z.done{o.phase=1;o.cross=0.;o.entry=t+1.;}
+        else{o.cross=z.progress;if z.amount>0.{staged.partial_steps+=1;}break}
+    }
+    for i in 0..E{
+        for (old,new,peak) in [(s0[i],send[i],&mut staged.peak_send),(r0[i],recv[i],&mut staged.peak_receive),(m0[i],metres[i],&mut staged.peak_metre)]{
+            if new<0.||new>old+1e-12{return Err(bad("step quota"))}
+            if old>0.{*peak=peak.max((old-new)/old);}
+        }
+    }
+    check(g,&next,t+1.)?;
+    for (a,b) in owners.iter().zip(&next){
+        if a.id!=b.id||a.birth!=b.birth||a.route.as_ref().map(|r|&r.links)!=b.route.as_ref().map(|r|&r.links){return Err(bad("physical owner rewrite"))}
+    }
+    for (i,x) in stock(&next)?.iter().enumerate(){staged.peak_storage=staged.peak_storage.max(x/storage(i));}
+    *owners=next;*p=staged;Ok(())
+}
+#[cfg(test)]
+mod physical_tests{
+    use super::*;
+    #[test]fn reserved_carrier_finite_travel_and_one_owner(){
+        let g=Graph::new().unwrap();let mut o=vec![initial_owner(0,0.)];o[0].route=Some(route(&g,&[0,1,2,6]));
+        let mut p=Physical::default();
+        for t in 0..200{physical_step(&g,&mut o,&mut p,t as f64).unwrap();}
+        assert_eq!(o[0].phase,2);assert_eq!(p.passages.len(),4);
+        for x in &p.passages{assert!(x.exited-x.entered>=L[x.link]/U);}
+        assert!(p.partial_steps>0);assert!(p.peak_storage<=1.+1e-10);
+        assert_eq!(o[0].moment.birth,0.);assert_eq!(o[0].id,0);
+    }
+    #[test]fn closed_receiver_does_not_delete_committed_owner(){
+        let g=Graph::new().unwrap();let mut o=vec![initial_owner(0,0.)];o[0].route=Some(route(&g,&[0,1,2,6]));
+        o[0].phase=1;o[0].entry=350.;o[0].distance=L[0];let mut p=Physical::default();
+        physical_step(&g,&mut o,&mut p,360.).unwrap();
+        assert_eq!(o[0].phase,1);assert_eq!(o[0].cross,0.);assert_eq!(o[0].route.as_ref().unwrap().position,0);
+        assert_eq!(p.passages.len(),0);assert_eq!(stock(&o).unwrap()[0],ELL);
+    }
+}
