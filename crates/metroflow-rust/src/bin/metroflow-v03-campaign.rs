@@ -148,6 +148,12 @@ fn recovered_matches(run:&Value,recovered:&Value,hash:&str,ck_hash:&str,bin_hash
         && recovered["address_space_limit_bytes"].as_u64().is_some_and(|x|x<=8*1024u64.pow(3))
         && recovered["peak_rss_bytes"].as_u64().is_some_and(|x|x<=8*1024u64.pow(3))
         && ["time_s","native_identity","city_identity","schedule_identity","ledger","road_totals","road_class_ledgers","calendar_totals","byte_budget"].iter().all(|k|!run[*k].is_null()&&run[*k]==recovered[*k])
+        && (if run.get("canonical_logical_sha256").is_some()||recovered.get("canonical_logical_sha256").is_some(){
+            run["canonical_logical_sha256"].as_str().is_some_and(|h|h.len()==64&&h.bytes().all(|b|b.is_ascii_hexdigit()))
+                &&run["canonical_logical_sha256"]==recovered["canonical_logical_sha256"]
+                &&run["canonical_logical_bytes"].as_u64().is_some_and(|n|n>0)
+                &&run["canonical_logical_bytes"]==recovered["canonical_logical_bytes"]
+        }else{true})
 }
 fn valid_refinement(r: &Value) -> bool {
     if r["time_s"].as_f64() != Some(28800.) {
@@ -180,6 +186,12 @@ mod tests {
         assert!(recovered_matches(&run,&rec,"m","c","b"));
         rec["time_s"]=json!(50.);assert!(!recovered_matches(&run,&rec,"m","c","b"));
         rec["time_s"]=json!(60.);rec["ledger"]["persons"]["active"]=json!(2.);assert!(!recovered_matches(&run,&rec,"m","c","b"));
+        rec["ledger"]=run["ledger"].clone();let mut run=run;
+        run["canonical_logical_sha256"]=json!("a".repeat(64));run["canonical_logical_bytes"]=json!(1000u64);
+        assert!(!recovered_matches(&run,&rec,"m","c","b"));
+        rec["canonical_logical_sha256"]=run["canonical_logical_sha256"].clone();rec["canonical_logical_bytes"]=json!(1000u64);
+        assert!(recovered_matches(&run,&rec,"m","c","b"));
+        rec["canonical_logical_sha256"]=json!("b".repeat(64));assert!(!recovered_matches(&run,&rec,"m","c","b"));
     }
     #[test]
     fn missing_refinement_rows_cannot_be_counted() {

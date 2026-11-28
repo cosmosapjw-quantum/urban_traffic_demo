@@ -326,3 +326,20 @@ pub(super) fn adaptive_probe()->CoreResult<[usize;2]>{
     let l=adapt_grid(grid(2,&|i|late[i],4,4.)?,2,&|i|late[i],4.,500)?;
     Ok([e.n,l.n])
 }
+
+#[cfg(feature="native-cli")]
+pub struct RankScatterProbe{scatter:RankScatter,order:Vec<(u64,u32)>,rows:Vec<Part>}
+#[cfg(feature="native-cli")]
+impl RankScatterProbe{
+    pub fn new()->CoreResult<Self>{
+        let mut rows=checkpoint_vec(1024)?;
+        let a=PackedTime::new(Some(0.))?;let b=PackedTime::new(Some(1.))?;
+        for i in 0..1024{rows.push(Part{tag:(i*13)%17,offset:1,mass:(i+1)as f64,birth:0.,a,b})}
+        Ok(Self{scatter:RankScatter::new(17)?,order:checkpoint_vec(1024)?,rows})
+    }
+    pub fn run(&mut self)->CoreResult<[u64;2]>{
+        let rows=&self.rows;
+        if !sorted_ordinals(rows.len(),&|i|rows[i],&mut self.order,Some(&mut self.scatter))?{return Err(val("rank scatter probe fallback"))}
+        Ok([self.order.len() as u64,self.order.iter().map(|x|x.1 as u64).sum()])
+    }
+}

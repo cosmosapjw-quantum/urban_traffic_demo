@@ -85,6 +85,11 @@ mod probe {
         for _ in 0..nd{adaptive=black_box(_metroflow_rust::allocation_probe_adaptive_rank().unwrap());}
         let(aa,ar,aw)=finish(t);assert_eq!(adaptive,[2,1]);assert_eq!((aa,ar),(0,0));
         println!("{}",json!({"kernel":"adaptive_causal_rank_partition","iterations":nd,"allocation_calls":aa,"reallocation_calls":ar,"wall_s":aw,"answer":adaptive,"scope":"actual grid, positive histogram, minimal-bin DP; no output packet or ordinal allocation included"}));
+        let mut scatter=_metroflow_rust::RankScatterProbe::new().unwrap();
+        let t=start();let mut sc=[0u64;2];
+        for _ in 0..nd/10{sc=black_box(scatter.run().unwrap());}
+        let(sa,sr,sw)=finish(t);assert_eq!(sc,[1024,523776]);assert_eq!((sa,sr),(0,0));
+        println!("{}",json!({"kernel":"warmed_stable_rank_scatter","iterations":nd/10,"allocation_calls":sa,"reallocation_calls":sr,"wall_s":sw,"answer":sc,"scope":"actual stable tag scatter over 1024 rows/17 tags, initialized ordinal/tag workspace; output packet allocation excluded"}));
         let t=start();let mut reuse=[0usize;2];
         for _ in 0..nd{reuse=black_box(_metroflow_rust::allocation_probe_direct_code_reuse().unwrap());}
         let(ra,rr,rw)=finish(t);assert_eq!(reuse,[224,32]);assert_eq!((ra,rr),(0,0));

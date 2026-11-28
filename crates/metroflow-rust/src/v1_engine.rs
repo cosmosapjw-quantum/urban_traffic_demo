@@ -2707,6 +2707,12 @@ pub fn run_native_declaration_with_plan(
     result["initial_checkpoint_method"]=json!(initial_checkpoint_method);
     result["wire_writer"]=json!(if native_checkpoint_magic()==b"MFWHOLE4"{"compact_v4_dictionary_events"}else if native_checkpoint_magic()==b"MFWHOLE3"{"compact_v3_events"}else if crate::v1_road::compact_checkpoint_enabled(){"compact_v2"}else if std::env::var_os("METROFLOW_NATIVE_SCALAR_WIRE").is_some(){"scalar"}else{"batched_stack"});
     result["checkpoint_writer"]=json!(if std::env::var("METROFLOW_NATIVE_LEGACY_SAVE").as_deref()==Ok("1"){"legacy_restore"}else{"immutable_snapshot"});
+    if std::env::var("METROFLOW_NATIVE_SEMANTIC_DIGEST").as_deref()==Ok("1"){
+        let t=Instant::now();let(h,n)=canonical_state_digest(&engine,&state)?;
+        result["canonical_logical_sha256"]=json!(h);result["canonical_logical_bytes"]=json!(n);
+        result["canonical_logical_digest_scope"]=json!("expanded MFWHOLE1 full state stream, including ordered road rows, event and journey owners, identity; not file byte identity");
+        result["canonical_logical_digest_wall_s"]=json!(t.elapsed().as_secs_f64());
+    }
     if let Ok(cursor)=std::env::var("METROFLOW_NATIVE_COMPLETED_SINCE_S"){
         let since:f64=cursor.parse().map_err(|_|bad("invalid completed observation cursor"))?;
         let t=Instant::now();result["completed_observations"]=completed_route_observations_native(&engine,&state,since,20000)?;

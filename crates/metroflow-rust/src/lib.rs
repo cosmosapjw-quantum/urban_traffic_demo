@@ -1363,7 +1363,7 @@ pub mod marked_fifo;
 #[cfg(feature="native-cli")]
 pub use v1_road::PackedRankProbe;
 #[cfg(feature="native-cli")]
-pub use v1_road::{allocation_probe_rank_moments,allocation_probe_adaptive_rank};
+pub use v1_road::{allocation_probe_rank_moments,allocation_probe_adaptive_rank,RankScatterProbe};
 #[cfg(feature="native-cli")]
 pub use v1_engine::compare_native_rank_states;
 #[cfg(feature="native-cli")]
