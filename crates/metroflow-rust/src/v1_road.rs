@@ -1956,6 +1956,7 @@ pub struct V1Road {
     intervals: bool,
     research_interval_bins:Option<usize>,
     research_rank_bins:Option<usize>,
+    research_rank_adaptive_milli:Option<u64>,
     research_ready_mass_milli:Option<u64>,
     state: RoadState,
 }
@@ -3668,6 +3669,12 @@ impl V1Road {
         self.research_rank_bins=Some(bins);Ok(())
     }
     #[cfg(feature="native-cli")]
+    pub(crate) fn set_research_adaptive_rank(&mut self,bins:usize,milli:u64)->CoreResult<()>{
+        if !(1..=1000).contains(&milli)||!(1..=16).contains(&bins)||milli.saturating_mul(bins as u64)<1000{return Err(val("adaptive rank fine grid/tolerance outside domain"))}
+        self.set_research_rank_bins(bins)?;
+        self.research_rank_adaptive_milli=Some(milli);Ok(())
+    }
+    #[cfg(feature="native-cli")]
     pub(crate) fn set_research_ready_mass(&mut self,milli:u64)->CoreResult<()>{
         if self.research_rank_bins.is_none()||!(1..=10000).contains(&milli){return Err(val("ready rank mass outside domain or missing rank closure"))}
         self.research_ready_mass_milli=Some(milli);Ok(())
@@ -5375,7 +5382,7 @@ impl V1Road {
                 let source=std::mem::take(&mut timed_rows[i]);
                 let get=|index|source.get_with_events(index,&timed_controls,&events).0;
                 let parts=if let Some(bins)=self.research_rank_bins {
-                    projected=Some(v1_rank_projection::project_with(source.len(),get,target,bins,None,dt,self.record_budget,local_peak,&mut work,&mut rank_workspace)?);
+                    projected=Some(v1_rank_projection::project_with(source.len(),get,target,bins,self.research_rank_adaptive_milli,dt,self.record_budget,local_peak,&mut work,&mut rank_workspace)?);
                     Vec::new()
                 }else if local_consumer {
                     combine_compact_indexed_parts(source.len(),get,|index_bytes,groups|{
@@ -5389,7 +5396,7 @@ impl V1Road {
             } else {
                 let source=std::mem::take(&mut incoming[i]);
                 let parts=if let Some(bins)=self.research_rank_bins{
-                    projected=Some(v1_rank_projection::project_with(source.len(),|index|source.get(index),target,bins,None,dt,self.record_budget,local_peak,&mut work,&mut rank_workspace)?);
+                    projected=Some(v1_rank_projection::project_with(source.len(),|index|source.get(index),target,bins,self.research_rank_adaptive_milli,dt,self.record_budget,local_peak,&mut work,&mut rank_workspace)?);
                     Vec::new()
                 }else{combine_chunked_parts(&source)?};
                 let expired_marks=std::mem::take(&mut marks[i]);
@@ -6005,6 +6012,7 @@ impl V1Road {
             intervals,
             research_interval_bins:None,
             research_rank_bins:None,
+            research_rank_adaptive_milli:None,
             research_ready_mass_milli:None,
             state: RoadState {
                 t: 0.,

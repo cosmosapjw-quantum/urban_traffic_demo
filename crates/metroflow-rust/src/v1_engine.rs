@@ -2364,6 +2364,10 @@ fn build_native_input(manifest:serde_json::Value,threads:usize)->CoreResult<(Nat
     if let Some(v)=manifest.get("research_egress_buckets"){if v.as_bool()!=Some(true){return Err(bad("egress bucket field must be true"))}enable_egress_buckets(&mut engine)?;}
     if let Some(v)=manifest.get("research_entry_buckets"){if v.as_bool()!=Some(true){return Err(bad("entry bucket field must be true"))}enable_entry_buckets(&mut engine)?;}
     if let Some(v)=manifest.get("research_delay_calendar"){if v.as_bool()!=Some(true){return Err(bad("delay calendar field must be true"))}enable_delay_calendar(&mut engine)?;}
+    if let Some(v)=manifest.get("research_rank_adaptive"){
+        let (bins,milli)=adaptive_rank_parameters(v)?;
+        enable_adaptive_rank(&mut engine,bins,milli)?;
+    }
 
 
 
@@ -2383,6 +2387,20 @@ fn enable_research_bins(engine:&mut NativeWholeEngine,bins:usize)->CoreResult<()
 fn enable_research_rank(engine:&mut NativeWholeEngine,bins:usize)->CoreResult<()>{
     engine.road.set_research_rank_bins(bins)?;
     engine.identity.push_str(&format!(":causal-rank-v1:{bins}"));
+    Ok(())
+}
+#[cfg(feature="native-cli")]
+fn adaptive_rank_parameters(v:&serde_json::Value)->CoreResult<(usize,u64)>{
+    let a=v.as_array().filter(|a|a.len()==2).ok_or_else(||bad("adaptive rank requires [max_bins,delay_permille]"))?;
+    let bins=a[0].as_u64().and_then(|x|usize::try_from(x).ok()).ok_or_else(||bad("adaptive max bins"))?;
+    let milli=a[1].as_u64().ok_or_else(||bad("adaptive delay permille"))?;
+    if !(1..=16).contains(&bins)||!(1..=1000).contains(&milli)||milli.saturating_mul(bins as u64)<1000{return Err(bad("adaptive rank fine grid cannot cover declared tolerance"))}
+    Ok((bins,milli))
+}
+#[cfg(feature="native-cli")]
+fn enable_adaptive_rank(engine:&mut NativeWholeEngine,bins:usize,milli:u64)->CoreResult<()>{
+    engine.road.set_research_adaptive_rank(bins,milli)?;
+    engine.identity.push_str(&format!(":causal-adaptive-rank-v1:{bins}:{milli}"));
     Ok(())
 }
 #[cfg(feature="native-cli")]
@@ -2418,6 +2436,19 @@ fn enable_delay_calendar(engine:&mut NativeWholeEngine)->CoreResult<()>{engine.j
 pub fn migrate_native_time_bins(source:serde_json::Value,target:serde_json::Value,threads:usize,input:&str,checkpoint:&str)->CoreResult<serde_json::Value>{
     use serde_json::json;
     let mut comparison=target.clone();
+    if source.get("research_rank_adaptive").is_none()&&comparison.get("research_rank_adaptive").is_some(){
+        let field=comparison.as_object_mut().and_then(|o|o.remove("research_rank_adaptive")).ok_or_else(||bad("adaptive migration field missing"))?;
+        if comparison!=source{return Err(bad("adaptive migration declaration differs"))}
+        let (bins,milli)=adaptive_rank_parameters(&field)?;
+        let (mut engine,_,_)=build_native_input(source,threads)?;
+        let state=engine.load(input.to_owned())?;let source_identity=engine.identity.clone();let ledger=ledger_json(&engine,&state)?;
+        if state.time_s()%engine.step!=0.{return Err(bad("adaptive migration clock differs"))}
+        enable_adaptive_rank(&mut engine,bins,milli)?;
+        let next=NativeWholeState{identity:engine.identity.clone(),value:state.value};
+        engine.validate_bundle(&next.value)?;if ledger_json(&engine,&next)?!=ledger{return Err(bad("adaptive migration ledger differs"))}
+        save_atomic_native(&mut engine,checkpoint,&next)?;
+        return Ok(json!({"schema":"metroflow_adaptive_rank_migration_v1","status":"EXECUTED_FOR_REVIEW","scope":"same initial owners; future causal transport delay-constrained rank remap; not original V03 acceptance","time_s":next.time_s(),"native_identity":engine.identity,"source_native_identity":source_identity,"research_rank_adaptive":field,"ledger":ledger["ledger"]}))
+    }
     if source.get("research_delay_calendar").is_none()&&comparison.get("research_delay_calendar").is_some(){
         if comparison.as_object_mut().and_then(|o|o.remove("research_delay_calendar")).and_then(|v|v.as_bool())!=Some(true)||comparison!=source{return Err(bad("delay calendar migration declaration differs"))}
         let(mut engine,_,_)=build_native_input(source,threads)?;
@@ -2632,7 +2663,7 @@ pub fn run_native_declaration_with_plan(
     }
     let (totals,classes)=state.value.road.summary();
     let tick_times=ticks;let peak_records=peak;
-    let mut result=json!({"schema":"metroflow_native_rust_host_v1","scope":if engine.identity.contains(":causal-rank-v1:"){"research causal-rank closure on typed declaration; not original V03 acceptance"}else if engine.identity.contains(":marked-time-bin-v1:"){"research time-bin closure on typed declaration; not original V03 acceptance"}else{"original native engine from typed declared input; not original city construction or V03 acceptance"},
+    let mut result=json!({"schema":"metroflow_native_rust_host_v1","scope":if engine.identity.contains(":causal-adaptive-rank-v1:"){"research adaptive causal rank closure; not original V03 acceptance"}else if engine.identity.contains(":causal-rank-v1:"){"research causal-rank closure on typed declaration; not original V03 acceptance"}else if engine.identity.contains(":marked-time-bin-v1:"){"research time-bin closure on typed declaration; not original V03 acceptance"}else{"original native engine from typed declared input; not original city construction or V03 acceptance"},
         "city_identity":engine.city,"schedule_identity":engine.schedule,"native_identity":engine.identity,
         "start_s":begin,"time_s":state.time_s(),"calendar_legs":calendar_legs,"threads":threads,"byte_budget":budget,
         "build_s":build_s,"advance_s":advance_s,"ledger":ledger,"road_totals":totals,"road_class_ledgers":classes,
@@ -2997,6 +3028,22 @@ mod canonical_variant_fixture_tests{
         for p in ["full.bin","cut.bin","replay.bin"]{std::fs::remove_file(dir.join(p)).unwrap();}
         std::fs::remove_dir(dir).unwrap();
     }
+    #[test]fn adaptive_rank_migration_preserves_initial_owners_and_replays(){
+        let source=manifest();let mut target=source.clone();target["research_rank_adaptive"]=json!([4,500]);
+        let (mut e,_,_)=build_native_input(source.clone(),1).unwrap();
+        let state=e.advance_owned(&e.initial(),49.).unwrap();let before=ledger_json(&e,&state).unwrap();
+        let dir=std::env::temp_dir().join(format!("metroflow-adaptive-migrate-{}",std::process::id()));std::fs::create_dir(&dir).unwrap();
+        let a=dir.join("source.bin");let b=dir.join("migrated.bin");
+        save_atomic_native(&mut e,a.to_str().unwrap(),&state).unwrap();
+        let receipt=migrate_native_time_bins(source.clone(),target.clone(),1,a.to_str().unwrap(),b.to_str().unwrap()).unwrap();
+        assert_eq!(receipt["ledger"],before["ledger"]);assert_eq!(receipt["time_s"],49.);
+        let(mut model,_,_)=build_native_input(target.clone(),1).unwrap();let restored=model.load(b.to_str().unwrap().into()).unwrap();
+        assert_eq!(receipt["native_identity"],model.identity);assert_eq!(ledger_json(&model,&restored).unwrap(),before);
+        let x=model.advance_owned(&restored,60.).unwrap();let y=model.advance_owned(&restored,60.).unwrap();
+        assert_eq!(ledger_json(&model,&x).unwrap(),ledger_json(&model,&y).unwrap());
+        target["research_rank_adaptive"]=json!([2,100]);assert!(build_native_input(target,1).is_err());
+        std::fs::remove_file(a).unwrap();std::fs::remove_file(b).unwrap();std::fs::remove_dir(dir).unwrap();
+    }
     #[test]fn native_graph_deletion_reviews_real_commitments_without_mutation(){
         let m=manifest();
         let links:Vec<String>=serde_json::from_value(m["static"]["link_ids"].clone()).unwrap();
@@ -3046,7 +3093,7 @@ pub fn compare_native_rank_states(left:serde_json::Value,right:serde_json::Value
     use serde_json::json;
     use sha2::{Digest,Sha256};
     fn physical(mut m:serde_json::Value)->serde_json::Value{
-        if let Some(o)=m.as_object_mut(){for k in ["research_rank_bins","research_interval_bins","research_ready_mass_milli","research_receipt_period_s","research_group_outlets","research_receipt_grid","research_schedule_receipts","research_stream_receipts","research_egress_buckets","research_entry_buckets","research_delay_calendar"]{o.remove(k);}}
+        if let Some(o)=m.as_object_mut(){for k in ["research_rank_adaptive","research_rank_bins","research_interval_bins","research_ready_mass_milli","research_receipt_period_s","research_group_outlets","research_receipt_grid","research_schedule_receipts","research_stream_receipts","research_egress_buckets","research_entry_buckets","research_delay_calendar"]{o.remove(k);}}
         m
     }
     if physical(left.clone())!=physical(right.clone()){return Err(bad("rank audit physical declarations differ"))}
