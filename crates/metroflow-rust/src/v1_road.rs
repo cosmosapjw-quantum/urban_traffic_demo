@@ -1788,6 +1788,7 @@ impl RoadState {
         // every packet's independent mass/birth backing and all metadata.
         let mut seen_keys=HashSet::<usize>::new();
         for queue in self.cells.iter().map(|cell| &cell.packets).chain(&self.pending) {
+            let mut previous_codes:Option<&Arc<Vec<u8>>>=None;
             out.packet_capacity += queue.capacity();
             for packet in queue {
                 out.part_capacity += packet.parts.capacity();
@@ -1802,7 +1803,9 @@ impl RoadState {
                         }
                     },
                     PacketParts::DictionaryKeys{keys,moments,..}=>{
-                        out.vector_capacity_bytes+=moments.bytes();
+                        let shared=previous_codes.is_some_and(|c|Arc::ptr_eq(c,&moments.codes));
+                        out.vector_capacity_bytes+=moments.bytes().saturating_sub(if shared{moments.codes.capacity()}else{0});
+                        previous_codes=Some(&moments.codes);
                         if seen_keys.insert(Arc::as_ptr(keys) as usize){
                             out.vector_capacity_bytes+=keys.capacity().saturating_mul(8).saturating_add(96);
                         }
@@ -3054,11 +3057,11 @@ fn ordered_interval_packet<I: Iterator<Item=usize>>(
     previous:Option<&Arc<Vec<(u32,u32)>>>,
     before_allocate:impl FnMut(usize)->CoreResult<()>,
 )->CoreResult<(Option<PacketParts>,usize)> {
-    ordered_interval_packet_impl(parts,selected,a,b,previous,false,moment_dictionary_enabled(),before_allocate)
+    ordered_interval_packet_impl(parts,selected,a,b,previous,None,false,moment_dictionary_enabled(),before_allocate)
 }
 fn ordered_interval_packet_impl<I: Iterator<Item=usize>>(
     parts:&[Part], selected:impl Fn()->I, a:f64,b:f64,
-    previous:Option<&Arc<Vec<(u32,u32)>>>,clip:bool,direct_dict:bool,
+    previous:Option<&Arc<Vec<(u32,u32)>>>,previous_codes:Option<&Arc<Vec<u8>>>,clip:bool,direct_dict:bool,
     mut before_allocate:impl FnMut(usize)->CoreResult<()>,
 )->CoreResult<(Option<PacketParts>,usize)> {
     let width=b-a;
@@ -3111,20 +3114,37 @@ fn ordered_interval_packet_impl<I: Iterator<Item=usize>>(
         // The stack dictionary plan lives beside the original expansions.
         before_allocate(128*1024)?;
         let mut plan=v1_moment_dict::MomentDictPlan::new();
-        let mut valid=true;
-        reduce(&mut |_,m,b|{if valid{valid=plan.add((m,b));}Ok(())})?;
+        let mut valid=true;let mut code_index=0usize;
+        let mut share_codes=previous_codes.is_some_and(|v|v.len()==groups&&v.capacity()==groups);
+        reduce(&mut |_,m,b|{
+            if valid{
+                valid=plan.add((m,b));
+                if share_codes{
+                    share_codes=valid&&previous_codes.and_then(|v|v.get(code_index)).copied()==plan.lookup((m,b));
+                }
+            }
+            code_index+=1;Ok(())
+        })?;
+        if code_index!=groups{return Err(arithmetic("direct interval plan row census differs"))}
         if valid&&plan.worthwhile(){
-            let dict_bytes=plan.bytes();
+            let dict_bytes=plan.bytes().saturating_sub(if share_codes{groups}else{0});
             let charge=dict_bytes.saturating_add(if share{0}else{groups.saturating_mul(8).saturating_add(96)});
             before_allocate(charge.saturating_add(128*1024))?;
-            let mut codes=checkpoint_vec(groups)?;
+            let mut codes=checkpoint_vec(if share_codes{0}else{groups})?;
             let mut keys=checkpoint_vec(if share{0}else{groups})?;
-            if codes.capacity()!=groups||keys.capacity()!=if share{0}else{groups}{return Err(budget("direct interval dictionary capacity differs"))}
-            reduce(&mut |k,m,b|{
-                let code=plan.lookup((m,b)).ok_or_else(||arithmetic("direct dictionary second reduction differs"))?;
-                codes.push(code);if !share{keys.push(k);}Ok(())
-            })?;
-            let dict=plan.finish_codes(codes)?;
+            if codes.capacity()!=if share_codes{0}else{groups}||keys.capacity()!=if share{0}else{groups}{return Err(budget("direct interval dictionary capacity differs"))}
+            // When both ordinal streams match there is no output scan.
+            // The plan already contains every exact reduced pair.
+            if !share_codes||!share{
+                reduce(&mut |k,m,b|{
+                    let code=plan.lookup((m,b)).ok_or_else(||arithmetic("direct dictionary second reduction differs"))?;
+                    if !share_codes{codes.push(code);}if !share{keys.push(k);}Ok(())
+                })?;
+            }
+            let dict=if share_codes{
+                crate::v1_trace::add("moment_dict.direct_interval_shared_code_rows",groups as u64);
+                plan.finish_arc_codes(previous_codes.unwrap().clone())?
+            }else{plan.finish_codes(codes)?};
             let keys=if share{previous.unwrap().clone()}else{Arc::new(keys)};
             if share{crate::v1_trace::add("split.shared_adjacent_key_rows",groups as u64);}
             let result=PacketParts::DictionaryKeys{a:PackedTime::new(Some(a))?,b:PackedTime::new(Some(b))?,keys,moments:Arc::new(dict)};
@@ -3191,7 +3211,8 @@ fn project_time_bins(parts:&[Part],target:f64,bins:usize,dt:f64,record_budget:us
         max_width=max_width.max(b-a);
         let selected=|| (0..parts.len()).filter(|&i|{let p=parts[i];p.a.unwrap()<p.b.unwrap()&&p.b.unwrap()>a&&p.a.unwrap()<b});
         let prev=last_shared.and_then(|i|match &out[i].parts{PacketParts::SharedKeys{keys,..}|PacketParts::DictionaryKeys{keys,..}=>Some(keys),_=>None});
-        let (packet,bytes)=ordered_interval_packet_impl(parts,selected,a,b,prev,true,moment_dictionary_enabled(),|n|work.interval(shell.saturating_add(n)))?;
+        let prev_codes=last_shared.and_then(|i|match &out[i].parts{PacketParts::DictionaryKeys{moments,..}=>Some(&moments.codes),_=>None});
+        let (packet,bytes)=ordered_interval_packet_impl(parts,selected,a,b,prev,prev_codes,true,moment_dictionary_enabled(),|n|work.interval(shell.saturating_add(n)))?;
         if let Some(parts)=packet{
             records=records.checked_add(parts.len()).ok_or_else(||budget("projection record overflow"))?;
             if records>record_budget{return Err(budget("projected interval record budget"))}
@@ -4285,7 +4306,10 @@ impl V1Road {
                         PacketParts::SharedKeys{keys,..}|PacketParts::DictionaryKeys{keys,..}=>Some(keys),_=>None,
                     });
                     let base=transient(0,out.len(),false);
-                    let (packed,charge)=ordered_interval_packet(&parts,||sweep.active.iter(),a,b,prev,
+                    let prev_codes=last_shared.and_then(|index|match &out[index].parts{
+                        PacketParts::DictionaryKeys{moments,..}=>Some(&moments.codes),_=>None,
+                    });
+                    let (packed,charge)=ordered_interval_packet_impl(&parts,||sweep.active.iter(),a,b,prev,prev_codes,false,moment_dictionary_enabled(),
                         |bytes|work.interval(base.saturating_add(bytes)))?;
                     if let Some(parts)=packed {
                         records+=parts.len();
@@ -8871,16 +8895,23 @@ mod ordered_stream_interval_tests {
         let a=PackedTime::new(Some(0.)).unwrap();let b=PackedTime::new(Some(4.)).unwrap();
         let parts:Vec<_>=(0..1024).map(|i|Part{tag:i,offset:0,mass:if i%2==0{0.25}else{0.5},birth:if i%2==0{0.125}else{0.75},a,b}).collect();
         let selected=||0..parts.len();
-        let (p,charge)=ordered_interval_packet_impl(&parts,selected,1.,3.,None,false,true,|bytes|{
+        let (p,charge)=ordered_interval_packet_impl(&parts,selected,1.,3.,None,None,false,true,|bytes|{
             if bytes>128*1024+11000{Err(budget("dense receiving allocation forbidden"))}else{Ok(())}
         }).unwrap();
         let p=p.unwrap();assert!(matches!(p,PacketParts::DictionaryKeys{..}));assert!(charge<11000);
         let old=combine_interval_core(&parts,selected(),parts.len(),1.,3.).unwrap();
         assert_eq!(p.iter().map(|x|(x.tag,x.offset,x.mass.to_bits(),x.birth.to_bits())).collect::<Vec<_>>(),old.iter().map(|x|(x.tag as usize,x.offset as usize,x.mass.to_bits(),x.birth.to_bits())).collect::<Vec<_>>());
         let keys=match &p{PacketParts::DictionaryKeys{keys,..}=>keys,_=>unreachable!()};
-        let(q,other)=ordered_interval_packet_impl(&parts,selected,0.,1.,Some(keys),false,true,|_|Ok(())).unwrap();
+        let(q,other)=ordered_interval_packet_impl(&parts,selected,0.,1.,Some(keys),None,false,true,|_|Ok(())).unwrap();
         let q=q.unwrap();assert_eq!(charge-other,1024*8+96);
         match q{PacketParts::DictionaryKeys{keys:k,..}=>assert!(Arc::ptr_eq(keys,&k)),_=>panic!("dictionary key reuse")}
+        let codes=match &p{PacketParts::DictionaryKeys{moments,..}=>&moments.codes,_=>unreachable!()};
+        let(r,reused)=ordered_interval_packet_impl(&parts,selected,0.,1.,Some(keys),Some(codes),false,true,|_|Ok(())).unwrap();
+        assert_eq!(other-reused,1024);
+        match r.unwrap(){PacketParts::DictionaryKeys{keys:k,moments,..}=>{
+            assert!(Arc::ptr_eq(keys,&k));assert!(Arc::ptr_eq(codes,&moments.codes));
+            assert_eq!(moments.values[0],(0.0625,0.03125));
+        },_=>panic!("dictionary code reuse")}
     }
     #[test]
     fn repeated_ordered_keys_reuse_only_keys_and_match_legacy_bits() {
@@ -9132,6 +9163,7 @@ impl V1Road{
         work.reserve(n.saturating_mul(std::mem::size_of::<Packet>()+32),n.saturating_mul(64))?;
         let mut out=compact_checkpoint_vec(n)?;
         let mut previous:Option<Arc<Vec<(u32,u32)>>>=None;
+        let mut previous_codes:Option<Arc<Vec<u8>>>=None;
         let check_key=|tag:usize,offset:usize|->CoreResult<()>{
             let &(p,_)=self.routes.get(tag).ok_or_else(||val("compact wire route tag"))?;
             if offset>=self.paths[p].len(){return Err(val("compact wire route offset"))}Ok(())
@@ -9175,17 +9207,22 @@ impl V1Road{
                     previous=Some(keys.clone());
                     if moment_dictionary_enabled(){
                         if let Some(plan)=v1_moment_dict::plan(&moments){
-                            let bytes=plan.bytes();
+                            let share_codes=previous_codes.as_ref().is_some_and(|c|c.capacity()==m&&plan.matches_codes(&moments,c));
+                            let bytes=plan.bytes().saturating_sub(if share_codes{m}else{0});
                             // Dense temporary and new dictionary coexist; admit
                             // the actual overlap, then remove only dropped Vec.
                             let required=work.decoded.saturating_add(bytes).max(work.retained_input).saturating_mul(3).saturating_add(work.validation);
                             if work.limit.is_none_or(|lim|required<=lim){
                                 work.reserve(bytes,0)?;
-                                let dict=plan.build(&moments)?;
+                                let dict=if share_codes{
+                                    crate::v1_trace::add("moment_dict.decode_shared_code_rows",m as u64);
+                                    plan.finish_arc_codes(previous_codes.as_ref().unwrap().clone())?
+                                }else{plan.build(&moments)?};
+                                previous_codes=Some(dict.codes.clone());
                                 let raw=moments.capacity().saturating_mul(16);
                                 drop(moments);
                                 work.decoded=work.decoded.checked_sub(raw).ok_or_else(||arithmetic("dictionary decode raw credit underflow"))?;
-                                crate::v1_trace::add("moment_dict.decode_saved_bytes",raw.saturating_sub(dict.bytes())as u64);
+                                crate::v1_trace::add("moment_dict.decode_saved_bytes",raw.saturating_sub(bytes)as u64);
                                 crate::v1_trace::add("moment_dict.decode_rows",dict.len()as u64);
                                 PacketParts::DictionaryKeys{a,b,keys,moments:Arc::new(dict)}
                             }else{PacketParts::SharedKeys{a,b,keys,moments:Arc::new(moments)}}
