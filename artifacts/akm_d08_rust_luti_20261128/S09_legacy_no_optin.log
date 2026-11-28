@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/tools/run_v1_foundation.py", line 192, in <module>
+    prepare_inputs()
+  File "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/tools/run_v1_foundation.py", line 36, in prepare_inputs
+    atlas_main(
+  File "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/tools/run_terrain_atlas.py", line 31, in main
+    atlas = generate(style, terrain, size, resolution, seed)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/src/metroflow/terrain_city/network.py", line 303, in generate
+    require_python_oracle()
+  File "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/src/metroflow/oracle_policy.py", line 7, in require_python_oracle
+    raise RuntimeError(
+RuntimeError: Historical Python scientific calculation is an opt-in test oracle only; use the Rust backend. Set METROFLOW_ENABLE_PYTHON_ORACLE=1 for comparison tests.

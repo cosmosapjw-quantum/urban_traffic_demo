@@ -43,8 +43,10 @@ def test_legacy_root_api_remains_available():
     assert isinstance(make_empty_world_state(), WorldState)
 
 
-def test_clean_checkout_can_rebuild_city_inputs_and_replay(tmp_path):
-    env = dict(os.environ, PYTHONPATH=str(ROOT / "src"))
+def test_explicit_legacy_oracle_can_rebuild_city_inputs_and_replay(tmp_path):
+    # This historical fixture exercises the Python reference, not the native
+    # default path. Keep opt-in local to this child process.
+    env = dict(os.environ, PYTHONPATH=str(ROOT / "src"), METROFLOW_ENABLE_PYTHON_ORACLE="1")
     subprocess.run(
         [
             sys.executable,

@@ -1,0 +1,342 @@
+{
+  "status": "D08_VERIFIED_SCOPED_LAGGED_LUTI_AND_NATIVE_ENTRY_NOT_RELEASE",
+  "matrix": [
+    {
+      "arm": "S05_b0_e0",
+      "epochs": [
+        {
+          "epoch": 0,
+          "placed": 150,
+          "pending": 0,
+          "housing": 150,
+          "scheduled": 150,
+          "inactive_placed": 0,
+          "mean_s": 77.24666666666667,
+          "stock_veh_s": 11587.0,
+          "peak_storage": 0.7622222222222222,
+          "reroutes": 0,
+          "final_branches": {
+            "bridge": 82,
+            "long": 68
+          },
+          "access_stamp_s": 1800.0,
+          "city_identity": "D08-one-origin-physical-fixture-v1"
+        },
+        {
+          "epoch": 1,
+          "placed": 150,
+          "pending": 25,
+          "housing": 150,
+          "scheduled": 150,
+          "inactive_placed": 0,
+          "mean_s": 77.24666666666667,
+          "stock_veh_s": 11587.0,
+          "peak_storage": 0.7622222222222222,
+          "reroutes": 0,
+          "final_branches": {
+            "bridge": 82,
+            "long": 68
+          },
+          "access_stamp_s": 5400.0,
+          "city_identity": "fac9665c1f7c062fe33ee0b7f676bcdbf1f7fe4224d1f7a83410fd6fad5f5c0e"
+        },
+        {
+          "epoch": 2,
+          "placed": 150,
+          "pending": 50,
+          "housing": 150,
+          "scheduled": 150,
+          "inactive_placed": 0,
+          "mean_s": 77.24666666666667,
+          "stock_veh_s": 11587.0,
+          "peak_storage": 0.7622222222222222,
+          "reroutes": 0,
+          "final_branches": {
+            "bridge": 82,
+            "long": 68
+          },
+          "access_stamp_s": 9000.0,
+          "city_identity": "7b453514cf5658bbcf14d02c7222c6a2fa6378b28c84490949f5b45c02f77209"
+        }
+      ],
+      "wall_s": 0.267565714,
+      "peak_rss_kib": 6400,
+      "total_vehicle_seconds": 34761.0,
+      "total_scheduled": 450
+    },
+    {
+      "arm": "S05_b0_e1",
+      "epochs": [
+        {
+          "epoch": 0,
+          "placed": 150,
+          "pending": 0,
+          "housing": 150,
+          "scheduled": 150,
+          "inactive_placed": 0,
+          "mean_s": 77.24666666666667,
+          "stock_veh_s": 11587.0,
+          "peak_storage": 0.7622222222222222,
+          "reroutes": 0,
+          "final_branches": {
+            "bridge": 82,
+            "long": 68
+          },
+          "access_stamp_s": 1800.0,
+          "city_identity": "D08-one-origin-physical-fixture-v1"
+        },
+        {
+          "epoch": 1,
+          "placed": 150,
+          "pending": 25,
+          "housing": 150,
+          "scheduled": 150,
+          "inactive_placed": 0,
+          "mean_s": 77.24666666666667,
+          "stock_veh_s": 11587.0,
+          "peak_storage": 0.7622222222222222,
+          "reroutes": 0,
+          "final_branches": {
+            "bridge": 82,
+            "long": 68
+          },
+          "access_stamp_s": 5400.0,
+          "city_identity": "fac9665c1f7c062fe33ee0b7f676bcdbf1f7fe4224d1f7a83410fd6fad5f5c0e"
+        },
+        {
+          "epoch": 2,
+          "placed": 150,
+          "pending": 50,
+          "housing": 150,
+          "scheduled": 150,
+          "inactive_placed": 0,
+          "mean_s": 77.24666666666667,
+          "stock_veh_s": 11587.0,
+          "peak_storage": 0.7622222222222222,
+          "reroutes": 0,
+          "final_branches": {
+            "bridge": 82,
+            "long": 68
+          },
+          "access_stamp_s": 9000.0,
+          "city_identity": "7b453514cf5658bbcf14d02c7222c6a2fa6378b28c84490949f5b45c02f77209"
+        }
+      ],
+      "wall_s": 0.259804765,
+      "peak_rss_kib": 6640,
+      "total_vehicle_seconds": 34761.0,
+      "total_scheduled": 450
+    },
+    {
+      "arm": "S05_b1_e0",
+      "epochs": [
+        {
+          "epoch": 0,
+          "placed": 150,
+          "pending": 0,
+          "housing": 150,
+          "scheduled": 150,
+          "inactive_placed": 0,
+          "mean_s": 69.06666666666666,
+          "stock_veh_s": 10360.0,
+          "peak_storage": 0.7622222222222222,
+          "reroutes": 13,
+          "final_branches": {
+            "bridge": 61,
+            "bypass": 56,
+            "long": 33
+          },
+          "access_stamp_s": 1800.0,
+          "city_identity": "D08-one-origin-physical-fixture-v1"
+        },
+        {
+          "epoch": 1,
+          "placed": 175,
+          "pending": 0,
+          "housing": 200,
+          "scheduled": 150,
+          "inactive_placed": 25,
+          "mean_s": 69.06666666666666,
+          "stock_veh_s": 10360.0,
+          "peak_storage": 0.7622222222222222,
+          "reroutes": 13,
+          "final_branches": {
+            "bridge": 61,
+            "bypass": 56,
+            "long": 33
+          },
+          "access_stamp_s": 5400.0,
+          "city_identity": "c7bcff93b45be3e9a75fb2a171b1afe5ef55bb34cae27fcac82ba5415f410f8a"
+        },
+        {
+          "epoch": 2,
+          "placed": 200,
+          "pending": 0,
+          "housing": 200,
+          "scheduled": 150,
+          "inactive_placed": 50,
+          "mean_s": 69.06666666666666,
+          "stock_veh_s": 10360.0,
+          "peak_storage": 0.7622222222222222,
+          "reroutes": 13,
+          "final_branches": {
+            "bridge": 61,
+            "bypass": 56,
+            "long": 33
+          },
+          "access_stamp_s": 9000.0,
+          "city_identity": "64f0d1d598807acf241854a097e950b0d25fca176bbaa89d51b44fd79633214c"
+        }
+      ],
+      "wall_s": 0.241700029,
+      "peak_rss_kib": 6644,
+      "total_vehicle_seconds": 31080.0,
+      "total_scheduled": 450
+    },
+    {
+      "arm": "S05_b1_e1",
+      "epochs": [
+        {
+          "epoch": 0,
+          "placed": 150,
+          "pending": 0,
+          "housing": 150,
+          "scheduled": 150,
+          "inactive_placed": 0,
+          "mean_s": 69.06666666666666,
+          "stock_veh_s": 10360.0,
+          "peak_storage": 0.7622222222222222,
+          "reroutes": 13,
+          "final_branches": {
+            "bridge": 61,
+            "bypass": 56,
+            "long": 33
+          },
+          "access_stamp_s": 1800.0,
+          "city_identity": "D08-one-origin-physical-fixture-v1"
+        },
+        {
+          "epoch": 1,
+          "placed": 175,
+          "pending": 0,
+          "housing": 200,
+          "scheduled": 175,
+          "inactive_placed": 0,
+          "mean_s": 49.81142857142857,
+          "stock_veh_s": 8717.0,
+          "peak_storage": 0.2833333333333333,
+          "reroutes": 12,
+          "final_branches": {
+            "bridge": 68,
+            "bypass": 64,
+            "long": 43
+          },
+          "access_stamp_s": 5400.0,
+          "city_identity": "c7bcff93b45be3e9a75fb2a171b1afe5ef55bb34cae27fcac82ba5415f410f8a"
+        },
+        {
+          "epoch": 2,
+          "placed": 200,
+          "pending": 0,
+          "housing": 200,
+          "scheduled": 200,
+          "inactive_placed": 0,
+          "mean_s": 49.925,
+          "stock_veh_s": 9985.0,
+          "peak_storage": 0.28888888888888886,
+          "reroutes": 15,
+          "final_branches": {
+            "bridge": 79,
+            "bypass": 75,
+            "long": 46
+          },
+          "access_stamp_s": 9000.0,
+          "city_identity": "64f0d1d598807acf241854a097e950b0d25fca176bbaa89d51b44fd79633214c"
+        }
+      ],
+      "wall_s": 0.292118085,
+      "peak_rss_kib": 6740,
+      "total_vehicle_seconds": 29062.0,
+      "total_scheduled": 525
+    }
+  ],
+  "native_city_reuse": {
+    "generated_valley": {
+      "city_identity": "caafda83fc75f7500ea31dff53ef59452e1c782ae45aba3c0ea26cb55923d007",
+      "schedule_identity": "cf9e501e8b7af67abad61f0889f62d54da27dd89cbb75dcdcc5ac7f735232313",
+      "city_semantic_identical": true,
+      "manifest_semantic_identical": true,
+      "city_bytes_identical": true,
+      "manifest_bytes_identical": true,
+      "calendar": {
+        "calendar_legs": 918450,
+        "cargo_kg": 1000.0,
+        "persons": 120000.0,
+        "vehicles": 58801.0
+      },
+      "wall_s": 1.334598381,
+      "peak_rss_kib": 154612
+    },
+    "historical_next_valley": {
+      "city_identity": "5d2e76766d36a436571760d3fa4724ef459a1cd500f86363c518861c2d8dfc13",
+      "schedule_identity": "18f9d3ee6b6da1bfa5a130b5095e472b96e82d9e366023aa5e610d4aea59f582",
+      "city_semantic_identical": true,
+      "manifest_semantic_identical": true,
+      "city_bytes_identical": true,
+      "manifest_bytes_identical": true,
+      "calendar": {
+        "calendar_legs": 918450,
+        "cargo_kg": 1000.0,
+        "persons": 120004.0,
+        "vehicles": 58802.96
+      },
+      "wall_s": 0.64942843,
+      "peak_rss_kib": 151644
+    }
+  },
+  "execution": {
+    "native": "Rust scientific calculation: historical atlas, activity/demand/calendar, exact/AKM fixture, D07+D08; old oracle not loaded by native entry",
+    "frontend": "Python lazy compatibility facade and subprocess/receipt only; actual -S direct CLI checks",
+    "before_lines": {
+      "rust": {
+        "files": 90,
+        "physical_lines": 40114
+      },
+      "python": {
+        "files": 265,
+        "physical_lines": 96492
+      }
+    },
+    "after_lines": {
+      "rust": {
+        "files": 93,
+        "physical_lines": 40391
+      },
+      "python": {
+        "files": 266,
+        "physical_lines": 96567
+      },
+      "rust_share": 0.2949152294864119
+    },
+    "historical_functional_census": "13/15 prior scoped, not refreshed globally",
+    "actual_frontend_native_receipts": [
+      "S08_front_city",
+      "S08_front_exact",
+      "S08_front_interface",
+      "S08_front_d08"
+    ]
+  },
+  "recovery": {
+    "cut": "3cc2e363b3a4ba621db6c704a1e727e923ecb7052f982118fbb98935852488b0",
+    "direct": "a088e720d468ce1f3e28e61e5a74534d69ef5e55ba5038ddd26f91d5b97fa66b",
+    "legacy_D07_wire_identical": true
+  },
+  "limits": [
+    "D08 synthetic single origin and one-way work activity, repeated drained windows; no original city growth feedback claim",
+    "growth threshold 72s and externally requested increments authored; no estimated demand elasticity or empirical calibration",
+    "higher N changes birth timing and routing feedback; nonmonotone mean is observed model-specific, not proof of extra capacity",
+    "native city 100k/100010 preparation only; D09 pilot not run",
+    "historical Python modules still present and callable in legacy/reference surfaces; not all applications migrated, no broad runtime coverage/LOC target claim",
+    "full CI/GUI integration not run; native subagent unavailable"
+  ]
+}
