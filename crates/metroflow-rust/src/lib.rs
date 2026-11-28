@@ -1388,3 +1388,5 @@ pub use v1_journey::allocation_probe_delay_cell;
 
 #[cfg(feature="native-cli")]
 pub use v1_road::{allocation_probe_moment_dictionary,allocation_probe_direct_code_reuse};
+#[cfg(feature="akm-research")]
+pub use v1_engine::run_akm_native;

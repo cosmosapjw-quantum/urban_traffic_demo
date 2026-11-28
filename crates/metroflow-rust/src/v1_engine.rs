@@ -3188,3 +3188,9 @@ pub fn compare_native_rank_states(left:serde_json::Value,right:serde_json::Value
         "journey_legs":metrics(&a.legs,&b.legs,["completed_persons","completed_veh","since_completion_person_s","since_completion_veh_s"])?,
         "last_tick_outlet":metrics(&a.outlet,&b.outlet,["outlet_veh","birth_to_exit_veh_s"])?}))
 }
+
+#[cfg(feature="akm-research")]
+#[path="v1_akm_engine.rs"]
+mod v1_akm_engine;
+#[cfg(feature="akm-research")]
+pub use v1_akm_engine::run_akm_native;

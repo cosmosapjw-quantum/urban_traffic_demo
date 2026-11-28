@@ -1,0 +1,19 @@
+   Compiling metroflow-headless v0.1.0 (/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/crates/metroflow-headless)
+   Compiling metroflow-rust v0.1.0 (/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/crates/metroflow-rust)
+error: recursion limit reached while expanding `$crate::json_internal!`
+   --> crates/metroflow-rust/src/v1_akm_engine.rs:136:8
+    |
+136 |       Ok(json!({"schema":"metroflow_akm_native_owners_v1","scope":"research sparse proportion...
+    |  ________^
+137 | |         "status":if failure.is_none(){"EXECUTED_FOR_REVIEW"}else{"BLOCKED"},"failure":failu...
+138 | |         "mode":mode,"city_identity":e.city,"schedule_identity":e.schedule,"manifest_sha256"...
+139 | |         "calendar_legs":calendar_legs,"calendar_totals":[calendar_totals.0,calendar_totals....
+...   |
+145 | |         "build_s":build_s,"init_s":init_s,"advance_s":advance_s,"save_s":save_s,"wall_s":st...
+146 | |         "dynamic_pool_bytes":pool,"byte_budget":e.byte_budget,"user_checkpoint":output}))
+    | |________________________________________________________________________________________^
+    |
+    = help: consider increasing the recursion limit by adding a `#![recursion_limit = "256"]` attribute to your crate (`_metroflow_rust`)
+    = note: this error originates in the macro `$crate::json_internal` which comes from the expansion of the macro `json` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: could not compile `metroflow-rust` (lib) due to 1 previous error

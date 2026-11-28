@@ -3631,3 +3631,59 @@ mod service_projection_tests{
         assert!(service_egress_rows(&q,&HashMap::new(),&HashMap::new()).is_empty());
     }
 }
+
+/// Same journey/service owners and source/finish rules as native, but an
+/// explicitly different sparse road model. Commit all three or none.
+#[cfg(feature="akm-research")]
+pub(crate) fn advance_akm_tick(
+    road:&V1Road,state:&mut crate::v1_akm::State,
+    service:&mut NativeServiceCore,journey:&mut NativeJourneyCore,
+    tags:&[String],indices:&HashMap<&str,usize>,dt:f64,
+    pool:usize,event_limit:usize,
+    validate:impl FnOnce(&crate::v1_akm::State,&Journey,&Service,&[SharedJourneyLeg])->CoreResult<()>,
+)->CoreResult<crate::v1_akm::StepStats>{
+    if state.t!=journey.state.0||service.pending.is_some()||journey.pending.is_some(){
+        return Err(bad("AKM owner clocks or transaction differ"))
+    }
+    let before=service.checkpoint();
+    journey.retained_input_bytes=journey_storage_bytes(&journey.state);
+    let result=(||{
+        let road_charge=state.work_reserve();
+        let old_events=service.event_storage_bytes();
+        let limit=pool.checked_sub(road_charge.saturating_add(old_events)).filter(|x|*x>0)
+            .ok_or_else(||CoreError::resource("AKM prepare allowance exhausted"))?;
+        journey.set_phase_storage_budget(limit)?;
+        let(mut offers,eligible)=journey.prepare()?;
+        offers.extend(service.prepare(state.t,eligible)?);
+        let physical:Vec<_>=offers.iter().map(|(tag,m,b)|
+            indices.get(tag.as_str()).map(|&i|(i,*m,*b)).ok_or_else(||bad("AKM offer route binding differs"))
+        ).collect::<CoreResult<_>>()?;
+        let owners=journey.retained_input_bytes.max(journey.pending.as_ref().map(journey_storage_bytes).unwrap_or(0)).saturating_mul(3);
+        let available=pool.checked_sub(owners.saturating_add(old_events)).filter(|x|*x>0)
+            .ok_or_else(||CoreError::resource("AKM road allowance exhausted"))?;
+        let(next,events,stats)=state.advance(road,dt,&physical,event_limit,available)?;
+        let sinks=||events.iter().map(|e|tags.get(e.0).map(|tag|(tag.as_str(),e.3,e.5)).ok_or_else(||bad("AKM sink route binding differs")));
+        service.finish_borrowed(next.t,sinks(),true)?;
+        let charge=state.work_reserve().max(next.work_reserve())
+            .saturating_add(old_events).saturating_add(events.retained_storage_bytes())
+            .saturating_add(events.len().saturating_mul(256));
+        journey.set_phase_storage_budget(pool.checked_sub(charge).filter(|x|*x>0)
+            .ok_or_else(||CoreError::resource("AKM finish allowance exhausted"))?)?;
+        journey.begin_deferred_finish()?;
+        journey.finish_borrowed(next.t,sinks(),before.0.1.clone(),service.state.1.clone(),
+            before.0.2.clone(),service.state.2.clone(),before.0.3.clone(),service.state.3.clone())?;
+        journey.check_service_binding(&journey.state,&service.state)?;
+        validate(&next,&journey.state,&service.state,journey.legs())?;
+        *state=next;
+        service.last_events=Arc::new(events);
+        journey.finalize_deferred_finish();
+        Ok(stats)
+    })();
+    if result.is_err(){
+        service.rollback(before);
+        journey.rollback_deferred_finish();
+        journey.pending=None;
+    }
+    journey.clear_call_storage_accounting();
+    result
+}

@@ -198,3 +198,39 @@ mod sparse_flux_tests{
         let old=s.clone();assert!(s.advance(&road,1.,&[(3,1.,0.)],1000,256*1024*1024).is_err());assert_eq!(old,s);
     }
 }
+
+impl State{
+    pub(crate) fn write<W:std::io::Write>(&self,w:&mut W)->CoreResult<()>{
+        use crate::v1_road::{write_f64,write_len};
+        write_f64(w,self.t)?;
+        for x in [self.initial_birth,self.offered_birth,self.outlet_birth]{write_f64(w,x)?}
+        write_len(w,self.class.len())?;
+        for c in &self.class{for x in c{write_f64(w,*x)?}}
+        for rows in [&self.road,&self.pending]{
+            write_len(w,rows.len())?;
+            for (&(tag,pos),x) in rows{
+                write_len(w,tag)?;write_len(w,pos)?;
+                for v in x.m.into_iter().chain(x.j).chain(x.z).chain([x.birth]){write_f64(w,v)?}
+            }
+        }
+        Ok(())
+    }
+    pub(crate) fn read<R:std::io::Read>(r:&mut R,road:&V1Road)->CoreResult<Self>{
+        use crate::v1_road::{read_f64,read_len,read_exact_len};
+        let t=read_f64(r)?;let n=road.akm_geometry().1.len();
+        let mut s=Self::blank(t,n);s.initial_birth=read_f64(r)?;s.offered_birth=read_f64(r)?;s.outlet_birth=read_f64(r)?;
+        read_exact_len(r,n)?;
+        for c in &mut s.class{for x in c{*x=read_f64(r)?}}
+        let max_tag=road.akm_support().0.saturating_sub(1);
+        for rows in [&mut s.road,&mut s.pending]{
+            let count=read_len(r,ROAD_ROW_LIMIT)?;
+            for _ in 0..count{
+                let tag=read_len(r,max_tag)?;
+                let pos=read_len(r,road.registered_path(tag).ok_or_else(||bad("AKM wire route absent"))?.len().saturating_sub(1))?;
+                let x=Moment{m:[read_f64(r)?,read_f64(r)?],j:[read_f64(r)?,read_f64(r)?],z:[read_f64(r)?,read_f64(r)?],birth:read_f64(r)?};
+                if rows.insert((tag,pos),x).is_some(){return Err(bad("duplicate AKM checkpoint slot"))}
+            }
+        }
+        s.check(road)?;Ok(s)
+    }
+}

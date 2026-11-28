@@ -90,3 +90,8 @@ required-features = ["native-cli"]
 name = "metroflow-marked-diverge"
 path = "src/bin/metroflow-marked-diverge.rs"
 required-features = ["native-cli"]
+
+[[bin]]
+name = "metroflow-akm-native"
+path = "src/bin/metroflow-akm-native.rs"
+required-features = ["akm-research"]
