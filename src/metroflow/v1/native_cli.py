@@ -20,6 +20,7 @@ NATIVE_COMMANDS = {
     "akm": "metroflow-akm-native",
     "d07": "metroflow-akm-d07",
     "d08": "metroflow-akm-d08",
+    "support": "metroflow-akm-support",
     "feedback": "metroflow-feedback-audit",
     "next-epoch": "metroflow-next-epoch",
     "restored": "metroflow-restored-generate",
@@ -62,7 +63,7 @@ def manifest_main(argv):
     parser.add_argument("--threads", type=int, default=1)
     parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
-    parser.add_argument("--engine", choices=["exact", "akm", "hybrid", "interface"], default="exact")
+    parser.add_argument("--engine", choices=["exact", "akm", "hybrid", "interface", "pilot"], default="exact")
     parser.add_argument("--resume", type=Path)
     parser.add_argument("--prior-receipt", type=Path)
     parser.add_argument("--source-sha256")

@@ -87,3 +87,18 @@ def test_d08_receipt_preserves_rust_epochs():
     assert view.payload["epochs"] == data["epochs"]
     assert view.time_s == 9000
     assert view.payload["slow_updates"] == 2
+
+
+def test_d09_blocked_receipt_preserves_actual_not_requested_clock(tmp_path):
+    p = ROOT / "artifacts/akm_d09_city_pilot_20261128/S06_fresh_day.json"
+    view = read_akm_receipt(p)
+    assert view.status == "BLOCKED"
+    assert view.time_s == 25430
+    assert view.payload["requested_end_s"] == 86400
+    assert view.payload["pilot"]["samples"][-1]["time_s"] == view.time_s
+    d = json.loads(p.read_text())
+    d["pilot"]["samples"][-1]["time_s"] = 86400
+    q = tmp_path / "wrong.json"
+    q.write_text(json.dumps(d))
+    with pytest.raises(ValueError, match="pilot sample"):
+        read_akm_receipt(q)

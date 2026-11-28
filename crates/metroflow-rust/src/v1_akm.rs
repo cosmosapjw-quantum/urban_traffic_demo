@@ -43,7 +43,8 @@ impl State{
     }
     pub(crate) fn check(&self,road:&V1Road)->CoreResult<f64>{
         let (groups,classes)=road.akm_geometry();
-        if !self.t.is_finite()||self.t<0.||self.class.len()!=classes.len()||self.rows()>ROAD_ROW_LIMIT{return Err(bad("AKM state shape/record budget"))}
+        if !self.t.is_finite()||self.t<0.||self.class.len()!=classes.len(){return Err(bad("AKM state shape"))}
+        if self.rows()>ROAD_ROW_LIMIT{return Err(CoreError::resource(format!("AKM total sparse support {} > {}",self.rows(),ROAD_ROW_LIMIT)))}
         if self.whole_bus_class.is_some_and(|k|k>=classes.len())||self.whole_bus_class.is_none()&&!self.bus_tracks.is_empty(){return Err(bad("AKM whole bus class/track shape"))}
         if self.interface&&self.whole_bus_class.is_none()||!self.interface&&!self.crossings.is_empty(){return Err(bad("AKM interface policy"))}
         let mut seen=std::collections::BTreeSet::new();let mut tracked=0usize;let mut crossing_seen=0;

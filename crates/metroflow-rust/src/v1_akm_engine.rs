@@ -191,6 +191,19 @@ pub fn run_akm_native(manifest:Value,manifest_sha:&str,mode:&str,source:&str,tar
     receipt["whole_bus"]=json!({"enabled":hybrid,"active_tracks":s.bus_tracks.len(),"exited_veh":bus_exited,"moves":bus_moves,"quota_blocks":bus_quota_blocks});
     receipt["interface"]=json!({"enabled":interface,"partial_crossings":s.crossings.len(),"peak_crossings_at_owner_tick":peak_crossings,"sum_fraction":s.crossings.values().sum::<f64>(),"physical_boundary_in_veh":boundary[0],"physical_boundary_internal_veh":boundary[1],"physical_boundary_sink_veh":boundary[2],"logical_sink_completed_veh":bus_exited});
     if pilot{
+        // Quantify positive tail support without pruning or changing state.
+        let mut census=vec![];
+        for (name,rows) in [("road",&s.road),("pending",&s.pending)]{
+            let mut bins=vec![];
+            for threshold in [1e-15,1e-12,1e-9,1e-6,1e-3]{
+                let mut count=0;let mut mass=Sum::default();let mut birth=Sum::default();
+                for x in rows.values(){if x.mass()<=threshold{count+=1;mass.add(x.mass());birth.add(x.birth);}}
+                bins.push(json!({"threshold_veh":threshold,"rows":count,"mass_veh":mass.finish(),"birth_veh_s":birth.finish()}));
+            }
+            census.push(json!({"storage":name,"rows":rows.len(),"distinct_tags":rows.keys().map(|x|x.0).collect::<std::collections::BTreeSet<_>>().len(),
+                "mass_veh":fsum(rows.values().map(|x|x.mass())),"bins":bins}));
+        }
+        receipt["support_census"]=json!(census);
         if samples.last().is_none_or(|x|x["time_s"]!=json!(s.t)){samples.push(sample(&e,&s));}
         receipt["pilot"]=json!({"clock_cell_closure":true,"session_slice_s":wall_slice,"idle_skipped_s":idle_skipped,"failure_kind":failure_kind,
             "samples":samples,"original_external_wall_s":7200,"scope":"fixed original owner/calendar; same road/interface; guarded temporal quotient, no new support or calibration"});

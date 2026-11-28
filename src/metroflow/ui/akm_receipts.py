@@ -50,8 +50,13 @@ def read_akm_receipt(path: str | Path, *, expected_sha256: str | None = None) ->
         status = data["status"]
         if status not in {"EXECUTED_FOR_REVIEW", "BLOCKED"}:
             raise ValueError("unsupported native research status")
+        time = _time(data["time_s"])
+        if "pilot" in data:
+            times = [_time(x["time_s"]) for x in data["pilot"]["samples"]]
+            if not times or times[-1] != time or any(a >= b for a, b in zip(times, times[1:])):
+                raise ValueError("invalid pilot sample sequence")
         return AKMReceiptView(
-            schema, status, data["model_identity"], _time(data["time_s"]),
+            schema, status, data["model_identity"], time,
             data["scope"], digest, data,
         )
     if schema == "akm_d07_causal_lab_v1":

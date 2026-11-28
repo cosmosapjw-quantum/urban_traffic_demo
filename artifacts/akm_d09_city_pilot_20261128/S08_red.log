@@ -1,0 +1,41 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_______________ test_pilot_and_support_are_explicit_rust_aliases _______________
+
+tmp_path = PosixPath('/tmp/pytest-of-cosmosapjw/pytest-676/test_pilot_and_support_are_exp0')
+
+    def test_pilot_and_support_are_explicit_rust_aliases(tmp_path):
+        for name in ["metroflow-akm-native", "metroflow-akm-support"]:
+            p = tmp_path / name
+            p.write_text("#!/bin/sh\nprintf '%s\\n' \"$@\"\nexit 37\n")
+            p.chmod(0o755)
+        r = call(["run", "--manifest", "m.json", "--engine", "pilot", "--until", "86400",
+                  "--checkpoint", "s.bin", "--out", "r.json"], directory=tmp_path)
+>       assert r.returncode == 37
+E       assert 2 == 37
+E        +  where 2 = CompletedProcess(args=['/usr/bin/python', '-S', '-m', 'metroflow.v1', 'run', '--manifest', 'm.json', '--engine', 'pilo...oflow-v1 run: error: argument --engine: invalid choice: 'pilot' (choose from 'exact', 'akm', 'hybrid', 'interface')\n").returncode
+
+tests/v1/test_native_cli_boundary.py:63: AssertionError
+________ test_d09_blocked_receipt_preserves_actual_not_requested_clock _________
+
+tmp_path = PosixPath('/tmp/pytest-of-cosmosapjw/pytest-676/test_d09_blocked_receipt_prese0')
+
+    def test_d09_blocked_receipt_preserves_actual_not_requested_clock(tmp_path):
+        p = ROOT / "artifacts/akm_d09_city_pilot_20261128/S06_fresh_day.json"
+        view = read_akm_receipt(p)
+        assert view.status == "BLOCKED"
+        assert view.time_s == 25430
+        assert view.payload["requested_end_s"] == 86400
+        assert view.payload["pilot"]["samples"][-1]["time_s"] == view.time_s
+        d = json.loads(p.read_text())
+        d["pilot"]["samples"][-1]["time_s"] = 86400
+        q = tmp_path / "wrong.json"
+        q.write_text(json.dumps(d))
+>       with pytest.raises(ValueError, match="pilot sample"):
+E       Failed: DID NOT RAISE ValueError
+
+tests/v1/test_akm_receipt_frontend.py:103: Failed
+=========================== short test summary info ============================
+FAILED tests/v1/test_native_cli_boundary.py::test_pilot_and_support_are_explicit_rust_aliases
+FAILED tests/v1/test_akm_receipt_frontend.py::test_d09_blocked_receipt_preserves_actual_not_requested_clock
+2 failed, 9 deselected in 0.31s

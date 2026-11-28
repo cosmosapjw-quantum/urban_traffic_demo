@@ -51,3 +51,17 @@ def test_native_alias_passes_exit_code_and_arguments(tmp_path):
     r = call(["native", "d08", "1", "0", "7", "3"], directory=tmp_path)
     assert r.returncode == 37
     assert r.stdout.splitlines() == ["1", "0", "7", "3"]
+
+
+def test_pilot_and_support_are_explicit_rust_aliases(tmp_path):
+    for name in ["metroflow-akm-native", "metroflow-akm-support"]:
+        p = tmp_path / name
+        p.write_text("#!/bin/sh\nprintf '%s\\n' \"$@\"\nexit 37\n")
+        p.chmod(0o755)
+    r = call(["run", "--manifest", "m.json", "--engine", "pilot", "--until", "86400",
+              "--checkpoint", "s.bin", "--out", "r.json"], directory=tmp_path)
+    assert r.returncode == 37
+    assert r.stdout.splitlines() == ["pilot-fresh", "m.json", "-", "-", "86400.0", "1", "s.bin", "r.json"]
+    r = call(["native", "support", "m.json", "4", "support.json"], directory=tmp_path)
+    assert r.returncode == 37
+    assert r.stdout.splitlines() == ["m.json", "4", "support.json"]
