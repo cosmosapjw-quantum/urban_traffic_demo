@@ -1,0 +1,35 @@
+{
+  "status": "PASS",
+  "cases": 4096,
+  "exact_rational": true,
+  "counterexamples": [
+    {
+      "T": 100,
+      "epsilon": 1,
+      "gated_exit": 200,
+      "independent_exit": 101,
+      "extra_delay": 99
+    },
+    {
+      "T": 100,
+      "epsilon": 10,
+      "gated_exit": 200,
+      "independent_exit": 110,
+      "extra_delay": 90
+    },
+    {
+      "T": 100,
+      "epsilon": 50,
+      "gated_exit": 200,
+      "independent_exit": 150,
+      "extra_delay": 50
+    },
+    {
+      "T": 100,
+      "epsilon": 99,
+      "gated_exit": 200,
+      "independent_exit": 199,
+      "extra_delay": 1
+    }
+  ]
+}
