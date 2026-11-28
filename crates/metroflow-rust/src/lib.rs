@@ -22,6 +22,8 @@ mod v1_stage;
 mod v1_engine;
 #[cfg(feature="akm-research")]
 mod v1_akm;
+#[cfg(feature="akm-research")]
+mod v1_akm_interface;
 mod v1_parallel;
 mod v1_trace;
 
