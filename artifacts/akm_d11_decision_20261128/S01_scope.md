@@ -1,0 +1,2 @@
+# D11 bounded selection
+One eligible node, ten integrated theory/code slices. No new D09 attempt, holdout, candidate family, simulation cap or release authorization. A, B and existing D only; C is reference. Compare only matched scopes, record unknown rather than impute favorable outcomes. Original 0492364 PRD/spec and 6524500 constitution: preserve 100k mesoscopy, active response, bottleneck/reroute, lagged accessibility/demand, explicit units and replay. Native Rust computation; Python presentation only. Original V1 PLAN unchanged.

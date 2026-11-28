@@ -1,0 +1,17 @@
+a0a8b2d109f6a9c8945a23012af979efb9382b90
+aca4c22a6afd44128bcd3bf900886fb7d81f3896
+0492364:docs/PRD.md f8cc371410ca0e24b0947cda3d6772787efddc7a
+0492364:specs/001-metroflow/spec.md 626b78acad7cafe1f3eadb8166bffb98550e0172
+0492364:docs/TRAFFIC_DYNAMICS_DESIGN.md e76ce40b9f0d56c165cad042744ebf7e47cf8c04
+0492364:docs/ROUTING_AND_LEARNING_DESIGN.md 43ae258bf224f336caa0e8bb1729499e134d97ae
+6524500:memory/constitution.md 7c78e214c9558bcb1023854e55025f1c554aadee
+{"status": "VALID_RESEARCH_PLAN_NOT_RELEASE", "nodes": 14, "scoped_or_accepted": 9, "terminal": 11, "attempts_used": 12, "attempts_limit": 24, "ready": ["D11"], "next": ["D11"]}
+639e4028e495bf571142ad5e9af8a63d9dc1eac0caf1726c09373c2a3e582a85  docs/akm/RESEARCH_SSOT_KO.md
+80f64cb836782f1557f70eece21a1431e7e9f5aefdc0c208758ccef30b143313  docs/v1/PLAN.json
+1882839ef64c88001527938502dcc7650cf28d2c3c1afb16c90207a6199cbe15  artifacts/akm_d05_final_20261128/S09_audit.json
+f784f1b3bb2a685c88a02db05b23040683a8b37b310589d50b652cbdb7a58c87  artifacts/akm_d05_transport_20261128/S09_audit.json
+9fbce40606093ab85b6d9a37ff99a970dab8c39ab56bfe88a7c9ce926f4f5e53  artifacts/akm_d07_causal_routing_20261128/S09_audit.json
+def37af84a74039b5b199d5a2c6de28eac7d9beb63529fbd372549472de17e5f  artifacts/akm_d08_rust_luti_20261128/S09_audit.json
+92a986855cfd77d8388c21a6ea802c065d5e9ac1bd97c98d99462caf2f2d5129  artifacts/akm_d09_city_pilot_20261128/S09_audit.json
+0ceab1c2f5928c5207ea3a14e59af226b913e16b2908c5bd7daa4e86f4d6b084  artifacts/akm_d09_final_cohort_20261128/S09_audit.json
+0fe1b05e6792e45a578e871e25667e0d484457e15b8be1cc088a40f802912eb4  artifacts/akm_observables_owners_20261128/S09_audit.json
