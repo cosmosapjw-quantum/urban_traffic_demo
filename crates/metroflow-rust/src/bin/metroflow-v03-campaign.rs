@@ -138,6 +138,17 @@ fn validate(r: &Value, end: f64, step: f64, prep: &Value, hash: &str, replay: bo
     }
     Ok(())
 }
+/// Successful run must also survive an independent native load.
+fn recovered_matches(run:&Value,recovered:&Value,hash:&str,ck_hash:&str,bin_hash:&str)->bool{
+    recovered["status"]=="RECOVERED_CHECKPOINT_ONLY"
+        && recovered["manifest_sha256"]==hash
+        && recovered["checkpoint_sha256"]==ck_hash
+        && recovered["executable_sha256"]==bin_hash
+        && recovered["python_runtime_dependency"]=="none"
+        && recovered["address_space_limit_bytes"].as_u64().is_some_and(|x|x<=8*1024u64.pow(3))
+        && recovered["peak_rss_bytes"].as_u64().is_some_and(|x|x<=8*1024u64.pow(3))
+        && ["time_s","native_identity","city_identity","schedule_identity","ledger","road_totals","road_class_ledgers","calendar_totals","byte_budget"].iter().all(|k|!run[*k].is_null()&&run[*k]==recovered[*k])
+}
 fn valid_refinement(r: &Value) -> bool {
     if r["time_s"].as_f64() != Some(28800.) {
         return false;
@@ -162,6 +173,15 @@ fn valid_refinement(r: &Value) -> bool {
 mod tests {
     use super::*;
     #[test]
+    fn independent_recovery_rejects_wrong_clock_and_ledger(){
+        let run=json!({"time_s":60.,"native_identity":"native","city_identity":"city","schedule_identity":"schedule","ledger":{"persons":{"active":1.}},"road_totals":[1.],"road_class_ledgers":[[1.]],"calendar_totals":[1.],"byte_budget":6442450944u64});
+        let mut rec=run.clone();
+        for (k,v) in [("status",json!("RECOVERED_CHECKPOINT_ONLY")),("manifest_sha256",json!("m")),("checkpoint_sha256",json!("c")),("executable_sha256",json!("b")),("python_runtime_dependency",json!("none")),("address_space_limit_bytes",json!(8589934592u64)),("peak_rss_bytes",json!(1000u64))]{rec[k]=v;}
+        assert!(recovered_matches(&run,&rec,"m","c","b"));
+        rec["time_s"]=json!(50.);assert!(!recovered_matches(&run,&rec,"m","c","b"));
+        rec["time_s"]=json!(60.);rec["ledger"]["persons"]["active"]=json!(2.);assert!(!recovered_matches(&run,&rec,"m","c","b"));
+    }
+    #[test]
     fn missing_refinement_rows_cannot_be_counted() {
         let l = json!({"requested":10.,"released":7.,"completed":3.,"pending":3.,"active":4.});
         let mut x = json!({"time_s":28800.,"ledger":{"persons":l,"vehicles":l,"cargo_kg":l}});
@@ -173,7 +193,7 @@ mod tests {
 fn main() -> Result<()> {
     let a: Vec<_> = std::env::args().collect();
     if ![8, 9].contains(&a.len()) {
-        return Err("usage: metroflow-v03-campaign ROOT MATRIX OUTPUT PREPARE_BIN RUN_BIN THREADS (full|PREFIX_S) [CASE]".into());
+        return Err("usage: metroflow-v03-campaign ROOT MATRIX OUTPUT PREPARE_BIN RUN_BIN THREADS (full|PREFIX_S|prefix-pair:PREFIX_S) [CASE]".into());
     }
     let root = Path::new(&a[1]);
     let matrix_path = Path::new(&a[2]);
@@ -188,6 +208,7 @@ fn main() -> Result<()> {
         return Err("threads invalid".into());
     }
     let full = a[7] == "full";
+    let prefix_pair=a[7].strip_prefix("prefix-pair:");
     let diagnostic_timeout = std::env::var("METROFLOW_CAMPAIGN_PREFIX_TIMEOUT_S")
         .ok()
         .map(|x| x.parse::<f64>())
@@ -200,7 +221,7 @@ fn main() -> Result<()> {
     let end = if full {
         m.horizon_s
     } else {
-        a[7].parse::<f64>()?
+        prefix_pair.unwrap_or(&a[7]).parse::<f64>()?
     };
     if !end.is_finite() || end <= 0. || end > m.horizon_s || end % 10. != 0. {
         return Err("prefix must be positive aligned seconds".into());
@@ -215,7 +236,7 @@ fn main() -> Result<()> {
     }
     let prep_sha = digest(Path::new(&a[4]))?;
     let run_sha = digest(Path::new(&a[5]))?;
-    let mut report = json!({"schema":"metroflow_v03_rust_campaign_v1","mode":if full{"FULL"}else{"PREFIX_ONLY"},"matrix_sha256":msha,"prepare_binary_sha256":prep_sha,"run_binary_sha256":run_sha,"threads":threads,"required_full_runs":m.cases.len()*m.repeat,"completed_full_runs":0,"status":"RUNNING","cases":[]});
+    let mut report = json!({"schema":"metroflow_v03_rust_campaign_v1","mode":if full{"FULL"}else if prefix_pair.is_some(){"PREFIX_PAIR_ONLY"}else{"PREFIX_ONLY"},"matrix_sha256":msha,"prepare_binary_sha256":prep_sha,"run_binary_sha256":run_sha,"threads":threads,"required_full_runs":m.cases.len()*m.repeat,"completed_full_runs":0,"status":"RUNNING","cases":[]});
     atomic(&out.join("RECEIPT.json"), &report)?;
     let mut completed = 0;
     let mut all_ok = true;
@@ -226,8 +247,9 @@ fn main() -> Result<()> {
         let mut coarse_hashes = vec![];
         let mut coarse_prefix = None;
         let mut fine_prefix = None;
+        let mut diagnostic_pair:Vec<Value>=vec![];
         let mut resumed = 0;
-        'steps: for step in if full { vec![10., 5.] } else { vec![10.] } {
+        'steps: for step in if full || prefix_pair.is_some() { vec![10., 5.] } else { vec![10.] } {
             let manifest = dir.join(format!("step{step}.manifest.json"));
             let prepfile = dir.join(format!("step{step}.prepare.json"));
             let mut c = Command::new(&a[4]);
@@ -260,7 +282,7 @@ fn main() -> Result<()> {
             let hash = digest(&manifest)?;
             let repeat = if full && step == 10. { m.repeat } else { 1 };
             for rep in 0..repeat {
-                let horizon = if step == 5. { 28800. } else { end };
+                let horizon = if full && step == 5. { 28800. } else { end };
                 let replay = if full { step == 10. && rep == 2 } else { true };
                 let replay_at = if full {
                     43200.
@@ -318,10 +340,10 @@ fn main() -> Result<()> {
                     }
                     Ok(())
                 })();
-                let valid = validation.is_ok();
+                let mut valid = validation.is_ok();
                 row["validation_error"] = json!(validation.err().map(|e| e.to_string()));
                 row["validated"] = json!(valid);
-                if !valid && ck.is_file() {
+                if ck.is_file() {
                     // Recovery is an explicitly separate diagnostic, never
                     // credited to the measured run or its original horizon.
                     let recover_file = stem.with_extension("recovery.json");
@@ -351,13 +373,17 @@ fn main() -> Result<()> {
                                     && (t / step - (t / step).round()).abs() < 1e-8
                             })
                         {
-                            json!({"status":"RECOVERED_CHECKPOINT_ONLY","time_s":r["time_s"],"checkpoint_sha256":r["checkpoint_sha256"],"receipt":recover_file,"diagnostic_wall_s":rwall})
+                            let matched=valid&&recovered_matches(&row,&r,&hash,&digest(&ck)?,&run_sha);
+                            json!({"status":"RECOVERED_CHECKPOINT_ONLY","time_s":r["time_s"],"checkpoint_sha256":r["checkpoint_sha256"],"receipt":recover_file,"diagnostic_wall_s":rwall,"matches_successful_run":matched})
                         } else {
                             json!({"status":"RECOVERY_BINDING_REJECTED","diagnostic_wall_s":rwall})
                         }
                     } else {
                         json!({"status":"RECOVERY_NOT_VERIFIED","timeout":rtimed,"diagnostic_wall_s":rwall})
                     };
+                    if valid && recovery["matches_successful_run"]!=true {
+                        valid=false;row["validated"]=json!(false);row["validation_error"]=json!("independent checkpoint recovery differs");
+                    }
                     row["recovery"] = recovery;
                 }
                 if let Some(t) = row["tick_times_s"].as_array() {
@@ -378,6 +404,9 @@ fn main() -> Result<()> {
                     case_report["failure"] = json!({"stage":"execute_or_validate","step_s":step,"repeat":rep,"reason":row["validation_error"],"native_failure":row["failure"]});
                     break 'steps;
                 }
+                if prefix_pair.is_some(){
+                    diagnostic_pair.push(json!({"step_s":step,"time_s":row["time_s"],"ledger":row["ledger"],"road_totals":row["road_totals"],"checkpoint_sha256":row["checkpoint_sha256"],"validated":row["validated"]}));
+                }
                 if full && step == 10. {
                     completed += 1;
                     coarse_hashes.push(row["checkpoint_sha256"].clone());
@@ -390,6 +419,9 @@ fn main() -> Result<()> {
                     fine_prefix = Some(row["refinement_prefix"].clone())
                 }
             }
+        }
+        if prefix_pair.is_some(){
+            case_report["prefix_pair"]=json!({"scope":"matched short prefixes only; no original 8-hour refinement credit","rows":diagnostic_pair,"both_verified":diagnostic_pair.len()==2});
         }
         let replay_ok = full
             && coarse_hashes.len() == m.repeat
