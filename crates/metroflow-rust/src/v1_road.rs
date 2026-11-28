@@ -5375,7 +5375,7 @@ impl V1Road {
                 let source=std::mem::take(&mut timed_rows[i]);
                 let get=|index|source.get_with_events(index,&timed_controls,&events).0;
                 let parts=if let Some(bins)=self.research_rank_bins {
-                    projected=Some(v1_rank_projection::project_with(source.len(),get,target,bins,dt,self.record_budget,local_peak,&mut work,&mut rank_workspace)?);
+                    projected=Some(v1_rank_projection::project_with(source.len(),get,target,bins,None,dt,self.record_budget,local_peak,&mut work,&mut rank_workspace)?);
                     Vec::new()
                 }else if local_consumer {
                     combine_compact_indexed_parts(source.len(),get,|index_bytes,groups|{
@@ -5389,7 +5389,7 @@ impl V1Road {
             } else {
                 let source=std::mem::take(&mut incoming[i]);
                 let parts=if let Some(bins)=self.research_rank_bins{
-                    projected=Some(v1_rank_projection::project_with(source.len(),|index|source.get(index),target,bins,dt,self.record_budget,local_peak,&mut work,&mut rank_workspace)?);
+                    projected=Some(v1_rank_projection::project_with(source.len(),|index|source.get(index),target,bins,None,dt,self.record_budget,local_peak,&mut work,&mut rank_workspace)?);
                     Vec::new()
                 }else{combine_chunked_parts(&source)?};
                 let expired_marks=std::mem::take(&mut marks[i]);

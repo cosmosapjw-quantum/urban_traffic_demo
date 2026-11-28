@@ -56,6 +56,47 @@ fn grid(len:usize,get:&impl Fn(usize)->Part,bins:usize,dt:f64)->CoreResult<Grid>
     }
     Ok(Grid{lo,ends,n,sparse:false})
 }
+// Bounded dynamic programming over contiguous blocks of the fine grid.
+// Each block has a local causal transport-delay budget. No heap allocation.
+fn adaptive_partition(g:Grid,mass:[Acc;MAX_BINS],delay:[Acc;MAX_BINS],dt:f64,milli:u64)->CoreResult<Grid>{
+    let tol=dt*(milli as f64/1000.);
+    if !tol.is_finite()||tol<=0.||milli>1000{return Err(val("adaptive rank tolerance outside domain"))}
+    let mut best=[usize::MAX;MAX_BINS+1];let mut cost=[f64::INFINITY;MAX_BINS+1];let mut prev=[0usize;MAX_BINS+1];
+    best[0]=0;cost[0]=0.;
+    for j in 1..=g.n{
+        for i in 0..j{
+            if best[i]==usize::MAX{continue}
+            let(mut m,mut d)=(Acc::default(),Acc::default());
+            for k in i..j{
+                m.add(mass[k].value())?;
+                d.add(delay[k].value())?;
+                d.add(mass[k].value()*(g.ends[j-1]-g.ends[k]))?;
+            }
+            let budget=tol*m.value();
+            if !budget.is_finite(){return Err(arithmetic("adaptive rank budget overflow"))}
+            if d.value()>budget+1e-12*budget.max(1e-300){continue}
+            let count=best[i]+1;let score=cost[i]+d.value();
+            if !score.is_finite(){return Err(arithmetic("adaptive rank total delay overflow"))}
+            if count<best[j]||(count==best[j]&&score<cost[j]){best[j]=count;cost[j]=score;prev[j]=i;}
+        }
+    }
+    if best[g.n]==usize::MAX{return Err(arithmetic("adaptive rank no admissible fine-grid partition"))}
+    let mut ends=[0.;MAX_BINS];let mut j=g.n;let n=best[j];
+    for k in (0..n).rev(){ends[k]=g.ends[j-1];j=prev[j];}
+    Ok(Grid{lo:g.lo,ends,n,sparse:false})
+}
+fn adapt_grid(g:Grid,len:usize,get:&impl Fn(usize)->Part,dt:f64,milli:u64)->CoreResult<Grid>{
+    if g.sparse||g.n<=1{return Ok(g)}
+    let(mut mass,mut delay)=([Acc::default();MAX_BINS],[Acc::default();MAX_BINS]);
+    for i in 0..len{
+        let p=get(i);
+        for k in 0..g.n{let f=g.fraction(p,k);if f>0.{
+            let m=p.mass*f;mass[k].add(m)?;delay[k].add(m*g.delay(p,k))?;
+        }}
+    }
+    adaptive_partition(g,mass,delay,dt,milli)
+}
+
 // Explicit two-pass count and emit. Cached integer keys avoid repeated packed
 // payload decoding in the sort comparator; source ordinal resolves ties.
 // All output vectors reserved once with actual cardinality. No per-row maps.
@@ -64,10 +105,11 @@ pub(super) fn project(len:usize,get:impl Fn(usize)->Part,target:f64,bins:usize,d
     let bytes=len.saturating_mul(std::mem::size_of::<(u64,u32)>());
     work.interval(scratch.saturating_add(bytes))?;
     let mut workspace=checkpoint_vec(len)?;
-    project_with(len,get,target,bins,dt,record_budget,scratch.saturating_add(bytes),work,&mut workspace)
+    project_with(len,get,target,bins,None,dt,record_budget,scratch.saturating_add(bytes),work,&mut workspace)
 }
-pub(super) fn project_with(len:usize,get:impl Fn(usize)->Part,target:f64,bins:usize,dt:f64,record_budget:usize,scratch:usize,work:&mut RoadWorkBudget,order:&mut Vec<(u64,u32)>)->CoreResult<(Vec<Packet>,f64)>{
+pub(super) fn project_with(len:usize,get:impl Fn(usize)->Part,target:f64,bins:usize,adaptive:Option<u64>,dt:f64,record_budget:usize,scratch:usize,work:&mut RoadWorkBudget,order:&mut Vec<(u64,u32)>)->CoreResult<(Vec<Packet>,f64)>{
     let grid=grid(len,&get,bins,dt)?;
+    let grid=if let Some(milli)=adaptive{adapt_grid(grid,len,&get,dt,milli)?}else{grid};
     if len==0{return Ok((vec![],0.))}
     if len>u32::MAX as usize{return Err(budget("rank source ordinal overflow"))}
     if order.capacity()<len{return Err(budget("rank workspace capacity too small"))}
@@ -118,6 +160,14 @@ pub(super) fn project_with(len:usize,get:impl Fn(usize)->Part,target:f64,bins:us
         let close=|a:f64,b:f64|(a-b).abs()<=1e-10*a.max(b)+4.*f64::from_bits(1);
         if !close(old_m.value(),new_m.value())||!close(old_b.value(),new_b.value()){return Err(arithmetic("rank per-mark conservation differs"))}
     }
+    if let Some(milli)=adaptive{
+        let limit=all.value()*dt*(milli as f64/1000.);
+        if !limit.is_finite()||delay.value()>limit+1e-10*limit.max(1e-300){return Err(arithmetic("adaptive rank actual transport delay exceeds budget"))}
+        crate::v1_trace::add("rank.adaptive_cells",1);
+        crate::v1_trace::add("rank.adaptive_bins",grid.n as u64);
+        crate::v1_trace::add("rank.adaptive_fine_bins_limit",bins as u64);
+        crate::v1_trace::add("rank.adaptive_delay_budget_milliveh_s_ceil",(1000.*limit).ceil()as u64);
+    }
     order.clear();
     let mut out=checkpoint_vec(grid.n)?;
     if out.capacity()!=grid.n{return Err(budget("rank packet exact allocation differs"))}
@@ -139,7 +189,7 @@ pub(super) fn project_with(len:usize,get:impl Fn(usize)->Part,target:f64,bins:us
     crate::v1_trace::add("rank.out_packets",out.len()as u64);
     // Quantized upward diagnostic, not a global accumulated error certificate.
     crate::v1_trace::add("rank.local_delay_milliveh_s_ceil",(1000.*delay.value()).ceil()as u64);
-    crate::v1_trace::add("rank.local_generic_prefix_bound_milliveh_ceil",(250.*bin_totals.iter().map(|a|a.value()).fold(0.,f64::max)).ceil()as u64);
+    crate::v1_trace::add("rank.local_causal_prefix_upper_milliveh_ceil",(1000.*bin_totals.iter().map(|a|a.value()).fold(0.,f64::max)).ceil()as u64);
     Ok((out,all.value()))
 }
 #[cfg(test)]
@@ -157,6 +207,19 @@ mod tests {
         for (tag,m) in [(1,6.),(2,3.)]{assert!((sum(out.iter().flat_map(|p|p.parts.iter()).filter(|r|r.tag==tag).map(|r|r.mass))-m).abs()<1e-12);assert!((sum(out.iter().flat_map(|p|p.parts.iter()).filter(|r|r.tag==tag).map(|r|r.birth))-3.*m).abs()<1e-12);}
         let mut w=work();let (out,_)=project(parts.len(),|i|parts[i],50.,1,10.,100,0,&mut w).unwrap();
         assert_eq!(out.len(),1);assert_eq!(out[0].parts.len(),2);assert!(out[0].parts.iter().all(|p|p.a.unwrap()==6.));
+    }
+    #[test] fn adaptive_uses_minimal_feasible_causal_partition(){
+        let parts=[p(0,0.,4.,1.),p(1,3.,4.,9.)];
+        let fine=grid(parts.len(),&|i|parts[i],4,4.).unwrap();
+        let chosen=adapt_grid(fine,parts.len(),&|i|parts[i],4.,500).unwrap();
+        assert_eq!(chosen.n,1);assert_eq!(chosen.ends[0],4.);
+        let early=[p(0,0.,0.5,9.),p(1,3.,4.,1.)];
+        let fine=grid(early.len(),&|i|early[i],4,4.).unwrap();
+        let chosen=adapt_grid(fine,early.len(),&|i|early[i],4.,500).unwrap();
+        assert_eq!(chosen.n,2);assert_eq!(chosen.ends[1],4.);
+        let mut ws=Vec::with_capacity(early.len());let mut w=work();
+        let (out,m)=project_with(early.len(),|i|early[i],10.,4,Some(500),4.,100,0,&mut w,&mut ws).unwrap();
+        assert_eq!(m,10.);assert_eq!(out.len(),2);assert!(out.iter().flat_map(|p|p.parts.iter()).all(|p|p.a.0==p.b.0));
     }
     #[test] fn sparse_point_clocks_are_unchanged_and_budget_fail_closed(){
         let parts=[p(1,1.,1.,1.),p(2,4.,4.,2.),p(1,1.,1.,3.)];
