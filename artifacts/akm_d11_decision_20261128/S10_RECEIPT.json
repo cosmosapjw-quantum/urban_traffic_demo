@@ -1,0 +1,37 @@
+{
+  "status": "D11_DECISION_COMPLETE_NO_CANDIDATE",
+  "baseline": "a0a8b2d109f6a9c8945a23012af979efb9382b90",
+  "branch": "research/akm-d11-decision-20261128",
+  "stages_01_09": [
+    "82aa0a727ca89dd965ac453b54b0ad80a2c4a1d1 S01 Bind D11 to AKM authority and immutable predecessor evidence",
+    "f1e5784c96b06a19811735c81336adc8ef939f41 S02 Derive noncompensatory feasibility and conditional service and delay bounds",
+    "6a64894d187e79e5e44426647086bc0ed244dd72 S03 Implement fail-closed noncompensatory candidate gate with behavior test",
+    "9161ea12efeab34af7de9908d5c792fcff8e4e1d S04 Recompute A refinement and matched B receiving diagnostics in Rust",
+    "a195cd9a20878c56178beb80a1aa7cfe29731295 S05 Recompute D service deficit and nonvanishing cohort error from pinned receipts",
+    "e1c7e28a2688e04d2fb2d5f06740977969724271 S06 Execute reproducible native D11 decision matrix without cross-scope compensation",
+    "6b057dcad5b659096199c42a9f81145f74a6de9d S07 Present D11 native decision through Python without simulated clock or fallback",
+    "3e4b49d9852f7ff9c226587b5e72a5a037185f99 S08 Independently verify decision arithmetic, scope and backend regression",
+    "bdadb83b7c28eb7a51bb66600f991eb077858c60 S09 Close D11 with no candidate, stop D12 and open terminal D13 synthesis"
+  ],
+  "stage_10": "this commit: reproducibility and preservation handoff",
+  "scope": "archived evidence decision, not new simulation or acceptance",
+  "native_replay": "byte-identical",
+  "dag": {
+    "status": "VALID_RESEARCH_PLAN_NOT_RELEASE",
+    "nodes": 14,
+    "scoped_or_accepted": 10,
+    "terminal": 13,
+    "attempts_used": 13,
+    "attempts_limit": 24,
+    "ready": [
+      "D13"
+    ],
+    "next": [
+      "D13"
+    ]
+  },
+  "original_plan_sha256": "80f64cb836782f1557f70eece21a1431e7e9f5aefdc0c208758ccef30b143313",
+  "backup_destination": "/home/cosmosapjw/research_backups/metroflow_akm_d11_decision_20261128",
+  "backup_verification": "separate local receipt after final push; not attested by this commit",
+  "next_action": "D13 terminal synthesis only; D12 stopped; do not reopen exhausted candidates or change V03 gates"
+}
