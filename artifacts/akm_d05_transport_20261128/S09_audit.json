@@ -1,0 +1,1424 @@
+{
+  "status": "D05_ATTEMPT_1_EXECUTED_NEGATIVE_AND_POSITIVE_SCOPED",
+  "A": {
+    "False": {
+      "day": [
+        {
+          "dt_s": [
+            5.0,
+            2.5
+          ],
+          "conditional_mean_gap_relative_to_coarse": 0.07040277179423349,
+          "completion_curve_max_gap_fraction": 0.010215178749865021,
+          "final_incomplete_gap_fraction": 7.829146090713567e-07,
+          "stock_integral_relative_gap": 0.07384314232676736
+        },
+        {
+          "dt_s": [
+            2.5,
+            1.25
+          ],
+          "conditional_mean_gap_relative_to_coarse": 0.025310407829214787,
+          "completion_curve_max_gap_fraction": 0.008257609673485237,
+          "final_incomplete_gap_fraction": 5.799844315806146e-07,
+          "stock_integral_relative_gap": 0.02678545174576419
+        }
+      ],
+      "overload": {
+        "10": [
+          {
+            "dt_s": [
+              5.0,
+              2.5
+            ],
+            "conditional_mean_gap_relative_to_coarse": 0.0019986195562600173,
+            "completion_curve_max_gap_fraction": 0.004271305909222378,
+            "final_incomplete_gap_fraction": 0.00427130590922341,
+            "stock_integral_relative_gap": 0.002516569056732143
+          },
+          {
+            "dt_s": [
+              2.5,
+              1.25
+            ],
+            "conditional_mean_gap_relative_to_coarse": 0.005733053025164914,
+            "completion_curve_max_gap_fraction": 0.0032764508216327768,
+            "final_incomplete_gap_fraction": 0.003276450821631759,
+            "stock_integral_relative_gap": 0.0009360958865656244
+          }
+        ],
+        "100": [
+          {
+            "dt_s": [
+              5.0,
+              2.5
+            ],
+            "conditional_mean_gap_relative_to_coarse": 0.001776241016281821,
+            "completion_curve_max_gap_fraction": 0.00041592636479503993,
+            "final_incomplete_gap_fraction": 0.00041592636479317267,
+            "stock_integral_relative_gap": 0.0013592368562348467
+          },
+          {
+            "dt_s": [
+              2.5,
+              1.25
+            ],
+            "conditional_mean_gap_relative_to_coarse": 0.00573424362884023,
+            "completion_curve_max_gap_fraction": 0.0003281610016445578,
+            "final_incomplete_gap_fraction": 0.0003281610016464017,
+            "stock_integral_relative_gap": 0.000483430442141386
+          }
+        ]
+      },
+      "fixed_offer": 201.90656267568872,
+      "fine_day_mean": 915.0584260007766,
+      "fine_day_stock": 11316094.720529718,
+      "fine_day_gate_pass": false
+    },
+    "True": {
+      "day": [
+        {
+          "dt_s": [
+            5.0,
+            2.5
+          ],
+          "conditional_mean_gap_relative_to_coarse": 0.16939249292273684,
+          "completion_curve_max_gap_fraction": 0.018664042929202998,
+          "final_incomplete_gap_fraction": 7.834427194986973e-07,
+          "stock_integral_relative_gap": 0.1730262871731496
+        },
+        {
+          "dt_s": [
+            2.5,
+            1.25
+          ],
+          "conditional_mean_gap_relative_to_coarse": 0.09270962729979648,
+          "completion_curve_max_gap_fraction": 0.01113256038655447,
+          "final_incomplete_gap_fraction": 5.811776409327943e-07,
+          "stock_integral_relative_gap": 0.09408078901771488
+        }
+      ],
+      "overload": {
+        "10": [
+          {
+            "dt_s": [
+              5.0,
+              2.5
+            ],
+            "conditional_mean_gap_relative_to_coarse": 0.009125993146342104,
+            "completion_curve_max_gap_fraction": 0.007172599887117186,
+            "final_incomplete_gap_fraction": 0.007172599887119799,
+            "stock_integral_relative_gap": 0.002502052579178793
+          },
+          {
+            "dt_s": [
+              2.5,
+              1.25
+            ],
+            "conditional_mean_gap_relative_to_coarse": 0.004060427259196642,
+            "completion_curve_max_gap_fraction": 0.0043652255324072905,
+            "final_incomplete_gap_fraction": 0.004365225532407806,
+            "stock_integral_relative_gap": 0.0017673665455282261
+          }
+        ],
+        "100": [
+          {
+            "dt_s": [
+              5.0,
+              2.5
+            ],
+            "conditional_mean_gap_relative_to_coarse": 0.009272459596538662,
+            "completion_curve_max_gap_fraction": 0.0007184979847070414,
+            "final_incomplete_gap_fraction": 0.0007184979847035689,
+            "stock_integral_relative_gap": 0.0009092853790022559
+          },
+          {
+            "dt_s": [
+              2.5,
+              1.25
+            ],
+            "conditional_mean_gap_relative_to_coarse": 0.004167071330481997,
+            "completion_curve_max_gap_fraction": 0.0004371128389017728,
+            "final_incomplete_gap_fraction": 0.0004371128389036574,
+            "stock_integral_relative_gap": 0.00040778616920766897
+          }
+        ]
+      },
+      "fixed_offer": 212.3384952470421,
+      "fine_day_mean": 1182.9832485596162,
+      "fine_day_stock": 14633922.409531962,
+      "fine_day_gate_pass": false
+    }
+  },
+  "B": {
+    "runs": [
+      {
+        "mesh_s": 1200,
+        "completed": 7400.38963318952,
+        "released": 9515.9900544,
+        "mean_s": 774.069061512722,
+        "active": 2115.6004212104795,
+        "peak_storage": 0.31709777598177624,
+        "peak_receiving": 0.7159863748891165,
+        "wait_veh_s": 360645.7025462088,
+        "blocked_veh_s": 0.0,
+        "initial_batches": 3182886,
+        "events": 27574537,
+        "peak_ready": 1568,
+        "rss": 152588288,
+        "wall_s": 8.877152309,
+        "snapshots": [
+          {
+            "classes": [
+              {
+                "active": 1264.0704615586512,
+                "admitted": 942.7311873976438,
+                "completed": 71.14363844134883,
+                "error": 2.2737367544323206e-13,
+                "exited": 146.29928874078158,
+                "expected": 57095.9403264,
+                "released": 1335.2141,
+                "road": 796.4318986568622,
+                "trip_seconds": 22746.7586092956
+              },
+              {
+                "active": 0.0,
+                "admitted": 0.0,
+                "completed": 0.0,
+                "error": 0.0,
+                "exited": 0.0,
+                "expected": 0.998825,
+                "released": 0.0,
+                "road": 0.0,
+                "trip_seconds": 0.0
+              },
+              {
+                "active": 0.0,
+                "admitted": 4.0,
+                "completed": 4.0,
+                "error": 0.0,
+                "exited": 4.0,
+                "expected": 24.0,
+                "released": 4.0,
+                "road": 0.0,
+                "trip_seconds": 2890.0
+              }
+            ],
+            "max_meter_error": 0.0,
+            "max_receiving_ratio": 0.376078021648452,
+            "max_storage_ratio": 0.15537505772571522,
+            "outstanding_blocked_veh_s": 0.0,
+            "queued_requests": 122279,
+            "rate_blocks": 0,
+            "storage_blocks": 0,
+            "time_s": 25720.0
+          },
+          {
+            "classes": [
+              {
+                "active": 2115.6004212104795,
+                "admitted": 9119.404871728284,
+                "completed": 7400.38963318952,
+                "error": 9.094947017729282e-13,
+                "exited": 7750.057775756318,
+                "expected": 57095.9403264,
+                "released": 9515.9900544,
+                "road": 1369.3470959719652,
+                "trip_seconds": 5728412.658191489
+              },
+              {
+                "active": 0.0,
+                "admitted": 0.0,
+                "completed": 0.0,
+                "error": 0.0,
+                "exited": 0.0,
+                "expected": 0.998825,
+                "released": 0.0,
+                "road": 0.0,
+                "trip_seconds": 0.0
+              },
+              {
+                "active": 0.0,
+                "admitted": 4.0,
+                "completed": 4.0,
+                "error": 0.0,
+                "exited": 4.0,
+                "expected": 24.0,
+                "released": 4.0,
+                "road": 0.0,
+                "trip_seconds": 2890.0
+              }
+            ],
+            "max_meter_error": 0.0,
+            "max_receiving_ratio": 0.7159863748891165,
+            "max_storage_ratio": 0.31709777598177624,
+            "outstanding_blocked_veh_s": 0.0,
+            "queued_requests": 1343294,
+            "rate_blocks": 0,
+            "storage_blocks": 0,
+            "time_s": 28800.0
+          }
+        ]
+      },
+      {
+        "mesh_s": 600,
+        "completed": 7380.890345000266,
+        "released": 9515.9900544,
+        "mean_s": 774.5476274935686,
+        "active": 2135.0997093997335,
+        "peak_storage": 0.2822872474767635,
+        "peak_receiving": 0.6900834113533948,
+        "wait_veh_s": 375554.8281164896,
+        "blocked_veh_s": 0.0,
+        "initial_batches": 6365748,
+        "events": 55150487,
+        "peak_ready": 2941,
+        "rss": 197570560,
+        "wall_s": 17.34073025,
+        "snapshots": [
+          {
+            "classes": [
+              {
+                "active": 1296.2821095013358,
+                "admitted": 959.8569893776782,
+                "completed": 72.69029849866422,
+                "error": 2.2737367544323206e-13,
+                "exited": 149.5298626032925,
+                "expected": 57095.9403264,
+                "released": 1368.9724079999999,
+                "road": 810.3271267743858,
+                "trip_seconds": 23325.265826375427
+              },
+              {
+                "active": 0.0,
+                "admitted": 0.0,
+                "completed": 0.0,
+                "error": 0.0,
+                "exited": 0.0,
+                "expected": 0.998825,
+                "released": 0.0,
+                "road": 0.0,
+                "trip_seconds": 0.0
+              },
+              {
+                "active": 0.0,
+                "admitted": 4.0,
+                "completed": 4.0,
+                "error": 0.0,
+                "exited": 4.0,
+                "expected": 24.0,
+                "released": 4.0,
+                "road": 0.0,
+                "trip_seconds": 2890.0
+              }
+            ],
+            "max_meter_error": 0.0,
+            "max_receiving_ratio": 0.37112029028342775,
+            "max_storage_ratio": 0.1707430756935332,
+            "outstanding_blocked_veh_s": 0.0,
+            "queued_requests": 256680,
+            "rate_blocks": 0,
+            "storage_blocks": 0,
+            "time_s": 25720.0
+          },
+          {
+            "classes": [
+              {
+                "active": 2135.0997093997335,
+                "admitted": 9115.702276899816,
+                "completed": 7380.890345000266,
+                "error": 4.547473508864641e-13,
+                "exited": 7736.199332795164,
+                "expected": 57095.9403264,
+                "released": 9515.9900544,
+                "road": 1379.5029441046518,
+                "trip_seconds": 5716851.105510144
+              },
+              {
+                "active": 0.0,
+                "admitted": 0.0,
+                "completed": 0.0,
+                "error": 0.0,
+                "exited": 0.0,
+                "expected": 0.998825,
+                "released": 0.0,
+                "road": 0.0,
+                "trip_seconds": 0.0
+              },
+              {
+                "active": 0.0,
+                "admitted": 4.0,
+                "completed": 4.0,
+                "error": 0.0,
+                "exited": 4.0,
+                "expected": 24.0,
+                "released": 4.0,
+                "road": 0.0,
+                "trip_seconds": 2890.0
+              }
+            ],
+            "max_meter_error": 0.0,
+            "max_receiving_ratio": 0.6900834113533948,
+            "max_storage_ratio": 0.2822872474767635,
+            "outstanding_blocked_veh_s": 0.0,
+            "queued_requests": 2739629,
+            "rate_blocks": 0,
+            "storage_blocks": 0,
+            "time_s": 28800.0
+          }
+        ]
+      },
+      {
+        "mesh_s": 300,
+        "completed": 7374.736302773857,
+        "released": 9515.9900544,
+        "mean_s": 774.6864468254728,
+        "active": 2141.253751626143,
+        "peak_storage": 0.252193010257325,
+        "peak_receiving": 0.4595175046630062,
+        "wait_veh_s": 380092.7557200003,
+        "blocked_veh_s": 0.0,
+        "initial_batches": 12731472,
+        "events": 110208942,
+        "peak_ready": 5603,
+        "rss": 283369472,
+        "wall_s": 35.156414159,
+        "snapshots": [
+          {
+            "classes": [
+              {
+                "active": 1302.8518831726644,
+                "admitted": 971.3747181442378,
+                "completed": 73.33847422733542,
+                "error": 2.2737367544323206e-13,
+                "exited": 152.16844896688542,
+                "expected": 57095.9403264,
+                "released": 1376.1903574,
+                "road": 819.2062691773524,
+                "trip_seconds": 23524.509333783073
+              },
+              {
+                "active": 0.0,
+                "admitted": 0.0,
+                "completed": 0.0,
+                "error": 0.0,
+                "exited": 0.0,
+                "expected": 0.998825,
+                "released": 0.0,
+                "road": 0.0,
+                "trip_seconds": 0.0
+              },
+              {
+                "active": 0.0,
+                "admitted": 4.0,
+                "completed": 4.0,
+                "error": 0.0,
+                "exited": 4.0,
+                "expected": 24.0,
+                "released": 4.0,
+                "road": 0.0,
+                "trip_seconds": 2890.0
+              }
+            ],
+            "max_meter_error": 0.0,
+            "max_receiving_ratio": 0.3208857890084753,
+            "max_storage_ratio": 0.14692815778519824,
+            "outstanding_blocked_veh_s": 0.0,
+            "queued_requests": 524181,
+            "rate_blocks": 0,
+            "storage_blocks": 0,
+            "time_s": 25720.0
+          },
+          {
+            "classes": [
+              {
+                "active": 2141.253751626143,
+                "admitted": 9112.560854496955,
+                "completed": 7374.736302773857,
+                "error": 9.094947017729282e-13,
+                "exited": 7730.8995517524945,
+                "expected": 57095.9403264,
+                "released": 9515.9900544,
+                "road": 1381.6613027444591,
+                "trip_seconds": 5713108.262670703
+              },
+              {
+                "active": 0.0,
+                "admitted": 0.0,
+                "completed": 0.0,
+                "error": 0.0,
+                "exited": 0.0,
+                "expected": 0.998825,
+                "released": 0.0,
+                "road": 0.0,
+                "trip_seconds": 0.0
+              },
+              {
+                "active": 0.0,
+                "admitted": 4.0,
+                "completed": 4.0,
+                "error": 0.0,
+                "exited": 4.0,
+                "expected": 24.0,
+                "released": 4.0,
+                "road": 0.0,
+                "trip_seconds": 2890.0
+              }
+            ],
+            "max_meter_error": 0.0,
+            "max_receiving_ratio": 0.4595175046630062,
+            "max_storage_ratio": 0.252193010257325,
+            "outstanding_blocked_veh_s": 0.0,
+            "queued_requests": 5532763,
+            "rate_blocks": 0,
+            "storage_blocks": 0,
+            "time_s": 28800.0
+          }
+        ]
+      }
+    ],
+    "comparisons": [
+      {
+        "mesh_s": [
+          1200,
+          600
+        ],
+        "mean_gap_relative": 0.000618247136646044,
+        "sampled_completion_curve_gap": 0.0020491076680179935,
+        "sampled_release_curve_gap": 0.024659597083712695,
+        "final_incomplete_gap_fraction": 0.0020491076680179935,
+        "peak_storage_gap_abs": 0.03481052850501276,
+        "peak_receiving_gap_abs": 0.025902963535721746,
+        "wall_ratio": 1.9534113695919466,
+        "event_ratio": 2.000051242927488
+      },
+      {
+        "mesh_s": [
+          600,
+          300
+        ],
+        "mean_gap_relative": 0.0001792263341551248,
+        "sampled_completion_curve_gap": 0.0006467054075539124,
+        "sampled_release_curve_gap": 0.005244877179372816,
+        "final_incomplete_gap_fraction": 0.0006467054075539124,
+        "peak_storage_gap_abs": 0.03009423721943849,
+        "peak_receiving_gap_abs": 0.23056590669038857,
+        "wall_ratio": 2.027389484303869,
+        "event_ratio": 1.9983312568028637
+      }
+    ]
+  },
+  "D": {
+    "whole_service_fixtures": {
+      "S07_hybrid120": {
+        "persons": {
+          "active": 2.006319714544267,
+          "completed": 15.993463248311814,
+          "pending": 2.000217037143919,
+          "released": 17.99978296285608,
+          "released_intent_first_moment": 409.9891481722448,
+          "requested": 20.0
+        },
+        "bus": {
+          "active_tracks": 0,
+          "enabled": true,
+          "exited_veh": 0.0,
+          "moves": 0,
+          "quota_blocks": 150
+        },
+        "class_road_ledger": [
+          [
+            12.799826370284865,
+            12.79477059864946
+          ],
+          [
+            0.1,
+            0.09999876541307388
+          ],
+          [
+            2.0,
+            0.0
+          ]
+        ],
+        "wire_sha256": "3e52a53c83ead373d25bd80e397a9fb90a87c69c2daeacc46d8b07f59e3a1915"
+      },
+      "S07_hybrid360": {
+        "persons": {
+          "active": 2.000000000000128,
+          "completed": 15.999999999999872,
+          "pending": 2.0,
+          "released": 18.0,
+          "released_intent_first_moment": 409.9999999999989,
+          "requested": 20.0
+        },
+        "bus": {
+          "active_tracks": 0,
+          "enabled": true,
+          "exited_veh": 0.0,
+          "moves": 0,
+          "quota_blocks": 480
+        },
+        "class_road_ledger": [
+          [
+            12.799999999999995,
+            12.799999999999905
+          ],
+          [
+            0.1,
+            0.10000000000000005
+          ],
+          [
+            2.0,
+            0.0
+          ]
+        ],
+        "wire_sha256": "459971a6888f99e2f55922cec44cc738aedc28c90778adb5075f2ee2edbb7d3d"
+      },
+      "S07_hybrid360_direct": {
+        "persons": {
+          "active": 2.000000000000128,
+          "completed": 15.999999999999872,
+          "pending": 2.0,
+          "released": 18.0,
+          "released_intent_first_moment": 409.9999999999989,
+          "requested": 20.0
+        },
+        "bus": {
+          "active_tracks": 0,
+          "enabled": true,
+          "exited_veh": 0.0,
+          "moves": 0,
+          "quota_blocks": 630
+        },
+        "class_road_ledger": [
+          [
+            12.799999999999995,
+            12.799999999999905
+          ],
+          [
+            0.1,
+            0.10000000000000005
+          ],
+          [
+            2.0,
+            0.0
+          ]
+        ],
+        "wire_sha256": "459971a6888f99e2f55922cec44cc738aedc28c90778adb5075f2ee2edbb7d3d"
+      },
+      "S07_hybrid360_recover": {
+        "persons": {
+          "active": 2.000000000000128,
+          "completed": 15.999999999999872,
+          "pending": 2.0,
+          "released": 18.0,
+          "released_intent_first_moment": 409.9999999999989,
+          "requested": 20.0
+        },
+        "bus": {
+          "active_tracks": 0,
+          "enabled": true,
+          "exited_veh": 0.0,
+          "moves": 0,
+          "quota_blocks": 0
+        },
+        "class_road_ledger": [
+          [
+            12.799999999999995,
+            12.799999999999905
+          ],
+          [
+            0.1,
+            0.10000000000000005
+          ],
+          [
+            2.0,
+            0.0
+          ]
+        ],
+        "wire_sha256": "459971a6888f99e2f55922cec44cc738aedc28c90778adb5075f2ee2edbb7d3d"
+      },
+      "S07_mixed360": {
+        "persons": {
+          "active": 1.3855583347321954e-13,
+          "completed": 17.99999999999986,
+          "pending": 2.0,
+          "released": 18.0,
+          "released_intent_first_moment": 409.99999999999966,
+          "requested": 20.0
+        },
+        "bus": {
+          "active_tracks": 0,
+          "enabled": false,
+          "exited_veh": 0.0,
+          "moves": 0,
+          "quota_blocks": 0
+        },
+        "class_road_ledger": [
+          [
+            12.800000000000004,
+            12.799999999999894
+          ],
+          [
+            0.1,
+            0.09999999999999988
+          ],
+          [
+            2.0,
+            1.999999999999974
+          ]
+        ],
+        "wire_sha256": "902cb0e6b8848ae9546e576806ec00746729375f05ee1eb1af5eede6edcc78a7"
+      },
+      "S08_hybrid_half": {
+        "persons": {
+          "active": 2.000000000000316,
+          "completed": 15.999999999999677,
+          "pending": 2.000000000000007,
+          "released": 17.999999999999993,
+          "released_intent_first_moment": 409.99999999999824,
+          "requested": 20.0
+        },
+        "bus": {
+          "active_tracks": 0,
+          "enabled": true,
+          "exited_veh": 0.0,
+          "moves": 0,
+          "quota_blocks": 1260
+        },
+        "class_road_ledger": [
+          [
+            12.799999999999978,
+            12.799999999999722
+          ],
+          [
+            0.1,
+            0.1000000000000001
+          ],
+          [
+            2.0,
+            0.0
+          ]
+        ],
+        "wire_sha256": "477111754171a370582183b29343e217fb5e23cac2bc71f2b0d70f6057e45b55"
+      },
+      "S08_mixed_half": {
+        "persons": {
+          "active": 3.055333763768431e-13,
+          "completed": 17.999999999999687,
+          "pending": 2.000000000000007,
+          "released": 17.999999999999993,
+          "released_intent_first_moment": 409.9999999999985,
+          "requested": 20.0
+        },
+        "bus": {
+          "active_tracks": 0,
+          "enabled": false,
+          "exited_veh": 0.0,
+          "moves": 0,
+          "quota_blocks": 0
+        },
+        "class_road_ledger": [
+          [
+            12.799999999999978,
+            12.799999999999704
+          ],
+          [
+            0.1,
+            0.09999999999999994
+          ],
+          [
+            2.0,
+            1.999999999999943
+          ]
+        ],
+        "wire_sha256": "be36670c90ed77ee381a69b31bbae6e7e220e177c6af55b2af9b48b576889a52"
+      },
+      "S08_hybrid_two": {
+        "persons": {
+          "active": 3.197442310920451e-14,
+          "completed": 19.999999999999968,
+          "pending": 0.0,
+          "released": 20.0,
+          "released_intent_first_moment": 499.9999999999999,
+          "requested": 20.0
+        },
+        "bus": {
+          "active_tracks": 0,
+          "enabled": true,
+          "exited_veh": 2.0,
+          "moves": 2,
+          "quota_blocks": 0
+        },
+        "class_road_ledger": [
+          [
+            12.800000000000002,
+            12.79999999999998
+          ],
+          [
+            0.1,
+            0.10000000000000005
+          ],
+          [
+            2.0,
+            2.0
+          ]
+        ],
+        "wire_sha256": "37c12978f5671b4fab76d93f31b6dbed534f1d51b0f807893266482c25c5262a"
+      },
+      "S08_mixed_two": {
+        "persons": {
+          "active": 2.842170943040401e-14,
+          "completed": 17.99999999999997,
+          "pending": 2.0,
+          "released": 18.0,
+          "released_intent_first_moment": 409.9999999999998,
+          "requested": 20.0
+        },
+        "bus": {
+          "active_tracks": 0,
+          "enabled": false,
+          "exited_veh": 0.0,
+          "moves": 0,
+          "quota_blocks": 0
+        },
+        "class_road_ledger": [
+          [
+            12.799999999999994,
+            12.79999999999997
+          ],
+          [
+            0.1,
+            0.1
+          ],
+          [
+            2.0,
+            1.999999999999994
+          ]
+        ],
+        "wire_sha256": "27b19deea033c67cd74cf8a28422768576350e3e8da779dbfad20abf0b177c2d"
+      },
+      "S09_hybrid_active36": {
+        "persons": {
+          "active": 2.4613073120430897,
+          "completed": 7.53869268795691,
+          "pending": 0.0,
+          "released": 10.0,
+          "released_intent_first_moment": 50.0,
+          "requested": 10.0
+        },
+        "bus": {
+          "active_tracks": 1,
+          "enabled": true,
+          "exited_veh": 0.0,
+          "moves": 0,
+          "quota_blocks": 0
+        },
+        "class_road_ledger": [
+          [
+            6.4,
+            6.030954150365528
+          ],
+          [
+            0.1,
+            0.09195496501600019
+          ],
+          [
+            1.0,
+            0.0
+          ]
+        ],
+        "wire_sha256": "94a2fa1954d4e5e1e8edbb40d544c4bf52d370c2ab4681f9829e6afcd17f153d"
+      },
+      "S09_hybrid_active36_recover": {
+        "persons": {
+          "active": 2.4613073120430897,
+          "completed": 7.53869268795691,
+          "pending": 0.0,
+          "released": 10.0,
+          "released_intent_first_moment": 50.0,
+          "requested": 10.0
+        },
+        "bus": {
+          "active_tracks": 1,
+          "enabled": true,
+          "exited_veh": 0.0,
+          "moves": 0,
+          "quota_blocks": 0
+        },
+        "class_road_ledger": [
+          [
+            6.4,
+            6.030954150365528
+          ],
+          [
+            0.1,
+            0.09195496501600019
+          ],
+          [
+            1.0,
+            0.0
+          ]
+        ],
+        "wire_sha256": "94a2fa1954d4e5e1e8edbb40d544c4bf52d370c2ab4681f9829e6afcd17f153d"
+      },
+      "S09_hybrid_two_resume360": {
+        "persons": {
+          "active": 3.197442310920451e-14,
+          "completed": 19.999999999999968,
+          "pending": 0.0,
+          "released": 20.0,
+          "released_intent_first_moment": 499.9999999999999,
+          "requested": 20.0
+        },
+        "bus": {
+          "active_tracks": 0,
+          "enabled": true,
+          "exited_veh": 2.0,
+          "moves": 2,
+          "quota_blocks": 0
+        },
+        "class_road_ledger": [
+          [
+            12.800000000000002,
+            12.79999999999998
+          ],
+          [
+            0.1,
+            0.10000000000000005
+          ],
+          [
+            2.0,
+            2.0
+          ]
+        ],
+        "wire_sha256": "37c12978f5671b4fab76d93f31b6dbed534f1d51b0f807893266482c25c5262a"
+      }
+    },
+    "wire_decodes": {
+      "S07_hybrid360": {
+        "t": 360.0,
+        "identity": "akm-native-whole-bus-characteristic-v1:native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3:2dbedc0ab2720529b71ef1377f9def399bb40e6e400ac22a6073e33bbf4f6a21",
+        "tracks": [],
+        "bus_runs": [
+          [
+            0,
+            1,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0,
+            1,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "passengers": [
+          [
+            0.0,
+            2.0,
+            0.0,
+            40.0,
+            0.0
+          ],
+          [
+            2.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "road": [
+          [
+            2,
+            0,
+            1.0793482861514435e-13,
+            5.199752806379998e-12
+          ],
+          [
+            3,
+            0,
+            5.68190441874341e-16,
+            3.166987885126122e-15
+          ],
+          [
+            4,
+            0,
+            1.2874309312661331e-17,
+            1.287430931266132e-16
+          ]
+        ],
+        "pending": [
+          [
+            0,
+            0,
+            1.0,
+            60.0
+          ],
+          [
+            1,
+            0,
+            1.0,
+            30.0
+          ]
+        ],
+        "class_road_ledger": [
+          [
+            12.799999999999995,
+            12.799999999999905
+          ],
+          [
+            0.1,
+            0.10000000000000005
+          ],
+          [
+            2.0,
+            0.0
+          ]
+        ]
+      },
+      "S07_mixed360": {
+        "t": 360.0,
+        "identity": "akm-native-sparse-proportional-v1:native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3:2dbedc0ab2720529b71ef1377f9def399bb40e6e400ac22a6073e33bbf4f6a21",
+        "tracks": [],
+        "bus_runs": [
+          [
+            1,
+            2,
+            230.0,
+            0.0,
+            0.0
+          ],
+          [
+            1,
+            2,
+            260.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "passengers": [
+          [
+            0.0,
+            0.0,
+            2.0,
+            40.0,
+            460.0
+          ],
+          [
+            2.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "road": [
+          [
+            0,
+            0,
+            2.5383591361020652e-14,
+            1.5230154816612404e-12
+          ],
+          [
+            1,
+            0,
+            1.0691014754086685e-15,
+            3.207304426226008e-14
+          ],
+          [
+            2,
+            0,
+            1.1060464822615059e-13,
+            5.326619390831041e-12
+          ],
+          [
+            3,
+            0,
+            5.812476279140475e-16,
+            3.2397662125213687e-15
+          ],
+          [
+            4,
+            0,
+            1.2948513762700096e-17,
+            1.2948513762700135e-16
+          ]
+        ],
+        "pending": [],
+        "class_road_ledger": [
+          [
+            12.800000000000004,
+            12.799999999999894
+          ],
+          [
+            0.1,
+            0.09999999999999988
+          ],
+          [
+            2.0,
+            1.999999999999974
+          ]
+        ]
+      },
+      "S08_hybrid_half": {
+        "t": 360.0,
+        "identity": "akm-native-whole-bus-characteristic-v1:native-whole-v1:rust-host-fixture-static-d05-diagnostic-dt-0.5:268435456:bounded_bytes_v1:retained_capacity_v3:88afac07f9232402dbef0b5efdf4514fbc966e6261dcf4271c64a7cf47950bf3",
+        "tracks": [],
+        "bus_runs": [
+          [
+            0,
+            1,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0,
+            1,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "passengers": [
+          [
+            0.0,
+            2.0,
+            0.0,
+            40.0,
+            0.0
+          ],
+          [
+            2.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "road": [
+          [
+            2,
+            0,
+            2.381989072885027e-13,
+            1.1462370849989812e-11
+          ],
+          [
+            3,
+            0,
+            1.4155125731348756e-15,
+            7.828326248196064e-15
+          ],
+          [
+            4,
+            0,
+            3.266992980198186e-17,
+            3.2669929801981855e-16
+          ]
+        ],
+        "pending": [
+          [
+            0,
+            0,
+            1.0,
+            60.0
+          ],
+          [
+            1,
+            0,
+            1.0,
+            30.0
+          ]
+        ],
+        "class_road_ledger": [
+          [
+            12.799999999999978,
+            12.799999999999722
+          ],
+          [
+            0.1,
+            0.1000000000000001
+          ],
+          [
+            2.0,
+            0.0
+          ]
+        ]
+      },
+      "S08_hybrid_two": {
+        "t": 360.0,
+        "identity": "akm-native-whole-bus-characteristic-v1:native-whole-v1:rust-host-fixture-static-d05-diagnostic-dt-2:268435456:bounded_bytes_v1:retained_capacity_v3:08b52b1ad1a96fb45317ceb023e690c8778a35c08d3ca4fcc79edecc93a898b6",
+        "tracks": [],
+        "bus_runs": [
+          [
+            1,
+            2,
+            46.0,
+            0.0,
+            0.0
+          ],
+          [
+            1,
+            2,
+            76.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "passengers": [
+          [
+            0.0,
+            0.0,
+            2.0,
+            40.0,
+            92.0
+          ],
+          [
+            0.0,
+            0.0,
+            2.0,
+            20.0,
+            152.0
+          ]
+        ],
+        "road": [
+          [
+            2,
+            0,
+            1.9134924078918102e-14,
+            9.230801681008428e-13
+          ],
+          [
+            3,
+            0,
+            7.733994954632297e-17,
+            4.368429380968286e-16
+          ],
+          [
+            4,
+            0,
+            1.6269538709617932e-18,
+            1.6269538709617924e-17
+          ]
+        ],
+        "pending": [],
+        "class_road_ledger": [
+          [
+            12.800000000000002,
+            12.79999999999998
+          ],
+          [
+            0.1,
+            0.10000000000000005
+          ],
+          [
+            2.0,
+            2.0
+          ]
+        ]
+      },
+      "S08_mixed_two": {
+        "t": 360.0,
+        "identity": "akm-native-sparse-proportional-v1:native-whole-v1:rust-host-fixture-static-d05-diagnostic-dt-2:268435456:bounded_bytes_v1:retained_capacity_v3:08b52b1ad1a96fb45317ceb023e690c8778a35c08d3ca4fcc79edecc93a898b6",
+        "tracks": [],
+        "bus_runs": [
+          [
+            1,
+            2,
+            220.0,
+            0.0,
+            0.0
+          ],
+          [
+            1,
+            2,
+            250.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "passengers": [
+          [
+            0.0,
+            0.0,
+            2.0,
+            40.0,
+            440.0
+          ],
+          [
+            2.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "road": [
+          [
+            0,
+            0,
+            4.219771909635957e-15,
+            2.531863145781575e-13
+          ],
+          [
+            1,
+            0,
+            1.4788230924639645e-16,
+            4.436469277391902e-15
+          ],
+          [
+            2,
+            0,
+            1.867466813879574e-14,
+            9.009171858558781e-13
+          ],
+          [
+            3,
+            0,
+            7.564741660001707e-17,
+            4.272829232606798e-16
+          ],
+          [
+            4,
+            0,
+            1.6177562524827401e-18,
+            1.6177562524827416e-17
+          ]
+        ],
+        "pending": [],
+        "class_road_ledger": [
+          [
+            12.799999999999994,
+            12.79999999999997
+          ],
+          [
+            0.1,
+            0.1
+          ],
+          [
+            2.0,
+            1.999999999999994
+          ]
+        ]
+      },
+      "S09_hybrid_active36": {
+        "t": 36.0,
+        "identity": "akm-native-whole-bus-characteristic-v1:native-whole-v1:rust-host-fixture-static-d05-diagnostic-dt-2:268435456:bounded_bytes_v1:retained_capacity_v3:08b52b1ad1a96fb45317ceb023e690c8778a35c08d3ca4fcc79edecc93a898b6",
+        "tracks": [
+          [
+            1,
+            0,
+            22.671649234117496,
+            32.0
+          ]
+        ],
+        "bus_runs": [
+          [
+            0,
+            1,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0,
+            0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "passengers": [
+          [
+            0.0,
+            2.0,
+            0.0,
+            40.0,
+            0.0
+          ],
+          [
+            2.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "road": [
+          [
+            1,
+            0,
+            1.0,
+            30.0
+          ],
+          [
+            3,
+            0,
+            0.36904584963447,
+            2.0844993330413564
+          ],
+          [
+            4,
+            0,
+            0.008045034983999829,
+            0.08045034983999827
+          ]
+        ],
+        "pending": [],
+        "class_road_ledger": [
+          [
+            6.4,
+            6.030954150365528
+          ],
+          [
+            0.1,
+            0.09195496501600019
+          ],
+          [
+            1.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    "original_city_no_bus_regression": true,
+    "city_checkpoint_sha256": "f227fac00f11758f0966fb411892108126c290407c53d0246de19ff21adc0f11",
+    "remaining": "strict atomic service quota starvation at dt<=1, not a time-refined physical closure"
+  },
+  "interface_bound": {
+    "status": "DERIVED_NUMERICALLY_CHECKED_NOT_IMPLEMENTED",
+    "cases": 512,
+    "fixture_constant_other_stock": [
+      {
+        "dt_s": 0.5,
+        "strict_atomic_eligible": false,
+        "incremental_entry_time_s": 1.5,
+        "conditional_bound_s": 1.7765957446808511
+      },
+      {
+        "dt_s": 1.0,
+        "strict_atomic_eligible": false,
+        "incremental_entry_time_s": 2.0,
+        "conditional_bound_s": 2.276595744680851
+      },
+      {
+        "dt_s": 2.0,
+        "strict_atomic_eligible": true,
+        "incremental_entry_time_s": 2.0,
+        "conditional_bound_s": 3.276595744680851
+      }
+    ],
+    "assumptions": "strict spare storage F0>ell*m; positive fixed count cap and w; h*w<=L; no competing flows; no unused quota accumulation; completion bound only for crossing phase"
+  },
+  "decision": {
+    "A": "retain original for comparison; reject combined selective/residual variant as current day-resolution solution; both fail 2% mean gate",
+    "B": "preferred fixed-route projected comparison lane on sampled AM completion/mean; storage and receiving peaks unresolved, not current calendar bridge",
+    "D": "retain exactly one fallback family; strict atomic arm negative at original dt, successful causal transit at dt2 is diagnostic only. Next final attempt use reserved interface transfer, no quota relaxation",
+    "D05": "READY attempt 1/2 consumed; next attempt final, no automatic D07, no V03 credit"
+  }
+}
