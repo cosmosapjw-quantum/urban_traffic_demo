@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "strict_slack_cases": 1024,
+  "max_steps": 184,
+  "competing_quota_cases": 1024,
+  "exact_slack_steps": 128,
+  "exact_slack_remaining": 0.03913729532473686
+}
