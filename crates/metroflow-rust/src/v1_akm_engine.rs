@@ -6,6 +6,8 @@ use crate::v1_journey::{Service,advance_akm_tick};
 use crate::v1_road::{read_len,write_len};
 use serde_json::{json,Value};
 
+const PILOT_MODEL:&str="akm-native-reserved-interface-clock-v1";
+
 struct Binding<'a>{
     owners:&'a[Option<usize>],classes:&'a[String],freight:&'a[f64],
     legs:&'a[SharedJourneyLeg],
@@ -97,8 +99,23 @@ pub fn run_akm_native(manifest:Value,manifest_sha:&str,mode:&str,source:&str,tar
     let start=Instant::now();
     let(mut e,calendar_legs,calendar_totals)=build_native_input(manifest,threads)?;
     let build_s=start.elapsed().as_secs_f64();
-    let (hybrid,interface,mode)=if let Some(m)=mode.strip_prefix("interface-"){(true,true,m)}else if let Some(m)=mode.strip_prefix("hybrid-"){(true,false,m)}else{(false,false,mode)};
-    let model=if interface{INTERFACE_MODEL}else if hybrid{HYBRID_MODEL}else{MODEL};
+    let (pilot,hybrid,interface,mode)=if let Some(m)=mode.strip_prefix("pilot-"){(true,true,true,m)}else if let Some(m)=mode.strip_prefix("interface-"){(false,true,true,m)}else if let Some(m)=mode.strip_prefix("hybrid-"){(false,true,false,m)}else{(false,false,false,mode)};
+    let model=if pilot{PILOT_MODEL}else if interface{INTERFACE_MODEL}else if hybrid{HYBRID_MODEL}else{MODEL};
+    let wall_slice=if pilot{
+        let v=std::env::var("METROFLOW_AKM_PILOT_SLICE_S").ok().map(|x|x.parse::<f64>()).transpose().map_err(|_|bad("invalid pilot wall slice"))?.unwrap_or(180.);
+        if !v.is_finite()||!(1. ..=7200.).contains(&v){return Err(bad("pilot wall slice domain"))}Some(v)
+    }else{None};
+    // Earlier observer-guarded quotient; not a relaxation of resource limits.
+    if pilot{
+        e.journey.set_research_receipt_period(60)?;
+        e.journey.enable_research_group_outlets()?;
+        e.journey.enable_research_receipt_grid(e.step)?;
+        e.journey.enable_research_schedule_receipts()?;
+        e.journey.enable_research_stream_receipts()?;
+        e.journey.enable_research_egress_buckets()?;
+        e.journey.enable_research_entry_buckets()?;
+        e.journey.enable_research_delay_calendar()?;
+    }
     let whole_bus_class=if hybrid{Some(e.class_names.iter().position(|x|x=="scheduled_bus").ok_or_else(||bad("scheduled bus class absent"))?)}else{None};
     let id=format!("{model}:{}:{manifest_sha}",e.identity);
     let init=Instant::now();let mut migration=Value::Null;
@@ -119,8 +136,24 @@ pub fn run_akm_native(manifest:Value,manifest_sha:&str,mode:&str,source:&str,tar
         "resume"|"recover"=>read(&mut e,&id,source,whole_bus_class,interface)?,
         _=>return Err(bad("AKM mode must be fresh/migrate/resume/recover"))
     };
-    let source_time=s.t;let init_s=init.elapsed().as_secs_f64();
-    let count=(target-source_time)/e.step;
+    let source_time=s.t;
+    // An empty initial state has no physical or owner transition before all
+    // profiles and first scheduled offers. Land on a grid boundary no later
+    // than the earliest offer, preserving the tick which admits that offer.
+    let mut idle_skipped=0.;
+    if pilot&&mode=="fresh"&&s.t==0.&&s.rows()==0{
+        let first=e.profiles.iter().flat_map(|p|p.iter().map(|x|x.0))
+            .fold(e.service.akm_first_offer_time(),f64::min);
+        let jump=((first.min(target)/e.step).floor()*e.step).max(0.);
+        if jump>0.{
+            let mut j=e.journey.state().clone();
+            if j.1.len()!=0||j.2.len()!=0||j.3.len()!=0||j.4.iter().any(|x|*x!=0.)||j.5.iter().any(|x|*x!=0.)||j.7.iter().any(|x|*x!=0.)||e.service.checkpoint().1.len()!=0{return Err(bad("pilot initial idle not empty"))}
+            j.0=jump;s.t=jump;e.journey.install_state(j);check(&e,&s,e.journey.state(),&e.service.checkpoint())?;
+            idle_skipped=jump;
+        }
+    }
+    let init_s=init.elapsed().as_secs_f64();
+    let count=(target-s.t)/e.step;
     if count<0.||(count-count.round()).abs()>1e-8||count>10000.||mode=="recover"&&count!=0.{return Err(bad("AKM horizon not aligned or recovery advances"))}
     let pool=e.road_storage_bytes.ok_or_else(||bad("AKM dynamic pool absent"))?;
     let indices:HashMap<&str,usize>=e.tags.iter().enumerate().map(|(i,t)|(t.as_str(),i)).collect();
@@ -128,12 +161,16 @@ pub fn run_akm_native(manifest:Value,manifest_sha:&str,mode:&str,source:&str,tar
     let initial_ledger=ledger(&e,e.journey.state());let initial_rows=s.rows();
     let mut peak_rows=s.rows();let mut peak_storage=s.check(&e.road)?;let mut steps=0usize;let mut failure=None;let mut exited=0.;let mut transferred=0.;let mut offered=0.;let mut substeps=0;let mut bus_exited=0.;let mut bus_moves=0usize;let mut bus_quota_blocks=0usize;let mut boundary=[0.;3];let mut peak_crossings=s.crossings.len();
     let advance=Instant::now();let mut step_times=Vec::new();
+    let sample=|e:&NativeWholeEngine,s:&State|json!({"time_s":s.t,"ledger":ledger(e,e.journey.state()),"road_rows":s.rows(),"road_mass":s.active_mass(),"road_birth":s.total_birth(),"journey_records":e.journey.record_counts(),"bus_tracks":s.bus_tracks.len(),"crossings":s.crossings.len()});
+    let mut samples=if pilot{vec![sample(&e,&s)]}else{vec![]};let mut failure_kind=None;
     for _ in 0..count.round() as usize{
+        if wall_slice.is_some_and(|w|advance.elapsed().as_secs_f64()>=w){failure=Some("D09 session slice reached; last committed state retained".into());failure_kind=Some("SESSION_SLICE".to_owned());break}
         let tick=Instant::now();
         let owners=&e.car_tag_legs;let classes=&e.class_names;let freight=&e.freight_vehicles;
         let result=e.parallel.run(||advance_akm_tick(&e.road,&mut s,&mut e.service,&mut e.journey,&e.tags,&indices,e.step,pool,e.event_limit,
             |next,j,service,legs|Binding{owners,classes,freight,legs}.check(next,j,service)));
-        match result{Ok(st)=>{steps+=1;peak_rows=peak_rows.max(st.peak_rows);peak_storage=peak_storage.max(st.peak_storage_ratio);exited+=st.exited;transferred+=st.transferred;offered+=st.offered;substeps+=st.substeps;bus_exited+=st.bus_exited;bus_moves+=st.bus_moves;bus_quota_blocks+=st.bus_quota_blocks;boundary[0]+=st.bus_boundary_in;boundary[1]+=st.bus_boundary_internal;boundary[2]+=st.bus_boundary_sink;peak_crossings=peak_crossings.max(s.crossings.len());step_times.push(tick.elapsed().as_secs_f64())},Err(err)=>{failure=Some(err.message);break}}
+        match result{Ok(st)=>{steps+=1;peak_rows=peak_rows.max(st.peak_rows);peak_storage=peak_storage.max(st.peak_storage_ratio);exited+=st.exited;transferred+=st.transferred;offered+=st.offered;substeps+=st.substeps;bus_exited+=st.bus_exited;bus_moves+=st.bus_moves;bus_quota_blocks+=st.bus_quota_blocks;boundary[0]+=st.bus_boundary_in;boundary[1]+=st.bus_boundary_internal;boundary[2]+=st.bus_boundary_sink;peak_crossings=peak_crossings.max(s.crossings.len());step_times.push(tick.elapsed().as_secs_f64())},Err(err)=>{failure_kind=Some(format!("{:?}",err.kind));failure=Some(err.message);break}}
+        if pilot&&s.t%600.==0.{samples.push(sample(&e,&s));}
     }
     let advance_s=advance.elapsed().as_secs_f64();
     let save_start=Instant::now();save(&e,&s,&id,output)?;let save_s=save_start.elapsed().as_secs_f64();
@@ -153,6 +190,11 @@ pub fn run_akm_native(manifest:Value,manifest_sha:&str,mode:&str,source:&str,tar
     receipt.as_object_mut().unwrap().extend(measurements.as_object().unwrap().clone());
     receipt["whole_bus"]=json!({"enabled":hybrid,"active_tracks":s.bus_tracks.len(),"exited_veh":bus_exited,"moves":bus_moves,"quota_blocks":bus_quota_blocks});
     receipt["interface"]=json!({"enabled":interface,"partial_crossings":s.crossings.len(),"peak_crossings_at_owner_tick":peak_crossings,"sum_fraction":s.crossings.values().sum::<f64>(),"physical_boundary_in_veh":boundary[0],"physical_boundary_internal_veh":boundary[1],"physical_boundary_sink_veh":boundary[2],"logical_sink_completed_veh":bus_exited});
+    if pilot{
+        if samples.last().is_none_or(|x|x["time_s"]!=json!(s.t)){samples.push(sample(&e,&s));}
+        receipt["pilot"]=json!({"clock_cell_closure":true,"session_slice_s":wall_slice,"idle_skipped_s":idle_skipped,"failure_kind":failure_kind,
+            "samples":samples,"original_external_wall_s":7200,"scope":"fixed original owner/calendar; same road/interface; guarded temporal quotient, no new support or calibration"});
+    }
     Ok(receipt)
 }
 

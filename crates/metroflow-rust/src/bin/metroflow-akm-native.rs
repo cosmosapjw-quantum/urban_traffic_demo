@@ -10,7 +10,7 @@ fn main()->Result<(),Box<dyn std::error::Error>>{
     if a.len()!=9{return Err("usage: metroflow-akm-native MODE MANIFEST SOURCE_OR_- SOURCE_SHA_OR_- END_S THREADS OUT_CHECKPOINT OUT_RECEIPT".into())}
     let mode=&a[1];let manifest=&a[2];let source=&a[3];let expected=&a[4];let out=&a[7];let receipt=&a[8];
     if Path::new(out).exists()||Path::new(receipt).exists(){return Err("output exists".into())}
-    let source_sha=if mode=="fresh"||mode=="hybrid-fresh"||mode=="interface-fresh"{if source!="-"||expected!="-"{return Err("fresh source must be -".into())}None}else{
+    let source_sha=if mode=="fresh"||mode=="hybrid-fresh"||mode=="interface-fresh"||mode=="pilot-fresh"{if source!="-"||expected!="-"{return Err("fresh source must be -".into())}None}else{
         let got=hash(source)?;if &got!=expected{return Err("source checkpoint SHA mismatch".into())}Some(got)
     };
     let raw=fs::read(manifest)?;let manifest_sha=format!("{:x}",Sha256::digest(&raw));

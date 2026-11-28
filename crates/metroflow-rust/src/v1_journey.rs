@@ -505,6 +505,12 @@ impl NativeServiceCore {
     pub(crate) fn state(&self) -> &Service {
         &self.state
     }
+    #[cfg(feature="akm-research")]
+    pub(crate) fn akm_first_offer_time(&self)->f64{
+        self.buses.iter().flat_map(|x|x.1.first().copied())
+            .chain(self.freight.iter().chain(&self.cars).map(|x|x.1))
+            .fold(f64::INFINITY,f64::min)
+    }
     pub(crate) fn sources(&self) -> (&[Source], &[Source]) {
         (&self.freight, &self.cars)
     }
