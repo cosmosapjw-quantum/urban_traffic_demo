@@ -1,0 +1,9 @@
+   Compiling metroflow-headless v0.1.0 (/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/crates/metroflow-headless)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 16.33s
+     Running unittests src/bin/metroflow-active-lab.rs (target/debug/deps/metroflow_active_lab-7626095d91a190b6)
+
+running 1 test
+test tests::delayed_closure_does_not_change_new_route_choice_before_delivery ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

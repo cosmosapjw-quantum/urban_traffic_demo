@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "seed": 20261128,
+  "rational_pushforwards": 1024,
+  "rational_quota_cases": 1024,
+  "rk4_mean_cases": 96,
+  "max_mean_absolute_error": 4.3298697960381105e-15,
+  "finite_difference_cases": 99,
+  "max_flux_derivative_error": 1.120719628211475e-09,
+  "scope": "independent exact atom pushforward and conditional mean checks; not full nonlinear traffic proof"
+}

@@ -1,0 +1,1 @@
+First release probe returned exit101: assertion (alloc,realloc) == (0,0) measured (1,0). The status String was constructed before taking ending counters. No simulation outcome accepted. Fix scope, then retest entire hot loop. Also distinguish observed/consumed feasibility and commit policy only after successful physical step.
