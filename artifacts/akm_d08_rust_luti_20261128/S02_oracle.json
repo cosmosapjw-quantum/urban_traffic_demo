@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "growth_ledger_cases": 2048,
+  "three_updates_per_case": true,
+  "schedule_and_exposure_cases": 300,
+  "linear_cases": 1539,
+  "scope": "arithmetic and smooth surrogate only"
+}
