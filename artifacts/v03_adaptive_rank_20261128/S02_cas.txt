@@ -1,0 +1,1 @@
+Wolfram {True,True,True}; density averaging separate from right-end point remapping.
