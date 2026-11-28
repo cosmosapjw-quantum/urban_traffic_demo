@@ -266,11 +266,16 @@ impl World{
         if !config.valid(){return Err(bad("D07 scenario domain"))}
         Ok(Self{config,time:0,graph:Graph::new()?,owners:vec![],physical:Physical::default(),reports:vec![],cursor:0,epochs:vec![],reroutes:vec![],graph_events:vec![],samples:vec![],source:None})
     }
-    fn check(&self)->CoreResult<()>{
+    fn check(&self)->CoreResult<()>{self.check_schedule(None)}
+    fn check_schedule(&self,births:Option<&[u32]>)->CoreResult<()>{
+        if let Some(b)=births{
+            if b.is_empty()||b.len()>MAX||b.iter().any(|&x|x>=600)||b.windows(2).any(|w|w[0]>=w[1])||
+                self.owners.len()!=b.partition_point(|&x|x<self.time){return Err(bad("invalid explicit birth registry"))}
+        }
         if !self.config.valid()||self.time>1800||self.cursor>self.physical.passages.len()||
             self.graph.id!=route_model(self.graph.installed,self.graph.version)?.graph_id{return Err(bad("D07 checkpoint identity"))}
         check(&self.graph,&self.owners,self.time as f64)?;
-        for (i,o) in self.owners.iter().enumerate(){if o.id!=i||o.birth!=i as f64*self.config.interarrival_s as f64||o.birth>=600.{return Err(bad("birth registry changed"))}}
+        for (i,o) in self.owners.iter().enumerate(){if o.id!=i||o.birth!=births.map_or(i as f64*self.config.interarrival_s as f64,|b|b[i] as f64)||o.birth>=600.{return Err(bad("birth registry changed"))}}
         Ok(())
     }
     fn medium(&mut self,info:&Information)->CoreResult<()>{
@@ -316,8 +321,9 @@ impl World{
             stock_m:stock(&self.owners)?,ready:self.owners.iter().filter(|o|o.phase==1&&o.route.as_ref().is_some_and(|r|o.distance>=L[idx(&r.links[r.position]).unwrap()])).count(),
             partial:self.owners.iter().filter(|o|o.cross>0.).count(),completed_age_s:self.owners.iter().filter_map(|o|o.done.map(|d|d-o.birth)).sum()})
     }
-    fn advance(&mut self,target:u32)->CoreResult<()>{
-        self.check()?;
+    fn advance(&mut self,target:u32)->CoreResult<()>{self.advance_schedule(target,None)}
+    fn advance_schedule(&mut self,target:u32,births:Option<&[u32]>)->CoreResult<()>{
+        self.check_schedule(births)?;
         if target<self.time||target>1800{return Err(bad("D07 horizon"))}
         let info=information()?;
         while self.time<target{
@@ -325,7 +331,7 @@ impl World{
             if self.config.bypass&&t==300{self.graph_events.push(self.graph.edit(&mut self.owners,t as f64,BYPASS,true)?);}
             if self.config.bypass&&t==540&&self.graph.installed[BYPASS]{self.graph_events.push(self.graph.edit(&mut self.owners,t as f64,BYPASS,false)?);}
             if t%20==0{self.medium(&info)?;}
-            if t<600&&t%self.config.interarrival_s==0{
+            if births.map_or(t<600&&t%self.config.interarrival_s==0,|b|b.binary_search(&t).is_ok()){
                 let mut o=initial_owner(self.owners.len(),t as f64);
                 choose(&self.graph,&mut o,self.source.as_ref().ok_or_else(||bad("source epoch absent"))?,self.config.seed)?;
                 self.owners.push(o);
@@ -337,7 +343,7 @@ impl World{
         if target==1800&&self.config.bypass&&self.graph.installed[BYPASS]{
             self.graph_events.push(self.graph.edit(&mut self.owners,1800.,BYPASS,false)?);
         }
-        self.check()
+        self.check_schedule(births)
     }
 }
 #[cfg(test)]
@@ -409,4 +415,47 @@ pub fn execute(config:Config,target:u32,source:Option<&[u8]>)->CoreResult<(Vec<u
         "owners":w.owners,"physical":w.physical});
     let bytes=serde_json::to_vec(&Wire{schema:"AKMD07LAB1".into(),model:id,world:w}).map_err(|e|CoreError::value(e.to_string()))?;
     Ok((bytes,result))
+}
+
+/// D08 invokes the same physical/causal world with an explicit birth registry.
+/// Distinct outer research identity; no change to AKMD07LAB1 wire.
+#[derive(Clone,Debug,PartialEq,Serialize,Deserialize)]
+pub(crate) struct EpochTraffic{
+    pub births:Vec<u32>,pub done:Vec<Option<f64>>,pub completed:usize,
+    pub pending:usize,pub road:usize,pub mean_s:Option<f64>,pub stock_veh_s:f64,
+    pub peak_storage:f64,pub reroutes:usize,pub final_branches:std::collections::BTreeMap<String,usize>,
+    pub world_sha256:String,pub samples:Vec<[f64;4]>
+}
+pub(crate) fn run_epoch(bypass:bool,seed:u64,births:&[u32])->CoreResult<EpochTraffic>{
+    let mut w=World::new(Config{interarrival_s:4,bypass,reroute:bypass,seed})?;
+    w.advance_schedule(1800,Some(births))?;
+    epoch_traffic(&w,births)
+}
+fn epoch_traffic(w:&World,births:&[u32])->CoreResult<EpochTraffic>{
+    if w.owners.iter().map(|o|o.birth as u32).collect::<Vec<_>>()!=births{return Err(bad("explicit epoch births not consumed"))}
+    let s=w.sample()?;
+    let mut branches=std::collections::BTreeMap::new();
+    for o in &w.owners{*branches.entry(o.route.as_ref().and_then(|r|r.links.get(1)).cloned().unwrap_or_else(||"unassigned".into())).or_insert(0)+=1;}
+    let raw=serde_json::to_vec(w).map_err(|e|CoreError::value(e.to_string()))?;
+    Ok(EpochTraffic{births:births.to_vec(),done:w.owners.iter().map(|o|o.done).collect(),completed:s.completed,pending:s.pending,road:s.on_road,
+        mean_s:if s.completed>0{Some(s.completed_age_s/s.completed as f64)}else{None},stock_veh_s:w.physical.stock_integral,peak_storage:w.physical.peak_storage,
+        reroutes:w.reroutes.len(),final_branches:branches,world_sha256:hash(&raw),
+        samples:w.samples.iter().map(|s|[s.time_s,s.released as f64,s.completed as f64,(s.pending+s.on_road)as f64]).collect()})
+}
+#[cfg(test)]
+mod d08_source_tests{
+    use super::*;
+    #[test]fn explicit_birth_registry_reuses_physical_world(){
+        let births:Vec<_>=(0..175).map(|i|600*i/175).collect();
+        let r=run_epoch(true,7,&births).unwrap();
+        assert_eq!(r.births,births);assert_eq!(r.completed,175);
+    }
+    #[test]fn fixed_gap_parity_with_original_world(){
+        for bypass in [false,true]{
+            let births:Vec<_>=(0..150).map(|i|4*i).collect();
+            let mut w=World::new(Config{interarrival_s:4,bypass,reroute:bypass,seed:7}).unwrap();w.advance(1800).unwrap();
+            let expected=epoch_traffic(&w,&births).unwrap();
+            assert_eq!(run_epoch(bypass,7,&births).unwrap(),expected);
+        }
+    }
 }
