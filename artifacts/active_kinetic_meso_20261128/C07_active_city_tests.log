@@ -1,0 +1,11 @@
+   Compiling metroflow-headless v0.1.0 (/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/crates/metroflow-headless)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.00s
+     Running unittests src/lib.rs (target/debug/deps/metroflow_headless-ce2312ae8c9f8ae3)
+
+running 3 tests
+test queue::tests::mirrored_ranks ... ok
+test queue::tests::mixed_constraints_and_replay ... ok
+test queue::tests::active_zero_hazard_recovers_old_queue_and_positive_hazard_delays ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 0.00s
+

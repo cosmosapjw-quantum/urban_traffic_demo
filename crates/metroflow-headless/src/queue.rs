@@ -1,5 +1,6 @@
 //! Same fixed-route whole-head closure as historical C++ research solver.
 use crate::input::{Input, Result, FOOTPRINT};
+use crate::active_kinetic::{Mobility,Rates};
 use rayon::prelude::*;
 use serde::Serialize;
 use std::{
@@ -126,6 +127,26 @@ pub struct Snapshot {
     pub max_meter_error: f64,
     pub outstanding_blocked_veh_s: f64,
 }
+/// Research variant: exact frozen-environment mean kinetic field; precomputed
+/// base passage is time-dilated at admission, not retroactively modified.
+#[derive(Clone,Copy,Debug,Serialize,PartialEq)]
+pub struct ActivePolicy{pub alpha:f64,pub beta:f64,pub tau:f64}
+#[derive(Clone,Copy,Debug,Serialize,PartialEq)]
+pub struct ActiveStats{pub policy:ActivePolicy,pub updates:u64,pub min_mobility:f64,pub admitted_base_veh_s:f64,pub added_passage_veh_s:f64,pub peak_ready_entries:usize}
+struct ActiveLink{field:Mobility,last:f64,ready:VecDeque<f64>,min_u:f64,updates:u64,base:Sum,extra:Sum,peak:usize}
+impl Default for ActiveLink{
+    fn default()->Self{Self{field:Mobility{p:1.,u:1.},last:0.,ready:VecDeque::new(),min_u:1.,updates:0,base:Sum::default(),extra:Sum::default(),peak:0}}
+}
+impl ActiveLink{
+    fn advance(&mut self,t:f64,phi:f64,p:ActivePolicy)->Result<()>{
+        if t<self.last{return Err("active field noncausal clock".into())}
+        if t>self.last{
+            self.field=self.field.advance(Rates{alpha:p.alpha,nu:p.beta*phi*phi,tau:p.tau,target:1.},t-self.last)?;
+            self.last=t;self.updates+=1;self.min_u=self.min_u.min(self.field.u);
+        }
+        Ok(())
+    }
+}
 #[derive(Serialize, Debug, PartialEq)]
 pub struct Run {
     pub initial_batches: u64,
@@ -136,6 +157,8 @@ pub struct Run {
     pub blocked_veh_s: f64,
     pub worst_link: usize,
     pub snapshots: Vec<Snapshot>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub active_mobility:Option<ActiveStats>,
 }
 fn mix(mut x: u64) -> u64 {
     x = x.wrapping_add(0x9e3779b97f4a7c15);
@@ -181,6 +204,7 @@ struct Engine<'a> {
     storage_blocks: u64,
     rate_blocks: u64,
     queued_requests: u64,
+    active:Option<(ActivePolicy,Vec<ActiveLink>)>,
 }
 impl<'a> Engine<'a> {
     fn cls(&self, b: Event) -> usize {
@@ -252,7 +276,9 @@ impl<'a> Engine<'a> {
             return;
         }
         let b = *l.fifo.front().unwrap();
-        let ready = b.t + self.input.passage[self.route(b)][b.edge as usize];
+        let ready = if let Some((_,links))=&self.active{
+            *links[i].ready.front().expect("active ready FIFO bound to admitted batch")
+        }else{b.t + self.input.passage[self.route(b)][b.edge as usize]};
         let cap = self.input.roads[i].exit
             * if self.cfg.shock_link == Some(i as u32) {
                 self.cfg.shock_factor
@@ -271,6 +297,17 @@ impl<'a> Engine<'a> {
         let length = self.length(b);
         let c = self.cls(b);
         let r = self.input.roads[i];
+        let base=self.input.passage[self.route(b)][b.edge as usize];
+        if let Some((policy,active))=&mut self.active{
+            let a=&mut active[i];
+            a.advance(t,(self.links[i].stock.get()/r.storage).clamp(0.,1.),*policy)?;
+            let u=a.field.u;
+            if u<=0.||!u.is_finite(){return Err("nonpositive active mobility".into())}
+            let duration=base/u;let ready=t+duration;
+            if !ready.is_finite()||ready<=t{return Err("invalid active ready clock".into())}
+            a.ready.push_back(ready);a.peak=a.peak.max(a.ready.len());
+            a.base.add(b.mass*base);a.extra.add(b.mass*(duration-base));
+        }
         let l = &mut self.links[i];
         b.t = t;
         l.fifo.push_back(b);
@@ -298,6 +335,11 @@ impl<'a> Engine<'a> {
         }
         let b = *l.fifo.front().unwrap();
         let length = self.length(b);
+        if let Some((policy,active))=&mut self.active{
+            let a=&mut active[i];
+            a.advance(t,(self.links[i].stock.get()/self.input.roads[i].storage).clamp(0.,1.),*policy)?;
+            if a.ready.pop_front().is_none(){return Err("active ready FIFO lost batch".into())}
+        }
         let l = &mut self.links[i];
         l.fifo.pop_front();
         l.stock.add(-length);
@@ -459,6 +501,7 @@ impl<'a> Engine<'a> {
         let mut meter: f64 = 0.;
         let mut outstanding = Sum::default();
         for (i, l) in self.links.iter().enumerate() {
+            if let Some((_,active))=&self.active{if active[i].ready.len()!=l.fifo.len(){return Err("active ready FIFO census".into())}}
             let mut occ = Sum::default();
             for &b in &l.fifo {
                 let c = self.cls(b);
@@ -526,7 +569,13 @@ impl<'a> Engine<'a> {
         })
     }
 }
-pub fn run(input: &Input, cfg: Config) -> Result<Run> {
+pub fn run(input:&Input,cfg:Config)->Result<Run>{run_internal(input,cfg,None)}
+pub fn run_active(input:&Input,cfg:Config,policy:ActivePolicy)->Result<Run>{
+    let r=Rates{alpha:policy.alpha,nu:policy.beta,tau:policy.tau,target:1.};
+    if !r.valid(){return Err("invalid active city policy".into())}
+    run_internal(input,cfg,Some(policy))
+}
+fn run_internal(input: &Input, cfg: Config,policy:Option<ActivePolicy>) -> Result<Run> {
     if !(cfg.mesh_s.is_finite()
         && cfg.mesh_s > 0.
         && cfg.horizon_s > 0.
@@ -572,6 +621,7 @@ pub fn run(input: &Input, cfg: Config) -> Result<Run> {
         storage_blocks: 0,
         rate_blocks: 0,
         queued_requests: 0,
+        active:policy.map(|p|(p,(0..input.roads.len()).map(|_|ActiveLink::default()).collect())),
     };
     // Heapify once in linear time, with original stable event ordinals.
     let first: Vec<Event> = (0..input.groups.len())
@@ -602,6 +652,11 @@ pub fn run(input: &Input, cfg: Config) -> Result<Run> {
             worst = i
         }
     }
+    let active_mobility=e.active.as_ref().map(|(p,links)|{
+        let(mut base,mut extra)=(Sum::default(),Sum::default());
+        for l in links{base.add(l.base.get());extra.add(l.extra.get());}
+        ActiveStats{policy:*p,updates:links.iter().map(|l|l.updates).sum(),min_mobility:links.iter().map(|l|l.min_u).fold(1.,f64::min),admitted_base_veh_s:base.get(),added_passage_veh_s:extra.get(),peak_ready_entries:links.iter().map(|l|l.peak).max().unwrap_or(0)}
+    });
     Ok(Run {
         initial_batches,
         event_count: e.events,
@@ -610,7 +665,7 @@ pub fn run(input: &Input, cfg: Config) -> Result<Run> {
         wait_veh_s: wait.get(),
         blocked_veh_s: blocked.get(),
         worst_link: worst,
-        snapshots,
+        snapshots,active_mobility,
     })
 }
 #[cfg(test)]
@@ -644,6 +699,18 @@ mod tests {
                 assert_eq!(s.max_receiving_ratio, 1.)
             }
         }
+    }
+    #[test]
+    fn active_zero_hazard_recovers_old_queue_and_positive_hazard_delays(){
+        let n="2 1 2 1 0\n10 2 1 100\n10 2 1 100\n2 0 1\n0 20 0 0\n0 -1 0 4 0 0 0 0\n0 -1 0 4 0 0 2 1";
+        let x=Input::parse(n,"1\n2 10 10").unwrap();
+        let c=Config{mesh_s:5.,horizon_s:240.,seed:0,shock_link:None,shock_factor:1.};
+        let a=run(&x,c).unwrap();let mut b=run_active(&x,c,ActivePolicy{alpha:0.2,beta:0.,tau:2.}).unwrap();
+        assert_eq!(b.active_mobility.unwrap().added_passage_veh_s,0.);b.active_mobility=None;assert_eq!(a,b);
+        let b=run_active(&x,c,ActivePolicy{alpha:0.2,beta:1.,tau:2.}).unwrap();
+        let z=b.active_mobility.unwrap();assert!(z.added_passage_veh_s>0.&&z.min_mobility<1.);
+        assert_eq!(b,run_active(&x,c,z.policy).unwrap());
+        for v in &b.snapshots.last().unwrap().classes{assert!(v.error<1e-9)}
     }
     #[test]
     fn mirrored_ranks() {
