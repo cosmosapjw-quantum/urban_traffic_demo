@@ -28,7 +28,7 @@ flowchart TD
   D10["D10 독립 지형/요일/해상도 holdout [BLOCKED_TERMINAL]"]
   D08 --> D10
   D09 --> D10
-  D11["D11 유한 후보 선택/중단 [READY]"]
+  D11["D11 유한 후보 선택/중단 [VERIFIED_SCOPED]"]
   D01 --> D11
   D02 --> D11
   D03 --> D11
@@ -39,8 +39,8 @@ flowchart TD
   D08 -. terminal .-> D11
   D09 -. terminal .-> D11
   D10 -. terminal .-> D11
-  D12["D12 기존 V03와 승인된 candidate의 수용 [PLANNED]"]
+  D12["D12 기존 V03와 승인된 candidate의 수용 [STOPPED]"]
   D11 --> D12
-  D13["D13 연구 종료 및 통합 심사 [PLANNED]"]
+  D13["D13 연구 종료 및 통합 심사 [READY]"]
   D11 --> D13
   D12 -. terminal .-> D13

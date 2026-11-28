@@ -171,6 +171,10 @@ Original fresh Valley25430 matched comparison: old953296 -> new371733 support (i
 
 **D09 STOPPED, attempts2/2**, not verified-scoped node acceptance. Physical evidence and failed gate kept. **D10 BLOCKED_TERMINAL, attempts0/2** because successful D09 is prerequisite; no holdout claimed or executed. **D11 READY** distinct decision: compare A/B/D physical and computational Pareto/claim matrix including negatives, select one only if evidence supports it, otherwise no candidate. D12 still requires explicit user authorization and original unchanged acceptance gates; no automatic execution. Rust-first --engine cohort opt-in, default exact and no Python fallback. Native329 passed/2 ignored, headless20, Python17. Independent wire/receipt and arithmetic checks, no native subagent/full CI/merge. Original V1 PLAN byte-identical. AD1 actual Q1/Q2/Q5 and original service capacity, AD2 owner/birth/progress/clock and negative refinement, ALM1 zero new exact ticks/no guard change (time fraction not measured), ALM2 final differentiated attempt exhausted. Evidence [report](../research/AKM_D09_FINAL_COHORT_20261128.md), `artifacts/akm_d09_final_cohort_20261128/S09_audit.json`, S10 receipt. Verdict STOPPED_D09 / CAUTION_RESEARCH_ONLY.
 
+## 6.8. 2026-11-28 D11: 유한 후보 판정
+
+D11 VERIFIED_SCOPED, attempts1/2. A/B/D finite archived comparison executed in Rust (no new simulation). A 22/24 reached, two moment-cone stops, selective finest adjacent gap43.2832%; B matched AM mean gap0.003218% but receiving abs gap0.028614 >0.02; D original service deficit and 7s free-flow counterexample retained, 61.0055% support reduction not physical parity. No common-domain total Pareto ranking; UNKNOWN not PASS; no compensation by runtime. Rust-native decision reproduced byte-identically; independent Fraction oracle on raw data; read-only Python frontend. D11 selected **NO_CANDIDATE**; scoped local/causal/LUTI results remain. D12 STOPPED zero attempts, no approved candidate and no acceptance campaign. D13 READY for terminal synthesis, not auto-executed here. D09/D10 unchanged. Original V1 PLAN byte-identical; default Rust exact unchanged, no full CI/main merge, no universal no-go. AD1/AD2 archived scope preserved; ALM1 zero new exact ticks/cap changes; ALM2 no reopening stopped node. Evidence: [D11 report](../research/AKM_D11_CANDIDATE_DECISION_20261128.md), `artifacts/akm_d11_decision_20261128/S06_decision.json`, S08 independent audit. CAUTION_RESEARCH_ONLY.
+
 ## 7. 유한 DAG: 정의와 종료
 
 D00–D03은 이번 재정초의 실측 범위에 대해 VERIFIED_SCOPED. D04–D10은 유한 science/implementation 실험. D11은 성공뿐 아니라 실패가 담긴 terminal evidence로 decision. 후보가 없다는 근거 있는 decision 자체는 D11 VERIFIED_SCOPED로 기록하며, D12는 STOPPED reason으로 종료해 D13을 활성화한다. D12는 candidate가 선택되고 사용자 승인으로 release candidate contract가 명시된 경우에만 기존 V03 전체 수용시험; 기존 3×3/3 matched refinement와 외부 limits 변경 없음. D13은 결과·통합심사 및 사용자 결정 기록으로 닫는다. 선택되지 않거나 실패한 dependency 때문에 실행할 수 없는 노드는 정확한 terminal reason과 evidence로 STOPPED/BLOCKED_TERMINAL (환경이 재개되면 새 승인된 계획) 처리. 종료까지 진행하기 위한 terminal dependency는 성공 dependency와 다르다. D11이 실행된 뒤 후보를 재생성하거나 D05로 역행하는 edge가 없다. 모든 노드는 최대 시도 횟수(실행된 차별 가설 단위, 하위 반복 횟수는 사전 기록)를 소비한다. D00–D03 각 1회 이미 소비. D04–D13 합 20회 이하의 추가 시도, global max 24회. 한 시도에 사용할 finite run matrix를 먼저 고정하고, resource failure 후 동일 run blind repeat는 최대 1회이며 같은 시도 예산에서 소모한다. V03 9+3 실행은 D12의 명시된 하나의 캠페인으로 취급(실패 시 예산 내 한 후보의 추가 캠페인만, 승인 없는 재시작 금지). 사용자가 새 연구 범위를 요청하면 버전을 변경하며 기존 종료 결과를 덮어쓰지 않는다.
@@ -399,13 +403,18 @@ D00–D03은 이번 재정초의 실측 범위에 대해 VERIFIED_SCOPED. D04–
         "D09",
         "D10"
       ],
-      "status": "READY",
-      "attempts_used": 0,
+      "status": "VERIFIED_SCOPED",
+      "attempts_used": 1,
       "max_attempts": 2,
       "question": "Q1-Q5",
       "deliverable": "Pareto/claim matrix for A/B and optional one fallback, select one or no candidate",
       "claim_gate": "all paths terminal with evidence; no survivor based solely on runtime. If unresolved physical discrepancies, STOPPED/decision report rather than endlessly extend",
-      "prior_findings": "D09 STOPPED after2 differentiated attempts, D10 BLOCKED_TERMINAL unrun. Compare original A/B/D scoped benefits and unresolved physical/owner/support/scale limits; select none unless evidence warrants candidate. No D12 without explicit user authorization."
+      "prior_findings": "D09 STOPPED after2 differentiated attempts, D10 BLOCKED_TERMINAL unrun. Compare original A/B/D scoped benefits and unresolved physical/owner/support/scale limits; select none unless evidence warrants candidate. No D12 without explicit user authorization.",
+      "evidence": "artifacts/akm_d11_decision_20261128/S06_decision.json",
+      "last_attempt_evidence": "artifacts/akm_d11_decision_20261128/S06_decision.json",
+      "last_attempt_result": "NO_CANDIDATE_RESEARCH_DECISION",
+      "scope": "finite archived A/B/D claim matrix and independent arithmetic; decision complete, no model acceptance or new simulation",
+      "next_action": "D12 stopped without campaign; D13 terminal synthesis only"
     },
     {
       "id": "D12",
@@ -414,12 +423,16 @@ D00–D03은 이번 재정초의 실측 범위에 대해 VERIFIED_SCOPED. D04–
         "D11"
       ],
       "requires_terminal": [],
-      "status": "PLANNED",
+      "status": "STOPPED",
       "attempts_used": 0,
       "max_attempts": 2,
       "question": "Q5",
       "deliverable": "explicit user-authorized candidate identity/contract, original frozen matrix 3×3 full day and 3 refinements, original resource limits, acceptance review",
-      "claim_gate": "unchanged release thresholds, actual evidence; if no approved candidate, terminal nonacceptance and close"
+      "claim_gate": "unchanged release thresholds, actual evidence; if no approved candidate, terminal nonacceptance and close",
+      "evidence": "artifacts/akm_d11_decision_20261128/S06_decision.json",
+      "last_attempt_result": "NOT_RUN_NO_SELECTED_OR_APPROVED_CANDIDATE",
+      "scope": "terminal nonacceptance; zero attempts; no candidate and no campaign authorization",
+      "next_action": "D13 synthesis; do not launch original release campaign"
     },
     {
       "id": "D13",
@@ -430,12 +443,13 @@ D00–D03은 이번 재정초의 실측 범위에 대해 VERIFIED_SCOPED. D04–
       "requires_terminal": [
         "D12"
       ],
-      "status": "PLANNED",
+      "status": "READY",
       "attempts_used": 0,
       "max_attempts": 2,
       "question": "Q1-Q5",
       "deliverable": "final evidence/negative results/decision, source-backed comparison, preserve checkpoints; integration/full CI only user-approved",
-      "claim_gate": "no open automatic cycle, no final release claim without existing PLAN acceptance; explicitly close or request user decision"
+      "claim_gate": "no open automatic cycle, no final release claim without existing PLAN acceptance; explicitly close or request user decision",
+      "prior_findings": "D11 verified scoped decision selected none; D12 STOPPED zero attempts; preserve all negative and scoped positive evidence. No automatic new cycle or release claim."
     }
   ]
 }
