@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "support_cases": 2048,
+  "legs_per_case": 16,
+  "clock_cell_cases": 2048,
+  "scope": "exact rational arithmetic only"
+}
