@@ -5,6 +5,7 @@ use metroflow_headless::active_kinetic::Moment;
 use std::collections::BTreeMap;
 pub(crate) type Key=(usize,usize);
 pub(crate) const ROAD_ROW_LIMIT:usize=1_000_000;
+pub(crate) const INTERFACE_MODEL:&str="akm-native-reserved-bus-interface-v1";
 pub(crate) const HYBRID_MODEL:&str="akm-native-whole-bus-characteristic-v1";
 #[derive(Clone,Copy,Debug,PartialEq)]
 pub(crate) struct BusTrack{pub distance:f64,pub entry_s:f64}
@@ -13,6 +14,7 @@ pub(crate) struct State{
     pub t:f64,pub road:BTreeMap<Key,Moment>,pub pending:BTreeMap<Key,Moment>,
     pub class:Vec<[f64;2]>,pub initial_birth:f64,pub offered_birth:f64,pub outlet_birth:f64,
     pub whole_bus_class:Option<usize>,pub bus_tracks:BTreeMap<Key,BusTrack>,
+    pub interface:bool,pub crossings:BTreeMap<Key,f64>,
 }
 fn bad(s:impl Into<String>)->CoreError{CoreError::value(s)}
 pub(crate) fn add(rows:&mut BTreeMap<Key,Moment>,key:Key,x:Moment,t:f64)->CoreResult<()>{
@@ -31,7 +33,7 @@ impl State{
         }
         self.whole_bus_class=Some(class);Ok(())
     }
-    pub(crate) fn blank(t:f64,classes:usize)->Self{Self{t,road:BTreeMap::new(),pending:BTreeMap::new(),class:vec![[0.;2];classes],initial_birth:0.,offered_birth:0.,outlet_birth:0.,whole_bus_class:None,bus_tracks:BTreeMap::new()}}
+    pub(crate) fn blank(t:f64,classes:usize)->Self{Self{t,road:BTreeMap::new(),pending:BTreeMap::new(),class:vec![[0.;2];classes],initial_birth:0.,offered_birth:0.,outlet_birth:0.,whole_bus_class:None,bus_tracks:BTreeMap::new(),interface:false,crossings:BTreeMap::new()}}
     pub(crate) fn rows(&self)->usize{self.road.len()+self.pending.len()}
     pub(crate) fn total_birth(&self)->f64{crate::v1_journey::fsum(self.road.values().chain(self.pending.values()).map(|x|x.birth))}
     pub(crate) fn active_mass(&self)->f64{crate::v1_journey::fsum(self.road.values().chain(self.pending.values()).map(|x|x.mass()))}
@@ -43,7 +45,8 @@ impl State{
         let (groups,classes)=road.akm_geometry();
         if !self.t.is_finite()||self.t<0.||self.class.len()!=classes.len()||self.rows()>ROAD_ROW_LIMIT{return Err(bad("AKM state shape/record budget"))}
         if self.whole_bus_class.is_some_and(|k|k>=classes.len())||self.whole_bus_class.is_none()&&!self.bus_tracks.is_empty(){return Err(bad("AKM whole bus class/track shape"))}
-        let mut seen=std::collections::BTreeSet::new();let mut tracked=0usize;
+        if self.interface&&self.whole_bus_class.is_none()||!self.interface&&!self.crossings.is_empty(){return Err(bad("AKM interface policy"))}
+        let mut seen=std::collections::BTreeSet::new();let mut tracked=0usize;let mut crossing_seen=0;
         let mut occupancy=vec![0.;groups.len()];let mut class=vec![0.;classes.len()];
         for (is_pending,rows) in [(false,&self.road),(true,&self.pending)]{
             for (&(tag,offset),x) in rows{
@@ -58,9 +61,22 @@ impl State{
                         tracked+=1;
                     }
                 }
-                class[k]+=x.mass();if !is_pending{occupancy[j]+=classes[k][12]*x.mass();}
+                class[k]+=x.mass();
+                let weight=classes[k][12]*x.mass();
+                if let Some(&a)=self.crossings.get(&(tag,offset)){
+                    if !self.interface||self.whole_bus_class!=Some(k)||!a.is_finite()||!(0.<a&&a<1.){return Err(bad("AKM invalid crossing fraction"))}
+                    crossing_seen+=1;
+                    if is_pending{occupancy[j]+=weight*a;}
+                    else{
+                        if self.bus_tracks[&(tag,offset)].distance<groups[j][0]{return Err(bad("AKM crossing before boundary readiness"))}
+                        occupancy[j]+=weight*(1.-a);
+                        if let Some(&dst)=road.registered_path(tag).unwrap().get(offset+1){occupancy[dst]+=weight*a;}
+                    }
+                }else if !is_pending{occupancy[j]+=weight;}
+
             }
         }
+        if crossing_seen!=self.crossings.len(){return Err(bad("AKM orphan crossing"))}
         if tracked!=self.bus_tracks.len(){return Err(bad("AKM orphan bus track"))}
         let mut peak=0f64;
         for (j,v) in occupancy.iter().enumerate(){let r=v/groups[j][4];if !r.is_finite()||r>1.+1e-9{return Err(bad("AKM lane storage"))}peak=peak.max(r);}
@@ -94,6 +110,7 @@ pub(crate) struct StepStats{
     pub substeps:usize,pub peak_rows:usize,pub peak_storage_ratio:f64,
     pub offered:f64,pub entered:f64,pub transferred:f64,pub exited:f64,
     pub bus_exited:f64,pub bus_moves:usize,pub bus_quota_blocks:usize,
+    pub bus_boundary_in:f64,pub bus_boundary_internal:f64,pub bus_boundary_sink:f64,
 }
 fn scaled_split(x:Moment,f:f64,t:f64)->CoreResult<(Moment,Moment)>{
     if !f.is_finite()||!(0. ..=1.).contains(&f){return Err(bad("AKM fraction"))}
@@ -141,14 +158,22 @@ impl State{
             let mut donor=vec![1.;n];let mut receiver=vec![1.;n];
             for (&(tag,pos),x) in &state.road{
                 let j=road.registered_path(tag).unwrap()[pos];let k=road.class_for_route(tag).unwrap();
-                occupancy[j]+=x.mass()*classes[k][12];
+                let weight=x.mass()*classes[k][12];
+                if let Some(&a)=state.crossings.get(&(tag,pos)){
+                    occupancy[j]+=weight*(1.-a);
+                    if let Some(&dst)=road.registered_path(tag).unwrap().get(pos+1){occupancy[dst]+=weight*a;}
+                }else{occupancy[j]+=weight;}
             }
+            for (&(tag,pos),x) in &state.pending{if let Some(&a)=state.crossings.get(&(tag,pos)){
+                let j=road.registered_path(tag).unwrap()[0];let k=road.class_for_route(tag).unwrap();
+                occupancy[j]+=a*x.mass()*classes[k][12];
+            }}
             let mut send_cap:Vec<f64>=(0..n).map(|j|groups[j][3]*h*f[j].0*if f[j].1{1.}else{0.}).collect();
             let mut receive_count:Vec<f64>=(0..n).map(|j|groups[j][2]*h*f[j].0).collect();
             let mut receive_metres:Vec<f64>=(0..n).map(|j|(groups[j][4]-occupancy[j]).max(0.)*(h*WAVE_MPS/groups[j][0]).min(1.)).collect();
             let mut next=Self::blank(end,classes.len());next.class=state.class.clone();
             next.initial_birth=state.initial_birth;next.offered_birth=state.offered_birth;next.outlet_birth=state.outlet_birth;
-            next.whole_bus_class=state.whole_bus_class;
+            next.whole_bus_class=state.whole_bus_class;next.interface=state.interface;
             if let Some(bus)=state.whole_bus_class{
                 let mut ready=Vec::with_capacity(state.bus_tracks.len());
                 for (&key,track) in &state.bus_tracks{
@@ -164,13 +189,26 @@ impl State{
                 let mut bus_blocked=vec![false;n];
                 for (j,_,key,dst,y,track) in ready{
                     let m=y.mass();let metres=m*classes[bus][12];let arrived=track.distance>=groups[j][0];
-                    let fits=send_cap[j]>=m&&dst.is_none_or(|k|receive_count[k]>=m&&receive_metres[k]>=metres);
-                    if !bus_blocked[j]&&arrived&&fits{
-                        send_cap[j]-=m;stats.bus_moves+=1;
+                    let old=state.crossings.get(&key).copied().unwrap_or(0.);
+                    let (amount,progress,done)=if bus_blocked[j]||!arrived{(0.,old,false)}
+                        else if state.interface{
+                            let r=crate::v1_akm_interface::increment(m,old,send_cap[j],dst.map_or(f64::INFINITY,|k|receive_count[k]),dst.map_or(f64::INFINITY,|k|receive_metres[k]),classes[bus][12])?;
+                            (r.amount,r.progress,r.done)
+                        }else if send_cap[j]>=m&&dst.is_none_or(|k|receive_count[k]>=m&&receive_metres[k]>=metres){(m,1.,true)}
+                        else{(0.,0.,false)};
+                    if amount>0.{
+                        send_cap[j]=(send_cap[j]-amount).max(0.);
                         if let Some(k)=dst{
-                            receive_count[k]-=m;receive_metres[k]-=metres;
+                            receive_count[k]=(receive_count[k]-amount).max(0.);
+                            receive_metres[k]=(receive_metres[k]-amount*classes[bus][12]).max(0.);
+                            stats.bus_boundary_internal+=amount;stats.transferred+=amount;
+                        }else{stats.bus_boundary_sink+=amount;}
+                    }
+                    if done{
+                        stats.bus_moves+=1;
+                        if dst.is_some(){
                             let new_key=(key.0,key.1+1);add(&mut next.road,new_key,y,end)?;
-                            next.bus_tracks.insert(new_key,BusTrack{distance:0.,entry_s:end});stats.transferred+=m;
+                            next.bus_tracks.insert(new_key,BusTrack{distance:0.,entry_s:end});
                         }else{
                             if events.len()>=event_limit{return Err(CoreError::resource("AKM outlet history limit"))}
                             let row=(key.0,j,None,m,end,end,y.birth);
@@ -179,8 +217,9 @@ impl State{
                             stats.exited+=m;stats.bus_exited+=m;
                         }
                     }else{
-                        if arrived&&!fits{stats.bus_quota_blocks+=1;}
+                        if arrived&&amount==0.{stats.bus_quota_blocks+=1;}
                         bus_blocked[j]=true;add(&mut next.road,key,y,end)?;next.bus_tracks.insert(key,track);
+                        if progress>0.{next.crossings.insert(key,progress);}
                     }
                 }
                 // Source priority is deterministic: intent birth then tag.
@@ -193,10 +232,22 @@ impl State{
                 sources.sort_by(|a,b|a.0.total_cmp(&b.0).then(a.1.cmp(&b.1)));
                 for (_,key,x) in sources{
                     let j=road.registered_path(key.0).unwrap()[0];let m=x.mass();let metres=m*classes[bus][12];
-                    if receive_count[j]>=m&&receive_metres[j]>=metres{
-                        receive_count[j]-=m;receive_metres[j]-=metres;
-                        add(&mut next.road,key,x,end)?;next.bus_tracks.insert(key,BusTrack{distance:0.,entry_s:end});stats.entered+=m;
-                    }else{stats.bus_quota_blocks+=1;add(&mut next.pending,key,x,end)?;}
+                    let old=state.crossings.get(&key).copied().unwrap_or(0.);
+                    let (amount,progress,done)=if state.interface{
+                        let r=crate::v1_akm_interface::increment(m,old,f64::INFINITY,receive_count[j],receive_metres[j],classes[bus][12])?;
+                        (r.amount,r.progress,r.done)
+                    }else if receive_count[j]>=m&&receive_metres[j]>=metres{(m,1.,true)}
+                    else{(0.,0.,false)};
+                    receive_count[j]=(receive_count[j]-amount).max(0.);
+                    receive_metres[j]=(receive_metres[j]-amount*classes[bus][12]).max(0.);
+                    stats.entered+=amount;stats.bus_boundary_in+=amount;
+                    if done{
+                        add(&mut next.road,key,x,end)?;next.bus_tracks.insert(key,BusTrack{distance:0.,entry_s:end});
+                    }else{
+                        if amount==0.{stats.bus_quota_blocks+=1;}
+                        add(&mut next.pending,key,x,end)?;
+                        if progress>0.{next.crossings.insert(key,progress);}
+                    }
                 }
             }
             let mut proposal=Vec::with_capacity(state.road.len());
@@ -293,6 +344,31 @@ mod sparse_flux_tests{
         }
     }
     #[test]
+    fn reserved_crossing_preserves_whole_service_and_current_quota(){
+        let road=V1Road::new("akm-reservation".into(),1.,vec![vec![100.,10.,0.5,0.5,200.,1.];2],vec![None,None],
+            vec![(vec![0,1],0)],vec![vec![10.,2.,2.,4.,2.,1.,5.,1.,0.2,0.3,10.,0.,12.]],vec![vec![1],vec![0]],vec![],1000,Some(1000),true).unwrap();
+        let mut s=State::blank(0.,1);s.enable_whole_bus(0,&road).unwrap();s.interface=true;
+        let mut sums=[0.;3];let mut completed=0.;let mut partial=[false;3];
+        for i in 0..100{
+            let offer=if i==1{vec![(0,1.,1.)]}else{vec![]};
+            let (next,events,st)=s.advance(&road,1.,&offer,1000,256*1024*1024).unwrap();
+            for v in [st.bus_boundary_in,st.bus_boundary_internal,st.bus_boundary_sink]{assert!(v<=0.5+1e-12);}
+            sums[0]+=st.bus_boundary_in;sums[1]+=st.bus_boundary_internal;sums[2]+=st.bus_boundary_sink;
+            for (&(tag,pos),&a) in &next.crossings{
+                assert!(a>0.&&a<1.);
+                partial[if next.pending.contains_key(&(tag,pos)){0}else if pos==0{1}else{2}]=true;
+            }
+            for row in events.iter(){assert!((row.3-1.).abs()<1e-12&&row.5>=21.);completed+=row.3;}
+            assert!((next.active_mass()+completed-next.class[0][0]).abs()<1e-12);
+            s=next;
+        }
+        assert!(partial.into_iter().all(|x|x));
+        assert!((completed-1.).abs()<1e-12);
+        assert!(sums.into_iter().all(|x|(x-1.).abs()<1e-12));
+        assert_eq!(s.rows(),0);
+        assert!((s.outlet_birth-1.).abs()<1e-12);
+    }
+    #[test]
     fn sparse_transport_conserves_two_link_birth_and_mass(){
         let road=road();let mut s=State::blank(0.,1);let mut out=0.;
         for i in 0..100{
@@ -324,9 +400,13 @@ impl State{
             write_len(w,k)?;write_len(w,self.bus_tracks.len())?;
             for (&(tag,pos),v) in &self.bus_tracks{write_len(w,tag)?;write_len(w,pos)?;write_f64(w,v.distance)?;write_f64(w,v.entry_s)?;}
         }
+        if self.interface{
+            write_len(w,self.crossings.len())?;
+            for (&(tag,pos),&a) in &self.crossings{write_len(w,tag)?;write_len(w,pos)?;write_f64(w,a)?;}
+        }
         Ok(())
     }
-    pub(crate) fn read<R:std::io::Read>(r:&mut R,road:&V1Road,whole_bus_class:Option<usize>)->CoreResult<Self>{
+    pub(crate) fn read<R:std::io::Read>(r:&mut R,road:&V1Road,whole_bus_class:Option<usize>,interface:bool)->CoreResult<Self>{
         use crate::v1_road::{read_f64,read_len,read_exact_len};
         let t=read_f64(r)?;let n=road.akm_geometry().1.len();
         let mut s=Self::blank(t,n);s.initial_birth=read_f64(r)?;s.offered_birth=read_f64(r)?;s.outlet_birth=read_f64(r)?;
@@ -348,6 +428,14 @@ impl State{
             for _ in 0..count{
                 let tag=read_len(r,max_tag)?;let pos=read_len(r,road.registered_path(tag).ok_or_else(||bad("AKM track route"))?.len().saturating_sub(1))?;
                 if s.bus_tracks.insert((tag,pos),BusTrack{distance:read_f64(r)?,entry_s:read_f64(r)?}).is_some(){return Err(bad("duplicate AKM bus track"))}
+            }
+        }
+        s.interface=interface;
+        if interface{
+            let count=read_len(r,ROAD_ROW_LIMIT)?;
+            for _ in 0..count{
+                let tag=read_len(r,max_tag)?;let pos=read_len(r,road.registered_path(tag).ok_or_else(||bad("AKM crossing route"))?.len().saturating_sub(1))?;
+                if s.crossings.insert((tag,pos),read_f64(r)?).is_some(){return Err(bad("duplicate AKM crossing"))}
             }
         }
         s.check(road)?;Ok(s)
