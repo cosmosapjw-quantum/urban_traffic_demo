@@ -1,0 +1,129 @@
+{
+  "status": "BLOCKED_D09_ATTEMPT1_RESEARCH_ONLY",
+  "base": "d8cff71574898976bbb19600bbe2826d317a0742",
+  "commits_before_S10": [
+    "7aa720ee0e2ee6bea74f4a4da7eed7b9ce7dcd15 S01 Preregister original 100k D09 pilot and fixed resource/support gates",
+    "3e1077ad740ab02c5bb169daabb0f49e64f4f6d4 S02 Derive structural completion ceiling and clock-cell observer quotient",
+    "b8c20a725af88f13c94a3cff53365c6498fbda81 S03 Measure structural support ceiling using actual original native calendar and admission",
+    "18b2f966ffdbac8625a336dc6f12971ede97a488 S04 Reuse guarded native delay calendar and receipt buckets in distinct AKM pilot identity",
+    "513fb3d68c0a788a4a1bbc51b34a633053e12234 S05 Validate pilot fixture, native interface compatibility and partial checkpoint replay",
+    "7e0b8f7f98e1aa87522d7d3427772c2ebb31ceb4 S06 Execute bounded fresh original-city pilot toward 24h with committed-state evidence",
+    "fd8d639ab12b93458124cf5bbbea2ba36365674d S07 Compare matched AM owner state and recover both actual blocked city checkpoints",
+    "8e77381bce5c58336a3e7e9474a9cb5a39f7dc29 S08 Expose Rust pilot and support frontend; classify failed step and positive tail census",
+    "29becb68bf1ea9347f7a973769f2fe03aac53e40 S09 Audit actual failed city pilot, support ceilings and conserved tail representation"
+  ],
+  "DAG": {
+    "status": "VALID_RESEARCH_PLAN_NOT_RELEASE",
+    "nodes": 14,
+    "scoped_or_accepted": 9,
+    "terminal": 9,
+    "attempts_used": 11,
+    "attempts_limit": 24,
+    "ready": [
+      "D09"
+    ],
+    "next": [
+      "D09"
+    ]
+  },
+  "original_plan_sha256": "80f64cb836782f1557f70eece21a1431e7e9f5aefdc0c208758ccef30b143313",
+  "SSOT_sha256": "fa509fad65098d1bc3a4934a7f0182f9e9e9ee47eb33fde206e6be039ea086b8",
+  "source_manifest_sha256": "b17834f3aca781e025e62d3f45a34d7325044af7457b865bc41e681b5f8378de",
+  "audit_sha256": "92a986855cfd77d8388c21a6ea802c065d5e9ac1bd97c98d99462caf2f2d5129",
+  "native_tests": {
+    "passed": 325,
+    "ignored": 2,
+    "headless_passed": 20,
+    "frontend_and_oracle_passed": 15
+  },
+  "scoped_results": {
+    "day_support_bound": {
+      "optimistic_completion_ceiling": [
+        72115.96491075,
+        57601.02129515,
+        998.825
+      ],
+      "requested": [
+        120000.0,
+        58801.0,
+        1000.0
+      ],
+      "time_s": 86400.0,
+      "uncompleted_lower_bound": [
+        47884.03508925,
+        1199.97870485,
+        1.175000000000003
+      ]
+    },
+    "fresh_committed_s": 25430,
+    "migrated_committed_s": 25470,
+    "both_failed_states_byte_recovered": true,
+    "next_step_rows": 1004024,
+    "cap": 1000000,
+    "PM": "NOT_REACHED",
+    "day": "NOT_REACHED",
+    "full_CI": "NOT_RUN",
+    "release": "NOT_ACCEPTED"
+  },
+  "next": "D09 final differentiated attempt; no guard inflation or hidden mode substitution; D10 not ready",
+  "architecture": "Rust backend, Python frontend; default exact; pilot opt-in",
+  "review": "Initial literature batch timed out, individual searches recovered; compile API/Copy failure corrected; cross-closure class roundoff comparison corrected (no tolerance escalation); independent native subagent unavailable; scoped wire/receipt and arithmetic audit completed.",
+  "files": {
+    "S01_contract.json": "1c45f87a8d80bc7ce9508b8d53b267fe6a681e3011a2ee7b220f456c0e10e289",
+    "S01_history.txt": "1a193bd551e3a9f1569b6e81d285ba99416fd8631fd3be8942ac95b9592119e9",
+    "S02_oracle.json": "f22cf3d179a5c21f2fc0bb8a097da88d6c1e346620a516dc98bcf4e170917c09",
+    "S03_build.log": "ab5663c062ca21e40a6e29c08eb85054862165c9dcfc46b0dc9564f84e09a5f9",
+    "S03_compile_failure.log": "d46331b86157169f5378a790ba1df97974c1b2ce26617c4d2cd0888097175b7f",
+    "S03_green.log": "2a858543bcfb37d8b5ad2ae766f7c1e42863eef92aeeb59bc958840ee15c8822",
+    "S03_red.log": "59e3d6135a25f79f5886010467cd80476fb6a6efa83ca00d1fd52cf59b12def3",
+    "S03_support.json": "6e53e49fb61cc2ead957c73e66fa4c7c1d59f5e9a743ce528a554ffd97fb8a43",
+    "S03_support.log": "e64b82c7a22a9d6ad78daa63726a6ee3255db2d90524cc46b4b46f78128cf4ab",
+    "S04_build.log": "c77946ed94eaee8525d71afa9f58a8d95019332d5b534f7dd9e235a01c335862",
+    "S04_native_test.log": "0b8097d4f403732afce62cd73de85ba536ed45ae87b979e80360dc37b7dec78b",
+    "S05_checkpoint_hashes.txt": "6b9b54e8917733fe267454e9c1a0c44765df2f445e3f68665e0fae0bde94dc41",
+    "S05_interface360.json": "460df52b4ef9248c2338b4603649ca2d0ee61238398802d1009fcda69ac08b4f",
+    "S05_interface360.log": "9d21bd11f693196647d39ce382082f6c1fd9fbbf232e4d05132cb4322bd0941a",
+    "S05_pilot31.json": "5868aa60b13bda5fc33f94f87c68cd490ec66e14773291894f3806994a3fa611",
+    "S05_pilot31.log": "703c0e71cc560ecb7bc72e77c572ee348cf2963869e404857f9cc96939cee288",
+    "S05_pilot360.json": "7956f7175616a42ebdc33fc48e07b1e09004de3b5759b95736ed773b4532f3ff",
+    "S05_pilot360.log": "9813e6919307843a27a0bf15599240895f4ee2f0405640d539306a7a993a881a",
+    "S05_recover31.json": "cc99900ea0eecc4417aaf5c94289a69c123cf7d02952c249676a86f045195d8b",
+    "S05_recover31.log": "3eb156abfe5fc377fbd1cc5b58bb0efe15d304637e2aed0d0c0d99715d2765a9",
+    "S05_resume360.json": "076c365b999a23713123d3ae54eed255f900443d9958be0d7d8cf0b5ca51cf25",
+    "S05_resume360.log": "d00b15932971d9495b37b96334923cc6830fb7ff7b7587793e9f85d74885976f",
+    "S06_exit.txt": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3",
+    "S06_fresh_day.json": "66fad9b2568721e1d68b5a06e325388ac33c117f3d1c78662169e0db5858eb05",
+    "S06_fresh_day.log": "3de3b87be6348cffb7995204ba0b4dac242733aff928e308aec31a71310a9c87",
+    "S07_checkpoint_hashes.txt": "cdf25252dd47b6e83f6a7ba26072a6a0d2fe92d2f75ba60d57d9ad04b1bd6e7d",
+    "S07_exit_codes.txt": "10c4e9227ccf66bcf447db87294a890344c2cbaf8f033f2ebb7ebbb20cf1006e",
+    "S07_migrate25380.json": "d2d2f8a6b381be8bb0bd792db8968753f73ea0261316c088e9075f9113b89137",
+    "S07_migrate25380.log": "4d5bbd45c28726e21524cd8033443c729eb9a06d4457e54873b62ca73dc03417",
+    "S07_recover25380.json": "712f5bc15d164ea8c657975103ee4cb7fb226e3187894cbfc54693b150f20872",
+    "S07_recover25380.log": "5d9661c94ec427438f6d02a5d90593a9b2b9e50fb63f809b0df513cd64736247",
+    "S07_recover_fresh.json": "c7c73860167ba7e7a0be26ac0255f995063299cfdc29395160c050d050657d1d",
+    "S07_recover_fresh.log": "0904b523346661b392955ea1e374e70a61202650ef7a0409d10020f69594e3b5",
+    "S07_recover_migrated.json": "4b23949151b635289b7001c25da93ec3b1b3f2afd9831965138b1818c463468e",
+    "S07_recover_migrated.log": "74b77d6ae91405328399239bc595269aa97a98d1d8c12b89633ce65a94652480",
+    "S07_resume_day.json": "499f37180c304878744328402de23e205e7a273683ae312fad37abae1a1189ab",
+    "S07_resume_day.log": "373c1b24e3f940021c16860502b5d66139cde75e63dcb2a9515a920f85ff11e1",
+    "S08_blocker.json": "9f6b2ef77b2e5e7cd51f0023dd85a6a73aab0844bb485545a19d9a021590fe80",
+    "S08_blocker.log": "a0336b62436a1ed257535161e9ca617a0894343f953d23bb0e8deca5e4a09d8f",
+    "S08_build.log": "faaa29b2db607959fc7b42ea66bf3f34bb176fd217067a50d30739f11a828aef",
+    "S08_capabilities.json": "9bd263f7b3a47c8e7e792515e8d4e332b4bf46edd12eff713f43c83c1ee5a7cd",
+    "S08_green.log": "ec9157eb9e23ac8ce2ecc81cd13de753f8a2adceae538b3e75217875718f3f5a",
+    "S08_red.log": "ca90dd9a728e7e07974c992b0a51dfa88546d045c857a910fb5190f8cd0a30ba",
+    "S09_audit.json": "92a986855cfd77d8388c21a6ea802c065d5e9ac1bd97c98d99462caf2f2d5129",
+    "S09_cross_closure_roundoff.txt": "d1dc576fa956cc0fa8ddcbe8eac54da4a00d4b5ba87f11fcada7d09ef2585d56",
+    "S09_dependencies.txt": "a259c8d8856d0bad86bae3d1e58de18338cb648c62ed6fdb811965042b61fbff",
+    "S09_frontend_tests.log": "67e23c79c9d776222fdc66b62e15e7b6ec315fa2e0402a31401596208ddfee59",
+    "S09_headless_tests.log": "c7e9440605c4fdb66ddc3caaa0b7ca535473b432f8ebb199d086f698cf39c574",
+    "S09_ldd.txt": "e47dc9ed4e09b8dd8817dd5b045d66fbee5548f8ac6412e90dc0c7d4630b721d",
+    "S09_native_tests.log": "f9f58d45133c757d8ec33965b0e46bab449ace7967b9213c50211a35ce39745d",
+    "S10_DAG_next.json": "976f7ea3d8ef86c9c3245b6ddac004b0d494c19b703da91ddd1e6a0b947b7662",
+    "S10_DAG_render.txt": "976f7ea3d8ef86c9c3245b6ddac004b0d494c19b703da91ddd1e6a0b947b7662",
+    "S10_DAG_validate.json": "976f7ea3d8ef86c9c3245b6ddac004b0d494c19b703da91ddd1e6a0b947b7662",
+    "S10_original_plan_validate.json": "cabc71c360f58f5e1df585603cb4d609e0af9b101ec4024b1ecd3e1426fafcca",
+    "S10_source_manifest.sha256": "b17834f3aca781e025e62d3f45a34d7325044af7457b865bc41e681b5f8378de",
+    "S10_source_verify.log": "8521a4077decdfdae6c32c16c7b6c8fa0d339d629286667e91c4fb1959810819"
+  }
+}

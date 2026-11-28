@@ -153,6 +153,16 @@ Rust-first correction requested by user: previous native atlas generation, v1_pr
 
 Evidence: [D08 report](../research/AKM_D08_RUST_LUTI_20261128.md); `artifacts/akm_d08_rust_luti_20261128/S09_audit.json`, `S10_RESEARCH_RECEIPT.json`.
 
+## 6.6. 2026-11-28 D09 attempt 1: structural support and bounded pilot
+
+원본 Valley 100k의 918450 calendar leg (120000 person trips, 58801 vehicle-equivalents, 1000 kg)를 실제 Rust native owner registry에서 분류했다. 610820 legs에 direct support가 없으며, day profile 및 parent eligibility를 포함한 낙관적 완료 상계는 72115.96491075 person trips, 미완료 하계는 47884.03508925 (39.90336%)다. 이 값은 PM/day simulation 실측이 아니며, 원본 demand 보존과 수송 support 충족은 별개의 조건이다. 고정 버스와 interzonal noncar의 결손은 mode substitution 또는 수요 삭제로 해결하지 않는다.
+
+기존 Rust observer-guarded entry/egress, schedule/stream receipt, delay calendar를 D05 reserved interface에 재사용하여 distinct identity `akm-native-reserved-interface-clock-v1`를 구현했다. 시간 cell quotient의 양의 질량/1차 모멘트 보존과 적용 한계는 S02, 실제 fixture history 1012→15 및 split/direct byte parity는 S05. 원본 source 25320→25380 matched AM에서 사람/차량/화물 ledger 및 road mass/birth는 정확 일치, class offered 최대 차이 7.16227e-12 veh (roundoff). Road rows 624850 동일; journey records [1833556,287095,55921,59571]→[876091,149339,55921,2121], checkpoint 146702340→110736097 bytes. Cross-closure byte identity는 주장하지 않는다.
+
+Fresh day target86400은 실제 25430s에서 중단 (wall66.712s, peakRSS1122936KiB, 4 physical scheduled buses exited, 953296 road rows, 232.037652veh active); migrated target86400은 25470s에서 중단 (continuation wall25.485s, peakRSS1102936KiB, 959509 rows). 양쪽 failed committed state 독립 byte recovery 성공. 한 번의 분류 tick은 1004024 rows > 기존 1000000 cap, Resource, rollback bytes 동일. 실제 road census: 50728 tags, mass≤1e-9veh rows 173429 (18.1926%), 총 1.423480515e-5veh, birth 0.3588279568veh*s. 미세 양의 support는 삭제하지 않았다. 기존 A migrated 26160 및 D05/D07/D08의 한정 범위 증거는 유지. D09 claim gate는 미충족, PM/24h NOT_REACHED. 내부 6GiB/1M과 외부 8GiB/7200s 변경 없음. Rust-first CLI `--engine pilot` 명시 선택, default exact 유지; Python frontend 표시만. Tests 325 native passed/2 ignored, headless20, Python15; full CI/merge 미실행.
+
+**D09 READY, attempts 1/2.** 마지막 시도는 동일 D family에서 보존적 finite-propagation/route 또는 temporal support 표현을 실질 변경하고, mode/service별 미지원 범위와 parent obligation을 명시해야 한다. 단순 cap 증설, tiny-mass pruning, blind resume 또는 새 후보 우회 금지. 원본 support 해결 및 실제 24h/restart gate를 만족하지 못하면 STOPPED/redirect, D10은 자동 시작하지 않는다. 자료: [연구보고서](../research/AKM_D09_CITY_PILOT_20261128.md), `artifacts/akm_d09_city_pilot_20261128/S09_audit.json`, S10 receipt. Verdict BLOCKED_D09 / CAUTION_RESEARCH_ONLY.
+
 ## 7. 유한 DAG: 정의와 종료
 
 D00–D03은 이번 재정초의 실측 범위에 대해 VERIFIED_SCOPED. D04–D10은 유한 science/implementation 실험. D11은 성공뿐 아니라 실패가 담긴 terminal evidence로 decision. 후보가 없다는 근거 있는 decision 자체는 D11 VERIFIED_SCOPED로 기록하며, D12는 STOPPED reason으로 종료해 D13을 활성화한다. D12는 candidate가 선택되고 사용자 승인으로 release candidate contract가 명시된 경우에만 기존 V03 전체 수용시험; 기존 3×3/3 matched refinement와 외부 limits 변경 없음. D13은 결과·통합심사 및 사용자 결정 기록으로 닫는다. 선택되지 않거나 실패한 dependency 때문에 실행할 수 없는 노드는 정확한 terminal reason과 evidence로 STOPPED/BLOCKED_TERMINAL (환경이 재개되면 새 승인된 계획) 처리. 종료까지 진행하기 위한 terminal dependency는 성공 dependency와 다르다. D11이 실행된 뒤 후보를 재생성하거나 D05로 역행하는 edge가 없다. 모든 노드는 최대 시도 횟수(실행된 차별 가설 단위, 하위 반복 횟수는 사전 기록)를 소비한다. D00–D03 각 1회 이미 소비. D04–D13 합 20회 이하의 추가 시도, global max 24회. 한 시도에 사용할 finite run matrix를 먼저 고정하고, resource failure 후 동일 run blind repeat는 최대 1회이며 같은 시도 예산에서 소모한다. V03 9+3 실행은 D12의 명시된 하나의 캠페인으로 취급(실패 시 예산 내 한 후보의 추가 캠페인만, 승인 없는 재시작 금지). 사용자가 새 연구 범위를 요청하면 버전을 변경하며 기존 종료 결과를 덮어쓰지 않는다.
@@ -333,12 +343,15 @@ D00–D03은 이번 재정초의 실측 범위에 대해 VERIFIED_SCOPED. D04–
       ],
       "requires_terminal": [],
       "status": "READY",
-      "attempts_used": 0,
+      "attempts_used": 1,
       "max_attempts": 2,
       "question": "Q1,Q2,Q3,Q5",
       "deliverable": "one original 100k city shared transport, AM/PM and 24h candidate run, full physical observables, actual restart",
       "claim_gate": "all declared demand, 24h, peakRSS≤8GiB/wall≤7200s as pilot, byte/semantic replay within model; record full active/pending; no original campaign credit",
-      "prior_findings": "D05 D06 native owner/interface scoped; D07 D08 finite causal transport/lagged feedback synthetic only. Existing Rust atlas, preparation and calendar exact historical parity; run --manifest defaults Rust exact, optional interface research. Original full-city 24h not validated; carry all D05 negatives and history/unsupported demand."
+      "prior_findings": "D05 D06 native owner/interface scoped; D07 D08 finite causal transport/lagged feedback synthetic only. Existing Rust atlas, preparation and calendar exact historical parity; run --manifest defaults Rust exact, optional interface research. Original full-city 24h not validated; carry all D05 negatives and history/unsupported demand. D09 attempt1 quantified unsupported persons >=47884.03508925/day, actual 1004024>1000000 next-step rows, positive tiny tail, matched AM temporal quotient; actual native owner history compressed, spatial route support still fails.",
+      "last_attempt_evidence": "artifacts/akm_d09_city_pilot_20261128/S09_audit.json",
+      "last_attempt_result": "BLOCKED: original structural unsupported demand; fresh 25430s and migrated 25470s stop at 1M road support; both recover byte-identically; AM temporal quotient and tail census scoped positive; no PM or 24h",
+      "next_action": "Final attempt: differentiated conservative finite-propagation/route or temporal support representation within same D family; explicit unsupported mode/service and parent obligations without substitution/deletion; unchanged original gates. If not satisfied, terminal STOPPED/redirect under SSOT; D10 stays PLANNED until prerequisites."
     },
     {
       "id": "D10",
