@@ -1,0 +1,1 @@
+wrong wire exit=1
