@@ -7,6 +7,7 @@ use crate::v1_road::{read_len,write_len};
 use serde_json::{json,Value};
 
 const PILOT_MODEL:&str="akm-native-reserved-interface-clock-v1";
+const COHORT_MODEL:&str="akm-native-reserved-sealed-cohort-clock-v1";
 
 struct Binding<'a>{
     owners:&'a[Option<usize>],classes:&'a[String],freight:&'a[f64],
@@ -70,19 +71,19 @@ fn save(e:&NativeWholeEngine,s:&State,id:&str,path:&str)->CoreResult<()>{
     check(e,s,e.journey.state(),&e.service.checkpoint())?;
     let tmp=format!("{path}.stage-{}",std::process::id());
     let mut f=BufWriter::with_capacity(1024*1024,std::fs::OpenOptions::new().create_new(true).write(true).open(&tmp).map_err(io)?);
-    f.write_all(if s.interface{b"AKMFULL3"}else if s.whole_bus_class.is_some(){b"AKMFULL2"}else{b"AKMFULL1"}).map_err(io)?;write_len(&mut f,id.len())?;f.write_all(id.as_bytes()).map_err(io)?;
+    f.write_all(if s.finite{b"AKMFULL4"}else if s.interface{b"AKMFULL3"}else if s.whole_bus_class.is_some(){b"AKMFULL2"}else{b"AKMFULL1"}).map_err(io)?;write_len(&mut f,id.len())?;f.write_all(id.as_bytes()).map_err(io)?;
     s.write(&mut f)?;e.service.write_state(&mut f)?;e.journey.write_state(&mut f)?;
     f.flush().map_err(io)?;f.get_ref().sync_all().map_err(io)?;drop(f);
     if std::path::Path::new(path).exists(){return Err(bad("AKM output already exists"))}
     std::fs::rename(tmp,path).map_err(io)?;sync_parent_native(path)
 }
-fn read(e:&mut NativeWholeEngine,id:&str,path:&str,whole_bus_class:Option<usize>,interface:bool)->CoreResult<State>{
+fn read(e:&mut NativeWholeEngine,id:&str,path:&str,whole_bus_class:Option<usize>,interface:bool,finite:bool)->CoreResult<State>{
     let mut f=BufReader::with_capacity(1024*1024,File::open(path).map_err(io)?);
     let mut magic=[0;8];f.read_exact(&mut magic).map_err(io)?;
-    if &magic!=(if interface{b"AKMFULL3"}else if whole_bus_class.is_some(){b"AKMFULL2"}else{b"AKMFULL1"})||read_len(&mut f,id.len())?!=id.len(){return Err(bad("AKM checkpoint schema/identity differs"))}
+    if &magic!=(if finite{b"AKMFULL4"}else if interface{b"AKMFULL3"}else if whole_bus_class.is_some(){b"AKMFULL2"}else{b"AKMFULL1"})||read_len(&mut f,id.len())?!=id.len(){return Err(bad("AKM checkpoint schema/identity differs"))}
     let mut raw=vec![0;id.len()];f.read_exact(&mut raw).map_err(io)?;
     if raw!=id.as_bytes(){return Err(bad("AKM checkpoint manifest binding differs"))}
-    let s=State::read(&mut f,&e.road,whole_bus_class,interface)?;
+    let s=State::read(&mut f,&e.road,whole_bus_class,interface,finite)?;
     let pool=e.road_storage_bytes.ok_or_else(||bad("AKM dynamic pool absent"))?;
     let remaining=pool.checked_sub(s.work_reserve()).filter(|x|*x>0).ok_or_else(||CoreError::resource("AKM read reserve"))?;
     let service=e.service.read_state_codec(&mut f,e.event_limit,Some(remaining/3),false,false)?;
@@ -99,8 +100,10 @@ pub fn run_akm_native(manifest:Value,manifest_sha:&str,mode:&str,source:&str,tar
     let start=Instant::now();
     let(mut e,calendar_legs,calendar_totals)=build_native_input(manifest,threads)?;
     let build_s=start.elapsed().as_secs_f64();
-    let (pilot,hybrid,interface,mode)=if let Some(m)=mode.strip_prefix("pilot-"){(true,true,true,m)}else if let Some(m)=mode.strip_prefix("interface-"){(false,true,true,m)}else if let Some(m)=mode.strip_prefix("hybrid-"){(false,true,false,m)}else{(false,false,false,mode)};
-    let model=if pilot{PILOT_MODEL}else if interface{INTERFACE_MODEL}else if hybrid{HYBRID_MODEL}else{MODEL};
+    let finite=mode.starts_with("cohort-");
+    let mode=if finite{mode.strip_prefix("cohort-").unwrap()}else{mode};
+    let (pilot,hybrid,interface,mode)=if finite{(true,true,true,mode)}else if let Some(m)=mode.strip_prefix("pilot-"){(true,true,true,m)}else if let Some(m)=mode.strip_prefix("interface-"){(false,true,true,m)}else if let Some(m)=mode.strip_prefix("hybrid-"){(false,true,false,m)}else{(false,false,false,mode)};
+    let model=if finite{COHORT_MODEL}else if pilot{PILOT_MODEL}else if interface{INTERFACE_MODEL}else if hybrid{HYBRID_MODEL}else{MODEL};
     let wall_slice=if pilot{
         let v=std::env::var("METROFLOW_AKM_PILOT_SLICE_S").ok().map(|x|x.parse::<f64>()).transpose().map_err(|_|bad("invalid pilot wall slice"))?.unwrap_or(180.);
         if !v.is_finite()||!(1. ..=7200.).contains(&v){return Err(bad("pilot wall slice domain"))}Some(v)
@@ -118,13 +121,14 @@ pub fn run_akm_native(manifest:Value,manifest_sha:&str,mode:&str,source:&str,tar
     }
     let whole_bus_class=if hybrid{Some(e.class_names.iter().position(|x|x=="scheduled_bus").ok_or_else(||bad("scheduled bus class absent"))?)}else{None};
     let id=format!("{model}:{}:{manifest_sha}",e.identity);
+    if finite&&mode=="migrate"{return Err(bad("sealed cohort requires fresh state or same identity checkpoint"))}
     let init=Instant::now();let mut migration=Value::Null;
     let mut s=match mode{
         "fresh"|"migrate"=>{
             let old=if mode=="fresh"{e.initial()}else{e.load(source.to_owned())?};
             let (mut projected,n)=e.road.akm_project(&old.value.road)?;
             if let Some(k)=whole_bus_class{projected.enable_whole_bus(k,&e.road)?;}
-            projected.interface=interface;
+            projected.interface=interface;projected.finite=finite;
             check(&e,&projected,&old.value.journey,&old.value.service)?;
             migration=json!({"source_time_s":old.time_s(),"source_native_identity":e.identity,"source_rows":n,"projected_rows":projected.rows(),"projected_active_mass":projected.active_mass(),
                 "projected_active_birth":projected.total_birth(),"source_owner_ledger":ledger(&e,&old.value.journey),
@@ -133,7 +137,7 @@ pub fn run_akm_native(manifest:Value,manifest_sha:&str,mode:&str,source:&str,tar
             // Old exact road owner is no longer used after projection.
             e.road.install_state(e.initial_state.road.clone());drop(old);projected
         },
-        "resume"|"recover"=>read(&mut e,&id,source,whole_bus_class,interface)?,
+        "resume"|"recover"=>read(&mut e,&id,source,whole_bus_class,interface,finite)?,
         _=>return Err(bad("AKM mode must be fresh/migrate/resume/recover"))
     };
     let source_time=s.t;
@@ -161,7 +165,7 @@ pub fn run_akm_native(manifest:Value,manifest_sha:&str,mode:&str,source:&str,tar
     let initial_ledger=ledger(&e,e.journey.state());let initial_rows=s.rows();
     let mut peak_rows=s.rows();let mut peak_storage=s.check(&e.road)?;let mut steps=0usize;let mut failure=None;let mut exited=0.;let mut transferred=0.;let mut offered=0.;let mut substeps=0;let mut bus_exited=0.;let mut bus_moves=0usize;let mut bus_quota_blocks=0usize;let mut boundary=[0.;3];let mut peak_crossings=s.crossings.len();
     let advance=Instant::now();let mut step_times=Vec::new();
-    let sample=|e:&NativeWholeEngine,s:&State|json!({"time_s":s.t,"ledger":ledger(e,e.journey.state()),"road_rows":s.rows(),"road_mass":s.active_mass(),"road_birth":s.total_birth(),"journey_records":e.journey.record_counts(),"bus_tracks":s.bus_tracks.len(),"crossings":s.crossings.len()});
+    let sample=|e:&NativeWholeEngine,s:&State|json!({"time_s":s.t,"ledger":ledger(e,e.journey.state()),"road_rows":s.rows(),"road_mass":s.active_mass(),"road_birth":s.total_birth(),"journey_records":e.journey.record_counts(),"bus_tracks":s.bus_tracks.len(),"crossings":s.crossings.len(),"fluid_tracks":s.fluid_distance.len(),"waiting_rows":s.waiting.len()});
     let mut samples=if pilot{vec![sample(&e,&s)]}else{vec![]};let mut failure_kind=None;
     for _ in 0..count.round() as usize{
         if wall_slice.is_some_and(|w|advance.elapsed().as_secs_f64()>=w){failure=Some("D09 session slice reached; last committed state retained".into());failure_kind=Some("SESSION_SLICE".to_owned());break}
@@ -193,7 +197,8 @@ pub fn run_akm_native(manifest:Value,manifest_sha:&str,mode:&str,source:&str,tar
     if pilot{
         // Quantify positive tail support without pruning or changing state.
         let mut census=vec![];
-        for (name,rows) in [("road",&s.road),("pending",&s.pending)]{
+        for (name,rows) in [("road",&s.road),("pending",&s.pending),("waiting",&s.waiting)]{
+            if name=="waiting"&&!finite{continue}
             let mut bins=vec![];
             for threshold in [1e-15,1e-12,1e-9,1e-6,1e-3]{
                 let mut count=0;let mut mass=Sum::default();let mut birth=Sum::default();
@@ -207,6 +212,12 @@ pub fn run_akm_native(manifest:Value,manifest_sha:&str,mode:&str,source:&str,tar
         if samples.last().is_none_or(|x|x["time_s"]!=json!(s.t)){samples.push(sample(&e,&s));}
         receipt["pilot"]=json!({"clock_cell_closure":true,"session_slice_s":wall_slice,"idle_skipped_s":idle_skipped,"failure_kind":failure_kind,
             "samples":samples,"original_external_wall_s":7200,"scope":"fixed original owner/calendar; same road/interface; guarded temporal quotient, no new support or calibration"});
+    }
+    if finite{
+        receipt["cohort"]=json!({"active_fluid":s.fluid_distance.len(),"waiting_rows":s.waiting.len(),"waiting_mass":fsum(s.waiting.values().map(|x|x.mass())),
+            "ready_fluid":s.fluid_distance.iter().filter(|(key,d)|**d>=e.road.akm_geometry().0[e.road.registered_path(key.0).unwrap()[key.1]][0]).count(),
+            "scope":"one sealed mean-distance batch plus waiting stock; no strict FIFO or calibrated first-passage equivalence"});
+        receipt["pilot"]["scope"]=json!("original owner/calendar; finite gated fluid cohorts plus original reserved bus and guarded temporal quotient; no additional service support");
     }
     Ok(receipt)
 }

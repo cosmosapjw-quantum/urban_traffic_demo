@@ -508,7 +508,6 @@ mod sparse_flux_tests{
 impl State{
     pub(crate) fn write<W:std::io::Write>(&self,w:&mut W)->CoreResult<()>{
         use crate::v1_road::{write_f64,write_len};
-        if self.finite{return Err(bad("finite wire not yet enabled"))}
         write_f64(w,self.t)?;
         for x in [self.initial_birth,self.offered_birth,self.outlet_birth]{write_f64(w,x)?}
         write_len(w,self.class.len())?;
@@ -528,9 +527,18 @@ impl State{
             write_len(w,self.crossings.len())?;
             for (&(tag,pos),&a) in &self.crossings{write_len(w,tag)?;write_len(w,pos)?;write_f64(w,a)?;}
         }
+        if self.finite{
+            write_len(w,self.waiting.len())?;
+            for (&(tag,pos),x) in &self.waiting{
+                write_len(w,tag)?;write_len(w,pos)?;
+                for v in x.m.into_iter().chain(x.j).chain(x.z).chain([x.birth]){write_f64(w,v)?}
+            }
+            write_len(w,self.fluid_distance.len())?;
+            for (&(tag,pos),&d) in &self.fluid_distance{write_len(w,tag)?;write_len(w,pos)?;write_f64(w,d)?;}
+        }
         Ok(())
     }
-    pub(crate) fn read<R:std::io::Read>(r:&mut R,road:&V1Road,whole_bus_class:Option<usize>,interface:bool)->CoreResult<Self>{
+    pub(crate) fn read<R:std::io::Read>(r:&mut R,road:&V1Road,whole_bus_class:Option<usize>,interface:bool,finite:bool)->CoreResult<Self>{
         use crate::v1_road::{read_f64,read_len,read_exact_len};
         let t=read_f64(r)?;let n=road.akm_geometry().1.len();
         let mut s=Self::blank(t,n);s.initial_birth=read_f64(r)?;s.offered_birth=read_f64(r)?;s.outlet_birth=read_f64(r)?;
@@ -562,6 +570,22 @@ impl State{
                 if s.crossings.insert((tag,pos),read_f64(r)?).is_some(){return Err(bad("duplicate AKM crossing"))}
             }
         }
+        s.finite=finite;
+        if finite{
+            let count=read_len(r,ROAD_ROW_LIMIT.checked_sub(s.rows()).ok_or_else(||bad("AKM wire row budget"))?)?;
+            for _ in 0..count{
+                let tag=read_len(r,max_tag)?;
+                let pos=read_len(r,road.registered_path(tag).ok_or_else(||bad("AKM waiting wire route"))?.len().saturating_sub(1))?;
+                let x=Moment{m:[read_f64(r)?,read_f64(r)?],j:[read_f64(r)?,read_f64(r)?],z:[read_f64(r)?,read_f64(r)?],birth:read_f64(r)?};
+                if s.waiting.insert((tag,pos),x).is_some(){return Err(bad("duplicate waiting wire slot"))}
+            }
+            let count=read_len(r,s.road.len())?;
+            for _ in 0..count{
+                let tag=read_len(r,max_tag)?;
+                let pos=read_len(r,road.registered_path(tag).ok_or_else(||bad("AKM fluid track route"))?.len().saturating_sub(1))?;
+                if s.fluid_distance.insert((tag,pos),read_f64(r)?).is_some(){return Err(bad("duplicate fluid progress"))}
+            }
+        }
         s.check(road)?;Ok(s)
     }
 }
@@ -572,6 +596,30 @@ mod d09_cohort_tests{
     fn network()->V1Road{
         V1Road::new("akm-finite-fixture".into(),1.,vec![vec![100.,10.,2.,2.,200.,1.];2],vec![None,None],
             vec![(vec![0,1],0)],vec![vec![10.,2.,2.,4.,2.,1.,5.,1.,0.2,0.,10.,10.,5.]],vec![vec![1],vec![0]],vec![],1000,Some(1000),true).unwrap()
+    }
+    #[test]fn sealed_wire_retains_waiting_progress_and_rejects_missing_track(){
+        let road=network();let mut s=State::blank(0.,1);s.finite=true;
+        for t in 0..5{
+            let offers=if t==0||t==3{vec![(0,0.5,t as f64*0.5)]}else{vec![]};
+            s=s.advance(&road,1.,&offers,1000,256*1024*1024).unwrap().0;
+        }
+        assert!(!s.waiting.is_empty()&&s.fluid_distance[&(0,0)]>0.);
+        let mut bytes=vec![];s.write(&mut bytes).unwrap();
+        let r=State::read(&mut bytes.as_slice(),&road,None,false,true).unwrap();
+        assert_eq!(r,s);
+        let mut invalid=s.clone();invalid.fluid_distance.clear();
+        let mut bytes=vec![];invalid.write(&mut bytes).unwrap();
+        assert!(State::read(&mut bytes.as_slice(),&road,None,false,true).is_err());
+        let mut invalid=s.clone();invalid.fluid_distance.insert((0,0),101.);
+        let mut bytes=vec![];invalid.write(&mut bytes).unwrap();
+        assert!(State::read(&mut bytes.as_slice(),&road,None,false,true).is_err());
+    }
+    #[test]fn sealed_partial_quota_drain_is_exact_when_supply_returns(){
+        let x=Moment::point(1.,0.5,0.5,1.);
+        let (r,y)=quota_split(x,0.25,1.).unwrap();
+        assert_eq!(r.mass(),0.75);assert_eq!(r.add(y),x);
+        assert_eq!(quota_split(r,0.,1.).unwrap(),(r,Moment::default()));
+        assert_eq!(quota_split(r,1.,1.).unwrap(),(Moment::default(),r));
     }
     #[test]fn sealed_cohort_has_no_geometric_tail_or_early_outlet(){
         let road=network();let mut s=State::blank(0.,1);s.finite=true;
