@@ -1,0 +1,969 @@
+{
+  "status": "D09_FINAL_ATTEMPT_NOT_ACCEPTED",
+  "manifest_sha256": "2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3",
+  "same_prefix": {
+    "time_s": 25430.0,
+    "old_rows": 953296,
+    "new_rows": 371733,
+    "row_reduction_fraction": 0.6100550091472113,
+    "old_person_completed": 6.71027365021504,
+    "new_person_completed": 5.31628427804374,
+    "old_road_mass": 232.03765220720007,
+    "new_road_mass": 239.66897760832182,
+    "old_history": [
+      876091,
+      642381,
+      62128,
+      26206
+    ],
+    "new_history": [
+      876091,
+      39609,
+      62128,
+      3239
+    ],
+    "old_tiny_rows": 173429,
+    "new_tiny_rows": 0,
+    "old_peak_rss_kib": 1122936,
+    "new_peak_rss_kib": 821364
+  },
+  "continuation": {
+    "status": "BLOCKED",
+    "failure": "D09 session slice reached; last committed state retained",
+    "start_s": 25430.0,
+    "requested_end_s": 86400.0,
+    "time_s": 26310.0,
+    "wall_s": 190.238522441,
+    "advance_s": 180.978216906,
+    "peak_rss_kib": 1502732,
+    "road_rows": 882264,
+    "peak_road_rows": 900304,
+    "journey_records": [
+      876091,
+      500808,
+      73212,
+      51087
+    ],
+    "ledger": {
+      "cargo_kg": {
+        "active": 0.0,
+        "completed": 0.0,
+        "pending": 0.0,
+        "released": 0.0,
+        "released_intent_first_moment": 0.0,
+        "requested": 0.0
+      },
+      "persons": {
+        "active": 2347.707003990828,
+        "completed": 1324.8366753008418,
+        "pending": 2494.122987374959,
+        "released": 3672.54367929167,
+        "released_intent_first_moment": 94567999.74176082,
+        "requested": 6166.666666666629
+      },
+      "vehicles": {
+        "active": 1877.8692909088497,
+        "completed": 1055.4640424244037,
+        "pending": 88.33333333335077,
+        "released": 2933.3333333332534,
+        "released_intent_first_moment": 75533333.33333163,
+        "requested": 3021.666666666604
+      }
+    },
+    "cohort": {
+      "active_fluid": 826992,
+      "ready_fluid": 0,
+      "scope": "one sealed mean-distance batch plus waiting stock; no strict FIFO or calibrated first-passage equivalence",
+      "waiting_mass": 51.17764501582929,
+      "waiting_rows": 55272
+    },
+    "whole_bus": {
+      "active_tracks": 0,
+      "enabled": true,
+      "exited_veh": 0.0,
+      "moves": 0,
+      "quota_blocks": 0
+    },
+    "support_census": [
+      {
+        "bins": [
+          {
+            "birth_veh_s": 0.0,
+            "mass_veh": 0.0,
+            "rows": 0,
+            "threshold_veh": 1e-15
+          },
+          {
+            "birth_veh_s": 0.0,
+            "mass_veh": 0.0,
+            "rows": 0,
+            "threshold_veh": 1e-12
+          },
+          {
+            "birth_veh_s": 0.0,
+            "mass_veh": 0.0,
+            "rows": 0,
+            "threshold_veh": 1e-09
+          },
+          {
+            "birth_veh_s": 0.025710202330097815,
+            "mass_veh": 1.018888761064822e-06,
+            "rows": 3,
+            "threshold_veh": 1e-06
+          },
+          {
+            "birth_veh_s": 3034401.9566409676,
+            "mass_veh": 117.16500287865028,
+            "rows": 546106,
+            "threshold_veh": 0.001
+          }
+        ],
+        "distinct_tags": 50728,
+        "mass_veh": 1123.8355821283835,
+        "rows": 826992,
+        "storage": "road"
+      },
+      {
+        "bins": [
+          {
+            "birth_veh_s": 0.0,
+            "mass_veh": 0.0,
+            "rows": 0,
+            "threshold_veh": 1e-15
+          },
+          {
+            "birth_veh_s": 0.0,
+            "mass_veh": 0.0,
+            "rows": 0,
+            "threshold_veh": 1e-12
+          },
+          {
+            "birth_veh_s": 0.0,
+            "mass_veh": 0.0,
+            "rows": 0,
+            "threshold_veh": 1e-09
+          },
+          {
+            "birth_veh_s": 0.0,
+            "mass_veh": 0.0,
+            "rows": 0,
+            "threshold_veh": 1e-06
+          },
+          {
+            "birth_veh_s": 0.0,
+            "mass_veh": 0.0,
+            "rows": 0,
+            "threshold_veh": 0.001
+          }
+        ],
+        "distinct_tags": 0,
+        "mass_veh": 0.0,
+        "rows": 0,
+        "storage": "pending"
+      },
+      {
+        "bins": [
+          {
+            "birth_veh_s": 0.0,
+            "mass_veh": 0.0,
+            "rows": 0,
+            "threshold_veh": 1e-15
+          },
+          {
+            "birth_veh_s": 0.0,
+            "mass_veh": 0.0,
+            "rows": 0,
+            "threshold_veh": 1e-12
+          },
+          {
+            "birth_veh_s": 0.0,
+            "mass_veh": 0.0,
+            "rows": 0,
+            "threshold_veh": 1e-09
+          },
+          {
+            "birth_veh_s": 0.0,
+            "mass_veh": 0.0,
+            "rows": 0,
+            "threshold_veh": 1e-06
+          },
+          {
+            "birth_veh_s": 228043.0800482926,
+            "mass_veh": 8.73372889043455,
+            "rows": 40242,
+            "threshold_veh": 0.001
+          }
+        ],
+        "distinct_tags": 40880,
+        "mass_veh": 51.17764501582929,
+        "rows": 55272,
+        "storage": "waiting"
+      }
+    ],
+    "pilot": {
+      "clock_cell_closure": true,
+      "failure_kind": "SESSION_SLICE",
+      "idle_skipped_s": 0.0,
+      "original_external_wall_s": 7200,
+      "samples": [
+        {
+          "bus_tracks": 0,
+          "crossings": 0,
+          "fluid_tracks": 326256,
+          "journey_records": [
+            876091,
+            39609,
+            62128,
+            3239
+          ],
+          "ledger": {
+            "cargo_kg": {
+              "active": 0.0,
+              "completed": 0.0,
+              "pending": 0.0,
+              "released": 0.0,
+              "released_intent_first_moment": 0.0,
+              "requested": 0.0
+            },
+            "persons": {
+              "active": 729.1924515802706,
+              "completed": 5.31628427804374,
+              "pending": 543.2690419194212,
+              "released": 734.5087358583144,
+              "released_intent_first_moment": 18590416.104574416,
+              "requested": 1277.7777777777355
+            },
+            "vehicles": {
+              "active": 583.0700475194496,
+              "completed": 3.5966191472075977,
+              "pending": 39.444444444440705,
+              "released": 586.6666666666572,
+              "released_intent_first_moment": 14848533.333333086,
+              "requested": 626.1111111110979
+            }
+          },
+          "road_birth": 6055889.650652484,
+          "road_mass": 239.66897760832182,
+          "road_rows": 371733,
+          "time_s": 25430.0,
+          "waiting_rows": 45477
+        },
+        {
+          "bus_tracks": 0,
+          "crossings": 0,
+          "fluid_tracks": 739972,
+          "journey_records": [
+            876091,
+            294625,
+            72750,
+            28965
+          ],
+          "ledger": {
+            "cargo_kg": {
+              "active": 0.0,
+              "completed": 0.0,
+              "pending": 0.0,
+              "released": 0.0,
+              "released_intent_first_moment": 0.0,
+              "requested": 0.0
+            },
+            "persons": {
+              "active": 1775.5363275796562,
+              "completed": 194.2825549494995,
+              "pending": 1363.5144508042224,
+              "released": 1969.8188825291556,
+              "released_intent_first_moment": 50220532.41008134,
+              "requested": 3333.333333333378
+            },
+            "vehicles": {
+              "active": 1420.1327609289347,
+              "completed": 153.20057240441676,
+              "pending": 59.999999999992724,
+              "released": 1573.3333333333514,
+              "released_intent_first_moment": 40112133.33333303,
+              "requested": 1633.3333333333442
+            }
+          },
+          "road_birth": 23083569.69775078,
+          "road_mass": 906.5917709519789,
+          "road_rows": 798002,
+          "time_s": 25800.0,
+          "waiting_rows": 58030
+        },
+        {
+          "bus_tracks": 0,
+          "crossings": 0,
+          "fluid_tracks": 826992,
+          "journey_records": [
+            876091,
+            500808,
+            73212,
+            51087
+          ],
+          "ledger": {
+            "cargo_kg": {
+              "active": 0.0,
+              "completed": 0.0,
+              "pending": 0.0,
+              "released": 0.0,
+              "released_intent_first_moment": 0.0,
+              "requested": 0.0
+            },
+            "persons": {
+              "active": 2347.707003990828,
+              "completed": 1324.8366753008418,
+              "pending": 2494.122987374959,
+              "released": 3672.54367929167,
+              "released_intent_first_moment": 94567999.74176082,
+              "requested": 6166.666666666629
+            },
+            "vehicles": {
+              "active": 1877.8692909088497,
+              "completed": 1055.4640424244037,
+              "pending": 88.33333333335077,
+              "released": 2933.3333333332534,
+              "released_intent_first_moment": 75533333.33333163,
+              "requested": 3021.666666666604
+            }
+          },
+          "road_birth": 30411740.089334216,
+          "road_mass": 1175.0132271442128,
+          "road_rows": 882264,
+          "time_s": 26310.0,
+          "waiting_rows": 55272
+        }
+      ],
+      "scope": "original owner/calendar; finite gated fluid cohorts plus original reserved bus and guarded temporal quotient; no additional service support",
+      "session_slice_s": 180.0
+    },
+    "checkpoint_sha256": "ac30e5ad19da7a104a937b10ed42bec22fe7bd490e3731039cb0207b114f3a71"
+  },
+  "physical": {
+    "fixture_drain": true,
+    "fixture_restart_byte_equal": true,
+    "city_checkpoint_recovery_byte_equal": true,
+    "old_pilot_wire_equal": true,
+    "actual_refinement_steps_s": [
+      1,
+      0.5,
+      0.25
+    ],
+    "synchronization_extra_s": [
+      7,
+      7,
+      7
+    ],
+    "decoded_road_prefixes": {
+      "S05_cohort31": {
+        "identity": "akm-native-reserved-sealed-cohort-clock-v1:native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3:2dbedc0ab2720529b71ef1377f9def399bb40e6e400ac22a6073e33bbf4f6a21",
+        "time_s": 31.0,
+        "initial_birth": 0.0,
+        "offered_birth": 63.000000000000014,
+        "outlet_birth": 33.000000000000014,
+        "classes": [
+          [
+            6.4,
+            6.3999999999999995
+          ],
+          [
+            0.1,
+            0.09999999999999992
+          ],
+          [
+            1.0,
+            0.0
+          ]
+        ],
+        "maps": [
+          {
+            "storage": "road",
+            "rows": 0,
+            "distinct_tags": 0,
+            "mass_veh": 0.0,
+            "birth": 0.0,
+            "bins": [
+              {
+                "threshold_veh": 1e-15,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-12,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-09,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-06,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 0.001,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              }
+            ]
+          },
+          {
+            "storage": "pending",
+            "rows": 1,
+            "distinct_tags": 1,
+            "mass_veh": 1.0,
+            "birth": 30.0,
+            "bins": [
+              {
+                "threshold_veh": 1e-15,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-12,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-09,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-06,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 0.001,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              }
+            ]
+          },
+          {
+            "storage": "waiting",
+            "rows": 0,
+            "distinct_tags": 0,
+            "mass_veh": 0.0,
+            "birth": 0.0,
+            "bins": [
+              {
+                "threshold_veh": 1e-15,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-12,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-09,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-06,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 0.001,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              }
+            ]
+          }
+        ],
+        "bus_tracks": 0,
+        "fluid_tracks": 0,
+        "crossings": 1
+      },
+      "S05_cohort360": {
+        "identity": "akm-native-reserved-sealed-cohort-clock-v1:native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3:2dbedc0ab2720529b71ef1377f9def399bb40e6e400ac22a6073e33bbf4f6a21",
+        "time_s": 360.0,
+        "initial_birth": 0.0,
+        "offered_birth": 411.0,
+        "outlet_birth": 411.0,
+        "classes": [
+          [
+            12.8,
+            12.8
+          ],
+          [
+            0.1,
+            0.09999999999999992
+          ],
+          [
+            2.0,
+            1.9999999999999991
+          ]
+        ],
+        "maps": [
+          {
+            "storage": "road",
+            "rows": 0,
+            "distinct_tags": 0,
+            "mass_veh": 0.0,
+            "birth": 0.0,
+            "bins": [
+              {
+                "threshold_veh": 1e-15,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-12,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-09,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-06,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 0.001,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              }
+            ]
+          },
+          {
+            "storage": "pending",
+            "rows": 0,
+            "distinct_tags": 0,
+            "mass_veh": 0.0,
+            "birth": 0.0,
+            "bins": [
+              {
+                "threshold_veh": 1e-15,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-12,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-09,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-06,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 0.001,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              }
+            ]
+          },
+          {
+            "storage": "waiting",
+            "rows": 0,
+            "distinct_tags": 0,
+            "mass_veh": 0.0,
+            "birth": 0.0,
+            "bins": [
+              {
+                "threshold_veh": 1e-15,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-12,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-09,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-06,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 0.001,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              }
+            ]
+          }
+        ],
+        "bus_tracks": 0,
+        "fluid_tracks": 0,
+        "crossings": 0
+      },
+      "S06_prefix": {
+        "identity": "akm-native-reserved-sealed-cohort-clock-v1:native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3",
+        "time_s": 25430.0,
+        "initial_birth": 0.0,
+        "offered_birth": 6375120.0444041295,
+        "outlet_birth": 319230.3937512082,
+        "classes": [
+          [
+            248.8947994474963,
+            9.225821839203567
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            4.0,
+            3.9999999999999947
+          ]
+        ],
+        "maps": [
+          {
+            "storage": "road",
+            "rows": 326256,
+            "distinct_tags": 50728,
+            "mass_veh": 213.3814765958081,
+            "birth": 5390972.282679955,
+            "bins": [
+              {
+                "threshold_veh": 1e-15,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-12,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-09,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-06,
+                "rows": 1276,
+                "mass_veh": 0.000872566794631095,
+                "birth_veh_s": 22.004105800739232
+              },
+              {
+                "threshold_veh": 0.001,
+                "rows": 259525,
+                "mass_veh": 51.4692010056312,
+                "birth_veh_s": 1299689.8286125965
+              }
+            ]
+          },
+          {
+            "storage": "pending",
+            "rows": 0,
+            "distinct_tags": 0,
+            "mass_veh": 0.0,
+            "birth": 0.0,
+            "bins": [
+              {
+                "threshold_veh": 1e-15,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-12,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-09,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-06,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 0.001,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              }
+            ]
+          },
+          {
+            "storage": "waiting",
+            "rows": 45477,
+            "distinct_tags": 39426,
+            "mass_veh": 26.287501012513722,
+            "birth": 664917.3679725289,
+            "bins": [
+              {
+                "threshold_veh": 1e-15,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-12,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-09,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-06,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 0.001,
+                "rows": 36996,
+                "mass_veh": 8.175673736476012,
+                "birth_veh_s": 206850.46888553625
+              }
+            ]
+          }
+        ],
+        "bus_tracks": 0,
+        "fluid_tracks": 326256,
+        "crossings": 0
+      },
+      "S07_day": {
+        "identity": "akm-native-reserved-sealed-cohort-clock-v1:native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3",
+        "time_s": 26310.0,
+        "initial_birth": 0.0,
+        "offered_birth": 65036124.07135388,
+        "outlet_birth": 34624383.98203206,
+        "classes": [
+          [
+            2528.858629392465,
+            1353.845402249175
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            4.0,
+            3.9999999999999947
+          ]
+        ],
+        "maps": [
+          {
+            "storage": "road",
+            "rows": 826992,
+            "distinct_tags": 50728,
+            "mass_veh": 1123.8355821283835,
+            "birth": 29078724.078581583,
+            "bins": [
+              {
+                "threshold_veh": 1e-15,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-12,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-09,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-06,
+                "rows": 3,
+                "mass_veh": 1.018888761064822e-06,
+                "birth_veh_s": 0.025710202330097815
+              },
+              {
+                "threshold_veh": 0.001,
+                "rows": 546106,
+                "mass_veh": 117.16500287865028,
+                "birth_veh_s": 3034401.9566409676
+              }
+            ]
+          },
+          {
+            "storage": "pending",
+            "rows": 0,
+            "distinct_tags": 0,
+            "mass_veh": 0.0,
+            "birth": 0.0,
+            "bins": [
+              {
+                "threshold_veh": 1e-15,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-12,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-09,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-06,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 0.001,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              }
+            ]
+          },
+          {
+            "storage": "waiting",
+            "rows": 55272,
+            "distinct_tags": 40880,
+            "mass_veh": 51.17764501582929,
+            "birth": 1333016.010752631,
+            "bins": [
+              {
+                "threshold_veh": 1e-15,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-12,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-09,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 1e-06,
+                "rows": 0,
+                "mass_veh": 0.0,
+                "birth_veh_s": 0.0
+              },
+              {
+                "threshold_veh": 0.001,
+                "rows": 40242,
+                "mass_veh": 8.73372889043455,
+                "birth_veh_s": 228043.0800482926
+              }
+            ]
+          }
+        ],
+        "bus_tracks": 0,
+        "fluid_tracks": 826992,
+        "crossings": 0
+      }
+    }
+  },
+  "support": {
+    "status": "UNCHANGED_ORIGINAL_SERVICE_SCOPE",
+    "manifest_sha256": "2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3",
+    "runs": 24,
+    "sum_single_run_seat_capacity": 960.0,
+    "bus_person_intent": 29999.999999995798,
+    "direct_unsupported_bus_person": 29998.32303749579,
+    "optimistic_all_run_seat_deficit_person": 29039.999999995798,
+    "parent_profile_bound": {
+      "optimistic_completion_ceiling": [
+        72115.96491075,
+        57601.02129515,
+        998.825
+      ],
+      "requested": [
+        120000.0,
+        58801.0,
+        1000.0
+      ],
+      "time_s": 86400.0,
+      "uncompleted_lower_bound": [
+        47884.03508925,
+        1199.97870485,
+        1.175000000000003
+      ]
+    },
+    "scope": "reused previous actual Rust owner census bound to identical manifest; additional independent seat upper bound for one-stop-to-one-stop fixed runs, assumes one passenger trip per seat per run; not new fleet, no reassignments; parent/dwell may further restrict"
+  },
+  "decision": "D09 STOPPED 2/2, original unsupported demand and unvalidated 24h/release; D10 blocked dependency, D11 separate decision ready; no further D09 retries",
+  "limits": [
+    "mean-characteristic sealed cohorts not exact first-passage/FIFO",
+    "intent-priority and bus-first quota not fairness proof",
+    "waiting stock does not translate until promotion",
+    "no arbitrary mass deletion",
+    "no new original support or city D07/D08 coupling",
+    "native recovery not direct-vs-split full city trajectory",
+    "full CI/main merge not run"
+  ]
+}

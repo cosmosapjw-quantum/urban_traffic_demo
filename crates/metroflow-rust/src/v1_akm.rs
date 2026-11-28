@@ -621,6 +621,30 @@ mod d09_cohort_tests{
         assert_eq!(quota_split(r,0.,1.).unwrap(),(r,Moment::default()));
         assert_eq!(quota_split(r,1.,1.).unwrap(),(Moment::default(),r));
     }
+    #[test]fn sealed_batch_delay_does_not_vanish_under_time_refinement(){
+        // Independent one-link free-flow discriminator. Small equal masses
+        // keep both source admission and sink service strictly unconstrained.
+        let road=V1Road::new("akm-batch-delay".into(),1.,vec![vec![100.,10.,2.,2.,200.,1.]],vec![None],
+            vec![(vec![0],0)],vec![vec![10.,2.,2.,4.,2.,1.,5.,1.,0.2,0.,10.,10.,5.]],vec![vec![0]],vec![],1000,Some(1000),true).unwrap();
+        for h in [1.,0.5,0.25]{
+            let run=|pair:bool| {
+                let mut s=State::blank(0.,1);s.finite=true;let mut arrivals=vec![];
+                for i in 0..(50./h) as usize{
+                    let t=i as f64*h;
+                    let offers=if t==3.||(pair&&t==0.){vec![(0,0.125,0.125*t)]}else{vec![]};
+                    let (n,e,_)=s.advance(&road,h,&offers,1000,256*1024*1024).unwrap();
+                    arrivals.extend(e.iter().map(|r|(r.3,r.5,r.6)));
+                    s=n;
+                }
+                assert_eq!(s.rows(),0);arrivals
+            };
+            let pair=run(true);let single=run(false);
+            assert_eq!(pair.len(),2);assert_eq!(single.len(),1);
+            let extra=pair[1].1-single[0].1;
+            println!("D09_BATCH_BIAS h={h} pair_first={} pair_second={} independent_second={} extra={extra}",pair[0].1,pair[1].1,single[0].1);
+            assert!((extra-7.).abs()<=h+1e-12);
+        }
+    }
     #[test]fn sealed_cohort_has_no_geometric_tail_or_early_outlet(){
         let road=network();let mut s=State::blank(0.,1);s.finite=true;
         let mut arrivals=vec![];
