@@ -25,7 +25,11 @@ pub struct Stats{
     pub admitted:f64,pub transferred:f64,pub exited:f64,pub unused_receive_veh:f64,
 }
 #[derive(Clone,Copy,Debug,PartialEq,Eq,Serialize)]
-pub enum FluxPolicy{Proportional,SelectiveResidual}
+pub enum FluxPolicy{Proportional,Selective,Residual,SelectiveResidual}
+impl FluxPolicy{
+    pub fn selective(self)->bool{matches!(self,Self::Selective|Self::SelectiveResidual)}
+    pub fn residual(self)->bool{matches!(self,Self::Residual|Self::SelectiveResidual)}
+}
 pub struct Model{decl:Declaration,slots:Vec<Slot>,roots:Vec<usize>,identity:String,policy:FluxPolicy}
 pub struct Workspace{
     candidate:State,kinetic:Vec<Moment>,proposal:Vec<f64>,source:Vec<f64>,
@@ -56,7 +60,7 @@ impl Model{
             }
         }
         let identity=format!("akm-a-v1:{:x}",Sha256::digest(serde_json::to_vec(&decl).map_err(|e|e.to_string())?));
-        let identity=if policy==FluxPolicy::Proportional{identity}else{format!("{identity}:selective-residual-v1")};
+        let identity=match policy{FluxPolicy::Proportional=>identity,FluxPolicy::Selective=>format!("{identity}:selective-v1"),FluxPolicy::Residual=>format!("{identity}:residual-v1"),FluxPolicy::SelectiveResidual=>format!("{identity}:selective-residual-v1")};
         Ok(Self{decl,slots,roots,identity,policy})
     }
     pub fn identity(&self)->&str{&self.identity}
@@ -164,7 +168,7 @@ impl Model{
         // One bounded residual allocation pass. A donor whose positive
         // remaining movement needs exhausted supply cannot increase its
         // common fraction and is excluded from residual competition.
-        if self.policy==FluxPolicy::SelectiveResidual{
+        if self.policy.residual(){
             for (i,sl) in self.slots.iter().enumerate(){
                 if let Some(dst)=sl.next{let j=self.slots[dst].link;let q=w.proposal[i]*w.scale[sl.link];
                     w.incoming[j]+=q;w.incoming_m[j]+=q*self.decl.classes[self.decl.routes[sl.route].class].footprint;}
@@ -193,7 +197,7 @@ impl Model{
         for (i,sl) in self.slots.iter().enumerate(){
             let x=w.kinetic[i];let m=x.mass();
             let f=if m>0.{(w.proposal[i]*w.scale[sl.link]/m).min(1.)}else{0.};
-            let (remain,y)=if self.policy==FluxPolicy::SelectiveResidual{
+            let (remain,y)=if self.policy.selective(){
                 let c=if x.momentum()>0.{(w.proposal[i]*w.scale[sl.link]/x.momentum()).min(1.)}else{0.};
                 split_velocity_selected(x,c,end)?
             }else{(x.scaled(1.-f),x.scaled(f))};
@@ -279,20 +283,50 @@ pub fn diamond_with_policy(dt:f64,beta:f64,policy:FluxPolicy)->Result<Model>{
     classes:vec![Class{speed_ref:10.,footprint:5.,alpha:0.2,nu0:0.,beta,tau:2.},Class{speed_ref:8.,footprint:10.,alpha:0.15,nu0:0.,beta,tau:3.}],
     routes:vec![Route{class:0,links:vec![0,1,3]},Route{class:0,links:vec![0,2,3]},Route{class:1,links:vec![0,1,3]},Route{class:1,links:vec![0,2,3]}]},policy)
 }
+/// Same physical diamond length/storage, refined internal cell interfaces.
+/// Original entry/exit capacity at external endpoints; min(entry,exit)
+/// at artificial internal boundaries. External gate applied by caller.
+pub fn refined_diamond(dt:f64,beta:f64,k:usize,policy:FluxPolicy)->Result<Model>{
+    if k==0||k>16{return Err("invalid research subdivision".into())}
+    let coarse=diamond_with_policy(dt,beta,policy)?;
+    if k==1{return Ok(coarse)}
+    let d=coarse.declaration();
+    let links=d.links.iter().flat_map(|l|(0..k).map(move |i|{
+        let mut r=*l;r.length/=k as f64;r.storage/=k as f64;
+        let internal=l.entry.min(l.exit);
+        if i>0{r.entry=internal}if i+1<k{r.exit=internal}r
+    })).collect();
+    let routes=d.routes.iter().map(|r|Route{class:r.class,links:r.links.iter().flat_map(|&e|e*k..(e+1)*k).collect()}).collect();
+    Model::new_with_policy(Declaration{dt,links,classes:d.classes.clone(),routes},policy)
+}
 #[cfg(test)]
 mod tests{
     use super::*;
+    #[test] fn refined_geometry_and_policy_identity(){
+        let a=diamond(5.,0.6).unwrap();
+        let d=refined_diamond(1.25,0.6,4,FluxPolicy::Proportional).unwrap();
+        assert_eq!(d.declaration().links.len(),16);
+        for (i,l) in a.declaration().links.iter().enumerate(){
+            let row=&d.declaration().links[4*i..4*i+4];
+            assert_eq!(row.iter().map(|x|x.length).sum::<f64>(),l.length);
+            assert_eq!(row.iter().map(|x|x.storage).sum::<f64>(),l.storage);
+            assert_eq!(row[0].entry,l.entry);assert_eq!(row[3].exit,l.exit);
+        }
+        let ids:std::collections::BTreeSet<_>=[FluxPolicy::Proportional,FluxPolicy::Selective,FluxPolicy::Residual,FluxPolicy::SelectiveResidual].into_iter()
+          .map(|p|refined_diamond(1.25,0.6,4,p).unwrap().identity().to_owned()).collect();
+        assert_eq!(ids.len(),4);
+    }
     #[test] fn residual_donor_recovers_stranded_receiving_capacity(){
         let l=Link{length:100.,speed_limit:10.,entry:0.1,exit:10.,storage:100.,wave_speed:10.};
         let c=Class{speed_ref:10.,footprint:5.,alpha:0.2,nu0:0.,beta:0.,tau:2.};
         let decl=Declaration{dt:10.,links:vec![l;4],classes:vec![c],
             routes:vec![Route{class:0,links:vec![0,2]},Route{class:0,links:vec![0,3]},Route{class:0,links:vec![1,3]},Route{class:0,links:vec![2]}]};
-        for policy in [FluxPolicy::Proportional,FluxPolicy::SelectiveResidual]{
+        for policy in [FluxPolicy::Proportional,FluxPolicy::Selective,FluxPolicy::Residual,FluxPolicy::SelectiveResidual]{
             let m=Model::new_with_policy(decl.clone(),policy).unwrap();let mut s=m.initial();let mut w=m.workspace();
             for (i,mass) in [(0,1.),(2,1.),(4,1.),(6,20.)]{s.road[i]=Moment::point(mass,1.,1.,0.);}
             s.released.copy_from_slice(&[1.,1.,1.,20.]);
             let x=m.step(&mut s,&mut w,&[0.;4],&[1.,1.,0.,1.]).unwrap();
-            let expected=if policy==FluxPolicy::Proportional{0.5}else{1.};
+            let expected=if policy.residual(){1.}else{0.5};
             assert!((s.road[5].mass()-expected).abs()<1e-12,"policy {:?} expected {}, actual {}",policy,expected,s.road[5].mass());
             assert_eq!(s.road[1].mass(),0.);assert_eq!(s.road[3].mass(),0.);
             assert!((x.transferred-expected).abs()<1e-12);
