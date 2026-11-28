@@ -1,0 +1,169 @@
+{
+  "schema": "akm-research-receipt-v1",
+  "status": "VERIFIED_SCOPED_NOT_RELEASE",
+  "baseline": "f3e13c2b0251f97c1fd5da601ab8995d44ec2f5c",
+  "research_branch": "research/active-kinetic-meso-20261128",
+  "scope": "R01-R10 and C01-C10 one bounded execution; grouped verified milestones not 20 separate pushes. A synthetic fixed-support moment and B archived projected city only. Original V03 unchanged.",
+  "research_ssot": "docs/akm/RESEARCH_SSOT_KO.md",
+  "theory": "docs/research/ACTIVE_KINETIC_MESO_THEORY_20261128.md",
+  "stages": {
+    "theory": 10,
+    "coding": 10,
+    "scope": "stage execution, not full implementation acceptance"
+  },
+  "research_dag": {
+    "total": 14,
+    "verified_scoped": 4,
+    "ready": [
+      "D04",
+      "D06"
+    ],
+    "remaining_attempts": 20,
+    "max_attempts": 24
+  },
+  "original_release": {
+    "plan_version": "1.1.55",
+    "original_release_fields_unchanged": true,
+    "scoped_or_accepted": 19,
+    "accepted": 5,
+    "total": 21,
+    "native_rust_scoped": 14,
+    "native_rust_total": 15,
+    "full_day_accepted": 0,
+    "full_day_required": 9,
+    "matched_8h_accepted": 0,
+    "matched_8h_required": 3,
+    "original_frontier_s": 25750,
+    "original_status": "BLOCKED",
+    "exact_engine_diff_empty": true
+  },
+  "verified": {
+    "lab_cases": 12,
+    "lab_zero_hot_advance_allocs": true,
+    "lab_replay_file_digests": [
+      "4557eadeea0b1c3e1ce8003ee30a7a3b2b43863e35bae2172f103f1fc258c9d7",
+      "482b0c3d7358d31acba656e0bc485aa3fbcbfd5fc653c467ace56fc5bf5a5581"
+    ],
+    "max_mass_error": 1.6916601452976465e-10,
+    "max_birth_error": 1.2516975402832031e-06,
+    "full_day_dt_mean_gap_relative_coarse": 0.07040277179423349,
+    "zero_vs_historical_result_payload_equal": true,
+    "active_car_mean_s": 807.6912902283053,
+    "zero_car_mean_s": 798.4471331248336,
+    "active_city_full_day_wall_s": 91.369955567,
+    "zero_city_full_day_wall_s": 93.454891564,
+    "micro_comparison": true,
+    "response_check": {
+      "scope": "periodic small occupancy perturbation, frozen parameters except nu(phi); not full network stability",
+      "phi": 0.6,
+      "eps": 0.0001,
+      "results": [
+        {
+          "omega_rad_s": 0.1,
+          "expected": [
+            -7.200241113528682,
+            3.331020636359734
+          ],
+          "measured": [
+            -7.200241099236592,
+            3.331020646458406
+          ],
+          "relative_error": 2.205847122873004e-09
+        },
+        {
+          "omega_rad_s": 0.5,
+          "expected": [
+            0.3436533588570196,
+            3.7474580561075013
+          ],
+          "measured": [
+            0.34365335114078943,
+            3.7474580307625267
+          ],
+          "relative_error": 7.040197528697201e-09
+        },
+        {
+          "omega_rad_s": 2.0,
+          "expected": [
+            0.3700533598555012,
+            0.1787810536010755
+          ],
+          "measured": [
+            0.37005347235682146,
+            0.17878049188176529
+          ],
+          "relative_error": 1.393932858469043e-06
+        }
+      ]
+    },
+    "headless_tests": 15
+  },
+  "not_claimed": [
+    "A strict FIFO, full-city adapter or physical convergence",
+    "B current original schedule, full passenger/land-use, refined departure mesh or city restart",
+    "calibrated real-world model",
+    "V03 accepted, full CI or main merge",
+    "native independent subagent review"
+  ],
+  "limitations": [
+    "authored hazard and frozen-entry mean passage",
+    "A underutilized receiving and non-negligible synthetic day refinement gap",
+    "B archive inputs fixed route and 1200s mesh",
+    "AXIOMATIC_FOUNDATIONS_KO.md v0.1 unavailable"
+  ],
+  "source_sha256": {
+    "crates/metroflow-headless/src/access.rs": "f5a909e730a43783dac3d57bbcd6712883b269c25c646de8c09400cd0174114a",
+    "crates/metroflow-headless/src/active_kinetic.rs": "e667c3c2efc2acaa2a5ef0fed00941205fdcd89120865baeaccf8ed7905e6a6a",
+    "crates/metroflow-headless/src/active_network.rs": "99ef4a273d6903d806f257a34fe9f8442725ee7cf7161ceb2d9c5eca532b524e",
+    "crates/metroflow-headless/src/bin/metroflow-active-city.rs": "01bcaa9b15fb127368928c97bda959c2ba89964582fdb7e76ea1a91966384ab8",
+    "crates/metroflow-headless/src/bin/metroflow-active-lab.rs": "d37db2f663a75dcf13f7a53205bf657afc713a4b398d789bc144840af505ed6b",
+    "crates/metroflow-headless/src/bin/metroflow-active-micro.rs": "3501110bb140569fca8fc2fa12172fc97dbe2416b39a7a7be88e6dc2dfd9f7fd",
+    "crates/metroflow-headless/src/bin/metroflow-backend-audit.rs": "e33f6f3c49e3a9abc631fab37f87d331e5b2ae5d1edd641b83cfe6df6d8401b3",
+    "crates/metroflow-headless/src/bin/metroflow-headless.rs": "af65eb559ed86ca2cd0f0668b80a97284e39c13f2364e37308284b287c1cb81f",
+    "crates/metroflow-headless/src/bin/metroflow-preflight-bench.rs": "b29fa14da1ccc541aff5240f9adf78f6a3617e4c61baf653a8124db80d55f62a",
+    "crates/metroflow-headless/src/bin/metroflow-prepare.rs": "6d853728817780f42d8114f9b99fe14d7465ec1d7ea806caa21d4ca500cb8225",
+    "crates/metroflow-headless/src/bin/metroflow-verify.rs": "ae6852a4cd2b277786fa73e3299639c06f7ef9ab65e42de5f4fa5f8d9230ea54",
+    "crates/metroflow-headless/src/input.rs": "f823c081ddba5aa46173c1d1519f4f7745f95898f039c17bfd259ad8a5a082e9",
+    "crates/metroflow-headless/src/kinetics.rs": "46a15569845a1d471114b9534b6f9911c596ea6d26b17fa639e93daa8d518ba1",
+    "crates/metroflow-headless/src/lib.rs": "d5d098cc65a7b3e66aa55f201039e3ecfc50d6ffa8b27c53f9063d81121d5b73",
+    "crates/metroflow-headless/src/preflight.rs": "2339db63b6ef9f5a425fa6d42ea144e31d4e294c95f7a7fa857aba871270095b",
+    "crates/metroflow-headless/src/prepare.rs": "369536ac8278dc5cd077ed4686a2af8130f06b3508ac3e71ec23ac84b4686532",
+    "crates/metroflow-headless/src/queue.rs": "9eea865f15967054d770db6f7e7c7bc7b9b1938c56fdb7da4324324ad2ce94ab",
+    "crates/metroflow-headless/src/receipt.rs": "e95fcbfde1369b896c4833ac5778690801ef7ca2185162827c121ca05a2b882f"
+  },
+  "evidence_sha256": {
+    "C05_kinetic_green.log": "6da693d40e54a10fb0cc77ccf7dff133ba693a2facc82f50b0850d9902f6c186",
+    "C05_kinetic_red.log": "fd832628113057bb9574f29b819d3a8aaedd9748ba73539cb0a3d3639ae4c563",
+    "C06_network_test.log": "980eba29db8dc13fa63c69257477e84ff0d5a124bd496528a1fb57822ba23f17",
+    "C07_active_city_tests.log": "544cb23f93f4647b8af648e47de96f67fc28af831fe34b4bfee237699c2f41f0",
+    "C07_binary.sha256": "4710489c4dc23f27959f08845d4f3fea8ad82c5ab10d974cb0edb9b59c1e4d01",
+    "C07_build.log": "31647931264a06990a1bc672f7adde48654c6506a34d575b13b5ce1c145a901f",
+    "C07_input_provenance.json": "aa3b62b3ddc9e9d7bf970a44ba0cf8f6c3835f56276a46f141202c1560992930",
+    "C08_city_active28800.json": "73d168405e75f508c0754b6358dab45ea9e502cf6b80947cbc88b0722641b43c",
+    "C08_city_active86400.json": "b546654c0668a51941add02d2e84318b4fe3a2ec16ce3f14dd089167ceb259e1",
+    "C08_city_zero86400.json": "ff905b8c9402a8442a27b4336f650b5288a27a5539884e13e68f9765db4107f5",
+    "C08_lab_binary.sha256": "855e6cb354c00a7c00ce3024a8d6ede3c50793d15ae016a042c0a942edeb11ab",
+    "C08_lab_build.log": "ed499555eeaf711d30a12f5d3e53219167fb34880a988c907a9215b97c3de756",
+    "C08_lab_first_probe.log": "aab74123df475250c2be66c97eea44ca9cae662c87a8c5b0e74892343dab7aa9",
+    "C08_lab_process.log": "9a41c758196e7696c052ba9405922f64dea0b7086159a727c1e84034c2dde848",
+    "C08_lab_results.json": "d18bc9f3457ad673c82c59d9af147e60fa8e7409abd1824c789976e41e700795",
+    "C08_policy_tests.log": "b893787fec9fce58fc6b99ba42317e89623424f2a9fc571958ba62ccbaf65820",
+    "C09_cargo_tree.txt": "0d36489ef83332f7ce2666adba6dce849cb8d19b5603dfb99d5b9419361cda43",
+    "C09_headless_tests.log": "74cc4b670f1856a0c6d705b45b01b0d0f20863710103796c99fd9c4063c78ff2",
+    "C09_ldd.txt": "99439585dc04d39650aba8010816484d16b54c73a8785ed190210a17d56352ff",
+    "C09_micro_build.log": "a832af010791522c3d918a43717a3d979e949a2a86f30a6c6cce50112e59bb45",
+    "R01_source_history.txt": "54d38d1f1ab08bf4fc326cf875a4899cdeaaacc04165bc7e7b5a727a49d473fb",
+    "R02_sources.sha256": "506cb6ce53c989dcdda095b94cbe376e86da36f9f99a1fb7c9b14cd7aa2b11fa",
+    "R07_independent_oracle.json": "150a73fafcb756730fd8ae621926a23e9d2ef4f528f5f42e8e56b19783793b11",
+    "R07_micro_pdmp.json": "9964c40a1a509e6ae53bd4337e94ece0a42a19ff8f365098f7b32a05bbc5994c",
+    "R07_response_oracle.json": "154113daf7854526654061765f10ccc06cc9fd5578200ace39343940b6159aac"
+  },
+  "milestones": [
+    "d2edb3e00d64b0540aa996ef20eb59fbaaded66d C09 Independently compare microscopic event paths and mesoscopic kinetic moments",
+    "bb0484b3a58e64d0cca3a0171a23655e7d1a1fde C08 Run bounded active network lab with delayed policy replay and independent oracle",
+    "859e11f25e8fb2c64dc4cb8a3dcb1fd490e585b5 C07 Reuse finite-storage projected city queue with causal active mobility",
+    "6160f28b01f9254a3b8fa371b2f356c05742c3f2 C06 Couple kinetic measures to bounded simultaneous multiclass network flux",
+    "32762b36ec492b11d54d1b4b2aeee0a85f8a7b6d C01-C05 Implement positive local kinetic map and exact mean mobility in Rust",
+    "4bd91eece722a251c5652c489640279cb00930af R01-R10 Recover original active kinetic design and derive realizable bounded transport bridge"
+  ]
+}

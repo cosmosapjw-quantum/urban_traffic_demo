@@ -1,0 +1,46 @@
+flowchart TD
+  D00["D00 원동기 및 SSOT 재정초 [VERIFIED_SCOPED]"]
+  D01["D01 미시-kinetic bridge [VERIFIED_SCOPED]"]
+  D00 --> D01
+  D02["D02 A: bounded kinetic network [VERIFIED_SCOPED]"]
+  D01 --> D02
+  D03["D03 B: projected active city [VERIFIED_SCOPED]"]
+  D01 --> D03
+  D04["D04 관측 및 반례의 공동 기준 [READY]"]
+  D01 --> D04
+  D02 --> D04
+  D03 --> D04
+  D05["D05 혼합/순서 및 해상도 closure 선택 [PLANNED]"]
+  D04 --> D05
+  D06["D06 원 도시 선언 및 전체 질량 장부 연결 [READY]"]
+  D02 --> D06
+  D03 --> D06
+  D07["D07 인과적 경로 선택과 인프라 개입 [PLANNED]"]
+  D04 --> D07
+  D05 --> D07
+  D08["D08 접근성-도시발전 지연 feedback [PLANNED]"]
+  D06 --> D08
+  D07 --> D08
+  D09["D09 전체 수요 1개 도시 pilot [PLANNED]"]
+  D05 --> D09
+  D06 --> D09
+  D07 --> D09
+  D10["D10 독립 지형/요일/해상도 holdout [PLANNED]"]
+  D08 --> D10
+  D09 --> D10
+  D11["D11 유한 후보 선택/중단 [PLANNED]"]
+  D01 --> D11
+  D02 --> D11
+  D03 --> D11
+  D04 -. terminal .-> D11
+  D05 -. terminal .-> D11
+  D06 -. terminal .-> D11
+  D07 -. terminal .-> D11
+  D08 -. terminal .-> D11
+  D09 -. terminal .-> D11
+  D10 -. terminal .-> D11
+  D12["D12 기존 V03와 승인된 candidate의 수용 [PLANNED]"]
+  D11 --> D12
+  D13["D13 연구 종료 및 통합 심사 [PLANNED]"]
+  D11 --> D13
+  D12 -. terminal .-> D13

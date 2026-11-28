@@ -1,11 +1,11 @@
 # MetroFlow V1 실행 지침
 
-현재 사용자의 2026-10-25 요청에 따라 `docs/v1/PLAN.json`이 앞으로 V1 작업의 유일한 규범 실행계획이다. `python tools/v1_plan.py render`로 상세 문서·DAG·PR 작업표를 생성하고, `validate`와 `next`로 기준과 다음 노드를 확인한다.
+2026-11-28 사용자 결정: `docs/akm/RESEARCH_SSOT_KO.md` v1.0.0이 과학연구의 방향·순서·유한 DAG·anti-drift/anti-local-minima 중단 규칙의 정본이다. `docs/v1/PLAN.json`은 V1 제품/수용/릴리스의 규범 실행계획으로 유지한다. 두 권위의 범위를 혼동하지 않는다. `python tools/v1_plan.py render`로 상세 문서·DAG·PR 작업표를 생성하고, `validate`와 `next`로 기준과 다음 노드를 확인한다.
 
 ## 실행 권위
 - 과거 roadmap·인계의 다음 작업·구현 순서는 역사적 근거다. 새 노드를 자동 활성화하지 않는다.
 - 이전 AGENTS는 `docs/archive/AGENTS_pre_v1_20261025.md`에 원본 blob 그대로 보존한다. 원래 main의 호환 경로를 삭제하라는 지시가 아니다.
-- 현재 bootstrap PR #25는 b687425에서 통합·수용됐다. M02는 PR #26(954e644)에서 수용됐다. M03는 PR #27에서 한정 검증됐고 미통합이다. D01도 한정 검증된 누적 구현이다. T02도 유한응답 closure를 한정 검증했다. T03의 차로군·교차로 계약도 한정 검증했다. T04의 시간구간·유한응답 수송도 한정 검증했다. R01의 인과적 정보 channel과 완료 비용 관측도 한정 검증했다. R02의 합법 공유 경로·유한정보 suffix 제안도 한정 검증했다. B01 운영도 한정 검증했다. C01 실행기·저장/재개도 독립 병렬 한정 검증했다. M04 지연 개발·실행기 연결도 한정 검증했다. C02의 선택한 두 구역 하루 실행도 한정 검증했다. V02 지도 감사도 실행 완료했으나 등록 portal 0과 실제 접근성 미지원 finding을 유지한다. P01을 한정 검증했고 V01도 새 합성 출입구의 38개 지도 물리 접근·유향 연결 감사로 한정 검증했다. 원본 무출입구 지도 증거는 보존한다. 다음 노드는 V03이다. 완료 구현·한정 실행은 19/21(90.5%); 최종 수용은 5/21이며 전체 CI·통합은 보류한다. P00/M01/T01의 한정 검증을 전체 저장소 통합이나 V1 완성으로 확대하지 않는다.
+- 현재 bootstrap PR #25는 b687425에서 통합·수용됐다. M02는 PR #26(954e644)에서 수용됐다. M03는 PR #27에서 한정 검증됐고 미통합이다. D01도 한정 검증된 누적 구현이다. T02도 유한응답 closure를 한정 검증했다. T03의 차로군·교차로 계약도 한정 검증했다. T04의 시간구간·유한응답 수송도 한정 검증했다. R01의 인과적 정보 channel과 완료 비용 관측도 한정 검증했다. R02의 합법 공유 경로·유한정보 suffix 제안도 한정 검증했다. B01 운영도 한정 검증했다. C01 실행기·저장/재개도 독립 병렬 한정 검증했다. M04 지연 개발·실행기 연결도 한정 검증했다. C02의 선택한 두 구역 하루 실행도 한정 검증했다. V02 지도 감사도 실행 완료했으나 등록 portal 0과 실제 접근성 미지원 finding을 유지한다. P01을 한정 검증했고 V01도 새 합성 출입구의 38개 지도 물리 접근·유향 연결 감사로 한정 검증했다. 원본 무출입구 지도 증거는 보존한다. V1 릴리스 DAG의 다음 노드는 V03이다 (과학연구의 다음 노드는 AKM SSOT에서 선택). 완료 구현·한정 실행은 19/21(90.5%); 최종 수용은 5/21이며 전체 CI·통합은 보류한다. P00/M01/T01의 한정 검증을 전체 저장소 통합이나 V1 완성으로 확대하지 않는다.
 - bootstrap은 `v1/foundation-access-journey-20261025` → `research/v1-integration-20261025`의 하나의 PR이다. I01 수용 전 후속 기능 PR을 진행하지 않는다. main merge와 release tag는 최종 사용자 승인 전 실행하지 않는다.
 - 2026-10-26 사용자 변경: 한정 검증 영수증을 가진 VERIFIED_SCOPED 또는 ACCEPTED 선행 위에서 누적 구현 브랜치를 쌓는다. 전체 CI·통합·별도 수용 심사는 모든 DAG 구현 후 수행한다. 현재는 PR merge/전체 CI를 실행하지 않는다. STOPPED/BLOCKED는 선행조건이 아니다. 2026-10-26 최신 사용자 승인에 따라 독립 노드는 파일 소유권을 나누어 병렬 구현한다. 공유 계획·게시는 직렬화한다.
 - 계획 변경은 PLAN.json 버전과 근거를 먼저 갱신한다. 범위·수용문턱을 통과 목적으로 완화하지 않는다. 사용자 승인 없는 scope 증가는 금지한다.
@@ -26,7 +26,7 @@
 
 ## 2026-11-23 사용자 승인과 매 턴 역사적 drift watchdog
 
-- MetroFlow 연구를 이어가는 매 턴, 최초 `0492364`의 `docs/PRD.md`, `specs/001-metroflow/spec.md`, 교통·도시 설계와 `6524500`의 `memory/constitution.md`를 역사적 기준으로 현재 변경을 대조한다. 원본 commit/blob identity와 확인된 근거를 재사용하고, 해당 변경의 동기·가정·관측량 차이를 짧게 기록한다. 현재 실행 범위·DAG·수용 권위는 계속 `docs/v1/PLAN.json`이다.
+- MetroFlow 연구를 이어가는 매 턴, 최초 `0492364`의 `docs/PRD.md`, `specs/001-metroflow/spec.md`, 교통·도시 설계와 `6524500`의 `memory/constitution.md`를 역사적 기준으로 현재 변경을 대조한다. 원본 commit/blob identity와 확인된 근거를 재사용하고, 해당 변경의 동기·가정·관측량 차이를 짧게 기록한다. 이 문단은 당시 역사적 지시다. 현재 연구 실행 범위·DAG 권위는 AKM SSOT이고, 기존 V1 수용 권위는 PLAN.json이다.
 - 보존할 원 동기는 100k mesoscopic 도시의 지도·교통·접근성·지연 개발·미래 수요의 결합, 병목·우회·유발수요의 설명, 목적·차종·유한정보·유한응답과 사람/차량/화물 장부다. 반복되는 배열 표현이나 특정 IEEE 연산열 자체를 최초 과학 목적과 동일시하지 않는다.
 - 사용자는 원 목적을 보존하는 surgical model revision과 새로운 명제·증명·구현의 병행을 승인했다. bit 동일 표현, 실수 산술 동치의 수치 구현, 제어된 근사 모델을 명시적으로 구별한다. 모델 변형에는 가정·단위·유효범위·오차 및 원래 관측과의 대조를 붙이고 버전을 분리한다. 이를 원래 V03의 수요·허용오차·8GiB/7200s·24h3case×3회 기준을 완화하는 승인으로 해석하지 않는다.
 - 매 턴 watchdog에는 보존된 동기, 변한 가정, 실제 유도/계산/완료한 물리 구간, 남은 drift 위험을 기록한다. 같은 실패를 다음 guard로 옮기는 작업만 반복하면 source 표현과 실제 소비 경로를 재검토한다. 과거 좁은 병합 실험을 일반적 no-go로 확대하지 않는다.
@@ -39,8 +39,13 @@
 
 - 2026-11-24 현재 PLAN1.1.31. V03 L01–L10 근거는 artifacts/v03_remainder_rebuild_20261124/L10_RESEARCH_RECEIPT.json에 있다. 실제 Valley 25,720 s 체크포인트의 전체 wire와 물리 장부를 동일하게 복원했다. 부하 검증의 상태 소유권 수명 분리와 고정 지지집합의 교차로 할당 안정성 증명은 별도 성과다. DAG 19/21 한정 완료·5/21 수용, 원래 24h 0/9, V03 BLOCKED를 유지한다. 최초 0492364와 6524500의 delayed LUTI, 병목·우회·유발수요와 replay 계약을 유지한다.
 
-- 2026-11-26의 역사 대조는 최초 PRD/spec 0492364와 constitution 6524500을 기준으로 V03_STRUCTURAL_RESET_20261126.md에 기록했다. 예산 공제와 키 공유의 실제 소유자를 검증했고, 원 수요와 도로에 대한 모형의 누적 진입·유출 및 병목 개입을 원 엔진과 대조했다. 다음 연구 턴에도 원본 동기, 이번에 바뀐 물리 가정, 원 엔진과 공통으로 측정한 관측량, 남은 편향을 대조한다. 최신 수용 상태와 실행 순서는 docs/v1/PLAN.json을 따른다.
+- 2026-11-26의 역사 대조는 최초 PRD/spec 0492364와 constitution 6524500을 기준으로 V03_STRUCTURAL_RESET_20261126.md에 기록했다. 예산 공제와 키 공유의 실제 소유자를 검증했고, 원 수요와 도로에 대한 모형의 누적 진입·유출 및 병목 개입을 원 엔진과 대조했다. 다음 연구 턴에도 원본 동기, 이번에 바뀐 물리 가정, 원 엔진과 공통으로 측정한 관측량, 남은 편향을 대조한다. 최신 V1 수용 상태는 docs/v1/PLAN.json을 따른다. 연구 실행 순서는 2026-11-28 AKM SSOT를 따른다.
 
 ## 2026-11-26 Rust backend correction (user instruction)
 - Production backend, scientific compute, input preparation, benchmark/measurement and headless execution must be Rust. Python is frontend/serialization only or explicitly opt-in independent oracle/test. C++/Python historical research engines are retained for provenance, not accepted as new backend execution.
 - Never count a Python-driven experiment as standalone Rust evidence merely because it invokes a Rust extension. Keep typed backend functional coverage, standalone execution coverage, and original V03 acceptance separate. Prefer Rayon indexed parallelism and measured data layout/SIMD; use faer only for a genuine linear algebra workload. No change of original physics or release limits to inflate completion.
+
+## 2026-11-28 AKM research epoch (current)
+- Before further research read docs/akm/RESEARCH_SSOT_KO.md; use python tools/akm_plan.py validate/next. Default one eligible node, at most two independent nodes. Do not restart an automatic R1–R10/C1–C10 loop. Research stages are not release nodes.
+- Preserve original exact solver/checkpoints as reference, not mandatory production representation. Distinguish model, numerical, implementation, runtime, resource and permission errors. AD/ALM rules in the SSOT are binding. Two nonproductive attempts terminate the corresponding approach; decision/terminal edges never point backward. No new candidate or cap changes just to show progress.
+- User retains final approval for candidate/release contract, full CI/main merge. No original V03 acceptance credit from archived projected city or synthetic labs. Historical positive_next_action and prior watchdog notes are evidence, not current research scheduler.

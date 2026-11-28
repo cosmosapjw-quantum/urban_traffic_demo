@@ -1,0 +1,43 @@
+{
+  "scope": "periodic small occupancy perturbation, frozen parameters except nu(phi); not full network stability",
+  "phi": 0.6,
+  "eps": 0.0001,
+  "results": [
+    {
+      "omega_rad_s": 0.1,
+      "expected": [
+        -7.200241113528682,
+        3.331020636359734
+      ],
+      "measured": [
+        -7.200241099236592,
+        3.331020646458406
+      ],
+      "relative_error": 2.205847122873004e-09
+    },
+    {
+      "omega_rad_s": 0.5,
+      "expected": [
+        0.3436533588570196,
+        3.7474580561075013
+      ],
+      "measured": [
+        0.34365335114078943,
+        3.7474580307625267
+      ],
+      "relative_error": 7.040197528697201e-09
+    },
+    {
+      "omega_rad_s": 2.0,
+      "expected": [
+        0.3700533598555012,
+        0.1787810536010755
+      ],
+      "measured": [
+        0.37005347235682146,
+        0.17878049188176529
+      ],
+      "relative_error": 1.393932858469043e-06
+    }
+  ]
+}

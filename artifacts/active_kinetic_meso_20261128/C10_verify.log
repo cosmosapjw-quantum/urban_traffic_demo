@@ -1,0 +1,95 @@
+{
+  "status": "VERIFIED_SCOPED_NOT_RELEASE",
+  "stages": {
+    "theory": 10,
+    "coding": 10,
+    "scope": "stage execution, not full implementation acceptance"
+  },
+  "research_dag": {
+    "total": 14,
+    "verified_scoped": 4,
+    "ready": [
+      "D04",
+      "D06"
+    ],
+    "remaining_attempts": 20,
+    "max_attempts": 24
+  },
+  "original_release": {
+    "plan_version": "1.1.55",
+    "original_release_fields_unchanged": true,
+    "scoped_or_accepted": 19,
+    "accepted": 5,
+    "total": 21,
+    "native_rust_scoped": 14,
+    "native_rust_total": 15,
+    "full_day_accepted": 0,
+    "full_day_required": 9,
+    "matched_8h_accepted": 0,
+    "matched_8h_required": 3,
+    "original_frontier_s": 25750,
+    "original_status": "BLOCKED",
+    "exact_engine_diff_empty": true
+  },
+  "verified": {
+    "lab_cases": 12,
+    "lab_zero_hot_advance_allocs": true,
+    "lab_replay_file_digests": [
+      "4557eadeea0b1c3e1ce8003ee30a7a3b2b43863e35bae2172f103f1fc258c9d7",
+      "482b0c3d7358d31acba656e0bc485aa3fbcbfd5fc653c467ace56fc5bf5a5581"
+    ],
+    "max_mass_error": 1.6916601452976465e-10,
+    "max_birth_error": 1.2516975402832031e-06,
+    "full_day_dt_mean_gap_relative_coarse": 0.07040277179423349,
+    "zero_vs_historical_result_payload_equal": true,
+    "active_car_mean_s": 807.6912902283053,
+    "zero_car_mean_s": 798.4471331248336,
+    "active_city_full_day_wall_s": 91.369955567,
+    "zero_city_full_day_wall_s": 93.454891564,
+    "micro_comparison": true,
+    "response_check": {
+      "scope": "periodic small occupancy perturbation, frozen parameters except nu(phi); not full network stability",
+      "phi": 0.6,
+      "eps": 0.0001,
+      "results": [
+        {
+          "omega_rad_s": 0.1,
+          "expected": [
+            -7.200241113528682,
+            3.331020636359734
+          ],
+          "measured": [
+            -7.200241099236592,
+            3.331020646458406
+          ],
+          "relative_error": 2.205847122873004e-09
+        },
+        {
+          "omega_rad_s": 0.5,
+          "expected": [
+            0.3436533588570196,
+            3.7474580561075013
+          ],
+          "measured": [
+            0.34365335114078943,
+            3.7474580307625267
+          ],
+          "relative_error": 7.040197528697201e-09
+        },
+        {
+          "omega_rad_s": 2.0,
+          "expected": [
+            0.3700533598555012,
+            0.1787810536010755
+          ],
+          "measured": [
+            0.37005347235682146,
+            0.17878049188176529
+          ],
+          "relative_error": 1.393932858469043e-06
+        }
+      ]
+    },
+    "headless_tests": 15
+  }
+}
