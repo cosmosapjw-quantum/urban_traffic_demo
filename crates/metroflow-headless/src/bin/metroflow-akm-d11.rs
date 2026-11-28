@@ -212,3 +212,105 @@ mod archived_ab {
         assert!(analyze_b(&c, &f).is_err());
     }
 }
+
+const BASE_MANIFEST: &str = "artifacts/akm_d11_decision_20261128/S01_baseline.txt";
+const D09: &str = "artifacts/akm_d09_final_cohort_20261128/S09_audit.json";
+const D09_OLD: &str = "artifacts/akm_d09_city_pilot_20261128/S09_audit.json";
+const SUPPORT: &str = "artifacts/akm_d09_final_cohort_20261128/S08_support.json";
+fn analyze_d(d: &Value, old: &Value, s: &Value) -> Result<Value, String> {
+    if d["status"] != "D09_FINAL_ATTEMPT_NOT_ACCEPTED"
+        || s["status"] != "UNCHANGED_ORIGINAL_SERVICE_SCOPE"
+        || s["manifest_sha256"]
+            .as_str()
+            .filter(|v| v.len() == 64)
+            .is_none()
+        || d["manifest_sha256"] != s["manifest_sha256"]
+        || d["support"] != *s
+        || s["parent_profile_bound"] != old["support"]["day"]
+    {
+        return Err("D source/status or parent-bound mismatch".into());
+    }
+    let demand = number(s, "/bus_person_intent")?;
+    let capacity = number(s, "/sum_single_run_seat_capacity")?;
+    let deficit = (demand - capacity).max(0.0);
+    let total = number(s, "/parent_profile_bound/requested/0")?;
+    let ceiling = number(s, "/parent_profile_bound/optimistic_completion_ceiling/0")?;
+    let lower = number(s, "/parent_profile_bound/uncompleted_lower_bound/0")?;
+    if total <= 0.0
+        || demand <= 0.0
+        || (total - ceiling - lower).abs() > 1e-8
+        || (deficit - number(s, "/optimistic_all_run_seat_deficit_person")?).abs() > 1e-8
+        || lower + 1e-8 < deficit
+    {
+        return Err("inconsistent service bound".into());
+    }
+    let hs = arr(d, "/physical/actual_refinement_steps_s")?;
+    let ds = arr(d, "/physical/synchronization_extra_s")?;
+    if hs != [json!(1.0), json!(0.5), json!(0.25)]
+        && hs.iter().map(Value::as_f64).collect::<Vec<_>>() != [Some(1.0), Some(0.5), Some(0.25)]
+    {
+        return Err("unexpected D refinement steps".into());
+    }
+    if ds.len() != hs.len() || ds.iter().any(|v| v.as_f64() != Some(7.0)) {
+        return Err("unexpected D free-flow discriminator".into());
+    }
+    let old_rows = number(d, "/same_prefix/old_rows")?;
+    let new_rows = number(d, "/same_prefix/new_rows")?;
+    let old_completed = number(d, "/same_prefix/old_person_completed")?;
+    let new_completed = number(d, "/same_prefix/new_person_completed")?;
+    let mut residuals = serde_json::Map::new();
+    for key in ["persons", "vehicles", "cargo_kg"] {
+        let ledger = d["continuation"]["ledger"]
+            .get(key)
+            .ok_or("D missing ledger")?;
+        let requested = number(ledger, "/requested")?;
+        let released = number(ledger, "/released")?;
+        let completed = number(ledger, "/completed")?;
+        let active = number(ledger, "/active")?;
+        let pending = number(ledger, "/pending")?;
+        residuals.insert(
+            key.into(),
+            json!({"requested_minus_released_pending":requested-released-pending,
+            "released_minus_completed_active":released-completed-active}),
+        );
+    }
+    Ok(
+        json!({"scope":"fixed original registry and actual sealed-cohort prefix; no full day",
+        "manifest_sha256":s["manifest_sha256"],"bus_intent":demand,"seat_capacity":capacity,
+        "bus_deficit_lower_bound":deficit,"bus_deficit_fraction":deficit/demand,
+        "parent_profile_uncompleted_lower_bound":lower,"parent_profile_uncompleted_fraction":lower/total,
+        "synchronization_steps_s":hs,"synchronization_extra_s":ds,
+        "free_flow_consistency_pass":false,"old_rows":old_rows,"new_rows":new_rows,
+        "row_reduction_fraction":1.0-new_rows/old_rows,
+        "completed_person_relative_change":(new_completed-old_completed)/old_completed,
+        "prefix_time_s":number(d,"/same_prefix/time_s")?,
+        "last_actual_time_s":number(d,"/continuation/time_s")?,
+        "requested_end_s":number(d,"/continuation/requested_end_s")?,
+        "termination":d["continuation"]["failure"],
+        "day_reached":number(d,"/continuation/time_s")?==number(d,"/continuation/requested_end_s")?,
+        "checkpoint_recovery_byte_equal":d["physical"]["city_checkpoint_recovery_byte_equal"],
+        "ledger_residuals":residuals}),
+    )
+}
+#[cfg(test)]
+mod archived_d {
+    use super::*;
+    #[test]
+    fn d_evidence_and_identity() {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+        let d = read_pinned(&root, D09, BASE_MANIFEST).unwrap();
+        let old = read_pinned(&root, D09_OLD, BASE_MANIFEST).unwrap();
+        let mut s = read_pinned(&root, SUPPORT, EXTRA_MANIFEST).unwrap();
+        let r = analyze_d(&d, &old, &s).unwrap();
+        assert!((r["bus_deficit_lower_bound"].as_f64().unwrap() - 29040.0).abs() < 1e-8);
+        assert!(
+            (r["parent_profile_uncompleted_fraction"].as_f64().unwrap() - 0.39903362574375).abs()
+                < 1e-12
+        );
+        assert_eq!(r["day_reached"], false);
+        assert_eq!(r["free_flow_consistency_pass"], false);
+        assert!((r["row_reduction_fraction"].as_f64().unwrap() - 0.6100550091472113).abs() < 1e-12);
+        s["manifest_sha256"] = json!("wrong");
+        assert!(analyze_d(&d, &old, &s).is_err());
+    }
+}
