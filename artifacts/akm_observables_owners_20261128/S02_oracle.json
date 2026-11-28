@@ -1,0 +1,104 @@
+{
+  "status": "PASS",
+  "atom_cases": 2048,
+  "flux_cases": 8192,
+  "residence_cases": [
+    {
+      "cells": 1,
+      "cfl": 1,
+      "mean_s": 10.0,
+      "variance_s2": 0.0
+    },
+    {
+      "cells": 1,
+      "cfl": 0.5,
+      "mean_s": 10.0,
+      "variance_s2": 50.0
+    },
+    {
+      "cells": 1,
+      "cfl": 0.25,
+      "mean_s": 10.0,
+      "variance_s2": 75.0
+    },
+    {
+      "cells": 1,
+      "cfl": 0.125,
+      "mean_s": 10.0,
+      "variance_s2": 87.5
+    },
+    {
+      "cells": 2,
+      "cfl": 1,
+      "mean_s": 10.0,
+      "variance_s2": 0.0
+    },
+    {
+      "cells": 2,
+      "cfl": 0.5,
+      "mean_s": 10.0,
+      "variance_s2": 25.0
+    },
+    {
+      "cells": 2,
+      "cfl": 0.25,
+      "mean_s": 10.0,
+      "variance_s2": 37.5
+    },
+    {
+      "cells": 2,
+      "cfl": 0.125,
+      "mean_s": 10.0,
+      "variance_s2": 43.75
+    },
+    {
+      "cells": 4,
+      "cfl": 1,
+      "mean_s": 10.0,
+      "variance_s2": 0.0
+    },
+    {
+      "cells": 4,
+      "cfl": 0.5,
+      "mean_s": 10.0,
+      "variance_s2": 12.5
+    },
+    {
+      "cells": 4,
+      "cfl": 0.25,
+      "mean_s": 10.0,
+      "variance_s2": 18.75
+    },
+    {
+      "cells": 4,
+      "cfl": 0.125,
+      "mean_s": 10.0,
+      "variance_s2": 21.875
+    },
+    {
+      "cells": 8,
+      "cfl": 1,
+      "mean_s": 10.0,
+      "variance_s2": 0.0
+    },
+    {
+      "cells": 8,
+      "cfl": 0.5,
+      "mean_s": 10.0,
+      "variance_s2": 6.25
+    },
+    {
+      "cells": 8,
+      "cfl": 0.25,
+      "mean_s": 10.0,
+      "variance_s2": 9.375
+    },
+    {
+      "cells": 8,
+      "cfl": 0.125,
+      "mean_s": 10.0,
+      "variance_s2": 10.9375
+    }
+  ],
+  "scope": "exact rational quadrature and finite tail-summed negative binomial; not global traffic equivalence"
+}
