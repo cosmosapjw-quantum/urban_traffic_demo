@@ -15,6 +15,7 @@ pub(crate) struct State{
     pub class:Vec<[f64;2]>,pub initial_birth:f64,pub offered_birth:f64,pub outlet_birth:f64,
     pub whole_bus_class:Option<usize>,pub bus_tracks:BTreeMap<Key,BusTrack>,
     pub interface:bool,pub crossings:BTreeMap<Key,f64>,
+    pub finite:bool,pub waiting:BTreeMap<Key,Moment>,pub fluid_distance:BTreeMap<Key,f64>,
 }
 fn bad(s:impl Into<String>)->CoreError{CoreError::value(s)}
 pub(crate) fn add(rows:&mut BTreeMap<Key,Moment>,key:Key,x:Moment,t:f64)->CoreResult<()>{
@@ -33,12 +34,12 @@ impl State{
         }
         self.whole_bus_class=Some(class);Ok(())
     }
-    pub(crate) fn blank(t:f64,classes:usize)->Self{Self{t,road:BTreeMap::new(),pending:BTreeMap::new(),class:vec![[0.;2];classes],initial_birth:0.,offered_birth:0.,outlet_birth:0.,whole_bus_class:None,bus_tracks:BTreeMap::new(),interface:false,crossings:BTreeMap::new()}}
-    pub(crate) fn rows(&self)->usize{self.road.len()+self.pending.len()}
-    pub(crate) fn total_birth(&self)->f64{crate::v1_journey::fsum(self.road.values().chain(self.pending.values()).map(|x|x.birth))}
-    pub(crate) fn active_mass(&self)->f64{crate::v1_journey::fsum(self.road.values().chain(self.pending.values()).map(|x|x.mass()))}
+    pub(crate) fn blank(t:f64,classes:usize)->Self{Self{t,road:BTreeMap::new(),pending:BTreeMap::new(),class:vec![[0.;2];classes],initial_birth:0.,offered_birth:0.,outlet_birth:0.,whole_bus_class:None,bus_tracks:BTreeMap::new(),interface:false,crossings:BTreeMap::new(),finite:false,waiting:BTreeMap::new(),fluid_distance:BTreeMap::new()}}
+    pub(crate) fn rows(&self)->usize{self.road.len()+self.pending.len()+self.waiting.len()}
+    pub(crate) fn total_birth(&self)->f64{crate::v1_journey::fsum(self.road.values().chain(self.pending.values()).chain(self.waiting.values()).map(|x|x.birth))}
+    pub(crate) fn active_mass(&self)->f64{crate::v1_journey::fsum(self.road.values().chain(self.pending.values()).chain(self.waiting.values()).map(|x|x.mass()))}
     pub(crate) fn active_by_tag(&self)->BTreeMap<usize,f64>{
-        let mut out=BTreeMap::new();for (&(tag,_),x) in self.road.iter().chain(self.pending.iter()){*out.entry(tag).or_insert(0.)+=x.mass();}
+        let mut out=BTreeMap::new();for (&(tag,_),x) in self.road.iter().chain(self.pending.iter()).chain(self.waiting.iter()){*out.entry(tag).or_insert(0.)+=x.mass();}
         out
     }
     pub(crate) fn check(&self,road:&V1Road)->CoreResult<f64>{
@@ -47,13 +48,21 @@ impl State{
         if self.rows()>ROAD_ROW_LIMIT{return Err(CoreError::resource(format!("AKM total sparse support {} > {}",self.rows(),ROAD_ROW_LIMIT)))}
         if self.whole_bus_class.is_some_and(|k|k>=classes.len())||self.whole_bus_class.is_none()&&!self.bus_tracks.is_empty(){return Err(bad("AKM whole bus class/track shape"))}
         if self.interface&&self.whole_bus_class.is_none()||!self.interface&&!self.crossings.is_empty(){return Err(bad("AKM interface policy"))}
+        if !self.finite&&(!self.waiting.is_empty()||!self.fluid_distance.is_empty()){return Err(bad("AKM unexpected sealed cohort state"))}
+        let mut fluid_tracked=0usize;
         let mut seen=std::collections::BTreeSet::new();let mut tracked=0usize;let mut crossing_seen=0;
         let mut occupancy=vec![0.;groups.len()];let mut class=vec![0.;classes.len()];
-        for (is_pending,rows) in [(false,&self.road),(true,&self.pending)]{
+        for (is_pending,is_waiting,rows) in [(false,false,&self.road),(true,false,&self.pending),(false,true,&self.waiting)]{
             for (&(tag,offset),x) in rows{
                 let k=road.class_for_route(tag).ok_or_else(||bad("AKM tag"))?;
                 let j=*road.registered_path(tag).and_then(|p|p.get(offset)).ok_or_else(||bad("AKM route-position"))?;
                 if is_pending&&offset!=0||!x.valid(self.t)||x.mass()<=0.{return Err(bad("AKM positive moment or pending offset"))}
+                if is_waiting&&(!self.finite||self.whole_bus_class==Some(k)||!self.road.contains_key(&(tag,offset))){return Err(bad("AKM orphan or bus waiting cohort"))}
+                if self.finite&&!is_pending&&!is_waiting&&self.whole_bus_class!=Some(k){
+                    let d=*self.fluid_distance.get(&(tag,offset)).ok_or_else(||bad("AKM missing fluid progress"))?;
+                    if !d.is_finite()||d<0.||d>groups[j][0]{return Err(bad("AKM fluid progress range"))}
+                    fluid_tracked+=1;
+                }
                 if self.whole_bus_class==Some(k){
                     if (x.mass()-1.).abs()>1e-12||!seen.insert(tag){return Err(bad("AKM whole bus is fractional or duplicated"))}
                     if !is_pending{
@@ -77,6 +86,7 @@ impl State{
 
             }
         }
+        if fluid_tracked!=self.fluid_distance.len(){return Err(bad("AKM orphan fluid progress"))}
         if crossing_seen!=self.crossings.len(){return Err(bad("AKM orphan crossing"))}
         if tracked!=self.bus_tracks.len(){return Err(bad("AKM orphan bus track"))}
         let mut peak=0f64;
@@ -119,6 +129,18 @@ fn scaled_split(x:Moment,f:f64,t:f64)->CoreResult<(Moment,Moment)>{
     if (f>0.&&x.mass()>0.&&y.mass()==0.)||(f<1.&&x.mass()>0.&&r.mass()==0.)||!r.valid(t)||!y.valid(t){
         return Err(bad("AKM nonrepresentable positive split"))
     }
+    Ok((r,y))
+}
+// Full eligible transfer is exact on the stored representation. A partial
+// split must not round to a full transfer or exceed the available quota.
+fn quota_split(x:Moment,cap:f64,t:f64)->CoreResult<(Moment,Moment)>{
+    if cap.is_nan()||cap<0.||x.mass()<=0.{return Err(bad("AKM sealed quota"))}
+    if cap>=x.mass(){return Ok((Moment::default(),x))}
+    if cap==0.{return Ok((x,Moment::default()))}
+    let f=(cap/x.mass()).min(1f64.next_down());
+    if f==0.{return Err(bad("AKM sealed quota underflow"))}
+    let(r,y)=scaled_split(x,f,t)?;
+    if y.mass()>cap+1e-12*cap.max(1.){return Err(bad("AKM sealed quota exceeded"))}
     Ok((r,y))
 }
 impl State{
@@ -169,12 +191,16 @@ impl State{
                 let j=road.registered_path(tag).unwrap()[0];let k=road.class_for_route(tag).unwrap();
                 occupancy[j]+=a*x.mass()*classes[k][12];
             }}
+            for (&(tag,pos),x) in &state.waiting{
+                let j=road.registered_path(tag).unwrap()[pos];let k=road.class_for_route(tag).unwrap();
+                occupancy[j]+=x.mass()*classes[k][12];
+            }
             let mut send_cap:Vec<f64>=(0..n).map(|j|groups[j][3]*h*f[j].0*if f[j].1{1.}else{0.}).collect();
             let mut receive_count:Vec<f64>=(0..n).map(|j|groups[j][2]*h*f[j].0).collect();
             let mut receive_metres:Vec<f64>=(0..n).map(|j|(groups[j][4]-occupancy[j]).max(0.)*(h*WAVE_MPS/groups[j][0]).min(1.)).collect();
             let mut next=Self::blank(end,classes.len());next.class=state.class.clone();
             next.initial_birth=state.initial_birth;next.offered_birth=state.offered_birth;next.outlet_birth=state.outlet_birth;
-            next.whole_bus_class=state.whole_bus_class;next.interface=state.interface;
+            next.whole_bus_class=state.whole_bus_class;next.interface=state.interface;next.finite=state.finite;
             if let Some(bus)=state.whole_bus_class{
                 let mut ready=Vec::with_capacity(state.bus_tracks.len());
                 for (&key,track) in &state.bus_tracks{
@@ -251,6 +277,64 @@ impl State{
                     }
                 }
             }
+            if state.finite{
+                let rates=|j:usize,k:usize|{
+                    let c=&classes[k];let phi=(occupancy[j]/groups[j][4]).clamp(0.,1.);
+                    Rates{alpha:c[8],nu:c[9]*(c[10]/c[6]).powi(2)*phi*phi,tau:c[1],target:if f[j].0>0.{c[0].min(groups[j][1])/uref}else{0.}}
+                };
+                for (&key,x) in &state.waiting{
+                    let j=road.registered_path(key.0).unwrap()[key.1];let k=road.class_for_route(key.0).unwrap();
+                    let y=react(*x,rates(j,k),h).map_err(bad)?;
+                    if y.mass()==0.{return Err(bad("AKM waiting reaction underflow"))}
+                    add(&mut next.waiting,key,y,end)?;
+                }
+                let mut ready=Vec::new();
+                for (&key,x) in &state.road{
+                    let k=road.class_for_route(key.0).unwrap();if state.whole_bus_class==Some(k){continue}
+                    let path=road.registered_path(key.0).unwrap();let j=path[key.1];
+                    let(y,dx)=react_with_distance(*x,rates(j,k),h).map_err(bad)?;
+                    if !y.valid(end)||y.mass()==0.{return Err(bad("AKM sealed reaction cone or underflow"))}
+                    let distance=(state.fluid_distance[&key]+uref*dx).min(groups[j][0]);
+                    if distance<groups[j][0]{
+                        add(&mut next.road,key,y,end)?;next.fluid_distance.insert(key,distance);
+                    }else{ready.push((j,y.birth/y.mass(),key,k,path.get(key.1+1).copied(),y,distance));}
+                }
+                ready.sort_by(|a,b|a.0.cmp(&b.0).then(a.1.total_cmp(&b.1)).then(a.2.cmp(&b.2)));
+                for (j,_,key,k,dst,x,distance) in ready{
+                    let cap=send_cap[j].min(dst.map_or(f64::INFINITY,|i|receive_count[i].min(receive_metres[i]/classes[k][12])));
+                    let (r,y)=quota_split(x,cap,end)?;
+                    let m=y.mass();
+                    send_cap[j]=(send_cap[j]-m).max(0.);
+                    if r.mass()>0.{add(&mut next.road,key,r,end)?;next.fluid_distance.insert(key,distance);}
+                    if m>0.{
+                        if let Some(i)=dst{
+                            receive_count[i]=(receive_count[i]-m).max(0.);receive_metres[i]=(receive_metres[i]-m*classes[k][12]).max(0.);
+                            add(&mut next.waiting,(key.0,key.1+1),y,end)?;stats.transferred+=m;
+                        }else{
+                            if events.len()>=event_limit{return Err(CoreError::resource("AKM outlet history limit"))}
+                            let row=(key.0,j,None,m,end,end,y.birth);
+                            if next.work_reserve().saturating_add(events.projected_append_storage_bytes(row)?)>available{return Err(CoreError::resource("AKM outlet working reserve"))}
+                            events.push_checked(row)?;next.class[k][1]+=m;next.outlet_birth+=y.birth;stats.exited+=m;
+                        }
+                    }
+                }
+                let mut sources=Vec::new();
+                for (&key,x) in &state.pending{
+                    let k=road.class_for_route(key.0).unwrap();if state.whole_bus_class==Some(k){continue}
+                    sources.push((x.birth/x.mass(),key,k,*x));
+                }
+                sources.sort_by(|a,b|a.0.total_cmp(&b.0).then(a.1.cmp(&b.1)));
+                for (_,key,k,x) in sources{
+                    let j=road.registered_path(key.0).unwrap()[0];
+                    let (r,y)=quota_split(x,receive_count[j].min(receive_metres[j]/classes[k][12]),end)?;
+                    let m=y.mass();receive_count[j]=(receive_count[j]-m).max(0.);receive_metres[j]=(receive_metres[j]-m*classes[k][12]).max(0.);
+                    add(&mut next.pending,key,r,end)?;add(&mut next.waiting,key,y,end)?;stats.entered+=m;
+                }
+                let promote:Vec<_>=next.waiting.keys().filter(|k|!next.road.contains_key(k)).copied().collect();
+                for key in promote{
+                    let x=next.waiting.remove(&key).unwrap();add(&mut next.road,key,x,end)?;next.fluid_distance.insert(key,0.);
+                }
+            }else{
             let mut proposal=Vec::with_capacity(state.road.len());
             for (&(tag,pos),x) in &state.road{
                 let path=road.registered_path(tag).unwrap();let j=path[pos];let k=road.class_for_route(tag).unwrap();let c=&classes[k];
@@ -304,6 +388,7 @@ impl State{
                 let j=road.registered_path(tag).unwrap()[0];
                 let(r,y)=scaled_split(*x,receiver[j],end)?;
                 add(&mut next.pending,(tag,pos),r,end)?;add(&mut next.road,(tag,0),y,end)?;stats.entered+=y.mass();
+            }
             }
             stats.peak_rows=stats.peak_rows.max(next.rows());stats.peak_storage_ratio=stats.peak_storage_ratio.max(next.check(road)?);
             state=next;
@@ -423,6 +508,7 @@ mod sparse_flux_tests{
 impl State{
     pub(crate) fn write<W:std::io::Write>(&self,w:&mut W)->CoreResult<()>{
         use crate::v1_road::{write_f64,write_len};
+        if self.finite{return Err(bad("finite wire not yet enabled"))}
         write_f64(w,self.t)?;
         for x in [self.initial_birth,self.offered_birth,self.outlet_birth]{write_f64(w,x)?}
         write_len(w,self.class.len())?;
@@ -477,5 +563,28 @@ impl State{
             }
         }
         s.check(road)?;Ok(s)
+    }
+}
+
+#[cfg(test)]
+mod d09_cohort_tests{
+    use super::*;
+    fn network()->V1Road{
+        V1Road::new("akm-finite-fixture".into(),1.,vec![vec![100.,10.,2.,2.,200.,1.];2],vec![None,None],
+            vec![(vec![0,1],0)],vec![vec![10.,2.,2.,4.,2.,1.,5.,1.,0.2,0.,10.,10.,5.]],vec![vec![1],vec![0]],vec![],1000,Some(1000),true).unwrap()
+    }
+    #[test]fn sealed_cohort_has_no_geometric_tail_or_early_outlet(){
+        let road=network();let mut s=State::blank(0.,1);s.finite=true;
+        let mut arrivals=vec![];
+        for i in 0..100{
+            let offer=if i==0||i==3{vec![(0,0.5,0.5*i as f64)]}else{vec![]};
+            let(next,e,_)=s.advance(&road,1.,&offer,1000,256*1024*1024).unwrap();
+            for row in e.iter(){arrivals.push((row.3,row.5,row.6));}
+            assert!(next.finite);assert!(next.rows()<=4);s=next;
+        }
+        assert_eq!(s.rows(),0);assert_eq!(arrivals.len(),2);
+        assert!(arrivals[0].1>=21.);assert!(arrivals[1].1>=arrivals[0].1+10.);
+        assert!((arrivals.iter().map(|r|r.0).sum::<f64>()-1.).abs()<1e-12);
+        assert!((arrivals.iter().map(|r|r.2).sum::<f64>()-1.5).abs()<1e-12);
     }
 }

@@ -1,0 +1,624 @@
+   Compiling metroflow-rust v0.1.0 (/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/crates/metroflow-rust)
+warning: unused import: `CoreError`
+ --> crates/metroflow-rust/src/v1_lineage_shadow.rs:6:25
+  |
+6 | use crate::core_error::{CoreError,CoreResult};
+  |                         ^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `CoreError`
+  --> crates/metroflow-rust/src/v1_timed_incoming.rs:13:25
+   |
+13 | use crate::core_error::{CoreError,CoreResult};
+   |                         ^^^^^^^^^
+
+warning: unnecessary parentheses around closure body
+    --> crates/metroflow-rust/src/v1_road.rs:8097:34
+     |
+8097 |   ...   let actual=(0..3).map(|i|(
+     |  ________________________________^
+8098 | | ...       incoming[i].descriptor_capacity()*std::mem::size_of::<Vec<Part>>()
+     | |__________^
+8099 |   ...       +marks[i].chunks.capacity()*std::mem::size_of::<Vec<Mark>>()
+     |  _______________________________________________________________________^
+8100 | | ...   )).sum();
+     | |_______^
+     |
+     = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+     |
+8097 ~         let actual=(0..3).map(|i|incoming[i].descriptor_capacity()*std::mem::size_of::<Vec<Part>>()
+8098 ~             +marks[i].chunks.capacity()*std::mem::size_of::<Vec<Mark>>()).sum();
+     |
+
+warning: unused imports: `AgentBatchResult` and `FlowBatchResult`
+  --> crates/metroflow-rust/src/lib.rs:37:14
+   |
+37 | use common::{AgentBatchResult, FlowBatchResult};
+   |              ^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^
+
+warning: unused imports: `compute_multi_destination_dynamic_potentials_impl` and `compute_ranked_route_candidates_batch_impl`
+  --> crates/metroflow-rust/src/lib.rs:43:5
+   |
+43 |     compute_multi_destination_dynamic_potentials_impl, compute_next_link...
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+44 |     compute_ranked_route_candidates_batch_impl, compute_ranked_route_can...
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `BTreeSet`
+  --> crates/metroflow-rust/src/atlas_portals.rs:14:29
+   |
+14 |     collections::{BTreeMap, BTreeSet},
+   |                             ^^^^^^^^
+
+warning: unused import: `terrain_validation::Landscape`
+ --> crates/metroflow-rust/src/atlas_generate.rs:7:5
+  |
+7 |     terrain_validation::Landscape,
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::collections::BTreeMap`
+  --> crates/metroflow-rust/src/atlas_generate.rs:81:9
+   |
+81 |     use std::collections::BTreeMap;
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `atlas_generate`
+ --> crates/metroflow-rust/src/next_epoch.rs:4:5
+  |
+4 |     atlas_generate,
+  |     ^^^^^^^^^^^^^^
+
+warning: unused import: `std::collections::BTreeSet`
+  --> crates/metroflow-rust/src/phase_runtime.rs:14:5
+   |
+14 | use std::collections::BTreeSet;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused variable: `rows`
+    --> crates/metroflow-rust/src/v1_road.rs:5300:17
+     |
+5300 |             let rows=stats.cell_parts.saturating_add(stats.pending_par...
+     |                 ^^^^ help: if this is intentional, prefix it with an underscore: `_rows`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `n`
+    --> crates/metroflow-rust/src/v1_road.rs:6344:13
+     |
+6344 |         let n=parts.len();
+     |             ^ help: if this is intentional, prefix it with an underscore: `_n`
+
+warning: function `compute_multi_destination_dynamic_potentials_impl` is never used
+   --> crates/metroflow-rust/src/routing.rs:912:15
+    |
+912 | pub(crate) fn compute_multi_destination_dynamic_potentials_impl(
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `compute_ranked_route_candidates_batch_impl` is never used
+   --> crates/metroflow-rust/src/routing.rs:974:15
+    |
+974 | pub(crate) fn compute_ranked_route_candidates_batch_impl(
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: methods `cached_destinations` and `potential_builds` are never used
+   --> crates/metroflow-rust/src/v1_routing.rs:268:8
+    |
+268 |     fn cached_destinations(&self) -> Vec<String> {
+    |        ^^^^^^^^^^^^^^^^^^^
+...
+276 |     fn potential_builds(&self) -> usize {
+    |        ^^^^^^^^^^^^^^^^
+    |
+   ::: crates/metroflow-rust/src/optional_binding.rs:14:9
+    |
+ 14 |         impl $ty { $($($method)*)* }
+    |         -------- methods in this implementation
+
+warning: type alias `Row` is never used
+ --> crates/metroflow-rust/src/v1_calendar.rs:9:6
+  |
+9 | type Row = (
+  |      ^^^
+
+warning: fields `cohort`, `released`, and `completed` are never read
+   --> crates/metroflow-rust/src/v1_calendar.rs:151:16
+    |
+149 | pub(crate) struct Leg {
+    |                   --- fields in this struct
+150 |     pub(crate) id: u64,
+151 |     pub(crate) cohort: u64,
+    |                ^^^^^^
+...
+156 |     pub(crate) released: f64,
+    |                ^^^^^^^^
+157 |     pub(crate) completed: f64,
+    |                ^^^^^^^^^
+    |
+    = note: `Leg` has a derived impl for the trait `Clone`, but this is intentionally ignored during dead code analysis
+
+warning: methods `key_existing` and `key` are never used
+   --> crates/metroflow-rust/src/v1_calendar.rs:210:8
+    |
+194 | impl NativeCalendar {
+    | ------------------- methods in this implementation
+...
+210 |     fn key_existing(&self, text: &str) -> Option<u64> {
+    |        ^^^^^^^^^^^^
+...
+227 |     fn key(&mut self, text: &str) -> u64 {
+    |        ^^^
+
+warning: multiple methods are never used
+   --> crates/metroflow-rust/src/v1_calendar.rs:303:8
+    |
+303 |     fn binding(&self) -> (String, String) {
+    |        ^^^^^^^
+...
+327 |     fn label(&self, index: usize) -> CoreResult<String> {
+    |        ^^^^^
+...
+380 |     fn profile(&self, index: usize) -> CoreResult<Vec<(f64, f64, f64)>> {
+    |        ^^^^^^^
+...
+391 |     fn append(&mut self, rows: Vec<Row>) -> CoreResult<usize> {
+    |        ^^^^^^
+...
+540 |     fn leg(&self, index: usize) -> CoreResult<Row> {
+    |        ^^^
+...
+571 |     fn requested_totals(&self, start_s: f64, end_s: f64) -> CoreResult<...
+    |        ^^^^^^^^^^^^^^^^
+...
+604 |     fn initial_ledger_totals(&self) -> (f64, f64) {
+    |        ^^^^^^^^^^^^^^^^^^^^^
+...
+615 |     fn storage_report(&self) -> (usize, usize, usize, usize, usize) {
+    |        ^^^^^^^^^^^^^^
+    |
+   ::: crates/metroflow-rust/src/optional_binding.rs:14:9
+    |
+ 14 |         impl $ty { $($($method)*)* }
+    |         -------- methods in this implementation
+
+warning: type alias `PartRow` is never used
+  --> crates/metroflow-rust/src/v1_road.rs:71:6
+   |
+71 | type PartRow = (usize, usize, f64, f64, Option<f64>, Option<f64>);
+   |      ^^^^^^^
+
+warning: type alias `PacketRow` is never used
+  --> crates/metroflow-rust/src/v1_road.rs:72:6
+   |
+72 | type PacketRow = (f64, Vec<PartRow>);
+   |      ^^^^^^^^^
+
+warning: type alias `CellRow` is never used
+  --> crates/metroflow-rust/src/v1_road.rs:73:6
+   |
+73 | type CellRow = (Vec<f64>, Vec<PacketRow>, Vec<(usize, f64)>);
+   |      ^^^^^^^
+
+warning: type alias `StateRow` is never used
+  --> crates/metroflow-rust/src/v1_road.rs:74:17
+   |
+74 | pub(crate) type StateRow = (
+   |                 ^^^^^^^^
+
+warning: method `pack_parts` is never used
+    --> crates/metroflow-rust/src/v1_road.rs:1081:8
+     |
+1080 | impl RoadDecodeBudget {
+     | --------------------- method in this implementation
+1081 |     fn pack_parts(&mut self, parts: Vec<Part>) -> CoreResult<PacketPar...
+     |        ^^^^^^^^^^
+
+warning: multiple methods are never used
+    --> crates/metroflow-rust/src/v1_road.rs:3409:19
+     |
+3363 | impl V1Road {
+     | ----------- methods in this implementation
+...
+3409 |     pub(crate) fn summary(&self) -> (&[f64; 7], &[[f64; 5]]) {
+     |                   ^^^^^^^
+...
+3567 |     pub(crate) fn read_state<R: Read>(&self,r:&mut R)->CoreResult<Road...
+     |                   ^^^^^^^^^^
+3568 |     pub(crate) fn read_state_codec<R:Read>(&self,r:&mut R,compact:bool...
+     |                   ^^^^^^^^^^^^^^^^
+...
+3711 |     pub(crate) fn arc_committed_snapshot_union(&self, supplied: &RoadS...
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+3788 |     pub(crate) fn event_resolution_stats(&self) -> (u64, f64, f64, f64) {
+     |                   ^^^^^^^^^^^^^^^^^^^^^^
+...
+5560 |     fn row(&self) -> StateRow {
+     |        ^^^
+...
+5585 |     fn row_packets(
+     |        ^^^^^^^^^^^
+...
+5619 |     fn from_row(&self, row: StateRow) -> CoreResult<RoadState> {
+     |        ^^^^^^^^
+
+warning: multiple methods are never used
+    --> crates/metroflow-rust/src/v1_road.rs:5767:8
+     |
+5767 |     fn storage_limits(&self) -> (Option<usize>, usize, usize, Option<u...
+     |        ^^^^^^^^^^^^^^
+...
+5780 |     fn event_resolution_diagnostics(&self) -> (u64, f64, f64, f64) {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+5788 |     fn storage_layout_bytes(&self) -> (usize, usize, usize, usize) {
+     |        ^^^^^^^^^^^^^^^^^^^^
+...
+5801 |     fn packet_storage_counts(&self) -> (usize, usize, usize, usize) {
+     |        ^^^^^^^^^^^^^^^^^^^^^
+...
+5864 |     fn snapshot(&self) -> StateRow {
+     |        ^^^^^^^^
+...
+5872 |     fn restore(&mut self, row: StateRow) -> CoreResult<()> {
+     |        ^^^^^^^
+...
+5884 |     fn reset(&mut self, t: f64) -> CoreResult<()> {
+     |        ^^^^^
+...
+5933 |     fn registry_sizes(&self) -> (usize, usize, usize) {
+     |        ^^^^^^^^^^^^^^
+     |
+    ::: crates/metroflow-rust/src/optional_binding.rs:14:9
+     |
+  14 |         impl $ty { $($($method)*)* }
+     |         -------- methods in this implementation
+
+warning: method `get` is never used
+  --> crates/metroflow-rust/src/v1_moment_dict.rs:72:19
+   |
+65 | impl MomentDict{
+   | --------------- method in this implementation
+...
+72 |     pub(super) fn get(&self,i:usize)->&(f64,f64){&self.values[self.codes...
+   |                   ^^^
+
+warning: type alias `JourneyLeg` is never used
+  --> crates/metroflow-rust/src/v1_journey.rs:30:17
+   |
+30 | pub(crate) type JourneyLeg = (String, f64, Option<usize>, f64, Profile, ...
+   |                 ^^^^^^^^^^
+
+warning: type alias `BusMeta` is never used
+  --> crates/metroflow-rust/src/v1_journey.rs:31:17
+   |
+31 | pub(crate) type BusMeta = (usize, f64, f64, f64, f64, Law); // leg, cale...
+   |                 ^^^^^^^
+
+warning: type alias `FreightMeta` is never used
+  --> crates/metroflow-rust/src/v1_journey.rs:32:17
+   |
+32 | pub(crate) type FreightMeta = (usize, f64, f64, Law);
+   |                 ^^^^^^^^^^^
+
+warning: fields `stage_capacity`, `dense_capacity_bytes`, `stage_mass`, and `ready_now` are never read
+   --> crates/metroflow-rust/src/v1_journey.rs:128:9
+    |
+126 | pub(crate) struct JourneyDebug {
+    |                   ------------ fields in this struct
+127 |     pub counts: [usize; 4],
+128 |     pub stage_capacity: [usize; 3],
+    |         ^^^^^^^^^^^^^^
+129 |     pub dense_capacity_bytes: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+130 |     pub stage_mass: [f64; 3],
+    |         ^^^^^^^^^^
+131 |     pub ready_now: [usize; 3],
+    |         ^^^^^^^^^
+    |
+    = note: `JourneyDebug` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: fields `start_s` and `before` are never read
+   --> crates/metroflow-rust/src/v1_journey.rs:156:9
+    |
+155 | pub(crate) struct JourneyAttempt {
+    |                   -------------- fields in this struct
+156 |     pub start_s: f64,
+    |         ^^^^^^^
+157 |     pub end_s: f64,
+158 |     pub before: [usize; 4],
+    |         ^^^^^^
+    |
+    = note: `JourneyAttempt` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: function `journey_decoded_storage_upper_bytes` is never used
+   --> crates/metroflow-rust/src/v1_journey.rs:207:15
+    |
+207 | pub(crate) fn journey_decoded_storage_upper_bytes(s: &Journey) -> usize {
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: type alias `JourneyRow` is never used
+   --> crates/metroflow-rust/src/v1_journey.rs:328:6
+    |
+328 | type JourneyRow = (
+    |      ^^^^^^^^^^
+
+warning: method `sources` is never used
+   --> crates/metroflow-rust/src/v1_journey.rs:514:19
+    |
+423 | impl NativeServiceCore {
+    | ---------------------- method in this implementation
+...
+514 |     pub(crate) fn sources(&self) -> (&[Source], &[Source]) {
+    |                   ^^^^^^^
+
+warning: methods `snapshot`, `storage_accounting`, `road_events`, `restore`, and `abort` are never used
+   --> crates/metroflow-rust/src/v1_journey.rs:787:8
+    |
+787 |     fn snapshot(&self) -> Service {
+    |        ^^^^^^^^
+...
+796 |     fn storage_accounting(&self) -> (usize, usize, usize) {
+    |        ^^^^^^^^^^^^^^^^^^
+...
+808 |     fn road_events(&self) -> Vec<EventRow> {
+    |        ^^^^^^^^^^^
+...
+817 |     fn restore(&mut self, state: Service) -> CoreResult<()> {
+    |        ^^^^^^^
+...
+829 |     fn abort(&mut self) {
+    |        ^^^^^
+    |
+   ::: crates/metroflow-rust/src/optional_binding.rs:14:9
+    |
+ 14 |         impl $ty { $($($method)*)* }
+    |         -------- methods in this implementation
+
+warning: methods `owned_time`, `owned_phase_metrics`, `storage_budget`, and `last_attempt` are never used
+    --> crates/metroflow-rust/src/v1_journey.rs:1287:19
+     |
+ 989 | impl NativeJourneyCore {
+     | ---------------------- methods in this implementation
+...
+1287 |     pub(crate) fn owned_time(&self) -> f64 {
+     |                   ^^^^^^^^^^
+...
+1293 |     pub(crate) fn owned_phase_metrics(&self) -> &JourneyPhaseMetrics {
+     |                   ^^^^^^^^^^^^^^^^^^^
+...
+1342 |     pub(crate) fn storage_budget(&self) -> Option<usize> {
+     |                   ^^^^^^^^^^^^^^
+...
+1359 |     pub(crate) fn last_attempt(&self) -> Option<&JourneyAttempt> {
+     |                   ^^^^^^^^^^^^
+
+warning: multiple associated items are never used
+    --> crates/metroflow-rust/src/v1_journey.rs:1994:8
+     |
+1994 |     fn new(
+     |        ^^^
+...
+2041 |     fn snapshot(&self) -> JourneyRow {
+     |        ^^^^^^^^
+...
+2060 |     fn storage_accounting(&self) -> (usize, usize, usize) {
+     |        ^^^^^^^^^^^^^^^^^^
+...
+2072 |     fn decoded_storage_upper_bytes(&self) -> usize {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+2082 |     fn advance_metrics(&self) -> (Vec<f64>, usize) {
+     |        ^^^^^^^^^^^^^^^
+...
+2090 |     fn queue_storage(&self) -> ([usize; 4], [usize; 3]) {
+     |        ^^^^^^^^^^^^^
+...
+2105 |     fn restore(&mut self, row: JourneyRow) -> CoreResult<()> {
+     |        ^^^^^^^
+...
+2129 |     fn abort(&mut self) {
+     |        ^^^^^
+     |
+    ::: crates/metroflow-rust/src/optional_binding.rs:14:9
+     |
+  14 |         impl $ty { $($($method)*)* }
+     |         -------- associated items in this implementation
+
+warning: method `shared_prefix_rows` is never used
+   --> crates/metroflow-rust/src/v1_history.rs:622:8
+    |
+296 | impl ReceiptHistory {
+    | ------------------- method in this implementation
+...
+622 |     fn shared_prefix_rows(&self, other: &Self) -> usize {
+    |        ^^^^^^^^^^^^^^^^^^
+
+warning: struct `NativeReceiptHistory` is never constructed
+   --> crates/metroflow-rust/src/v1_history.rs:655:12
+    |
+655 | pub struct NativeReceiptHistory {
+    |            ^^^^^^^^^^^^^^^^^^^^
+
+warning: multiple associated items are never used
+   --> crates/metroflow-rust/src/v1_history.rs:663:8
+    |
+663 |     fn new(rows: Vec<Receipt>) -> CoreResult<Self> {
+    |        ^^^
+...
+674 |     fn append(&mut self, time: f64, fraction: f64) -> CoreResult<()> {
+    |        ^^^^^^
+...
+685 |     fn fork(&self) -> Self {
+    |        ^^^^
+...
+696 |     fn snapshot(&self) -> Vec<Receipt> {
+    |        ^^^^^^^^
+...
+705 |     fn total(&self) -> f64 {
+    |        ^^^^^
+...
+714 |     fn eligible(&self, dwell: f64, now: f64) -> CoreResult<f64> {
+    |        ^^^^^^^^
+...
+726 |     fn valid_at(&self, now: f64) -> bool {
+    |        ^^^^^^^^
+...
+744 |     fn storage_shape(&self) -> (usize, usize, usize) {
+    |        ^^^^^^^^^^^^^
+...
+757 |     fn shared_prefix_rows(&self, other: &Self) -> usize {
+    |        ^^^^^^^^^^^^^^^^^^
+...
+766 |     fn storage_bytes(&self) -> usize {
+    |        ^^^^^^^^^^^^^
+...
+774 |     fn decoded_storage_upper_bytes(&self) -> usize {
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+782 |     fn decoded_final_storage_upper_bytes(&self) -> usize {
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+790 |     fn append_upper_bytes(&self) -> usize {
+    |        ^^^^^^^^^^^^^^^^^^
+    |
+   ::: crates/metroflow-rust/src/optional_binding.rs:14:9
+    |
+ 14 |         impl $ty { $($($method)*)* }
+    |         -------- associated items in this implementation
+
+warning: method `to_vec` is never used
+   --> crates/metroflow-rust/src/v1_stage.rs:233:19
+    |
+ 74 | impl StageQueue {
+    | --------------- method in this implementation
+...
+233 |     pub(crate) fn to_vec(&self) -> Vec<Access> {
+    |                   ^^^^^^
+
+warning: struct `NativeStageQueue` is never constructed
+   --> crates/metroflow-rust/src/v1_stage.rs:419:12
+    |
+419 | pub struct NativeStageQueue {
+    |            ^^^^^^^^^^^^^^^^
+
+warning: multiple associated items are never used
+   --> crates/metroflow-rust/src/v1_stage.rs:434:8
+    |
+434 |     fn new(rows: Vec<Access>) -> CoreResult<Self> {
+    |        ^^^
+...
+445 |     fn fork(&self) -> Self {
+    |        ^^^^
+...
+455 |     fn append(&mut self, row: Access) -> CoreResult<()> {
+    |        ^^^^^^
+...
+467 |     fn snapshot(&self) -> Vec<Access> {
+    |        ^^^^^^^^
+...
+475 |     fn retire_due(&mut self, deadline: f64) -> CoreResult<Vec<Access>> {
+    |        ^^^^^^^^^^
+...
+488 |     fn due_count(&self, deadline: f64) -> CoreResult<usize> {
+    |        ^^^^^^^^^
+...
+499 |     fn append_upper_bytes(&self, additional: usize) -> usize {
+    |        ^^^^^^^^^^^^^^^^^^
+...
+507 |     fn decoded_storage_upper_bytes(&self) -> usize {
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+515 |     fn storage_shape(&self) -> (usize, usize, usize, usize) {
+    |        ^^^^^^^^^^^^^
+...
+528 |     fn shared_rows(&self, other: &Self) -> usize {
+    |        ^^^^^^^^^^^
+    |
+   ::: crates/metroflow-rust/src/optional_binding.rs:14:9
+    |
+ 14 |         impl $ty { $($($method)*)* }
+    |         -------- associated items in this implementation
+
+warning: method `model_identity` is never used
+   --> crates/metroflow-rust/src/v1_engine.rs:578:8
+    |
+578 |     fn model_identity(&self) -> String {
+    |        ^^^^^^^^^^^^^^
+    |
+   ::: crates/metroflow-rust/src/optional_binding.rs:14:9
+    |
+ 14 |         impl $ty { $($($method)*)* }
+    |         -------- method in this implementation
+
+warning: fields `storage_policy`, `journey_storage_bytes`, `totals`, `passenger_available`, `freight_cargo`, and `estimated_bytes` are never read
+   --> crates/metroflow-rust/src/v1_engine.rs:587:5
+    |
+584 | pub struct NativeWholeEngine {
+    |            ----------------- fields in this struct
+...
+587 |     storage_policy: String,
+    |     ^^^^^^^^^^^^^^
+588 |     road_storage_bytes: Option<usize>,
+589 |     journey_storage_bytes: Option<usize>,
+    |     ^^^^^^^^^^^^^^^^^^^^^
+...
+602 |     totals: [f64; 3],
+    |     ^^^^^^
+...
+606 |     passenger_available: Vec<f64>,
+    |     ^^^^^^^^^^^^^^^^^^^
+607 |     freight_cargo: Vec<f64>,
+    |     ^^^^^^^^^^^^^
+...
+611 |     estimated_bytes: usize,
+    |     ^^^^^^^^^^^^^^^
+
+warning: methods `identity`, `native_threads`, `snapshot`, `check`, and `sample_legs` are never used
+    --> crates/metroflow-rust/src/v1_engine.rs:1513:8
+     |
+1513 |     fn identity(&self) -> String {
+     |        ^^^^^^^^
+...
+1521 |     fn native_threads(&self) -> usize {
+     |        ^^^^^^^^^^^^^^
+...
+1637 |     fn snapshot(&self) -> NativeWholeState {
+     |        ^^^^^^^^
+...
+1645 |     fn check(&self, state: &NativeWholeState) -> CoreResult<()> {
+     |        ^^^^^
+...
+1853 |     fn sample_legs(
+     |        ^^^^^^^^^^^
+     |
+    ::: crates/metroflow-rust/src/optional_binding.rs:14:9
+     |
+  14 |         impl $ty { $($($method)*)* }
+     |         -------- methods in this implementation
+
+warning: `metroflow-rust` (lib test) generated 47 warnings (run `cargo fix --lib -p metroflow-rust --tests` to apply 12 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 17.07s
+     Running unittests src/lib.rs (target/debug/deps/_metroflow_rust-710001930769b7f2)
+
+running 1 test
+test v1_akm::d09_cohort_tests::sealed_cohort_has_no_geometric_tail_or_early_outlet ... FAILED
+
+failures:
+
+---- v1_akm::d09_cohort_tests::sealed_cohort_has_no_geometric_tail_or_early_outlet stdout ----
+
+thread 'v1_akm::d09_cohort_tests::sealed_cohort_has_no_geometric_tail_or_early_outlet' (2954241) panicked at crates/metroflow-rust/src/v1_akm.rs:498:13:
+assertion failed: next.finite
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    v1_akm::d09_cohort_tests::sealed_cohort_has_no_geometric_tail_or_early_outlet
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 327 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p metroflow-rust --lib`
