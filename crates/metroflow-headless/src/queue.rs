@@ -569,13 +569,21 @@ impl<'a> Engine<'a> {
         })
     }
 }
-pub fn run(input:&Input,cfg:Config)->Result<Run>{run_internal(input,cfg,None)}
+pub fn run(input:&Input,cfg:Config)->Result<Run>{run_internal(input,cfg,None,None)}
 pub fn run_active(input:&Input,cfg:Config,policy:ActivePolicy)->Result<Run>{
     let r=Rates{alpha:policy.alpha,nu:policy.beta,tau:policy.tau,target:1.};
     if !r.valid(){return Err("invalid active city policy".into())}
-    run_internal(input,cfg,Some(policy))
+    run_internal(input,cfg,Some(policy),None)
 }
-fn run_internal(input: &Input, cfg: Config,policy:Option<ActivePolicy>) -> Result<Run> {
+/// Explicit observation schedule; snapshots are read-only and do not advance
+/// or reorder the actual event stream.
+pub fn run_active_observed(input:&Input,cfg:Config,policy:ActivePolicy,times:&[f64])->Result<Run>{
+    let r=Rates{alpha:policy.alpha,nu:policy.beta,tau:policy.tau,target:1.};
+    if !r.valid()||times.is_empty()||times.iter().any(|x|!x.is_finite()||*x<0.||*x>cfg.horizon_s)||
+        times.windows(2).any(|x|x[0]>=x[1])||times.last()!=Some(&cfg.horizon_s){return Err("invalid active observation schedule".into())}
+    run_internal(input,cfg,Some(policy),Some(times))
+}
+fn run_internal(input: &Input, cfg: Config,policy:Option<ActivePolicy>,times:Option<&[f64]>) -> Result<Run> {
     if !(cfg.mesh_s.is_finite()
         && cfg.mesh_s > 0.
         && cfg.horizon_s > 0.
@@ -629,11 +637,10 @@ fn run_internal(input: &Input, cfg: Config,policy:Option<ActivePolicy>) -> Resul
         .map(|i| e.first(i, 0))
         .collect();
     e.heap = BinaryHeap::from(first);
-    let mut horizons: Vec<_> = [25720., 28800., 43200., 64800.]
-        .into_iter()
-        .filter(|&t| t < cfg.horizon_s)
-        .collect();
-    horizons.push(cfg.horizon_s);
+    let horizons=if let Some(times)=times{times.to_vec()}else{
+        let mut v:Vec<_>=[25720.,28800.,43200.,64800.].into_iter().filter(|&t|t<cfg.horizon_s).collect();
+        v.push(cfg.horizon_s);v
+    };
     let mut snapshots = Vec::new();
     for t in horizons {
         while e.heap.peek().is_some_and(|b| b.t <= t) {
