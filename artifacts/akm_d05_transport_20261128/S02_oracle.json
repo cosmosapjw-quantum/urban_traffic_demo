@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "rational_allocation_cases": 2048,
+  "improved_cases": 1909,
+  "blocked_donor_control": [
+    "0",
+    "1"
+  ],
+  "distance_cases": 128,
+  "max_midpoint_error_s": 5.042776289876372e-07
+}
