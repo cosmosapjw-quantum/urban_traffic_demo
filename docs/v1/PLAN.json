@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.52",
+  "version": "1.1.53",
   "date": "2026-11-28",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -371,11 +371,11 @@
       "V03"
     ],
     "native_subagent": "NOT_RUN_NO_TOOL",
-    "scope": "S01-S10: original 25750 dictionary-enabled independent recovery; 75,219,100 decoded rows, 344,185,460 B saved; source preflight 3,175,518,903 B, transfer max 4,018,728,439 B under 4,533,044,215 B, 584,088 checks zero exceedances; 25760 blocked timed incoming exact group allocation 4,533,180,239 B. Distinct same-identity delay model matched 30600 byte-identical and independently recovered30600/30780/31140, 600s new/5820s ancestry; stable bounded clock scatter removes ordered generation sorts, no measured speedup. Native295/headless9, pure Rust13/15 scoped, original full-day0/9.",
+    "scope": "S01-S10: original25750 independently recovered; direct dictionary 30301858 receiving rows/188876268 B saved, 29114990 code-sharing rows; decode saved416092828 B, all traced byte guards pass, rejected logical rows95601045>94438421; no original new tick. Same delay identity matched31200 byte-identical, recovered 31980, 840s new/6660s ancestry. B10 causal actual ready-head, replay, graph review and prior lagged growth native scoped, B15 actual original River20s dt10/dt5 independently recovered no acceptance credit. Native298, campaign2, headless9, pure Rust14/15 scoped; full-day0/9.",
     "full_repository_ci": "DEFERRED_BY_USER",
-    "full_day_100k": "BLOCKED_RESOURCE_AND_MIGRATION_0_OF_9",
+    "full_day_100k": "BLOCKED_LOGICAL_RECORD_CAP_AND_ACCEPTANCE_0_OF_9",
     "main_modified": false,
-    "evidence": "artifacts/v03_marked_payload_20261128/S10_RESEARCH_RECEIPT.json",
+    "evidence": "artifacts/v03_direct_receiving_20261128/S10_RESEARCH_RECEIPT.json",
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
@@ -384,20 +384,20 @@
       "status": "success"
     },
     "parallel_agents": [],
-    "active_branch": "research/v03-marked-payload-20261128",
-    "production_commit": "fbb154591012e30e902fc197bbea03a6da6658bd",
+    "active_branch": "research/v03-direct-receiving-20261128",
+    "production_commit": "25dde188d46b646c43b06698fb36261d4216ae27",
     "research_stages_completed": 10,
     "research_stages_total": 10,
-    "source_commit": "fbb154591012e30e902fc197bbea03a6da6658bd",
-    "native_source_sha256": "41b472a0e75463af28dfa1bb056c3622345377cd6a263bc36b34102b77b28f97",
-    "native_binary_sha256": "b55db04ea6a8ca1083375e1fa0e681cb26fb0211e41a6d98e2fa90bf97f93137",
+    "source_commit": "25dde188d46b646c43b06698fb36261d4216ae27",
+    "native_source_sha256": "97ab14a51c8707c2a050ad20c6adc633497df0e2c1ae7502e5884b39503ef8f7",
+    "native_binary_sha256": "9640ce189a4397ad8ae8bb5f7fdf084404b4ca0a26af2a6a0127b839ddf997c6",
     "current_loop_stages_completed": 10,
     "current_loop_stages_total": 10,
     "current_loop_native_subagent": "NOT_RUN_NO_TOOL",
-    "native_source_hash_method": "SHA256 of tracked Rust source manifest at S09; measured binaries bound individually in receipts",
-    "native_binary_feature": "native-cli no Python; final S09 bound; opt-in exact moment dictionary",
-    "rust_backend_scoped": "13/15 pure Rust scoped; 2 partial; zero unported; original recovered25750",
-    "theory_loop_scope": "Marked FIFO rank restriction and exact bit-pair factorization, phase-local source admission, exact clock scatter; distinct research identity, original acceptance unchanged"
+    "native_source_hash_method": "SHA256 of tracked Rust source manifest generated at S09; per-executable binding in receipts",
+    "native_binary_feature": "native-cli no Python; direct dictionary opt-in; native ready suffix/graph review/campaign",
+    "rust_backend_scoped": "14/15 pure Rust scoped; B15 partial; zero unimplemented; original recovered25750",
+    "theory_loop_scope": "Marked interval common refinement, direct bit-pair emission and ordinal reuse, local adaptive prefix bound; causal actual ready-head routing and native graph review; original acceptance unchanged"
   },
   "nodes": [
     {
@@ -1902,7 +1902,7 @@
       "failure_classification": [
         "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
       ],
-      "positive_next_action": "V03/B15: preserve original 6GiB/8GiB/7200s caps, all 3x3 original days and 8h refinement. Original 25760 passed source and transfer, now blocked timed incoming exact group allocation with 721499904 B interval_retained. Move bit-pair compression into ordered_interval_packet at production, not delayed end-of-tick interning; charge dense+dictionary overlap or plan directly in bounded passes, share keys, retain actual capacities, preserve bit-exact reduction/order and wire expansion. Verify interval-local density/mark transport and receiving lifetime, replay 25760 from bound checkpoint with identical flags and original ledger. No guard shaving. Extend persistent marked-rank views to reduce logical operation count; dictionary alone is not a logical-row closure. Delay calendar: persistent per-leg clock expansion and restart partition indexes, long matched return/5s vs 10s, durable delta snapshot with fsync/atomic manifest. Actual 3600s/8h/24h and River/Coastal remain; B10 endogenous graph/route edits and full CI/main integration remain. Do not alter original acceptance.",
+      "positive_next_action": "V03: preserve original 6GiB/8GiB/7200s limits and frozen matrix, logical cap unchanged this round. Candidate25760 has 95601045 logical rows against94438421; all traced byte guards passed. Prior exact compression cannot change row multiplicity. Construct exact persistent marked rank/span interval view with proof of ordered numerical operators and wire reconstruction; separately audit legacy dense Part count proxy vs actual work/memory, require explicit review before changing any guard; no silent cap increases. Distinct adaptive density-bounded bin model with protected causal cuts, marked prefix error min(M,h*osc/4), test node stability, long matched physical runs and resolution refinement. B15 native runner implemented with independent successful recovery, actual River20s dt10/dt5; acceptance partial until 3x3 24h and all 3 8h comparisons. B10 scoped single ready-head policy/predeclared variants, conservative graph deletion review, not arbitrary endogenous graph install. Extend full-city policy and new identity graph transaction when drained, evening return, durable delta checkpoint and full CI/main integration per user approval.",
       "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
       "contracts": [
         "C_RUNTIME",
@@ -2085,6 +2085,11 @@
           "path": "artifacts/v03_marked_payload_20261128/S10_RESEARCH_RECEIPT.json",
           "sha256": "2163383b5ab78aacfac5b4de6ab9bd13db51695388c8428ded0d421fb855a3b7",
           "scope": "Actual original dictionary storage reduction, source/transfer complete, receiving blocked; same delay identity byte-identical matched and 600s continuation; no original acceptance"
+        },
+        {
+          "path": "artifacts/v03_direct_receiving_20261128/S10_RESEARCH_RECEIPT.json",
+          "sha256": "485f3669fa16fc921384ef3da6818ad8ea126e596cf6002c0e18447af997d25c",
+          "scope": "Direct receiving and restart dictionary/code sharing actual original; byte guards passed logical cap blocked; separate delay continuation; native B10 and River prefix pair"
         }
       ],
       "historical_blocked_evidence": [
@@ -2126,14 +2131,14 @@
         }
       ],
       "current_research_evidence": {
-        "path": "artifacts/v03_marked_payload_20261128/S10_RESEARCH_RECEIPT.json",
-        "sha256": "2163383b5ab78aacfac5b4de6ab9bd13db51695388c8428ded0d421fb855a3b7",
-        "status": "S01-S10 integrated; original recovered25750; source/transfer pass receiving blocked; same delay research recovered31140; 13/15 pure Rust scoped; V03 blocked",
-        "baseline_commit": "d73a75a849834d1405f50160f43b278273b20b23",
-        "source_sha256": "41b472a0e75463af28dfa1bb056c3622345377cd6a263bc36b34102b77b28f97",
-        "native_sha256": "b55db04ea6a8ca1083375e1fa0e681cb26fb0211e41a6d98e2fa90bf97f93137",
-        "source_hash_method": "SHA256 of tracked Rust source manifest at S09; measured binaries bound individually in receipts",
-        "theory_path": "docs/research/V03_MARKED_PAYLOAD_20261128.md"
+        "path": "artifacts/v03_direct_receiving_20261128/S10_RESEARCH_RECEIPT.json",
+        "sha256": "485f3669fa16fc921384ef3da6818ad8ea126e596cf6002c0e18447af997d25c",
+        "status": "S01-S10 integrated; original recovered25750 all traced byte guards pass logical cap blocked; research recovered31980; Rust14/15 scoped; V03 blocked",
+        "baseline_commit": "615c728409bdc75a652fd664f13708863f796023",
+        "source_sha256": "97ab14a51c8707c2a050ad20c6adc633497df0e2c1ae7502e5884b39503ef8f7",
+        "native_sha256": "9640ce189a4397ad8ae8bb5f7fdf084404b4ca0a26af2a6a0127b839ddf997c6",
+        "source_hash_method": "SHA256 of tracked Rust source manifest generated at S09; per-executable binding in receipts",
+        "theory_path": "docs/research/V03_DIRECT_RECEIVING_20261128.md"
       },
       "historical_research_evidence": [
         {
@@ -2361,6 +2366,16 @@
           "native_sha256": "9e4f02f60a444c117fe5832e412860c3ecf11faa36dd5127c165f20ed23d02d7",
           "source_hash_method": "SHA256 of tracked Rust source manifest at S09; measured binaries bound individually in receipts",
           "theory_path": "docs/research/V03_DELAY_STATE_20261127.md"
+        },
+        {
+          "path": "artifacts/v03_marked_payload_20261128/S10_RESEARCH_RECEIPT.json",
+          "sha256": "2163383b5ab78aacfac5b4de6ab9bd13db51695388c8428ded0d421fb855a3b7",
+          "status": "S01-S10 integrated; original recovered25750; source/transfer pass receiving blocked; same delay research recovered31140; 13/15 pure Rust scoped; V03 blocked",
+          "baseline_commit": "d73a75a849834d1405f50160f43b278273b20b23",
+          "source_sha256": "41b472a0e75463af28dfa1bb056c3622345377cd6a263bc36b34102b77b28f97",
+          "native_sha256": "b55db04ea6a8ca1083375e1fa0e681cb26fb0211e41a6d98e2fa90bf97f93137",
+          "source_hash_method": "SHA256 of tracked Rust source manifest at S09; measured binaries bound individually in receipts",
+          "theory_path": "docs/research/V03_MARKED_PAYLOAD_20261128.md"
         }
       ],
       "secondary_blocked_evidence": {
@@ -2584,7 +2599,7 @@
     "authorized_on": "2026-11-16",
     "supersedes": "pure Python core restriction in PLAN v1.1.17 and AGENTS.md",
     "target": "Rust-owned backend, input preparation, measurement, headless execution and acceptance; Python frontend serialization or explicit opt-in test oracle only",
-    "mode": "Pure Rust native CLI; optional Python frontend; exact lazy queries, bounded receipt bucket, distinct schedule receipt model; B10/B15 partial.",
+    "mode": "Pure Rust native CLI; optional Python frontend/oracle; B10 verified scoped, B15 partial until actual acceptance.",
     "current_scope": [
       "Persistent f64 legal-turn routing in V1 preparation",
       "Direct factorized Rust calendar construction without Python per-leg objects",
@@ -2620,11 +2635,12 @@
       "Integrated S01-S10: original exact recovered 25740 unchanged; retirement pushforward and hidden-child streaming moment closure; exact service support and bounded ordered stage sums; distinct streaming/egress identity. Matched Valley 28560 egress products 1310368 -> 986552, 1338759 raw receipts avoided, road observables bit-identical and age moment relative L1 <=3.043e-15. Independently recovered 28560,28740,29340 (840s new,4020s ancestry), 16018235 raw receipts avoided total; 2 warmed 1M-call zero-heap probes. Original 0/9 full days; 13/15 pure Rust scoped.",
       "Integrated S01-S10: original lean continuous keyset guard 5087955648 ->3965258969 B within 4668014575 B by verified shared payload. Next capture 6444815725>6442450944; actual observer support corrected; final original retry timed out during atomic checkpoint write, no recovered 25750, original 25740 unchanged. Distinct source-clock entry quotient, bounded sweeps and direct product projection: matched Valley 29400 entry 4657671->2924498, road relative L1<=4.079e-19 and completed-leg/aggregate ledger exact; recovered 29400/29580/29940, 600s new/4620s ancestry, 13451223 sweep removal operations and 390480 products avoided. Warmed 1M-call zero-heap entry probe; 287 native/9 headless tests. Original 0/9 full days, 13/15 pure Rust scoped.",
       "Integrated S01-S10: original exact 25740->25750 computed/recovered with prior exact binary and final binary independent recovery, all original guards within cap; 25760 blocked preflight4809424815>4533044215. Distinct delay calendar: actual matched 30000 entry2924498->1752182, egress4558614->1727136, dynamic290472720->158837648 B; measured compute regression in matched60s. Recovered30000/30180/30540, 600s new/5220s ancestry, entry/egress stable near1.75M/1.74M, 29984043 total removal operations. Exact stable counting partition used at original and city scale; same-wire batch encoding, zero-heap scoped cell kernel; native291/headless9. Original full-day0/9, pure Rust13/15 scoped.",
-      "S01-S10: original 25750 dictionary-enabled independent recovery; 75,219,100 decoded rows, 344,185,460 B saved; source preflight 3,175,518,903 B, transfer max 4,018,728,439 B under 4,533,044,215 B, 584,088 checks zero exceedances; 25760 blocked timed incoming exact group allocation 4,533,180,239 B. Distinct same-identity delay model matched 30600 byte-identical and independently recovered30600/30780/31140, 600s new/5820s ancestry; stable bounded clock scatter removes ordered generation sorts, no measured speedup. Native295/headless9, pure Rust13/15 scoped, original full-day0/9."
+      "S01-S10: original 25750 dictionary-enabled independent recovery; 75,219,100 decoded rows, 344,185,460 B saved; source preflight 3,175,518,903 B, transfer max 4,018,728,439 B under 4,533,044,215 B, 584,088 checks zero exceedances; 25760 blocked timed incoming exact group allocation 4,533,180,239 B. Distinct same-identity delay model matched 30600 byte-identical and independently recovered30600/30780/31140, 600s new/5820s ancestry; stable bounded clock scatter removes ordered generation sorts, no measured speedup. Native295/headless9, pure Rust13/15 scoped, original full-day0/9.",
+      "S01-S10: original25750 independently recovered; direct dictionary 30301858 receiving rows/188876268 B saved, 29114990 code-sharing rows; decode saved416092828 B, all traced byte guards pass, rejected logical rows95601045>94438421; no original new tick. Same delay identity matched31200 byte-identical, recovered 31980, 840s new/6660s ancestry. B10 causal actual ready-head, replay, graph review and prior lagged growth native scoped, B15 actual original River20s dt10/dt5 independently recovered no acceptance credit. Native298, campaign2, headless9, pure Rust14/15 scoped; full-day0/9."
     ],
     "remaining": [
-      "V03/B15: preserve original 6GiB/8GiB/7200s caps, all 3x3 original days and 8h refinement. Original 25760 passed source and transfer, now blocked timed incoming exact group allocation with 721499904 B interval_retained. Move bit-pair compression into ordered_interval_packet at production, not delayed end-of-tick interning; charge dense+dictionary overlap or plan directly in bounded passes, share keys, retain actual capacities, preserve bit-exact reduction/order and wire expansion. Verify interval-local density/mark transport and receiving lifetime, replay 25760 from bound checkpoint with identical flags and original ledger. No guard shaving. Extend persistent marked-rank views to reduce logical operation count; dictionary alone is not a logical-row closure. Delay calendar: persistent per-leg clock expansion and restart partition indexes, long matched return/5s vs 10s, durable delta snapshot with fsync/atomic manifest. Actual 3600s/8h/24h and River/Coastal remain; B10 endogenous graph/route edits and full CI/main integration remain. Do not alter original acceptance.",
-      "Original exact recovered25750; 25760 blocked receiving; full days/refinement remain. Distinct delay research recovered31140; no acceptance credit.",
+      "V03: preserve original 6GiB/8GiB/7200s limits and frozen matrix, logical cap unchanged this round. Candidate25760 has 95601045 logical rows against94438421; all traced byte guards passed. Prior exact compression cannot change row multiplicity. Construct exact persistent marked rank/span interval view with proof of ordered numerical operators and wire reconstruction; separately audit legacy dense Part count proxy vs actual work/memory, require explicit review before changing any guard; no silent cap increases. Distinct adaptive density-bounded bin model with protected causal cuts, marked prefix error min(M,h*osc/4), test node stability, long matched physical runs and resolution refinement. B15 native runner implemented with independent successful recovery, actual River20s dt10/dt5; acceptance partial until 3x3 24h and all 3 8h comparisons. B10 scoped single ready-head policy/predeclared variants, conservative graph deletion review, not arbitrary endogenous graph install. Extend full-city policy and new identity graph transaction when drained, evening return, durable delta checkpoint and full CI/main integration per user approval.",
+      "Original exact recovered25750; 25760 logical cap, byte guards pass. Distinct delay recovered31980; actual River prefix pair not full-day credit.",
       "Integrate source-aligned rank/span views into the actual ordered interval consumer and checkpoint expansion; retain finite response and commodity/birth observables. Separate bit-exact event sharing, real-arithmetic rank equivalence and explicitly approximate block closure; require complete-tick, ledger and checkpoint evidence.",
       "Frozen candidate3cases x3 full-day completion, matched refinement and full-day checkpoint replay; current completion0/9",
       "Separate final review, RLS01 packaging/fresh-install acceptance and full repository CI/integration deferred by user"
@@ -2633,18 +2649,18 @@
     "historical_local_patch_sha256": "7d89e8be20339709a9c0dc894a26dc7db75bdc0d857637ffb30f7bc7fe4a1326",
     "last_completed_work": {
       "date": "2026-11-28",
-      "scope": "S01-S10: original 25750 dictionary-enabled independent recovery; 75,219,100 decoded rows, 344,185,460 B saved; source preflight 3,175,518,903 B, transfer max 4,018,728,439 B under 4,533,044,215 B, 584,088 checks zero exceedances; 25760 blocked timed incoming exact group allocation 4,533,180,239 B. Distinct same-identity delay model matched 30600 byte-identical and independently recovered30600/30780/31140, 600s new/5820s ancestry; stable bounded clock scatter removes ordered generation sorts, no measured speedup. Native295/headless9, pure Rust13/15 scoped, original full-day0/9.",
-      "evidence": "artifacts/v03_marked_payload_20261128/S10_RESEARCH_RECEIPT.json"
+      "scope": "S01-S10: original25750 independently recovered; direct dictionary 30301858 receiving rows/188876268 B saved, 29114990 code-sharing rows; decode saved416092828 B, all traced byte guards pass, rejected logical rows95601045>94438421; no original new tick. Same delay identity matched31200 byte-identical, recovered 31980, 840s new/6660s ancestry. B10 causal actual ready-head, replay, graph review and prior lagged growth native scoped, B15 actual original River20s dt10/dt5 independently recovered no acceptance credit. Native298, campaign2, headless9, pure Rust14/15 scoped; full-day0/9.",
+      "evidence": "artifacts/v03_direct_receiving_20261128/S10_RESEARCH_RECEIPT.json"
     },
-    "active_work": "V03/B15: preserve original 6GiB/8GiB/7200s caps, all 3x3 original days and 8h refinement. Original 25760 passed source and transfer, now blocked timed incoming exact group allocation with 721499904 B interval_retained. Move bit-pair compression into ordered_interval_packet at production, not delayed end-of-tick interning; charge dense+dictionary overlap or plan directly in bounded passes, share keys, retain actual capacities, preserve bit-exact reduction/order and wire expansion. Verify interval-local density/mark transport and receiving lifetime, replay 25760 from bound checkpoint with identical flags and original ledger. No guard shaving. Extend persistent marked-rank views to reduce logical operation count; dictionary alone is not a logical-row closure. Delay calendar: persistent per-leg clock expansion and restart partition indexes, long matched return/5s vs 10s, durable delta snapshot with fsync/atomic manifest. Actual 3600s/8h/24h and River/Coastal remain; B10 endogenous graph/route edits and full CI/main integration remain. Do not alter original acceptance.",
+    "active_work": "V03: preserve original 6GiB/8GiB/7200s limits and frozen matrix, logical cap unchanged this round. Candidate25760 has 95601045 logical rows against94438421; all traced byte guards passed. Prior exact compression cannot change row multiplicity. Construct exact persistent marked rank/span interval view with proof of ordered numerical operators and wire reconstruction; separately audit legacy dense Part count proxy vs actual work/memory, require explicit review before changing any guard; no silent cap increases. Distinct adaptive density-bounded bin model with protected causal cuts, marked prefix error min(M,h*osc/4), test node stability, long matched physical runs and resolution refinement. B15 native runner implemented with independent successful recovery, actual River20s dt10/dt5; acceptance partial until 3x3 24h and all 3 8h comparisons. B10 scoped single ready-head policy/predeclared variants, conservative graph deletion review, not arbitrary endogenous graph install. Extend full-city policy and new identity graph transaction when drained, evening return, durable delta checkpoint and full CI/main integration per user approval.",
     "backend_census": {
-      "path": "artifacts/v03_marked_payload_20261128/S10_backend_coverage.json",
-      "sha256": "9905d6813d70834c4e2e7d6909904327074895ef8f7be891d8b2f7fdc15e4bb0",
+      "path": "artifacts/v03_direct_receiving_20261128/S10_backend_coverage.json",
+      "sha256": "ecc8bc53ebdb05c8ac40c8e7b374dbefa89b47171fba2db7daa15a9b15f87f38",
       "denominator": 15,
-      "implemented_scoped": 13,
-      "pure_rust_scoped": 13,
-      "remaining": 2,
-      "partial": 2,
+      "implemented_scoped": 14,
+      "pure_rust_scoped": 14,
+      "remaining": 1,
+      "partial": 1,
       "unimplemented": 0
     }
   }

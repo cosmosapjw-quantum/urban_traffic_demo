@@ -1,0 +1,1 @@
+{"status": "VALID_PLAN_NOT_RELEASE", "nodes": 21, "status_counts": {"ACCEPTED": 5, "VERIFIED_SCOPED": 14, "BLOCKED": 1, "PLANNED": 1}, "next_node": "V03", "full_repository_ci": "DEFERRED_BY_USER"}

@@ -1,0 +1,1427 @@
+{
+  "schema": "metroflow_v03_direct_receiving_research_v1",
+  "scope": "S01-S10: original25750 independently recovered; direct dictionary 30301858 receiving rows/188876268 B saved, 29114990 code-sharing rows; decode saved416092828 B, all traced byte guards pass, rejected logical rows95601045>94438421; no original new tick. Same delay identity matched31200 byte-identical, recovered 31980, 840s new/6660s ancestry. B10 causal actual ready-head, replay, graph review and prior lagged growth native scoped, B15 actual original River20s dt10/dt5 independently recovered no acceptance credit. Native298, campaign2, headless9, pure Rust14/15 scoped; full-day0/9.",
+  "baseline_commit": "615c728409bdc75a652fd664f13708863f796023",
+  "implementation_head_before_S10": "25dde188d46b646c43b06698fb36261d4216ae27",
+  "final_native_build_sha256": "9640ce189a4397ad8ae8bb5f7fdf084404b4ca0a26af2a6a0127b839ddf997c6",
+  "tracked_rust_source_manifest_sha256": "97ab14a51c8707c2a050ad20c6adc633497df0e2c1ae7502e5884b39503ef8f7",
+  "source_hash_method": "SHA256 of tracked Rust source manifest generated at S09; per-executable binding in receipts",
+  "stages": [
+    {
+      "commit": "55cf6c7947d1cffd6cd1bd040a73a8993633ac0e",
+      "description": "S01 Bind direct receiving and Rust completion research to historical contract"
+    },
+    {
+      "commit": "0d1c18d7d584fec1a6afe98303c7ebdd095d5d5e",
+      "description": "S02 Derive marked interval transport and direct exact dictionary emission"
+    },
+    {
+      "commit": "9d215f903db01106e044c4dda60d675296c662bf",
+      "description": "S03 Emit receiving dictionaries directly from two identical ordered reductions"
+    },
+    {
+      "commit": "8afa5c4444fc5ef553d089ed1b400870d3429acf",
+      "description": "S04 Couple opt-in causal en-route policy to actual ready FIFO head in native phase"
+    },
+    {
+      "commit": "ce6faffe5afa93c25afa679994e2c8f7fd5fb3cd",
+      "description": "S05 Share verified dictionary ordinal streams across adjacent intervals and restart"
+    },
+    {
+      "commit": "0693475f65ac3d15edf9df8637c452b02e9bb8f3",
+      "description": "S06 Port graph deletion drain review to native physical state"
+    },
+    {
+      "commit": "6f5f2292808abc2edb40f6da48ffae2bb18fcd71",
+      "description": "S07 Require independent native campaign recovery and add matched prefix diagnostic"
+    },
+    {
+      "commit": "b21849a076f88884b0e8e48a0291b10f7ae3f555",
+      "description": "S08 Independently verify marked refinement and code sharing; expose logical cap census"
+    },
+    {
+      "commit": "25dde188d46b646c43b06698fb36261d4216ae27",
+      "description": "S09 Verify progressive city runs, native phase and campaign evidence"
+    }
+  ],
+  "S10": "Verify source and checkpoint identities, update PLAN/readiness/census, push S10, verify bundle/restore and exact duplicate cleanup",
+  "theory_path": "docs/research/V03_DIRECT_RECEIVING_20261128.md",
+  "readiness": {
+    "nodes_total": 21,
+    "nodes_accepted": 5,
+    "nodes_verified_scoped": 14,
+    "nodes_blocked": 1,
+    "nodes_planned": 1,
+    "direct_dependencies": [
+      {
+        "id": "P01",
+        "status": "VERIFIED_SCOPED"
+      },
+      {
+        "id": "V01",
+        "status": "VERIFIED_SCOPED"
+      },
+      {
+        "id": "V02",
+        "status": "VERIFIED_SCOPED"
+      }
+    ],
+    "direct_scoped_or_accepted": 3,
+    "direct_accepted": 0,
+    "original_cases_prepared": 3,
+    "prior_60s_prefixes_validated": 3,
+    "original_cases_total": 3,
+    "original_full_days_accepted": 0,
+    "original_full_days_required": 9,
+    "original_8h_refinement_completed": 0,
+    "original_8h_refinement_required": 3,
+    "computed_frontier_s": 25750,
+    "independently_recovered_frontier_s": 25750,
+    "research_frontiers": [
+      {
+        "bins": 4,
+        "start_s": 25320,
+        "recovered_s": 25800,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:4",
+        "evidence": "artifacts/v03_causal_rank_20261127/S05_r4_recover25800.json"
+      },
+      {
+        "bins": 1,
+        "start_s": 25320,
+        "recovered_s": 26220,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1",
+        "evidence": "artifacts/v03_causal_rank_20261127/S08_r1_recovered.json"
+      },
+      {
+        "bins": 1,
+        "ready_milli_veh": 500,
+        "start_s": 25800,
+        "ancestral_source_s": 25320,
+        "recovered_s": 27000,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60",
+        "evidence": "artifacts/v03_causal_rank_20261127/S08_ready500_recover27000.json"
+      },
+      {
+        "bins": 1,
+        "receipt_grid_step_s": 10,
+        "receipt_sweep_s": 60,
+        "ancestral_source_s": 25320,
+        "start_s": 27060,
+        "recovered_s": 28020,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10",
+        "evidence": "artifacts/v03_receipt_closure_20261127/S08_grid28020_recover.json"
+      },
+      {
+        "receipt_grid_step_s": 10,
+        "receipt_sweep_s": 60,
+        "observable_schedule": true,
+        "ancestral_source_s": 25320,
+        "start_s": 28020,
+        "recovered_s": 28500,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1",
+        "evidence": "artifacts/v03_observable_buckets_20261127/S09_schedule28500_recovery.json"
+      },
+      {
+        "streaming_receipts": true,
+        "egress_retirement_buckets": true,
+        "ancestral_source_s": 25320,
+        "start_s": 28500,
+        "recovered_s": 29340,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1",
+        "evidence": "artifacts/v03_streaming_observer_20261127/S09_egress29340_recovery.json"
+      },
+      {
+        "entry_source_clock_buckets": true,
+        "ancestral_source_s": 25320,
+        "start_s": 29340,
+        "recovered_s": 29940,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1",
+        "evidence": "artifacts/v03_entry_quotient_20261127/S09_entry29940_recovery.json"
+      },
+      {
+        "delay_calendar": true,
+        "ancestral_source_s": 25320,
+        "start_s": 29940,
+        "recovered_s": 30540,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1:delay-calendar-v1",
+        "evidence": "artifacts/v03_delay_state_20261127/S09_delay30540_recovery.json"
+      },
+      {
+        "delay_calendar": true,
+        "stable_clock_scatter": true,
+        "ancestral_source_s": 25320,
+        "start_s": 30540,
+        "recovered_s": 31140,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1:delay-calendar-v1",
+        "evidence": "artifacts/v03_marked_payload_20261128/S10_delay31140_recovery.json"
+      },
+      {
+        "delay_calendar": true,
+        "stable_clock_scatter": true,
+        "ancestral_source_s": 25320,
+        "start_s": 31140,
+        "recovered_s": 31980,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1:delay-calendar-v1",
+        "evidence": "artifacts/v03_direct_receiving_20261128/S09_delay31980_recovery.json"
+      }
+    ],
+    "definition": "Original exact 25750 independently recovered by final native executable; 25760 all traced byte guards pass, logical record cap blocks. Distinct same-identity delay calendar recovered 31980, 840s new, not original acceptance. River 10s/5s dt 20s prefix pair independently recovered, no 8h or day credit.",
+    "current_loop_stages": 10,
+    "original_candidate_logical_rows": 95601045,
+    "original_candidate_record_limit": 94438421
+  },
+  "backend_coverage": {
+    "baseline_rust_core": 5,
+    "denominator": 15,
+    "method": "unweighted, fixed C01 functional inventory; scoped evidence reviewed; not LOC, full-city completeness or release acceptance",
+    "native_host_linked_python_scoped": 0,
+    "original_dag_accepted": 5,
+    "original_dag_scoped_or_accepted": 19,
+    "original_dag_total": 21,
+    "original_v03_direct_dependencies_ready": 3,
+    "original_v03_direct_dependencies_total": 3,
+    "original_v03_full_days": 0,
+    "original_v03_rust_only_city_preparations_verified": 3,
+    "original_v03_total": 9,
+    "partial_functions": 1,
+    "pure_rust_percent": 93.33333333333333,
+    "pure_rust_verified_scoped": 14,
+    "remaining_functions": 1,
+    "rows": [
+      {
+        "baseline": "PYTHON",
+        "component": "city geometry generation and map validation",
+        "evidence": "../v03_rust_atlas_integration_20261127/C06_all8.json",
+        "evidence_sha256": "857d457e5c32a58630e1918c69416806eab30c3551acdedd76a2e32dd205f5f2",
+        "id": "B01",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "activity geometry and finite access-law construction",
+        "evidence": "../v03_pure_rust_core_20261127/C06_oracle.log",
+        "evidence_sha256": "0b533f343de868b64ed7e4f0cd8eada19f1bd3a00ec176032214d89509726f79",
+        "id": "B02",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "factorized demand declarations and inventory",
+        "evidence": "../v03_rust_atlas_integration_20261127/valley_next.engine10.json",
+        "evidence_sha256": "7fc1f9f20b108e9686eb2a91aa8333b6f21a0ebe97534e3bb20c9775d3d354ea",
+        "id": "B03",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "native factorized OD enumeration",
+        "evidence": "../v03_causal_rank_20261127/river_weekday_s17.engine10.json",
+        "evidence_sha256": "f9d331a4accf22e08fc6aa5b09483b9f759234f7a9828dbea905e99f84796dcf",
+        "id": "B04",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "legal graph route search and cache",
+        "evidence": "../v03_pure_rust_core_20261127/C07-c07-2.json",
+        "evidence_sha256": "3cfd20377ae0cf444cf30c049fd9518a1fc8bcad2b524edb06c91d9aba13b077",
+        "id": "B05",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "MIXED",
+        "component": "fleet and freight route preparation",
+        "evidence": "../v03_pure_rust_core_20261127/C06_oracle.log",
+        "evidence_sha256": "0b533f343de868b64ed7e4f0cd8eada19f1bd3a00ec176032214d89509726f79",
+        "id": "B06",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "road kinetic transport and node allocation",
+        "evidence": "../v03_marked_owner_20261127/S03_25740.json",
+        "evidence_sha256": "d74089162965c0387affa5f879bbbe02bd99872f7c844b5c1d94f83265d448c4",
+        "id": "B07",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "service and journey coupling",
+        "evidence": "../v03_marked_owner_20261127/S03_25740.json",
+        "evidence_sha256": "d74089162965c0387affa5f879bbbe02bd99872f7c844b5c1d94f83265d448c4",
+        "id": "B08",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "whole engine orchestration and checkpoint",
+        "evidence": "../v03_marked_owner_20261127/S04_recovery.json",
+        "evidence_sha256": "821fdb4aad9342aef8f21e2838653b49504d3f95f4edca8aee8d2dab5c4f0e00",
+        "id": "B09",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "causal routing adaptation and delayed land-use",
+        "evidence": "S09_b10_evidence.json",
+        "evidence_sha256": "cb9bd6dcf305053c2af5590bea0bf93e379b0cfc9eaf9e1b290a71a0b9968874",
+        "id": "B10",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "access-coupling research preprocessing",
+        "evidence": "../v03_rust_only_backend_20261126/C03_test.log",
+        "evidence_sha256": "41b47ea4c68ff1f201d6a9d71c5c9e736ec68ce0b508c9458023a751dd3509ff",
+        "id": "B11",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "route passage generation and validation",
+        "evidence": "../v03_rust_only_backend_20261126/C04_test.log",
+        "evidence_sha256": "07791a61eaf987cc0e20c00354b3645a8ade3817d68c57a4bb3134fbd9047638",
+        "id": "B12",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "CPP",
+        "component": "multiclass shared-access projection solver",
+        "evidence": "../v03_rust_only_backend_20261126/C09_parity.json",
+        "evidence_sha256": "1015116457d11089f1df668a3ef26e0f7c8cb0d896a33abb35de65ec1b75d377",
+        "id": "B13",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "research execution receipt and metrics",
+        "evidence": "../v03_receipt_closure_20261127/S09_original25380.json",
+        "evidence_sha256": "0732d7ff2b5eafc9e3d8ab67d679ff978d128e34ac058bb01151337df187342e",
+        "id": "B14",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "original V03 campaign runner and acceptance",
+        "evidence": "S09_b15_evidence.json",
+        "evidence_sha256": "43bb8e262363dec424558e979df59a4b77b4f0c948d72a253a76239926b3d0eb",
+        "id": "B15",
+        "status": "PARTIAL"
+      }
+    ],
+    "rust_implemented_percent": 93.33333333333333,
+    "rust_implemented_scoped": 14,
+    "schema": "metroflow_backend_functional_census_v1",
+    "unimplemented_functions": 0,
+    "current_loop": "B10 native ready-head policy, graph deletion review and lagged development scoped evidence; B15 native successful recovery + actual frozen River prefix pair, still partial due full-day/refinement. Original 25760 logical cap after all traced byte guards passed. Same delay recovered 31980."
+  },
+  "original_frontier": {
+    "computed": 25750,
+    "recovered": 25750,
+    "new_original_tick_committed": false,
+    "recovery": "artifacts/v03_direct_receiving_20261128/S09_original_recovery.json",
+    "attempts": [
+      {
+        "receipt": "artifacts/v03_direct_receiving_20261128/S04_original25760.json",
+        "failure": {
+          "kind": "Resource",
+          "message": "native road storage budget exceeded: phase=entry interval split, required_bytes=4533044234, budget_bytes=4533044215"
+        },
+        "wall_s": 133.287514304,
+        "peak_rss_bytes": 4276330496,
+        "guards": {
+          "road_work:entry interval split": {
+            "calls": 1341465,
+            "exceeded": 1,
+            "limit_at_max": 4533044215,
+            "live_at_max": null,
+            "max_ratio": 1.0000000041914439,
+            "max_required": 4533044234,
+            "terms_at_max": {
+              "base": 2476291855,
+              "event_bytes": 1319868480,
+              "event_candidate_live_bound": 729168584,
+              "extra": 0,
+              "full_source_base": 2476291855,
+              "incoming_actual_descriptor_bytes": 400608,
+              "incoming_actual_page_charge": 28269756,
+              "incoming_descriptors_frozen": 1,
+              "incoming_live_pages": 10916,
+              "incoming_rows": 1395157,
+              "interval_retained": 701136591,
+              "interval_transient": 7477552,
+              "packed_ref_sealed_credit": 14858640,
+              "source_key_growth": 0,
+              "timed_incoming_control_bytes": 16338752,
+              "transfer_exclusive_cell_scratch": 0
+            }
+          },
+          "road_work:timed incoming exact group allocation": {
+            "calls": 2108,
+            "exceeded": 0,
+            "limit_at_max": 4533044215,
+            "live_at_max": null,
+            "max_ratio": 0.9990030207547843,
+            "max_required": 4528524864,
+            "terms_at_max": {
+              "base": 2438788975,
+              "event_bytes": 1319868480,
+              "event_candidate_live_bound": 729168584,
+              "extra": 41316160,
+              "full_source_base": 2438788975,
+              "incoming_actual_descriptor_bytes": 597312,
+              "incoming_actual_page_charge": 29661828,
+              "incoming_descriptors_frozen": 1,
+              "incoming_live_pages": 17084,
+              "incoming_rows": 2184637,
+              "interval_retained": 698889421,
+              "interval_transient": 0,
+              "packed_ref_sealed_credit": 23343776,
+              "source_key_growth": 0,
+              "timed_incoming_control_bytes": 16338752,
+              "transfer_exclusive_cell_scratch": 0
+            }
+          },
+          "road_work:transfer candidates": {
+            "calls": 584088,
+            "exceeded": 0,
+            "limit_at_max": 4533044215,
+            "live_at_max": null,
+            "max_ratio": 0.886540754599721,
+            "max_required": 4018728439,
+            "terms_at_max": {
+              "base": 2575378607,
+              "event_bytes": 1319868480,
+              "event_candidate_live_bound": 729168584,
+              "extra": 0,
+              "full_source_base": 2978797391,
+              "incoming_actual_descriptor_bytes": 0,
+              "incoming_actual_page_charge": 123481352,
+              "incoming_descriptors_frozen": 0,
+              "incoming_live_pages": 330196,
+              "incoming_rows": 42184118,
+              "interval_retained": 0,
+              "interval_transient": 0,
+              "packed_ref_sealed_credit": 446249792,
+              "source_key_growth": 0,
+              "timed_incoming_control_bytes": 16338752,
+              "transfer_exclusive_cell_scratch": 403418784
+            }
+          }
+        },
+        "counters": {
+          "moment_dict.decode_rows": [
+            567628,
+            75219100,
+            464
+          ],
+          "moment_dict.decode_saved_bytes": [
+            567628,
+            344185460,
+            3216
+          ],
+          "moment_dict.direct_interval_fallback": [
+            6583,
+            6583,
+            1
+          ],
+          "moment_dict.direct_interval_rows": [
+            221605,
+            29080599,
+            454
+          ],
+          "moment_dict.direct_interval_saved_bytes": [
+            221605,
+            151264697,
+            3194
+          ],
+          "moment_dict.expired_source_key_growth_bytes": [
+            1,
+            0,
+            0
+          ],
+          "moment_dict.remainder_rows": [
+            93441,
+            16347604,
+            454
+          ],
+          "moment_dict.remainder_shared_codes": [
+            93441,
+            16347604,
+            454
+          ],
+          "moment_dict.remainder_shared_keys": [
+            623,
+            24452,
+            55
+          ],
+          "split.edges": [
+            1053,
+            556458,
+            14033
+          ],
+          "split.in_rows": [
+            1053,
+            38806488,
+            2465719
+          ],
+          "split.out_packets": [
+            1053,
+            701279,
+            19121
+          ],
+          "split.out_rows": [
+            1053,
+            40024739,
+            2496317
+          ],
+          "split.shared_adjacent_key_rows": [
+            217399,
+            28081895,
+            627
+          ]
+        }
+      },
+      {
+        "receipt": "artifacts/v03_direct_receiving_20261128/S06_original25760.json",
+        "failure": {
+          "kind": "Resource",
+          "message": "packet state budget"
+        },
+        "wall_s": 137.876216521,
+        "peak_rss_bytes": 4139761664,
+        "guards": {
+          "road_work:entry interval split": {
+            "calls": 1402199,
+            "exceeded": 0,
+            "limit_at_max": 4533044215,
+            "live_at_max": null,
+            "max_ratio": 0.9678442893811483,
+            "max_required": 4387280957,
+            "terms_at_max": {
+              "base": 2328744317,
+              "event_bytes": 1319868480,
+              "event_candidate_live_bound": 729168584,
+              "extra": 0,
+              "full_source_base": 2328744317,
+              "incoming_actual_descriptor_bytes": 13632,
+              "incoming_actual_page_charge": 25659528,
+              "incoming_descriptors_frozen": 1,
+              "incoming_live_pages": 316,
+              "incoming_rows": 40082,
+              "interval_retained": 705760332,
+              "interval_transient": 7248300,
+              "packed_ref_sealed_credit": 399632,
+              "source_key_growth": 0,
+              "timed_incoming_control_bytes": 16338752,
+              "transfer_exclusive_cell_scratch": 0
+            }
+          },
+          "road_work:timed incoming exact group allocation": {
+            "calls": 2170,
+            "exceeded": 0,
+            "limit_at_max": 4533044215,
+            "live_at_max": null,
+            "max_ratio": 0.9651357120062858,
+            "max_required": 4375002856,
+            "terms_at_max": {
+              "base": 2295162125,
+              "event_bytes": 1319868480,
+              "event_candidate_live_bound": 729168584,
+              "extra": 37101776,
+              "full_source_base": 2295162125,
+              "incoming_actual_descriptor_bytes": 210336,
+              "incoming_actual_page_charge": 26912416,
+              "incoming_descriptors_frozen": 1,
+              "incoming_live_pages": 5911,
+              "incoming_rows": 756138,
+              "interval_retained": 695958059,
+              "interval_transient": 0,
+              "packed_ref_sealed_credit": 8123008,
+              "source_key_growth": 0,
+              "timed_incoming_control_bytes": 16338752,
+              "transfer_exclusive_cell_scratch": 0
+            }
+          },
+          "road_work:transfer candidates": {
+            "calls": 584088,
+            "exceeded": 0,
+            "limit_at_max": 4533044215,
+            "live_at_max": null,
+            "max_ratio": 0.8548563405089133,
+            "max_required": 3875101589,
+            "terms_at_max": {
+              "base": 2431751757,
+              "event_bytes": 1319868480,
+              "event_candidate_live_bound": 729168584,
+              "extra": 0,
+              "full_source_base": 2835170541,
+              "incoming_actual_descriptor_bytes": 0,
+              "incoming_actual_page_charge": 123481352,
+              "incoming_descriptors_frozen": 0,
+              "incoming_live_pages": 330196,
+              "incoming_rows": 42184118,
+              "interval_retained": 0,
+              "interval_transient": 0,
+              "packed_ref_sealed_credit": 446249792,
+              "source_key_growth": 0,
+              "timed_incoming_control_bytes": 16338752,
+              "transfer_exclusive_cell_scratch": 403418784
+            }
+          }
+        },
+        "counters": {
+          "moment_dict.decode_rows": [
+            567628,
+            75219100,
+            464
+          ],
+          "moment_dict.decode_saved_bytes": [
+            567628,
+            416092828,
+            3680
+          ],
+          "moment_dict.decode_shared_code_rows": [
+            542292,
+            71907368,
+            464
+          ],
+          "moment_dict.direct_interval_fallback": [
+            6804,
+            6804,
+            1
+          ],
+          "moment_dict.direct_interval_rows": [
+            227542,
+            30301858,
+            454
+          ],
+          "moment_dict.direct_interval_saved_bytes": [
+            227542,
+            188876268,
+            3616
+          ],
+          "moment_dict.direct_interval_shared_code_rows": [
+            218465,
+            29114990,
+            450
+          ],
+          "moment_dict.expired_source_key_growth_bytes": [
+            1,
+            0,
+            0
+          ],
+          "moment_dict.remainder_rows": [
+            93441,
+            16347604,
+            454
+          ],
+          "moment_dict.remainder_shared_codes": [
+            93441,
+            16347604,
+            454
+          ],
+          "moment_dict.remainder_shared_keys": [
+            623,
+            24452,
+            55
+          ],
+          "split.edges": [
+            1085,
+            584469,
+            14033
+          ],
+          "split.in_rows": [
+            1085,
+            40922408,
+            2465719
+          ],
+          "split.out_packets": [
+            1085,
+            742406,
+            19121
+          ],
+          "split.out_rows": [
+            1085,
+            42182450,
+            2496317
+          ],
+          "split.shared_adjacent_key_rows": [
+            223425,
+            29297547,
+            627
+          ]
+        }
+      },
+      {
+        "receipt": "artifacts/v03_direct_receiving_20261128/S09_original25760.json",
+        "failure": {
+          "kind": "Resource",
+          "message": "packet state budget"
+        },
+        "wall_s": 161.09086194,
+        "peak_rss_bytes": 4139388928,
+        "guards": {
+          "road_work:entry interval split": {
+            "calls": 1402199,
+            "exceeded": 0,
+            "limit_at_max": 4533044215,
+            "live_at_max": null,
+            "max_ratio": 0.9678442893811483,
+            "max_required": 4387280957,
+            "terms_at_max": {
+              "base": 2328744317,
+              "event_bytes": 1319868480,
+              "event_candidate_live_bound": 729168584,
+              "extra": 0,
+              "full_source_base": 2328744317,
+              "incoming_actual_descriptor_bytes": 13632,
+              "incoming_actual_page_charge": 25659528,
+              "incoming_descriptors_frozen": 1,
+              "incoming_live_pages": 316,
+              "incoming_rows": 40082,
+              "interval_retained": 705760332,
+              "interval_transient": 7248300,
+              "packed_ref_sealed_credit": 399632,
+              "source_key_growth": 0,
+              "timed_incoming_control_bytes": 16338752,
+              "transfer_exclusive_cell_scratch": 0
+            }
+          },
+          "road_work:timed incoming exact group allocation": {
+            "calls": 2170,
+            "exceeded": 0,
+            "limit_at_max": 4533044215,
+            "live_at_max": null,
+            "max_ratio": 0.9651357120062858,
+            "max_required": 4375002856,
+            "terms_at_max": {
+              "base": 2295162125,
+              "event_bytes": 1319868480,
+              "event_candidate_live_bound": 729168584,
+              "extra": 37101776,
+              "full_source_base": 2295162125,
+              "incoming_actual_descriptor_bytes": 210336,
+              "incoming_actual_page_charge": 26912416,
+              "incoming_descriptors_frozen": 1,
+              "incoming_live_pages": 5911,
+              "incoming_rows": 756138,
+              "interval_retained": 695958059,
+              "interval_transient": 0,
+              "packed_ref_sealed_credit": 8123008,
+              "source_key_growth": 0,
+              "timed_incoming_control_bytes": 16338752,
+              "transfer_exclusive_cell_scratch": 0
+            }
+          },
+          "road_work:transfer candidates": {
+            "calls": 584088,
+            "exceeded": 0,
+            "limit_at_max": 4533044215,
+            "live_at_max": null,
+            "max_ratio": 0.8548563405089133,
+            "max_required": 3875101589,
+            "terms_at_max": {
+              "base": 2431751757,
+              "event_bytes": 1319868480,
+              "event_candidate_live_bound": 729168584,
+              "extra": 0,
+              "full_source_base": 2835170541,
+              "incoming_actual_descriptor_bytes": 0,
+              "incoming_actual_page_charge": 123481352,
+              "incoming_descriptors_frozen": 0,
+              "incoming_live_pages": 330196,
+              "incoming_rows": 42184118,
+              "interval_retained": 0,
+              "interval_transient": 0,
+              "packed_ref_sealed_credit": 446249792,
+              "source_key_growth": 0,
+              "timed_incoming_control_bytes": 16338752,
+              "transfer_exclusive_cell_scratch": 403418784
+            }
+          }
+        },
+        "counters": {
+          "moment_dict.decode_rows": [
+            567628,
+            75219100,
+            464
+          ],
+          "moment_dict.decode_saved_bytes": [
+            567628,
+            416092828,
+            3680
+          ],
+          "moment_dict.decode_shared_code_rows": [
+            542292,
+            71907368,
+            464
+          ],
+          "moment_dict.direct_interval_fallback": [
+            6804,
+            6804,
+            1
+          ],
+          "moment_dict.direct_interval_rows": [
+            227542,
+            30301858,
+            454
+          ],
+          "moment_dict.direct_interval_saved_bytes": [
+            227542,
+            188876268,
+            3616
+          ],
+          "moment_dict.direct_interval_shared_code_rows": [
+            218465,
+            29114990,
+            450
+          ],
+          "moment_dict.expired_source_key_growth_bytes": [
+            1,
+            0,
+            0
+          ],
+          "moment_dict.remainder_rows": [
+            93441,
+            16347604,
+            454
+          ],
+          "moment_dict.remainder_shared_codes": [
+            93441,
+            16347604,
+            454
+          ],
+          "moment_dict.remainder_shared_keys": [
+            623,
+            24452,
+            55
+          ],
+          "road.state_record_limit": [
+            1,
+            94438421,
+            94438421
+          ],
+          "road.state_rejected_logical_rows": [
+            1,
+            95601045,
+            95601045
+          ],
+          "split.edges": [
+            1085,
+            584469,
+            14033
+          ],
+          "split.in_rows": [
+            1085,
+            40922408,
+            2465719
+          ],
+          "split.out_packets": [
+            1085,
+            742406,
+            19121
+          ],
+          "split.out_rows": [
+            1085,
+            42182450,
+            2496317
+          ],
+          "split.shared_adjacent_key_rows": [
+            223425,
+            29297547,
+            627
+          ]
+        }
+      }
+    ],
+    "logical_candidate": 95601045,
+    "logical_limit": 94438421,
+    "byte_guard_exceedances": 0,
+    "environment_contract": "artifacts/v03_direct_receiving_20261128/S01_original_env.txt"
+  },
+  "runs": [
+    {
+      "start_s": 31140,
+      "recovered_s": 31200,
+      "advanced_s": 60,
+      "wall_s": 50.951758733,
+      "advance_s": 21.503560099,
+      "checkpoint_write_s": 16.788108254,
+      "peak_rss_bytes": 2175246336,
+      "max_traced_guard_required_bytes": 1822067969,
+      "guard_exceedances": 0,
+      "checkpoint_bytes": 831546370,
+      "checkpoint_sha256": "53f36d806a91342e4df8a9f3eddd762172d3d2d8d40e8fdb167a99f4e0c60252",
+      "journey_records": {
+        "dynamic_bytes": 159789872,
+        "egress": 1742788,
+        "enter": 1752182,
+        "history": 102460,
+        "history_bytes": 40164320,
+        "internal": 146424,
+        "nonempty_histories": 102460,
+        "stage_bytes": [
+          57559568,
+          57252864,
+          4813120
+        ]
+      },
+      "road_records": {
+        "cell_packets": 2925,
+        "cell_parts": 5607838,
+        "mixed_parts": 0,
+        "pending_packets": 0,
+        "pending_parts": 0,
+        "retained_storage_bytes": 106716640,
+        "uniform_parts": 5607838
+      },
+      "execution": "artifacts/v03_direct_receiving_20261128/S09_delay31200.json",
+      "recovery": "artifacts/v03_direct_receiving_20261128/S09_delay31200_recovery.json"
+    },
+    {
+      "start_s": 31200,
+      "recovered_s": 31380,
+      "advanced_s": 180,
+      "wall_s": 100.087023391,
+      "advance_s": 61.649503656,
+      "checkpoint_write_s": 26.775721256,
+      "peak_rss_bytes": 2702958592,
+      "max_traced_guard_required_bytes": 1823025425,
+      "guard_exceedances": 0,
+      "checkpoint_bytes": 830985874,
+      "checkpoint_sha256": "f260d464f8a117a8469fb2ac8e220b4fc6fc45ffbfbbd2894ada92383d24d3ed",
+      "journey_records": {
+        "dynamic_bytes": 159789872,
+        "egress": 1742778,
+        "enter": 1752182,
+        "history": 102460,
+        "history_bytes": 40164320,
+        "internal": 146424,
+        "nonempty_histories": 102460,
+        "stage_bytes": [
+          57559568,
+          57252864,
+          4813120
+        ]
+      },
+      "road_records": {
+        "cell_packets": 2926,
+        "cell_parts": 5607864,
+        "mixed_parts": 0,
+        "pending_packets": 0,
+        "pending_parts": 0,
+        "retained_storage_bytes": 106694128,
+        "uniform_parts": 5607864
+      },
+      "execution": "artifacts/v03_direct_receiving_20261128/S09_delay31380.json",
+      "recovery": "artifacts/v03_direct_receiving_20261128/S09_delay31380_recovery.json"
+    },
+    {
+      "start_s": 31380,
+      "recovered_s": 31980,
+      "advanced_s": 600,
+      "wall_s": 294.589757741,
+      "advance_s": 202.051419296,
+      "checkpoint_write_s": 40.150623967,
+      "peak_rss_bytes": 2912071680,
+      "max_traced_guard_required_bytes": 1822067969,
+      "guard_exceedances": 0,
+      "checkpoint_bytes": 830985874,
+      "checkpoint_sha256": "c36869661291a60de3e77f65ab0355b732b54e87fc9765a7afcbb364b49f9590",
+      "journey_records": {
+        "dynamic_bytes": 159789872,
+        "egress": 1742778,
+        "enter": 1752182,
+        "history": 102460,
+        "history_bytes": 40164320,
+        "internal": 146424,
+        "nonempty_histories": 102460,
+        "stage_bytes": [
+          57559568,
+          57252864,
+          4813120
+        ]
+      },
+      "road_records": {
+        "cell_packets": 2926,
+        "cell_parts": 5607864,
+        "mixed_parts": 0,
+        "pending_packets": 0,
+        "pending_parts": 0,
+        "retained_storage_bytes": 106694128,
+        "uniform_parts": 5607864
+      },
+      "execution": "artifacts/v03_direct_receiving_20261128/S09_delay31980.json",
+      "recovery": "artifacts/v03_direct_receiving_20261128/S09_delay31980_recovery.json"
+    }
+  ],
+  "matched_comparison": {
+    "status": "BYTE_IDENTICAL_CHECKPOINT",
+    "start_s": 31140,
+    "end_s": 31200,
+    "checkpoint_sha256": "53f36d806a91342e4df8a9f3eddd762172d3d2d8d40e8fdb167a99f4e0c60252",
+    "checkpoint_bytes": 831546370,
+    "reference_advance_s": 28.361911095,
+    "candidate_advance_s": 21.503560099,
+    "reference_wall_s": 57.499558795,
+    "candidate_wall_s": 50.951758733,
+    "reference_rss_bytes": 1985556480,
+    "candidate_rss_bytes": 2175246336,
+    "reference": "artifacts/v03_direct_receiving_20261128/S09_reference31200.json",
+    "candidate": "artifacts/v03_direct_receiving_20261128/S09_delay31200.json"
+  },
+  "native_b10": {
+    "status": "PURE_RUST_SCOPED",
+    "scope": "Native opt-in actual ready-head suffix and byte-identical replay, native graph deletion review, prior native lagged growth and next-epoch preparation. No occupied graph hot swap, whole-city endogenous routing or full-day acceptance claim.",
+    "historical_phase": {
+      "path": "artifacts/v03_marked_owner_20261127/S09_phase_parity.json",
+      "sha256": "a539fa90d97776be82955f79e82301821ce20f3450e3a4fe34078d1b7ee660e0"
+    },
+    "historical_lagged_growth": {
+      "path": "artifacts/v03_rust_atlas_integration_20261127/C07_next_epoch.json",
+      "sha256": "abc4023a262b914e2347bebb0b8a8bd84fef270aea69f3003de8097c01fceea1"
+    },
+    "tests": {
+      "path": "artifacts/v03_direct_receiving_20261128/S08_native.log",
+      "sha256": "80b463077df5cf944888eaee05e93b897227e6f12c95f9aecae7ce0843a2b5bf"
+    },
+    "graph_cli": [
+      {
+        "path": "artifacts/v03_direct_receiving_20261128/S09_graph_early.json",
+        "sha256": "30796f729f021d200b0a66d1dbfbd00c0608ae896e91a513b63ba5be6e9b4bc0"
+      },
+      {
+        "path": "artifacts/v03_direct_receiving_20261128/S09_graph_late.json",
+        "sha256": "7be2698b1dfa776bf457c034ed035a5cdddc4160c4ea24f2c99550dcc758d53a"
+      }
+    ],
+    "executable_sha256": "9640ce189a4397ad8ae8bb5f7fdf084404b4ca0a26af2a6a0127b839ddf997c6"
+  },
+  "native_b15": {
+    "status": "PREFIX_PAIR_VERIFIED",
+    "scope": "Native campaign executes preparation and simulation; independent successful and failed recovery, original frozen River 20s pair; never 8h/full-day acceptance",
+    "campaign_status": "PREFIX_ONLY_NOT_ACCEPTANCE",
+    "campaign": {
+      "path": "artifacts/v03_direct_receiving_20261128/S09_campaign_river.json",
+      "sha256": "7f5a1b9d13580f7aedf274d265d7ce5f111ed223de7e68f55976640fca38bbd1"
+    },
+    "runs": [
+      {
+        "step_s": 10,
+        "checkpoint_sha256": "e085af746d17aa0f8b81284ded3a271a4de71aa85613a5fe4b063932968eda09",
+        "manifest_sha256": "dfea9809dd226bf655fd2151959605b35bffa8c7179d5c1010bfc813fd2edb1f",
+        "execution_wall_s": 52.493056434,
+        "peak_rss_bytes": 2132946944,
+        "independent_recovery_wall_s": 38.520249778,
+        "ledger": {
+          "cargo_kg": {
+            "active": 0.0,
+            "completed": 0.0,
+            "pending": 0.0,
+            "released": 0.0,
+            "released_intent_first_moment": 0.0,
+            "requested": 0.0
+          },
+          "persons": {
+            "active": 0.0,
+            "completed": 0.0,
+            "pending": 0.0,
+            "released": 0.0,
+            "released_intent_first_moment": 0.0,
+            "requested": 0.0
+          },
+          "vehicles": {
+            "active": 0.0,
+            "completed": 0.0,
+            "pending": 0.0,
+            "released": 0.0,
+            "released_intent_first_moment": 0.0,
+            "requested": 0.0
+          }
+        }
+      },
+      {
+        "step_s": 5,
+        "checkpoint_sha256": "ee7e46a2215c355a932b20229c0b4fca2a725387037b5c3dcde85340ecb9bb77",
+        "manifest_sha256": "62724c183fa2d6f78ca62e70ff02124b1bd4fb544697a82b0869170c76134410",
+        "execution_wall_s": 63.960874909,
+        "peak_rss_bytes": 2133303296,
+        "independent_recovery_wall_s": 55.664246167,
+        "ledger": {
+          "cargo_kg": {
+            "active": 0.0,
+            "completed": 0.0,
+            "pending": 0.0,
+            "released": 0.0,
+            "released_intent_first_moment": 0.0,
+            "requested": 0.0
+          },
+          "persons": {
+            "active": 0.0,
+            "completed": 0.0,
+            "pending": 0.0,
+            "released": 0.0,
+            "released_intent_first_moment": 0.0,
+            "requested": 0.0
+          },
+          "vehicles": {
+            "active": 0.0,
+            "completed": 0.0,
+            "pending": 0.0,
+            "released": 0.0,
+            "released_intent_first_moment": 0.0,
+            "requested": 0.0
+          }
+        }
+      }
+    ],
+    "full_days_completed": 0,
+    "full_days_required": 9,
+    "original_8h_completed": 0,
+    "original_8h_required": 3,
+    "native_cli": {
+      "path": "artifacts/v03_direct_receiving_20261128/S09_native_dependencies.txt",
+      "sha256": "ccd1147e4cd99e60e64ba96a3dbf44c2780c579e5fd1a76c0f7209379aa19f78"
+    }
+  },
+  "allocation_probes": [
+    {
+      "iterations_per_kernel": 1000000,
+      "journey_fsum": {
+        "allocation_calls": 0,
+        "last_value": 3.5,
+        "reallocation_calls": 0,
+        "wall_s": 0.051287694
+      },
+      "link_step": {
+        "allocation_calls": 0,
+        "final_counts": {
+          "admitted": 1000000.0,
+          "departed": 999997.0,
+          "on_link": 3.0,
+          "pending": 0.0,
+          "requested": 1000000.0,
+          "residence_veh_s": 2999994.0
+        },
+        "reallocation_calls": 0,
+        "wall_s": 0.012048754
+      },
+      "scope": "single process, initialized ring, tested six-term finite cancellation input; other inputs may spill; no full-engine zero heap claim"
+    },
+    {
+      "allocation_calls": 0,
+      "iterations": 100000,
+      "kernel": "marked_fifo_diverge_step",
+      "metrics": {
+        "age_identity_residual": [
+          -5.820766091346741e-11,
+          -1.4551915228366852e-11
+        ],
+        "blocked_mixed_ticks": 14285,
+        "completed_elapsed_veh_s": [
+          248561.39999965587,
+          82853.80000013339
+        ],
+        "exited": {
+          "birth": [
+            2999790003.6,
+            999930001.2
+          ],
+          "mass": [
+            59997.599999901235,
+            19999.200000037694
+          ]
+        },
+        "max_birth_residual": 2.3178290575742722e-07,
+        "max_mass_residual": 7.275513524973576e-12,
+        "on_link": {
+          "birth": [
+            239996.4,
+            79998.8
+          ],
+          "mass": [
+            2.4,
+            0.8
+          ]
+        },
+        "peak_pending_veh": 0.0,
+        "peak_queue_rows": [
+          1,
+          3,
+          3,
+          3
+        ],
+        "pending": {
+          "birth": [
+            0.0,
+            0.0
+          ],
+          "mass": [
+            0.0,
+            0.0
+          ]
+        },
+        "requested": {
+          "birth": [
+            3000030000.0,
+            1000010000.0
+          ],
+          "mass": [
+            59999.99999990123,
+            20000.000000037697
+          ]
+        },
+        "reserved_queue_payload_bytes": 36000160,
+        "residence_veh_s": [
+          248564.99999965585,
+          82855.00000013338
+        ],
+        "time_s": 100000.0
+      },
+      "reallocation_calls": 0,
+      "scope": "preallocated marked network; 2 classes, unequal footprints, intermittent receiving restriction; no full V03 zero heap claim",
+      "wall_s": 0.017355961
+    },
+    {
+      "allocation_calls": 0,
+      "checksum": 2594073418108802610,
+      "iterations": 1000000,
+      "kernel": "packed_reference_and_event_random_access",
+      "reallocation_calls": 0,
+      "scope": "initialized exact packed ranks and event pages; encoding allocates per sealed page",
+      "sealed_saved_bytes": [
+        671744,
+        1459552
+      ],
+      "wall_s": 0.0250209
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        1.0,
+        3.0
+      ],
+      "iterations": 1000000,
+      "kernel": "rank_positive_mass_birth_accumulation",
+      "reallocation_calls": 0,
+      "scope": "actual compensated per-mark accumulator; excludes sort and packet output allocations",
+      "wall_s": 0.016371824
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        0.5,
+        4.75,
+        0.5,
+        10.375
+      ],
+      "iterations": 1000000,
+      "kernel": "warmed_receipt_grid_bucket",
+      "reallocation_calls": 0,
+      "scope": "actual warmed bucket insertion and inline positive mass/moment sums; output history and source visitor excluded",
+      "wall_s": 0.03101163
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        13.875,
+        1.0
+      ],
+      "iterations": 1000000,
+      "kernel": "transactional_receipt_accumulator",
+      "reallocation_calls": 0,
+      "scope": "actual fixed inline positive completion measure; excludes transaction scratch initialization, Arc history replacement and output",
+      "wall_s": 0.03484267
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        2.0,
+        1.0
+      ],
+      "iterations": 1000000,
+      "kernel": "warmed_egress_retirement_buckets",
+      "reallocation_calls": 0,
+      "scope": "actual warmed per-leg outlet law product projection from four products into two retirement buckets; stage output append excluded",
+      "wall_s": 0.173018258
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        2.0,
+        2.0,
+        2.0
+      ],
+      "iterations": 1000000,
+      "kernel": "warmed_entry_access_projection",
+      "reallocation_calls": 0,
+      "scope": "actual preallocated per-proposal access projection, four law products to two consumption ticks; excludes initialization, queue output and periodic sweep",
+      "wall_s": 0.319418861
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        1.5,
+        5.0,
+        15.5
+      ],
+      "iterations": 1000000,
+      "kernel": "protected_delay_calendar_cell",
+      "reallocation_calls": 0,
+      "scope": "actual inline positive mass/birth/ready moment reduction and observer checks; partition output and tail sort excluded",
+      "wall_s": 0.155570873
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        224,
+        6
+      ],
+      "iterations": 100000,
+      "kernel": "bit_pair_dictionary_plan_lookup",
+      "reallocation_calls": 0,
+      "scope": "actual fixed stack plan of 32 input rows and 4 bit-distinct pairs; output dictionary Vecs excluded",
+      "wall_s": 0.00884725
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        224,
+        32
+      ],
+      "iterations": 100000,
+      "kernel": "direct_dictionary_ordinal_reuse",
+      "reallocation_calls": 0,
+      "scope": "fixed stack first occurrence plan, full matching and mismatch rejection; new output Vec/Arc allocation excluded",
+      "wall_s": 0.020821664
+    },
+    {
+      "allocation_calls": 0,
+      "checksum": [
+        3,
+        13799029258263199744
+      ],
+      "iterations": 1000000,
+      "kernel": "outlet_group_and_stack_wire",
+      "reallocation_calls": 0,
+      "scope": "actual fixed-slice grouped outlet and stack word writer; no allocation for tested small fsum; full histories may spill",
+      "wall_s": 0.056667007
+    }
+  ],
+  "rational_oracle": {
+    "status": "PASS",
+    "arithmetic": "Fraction",
+    "seed": 20261128,
+    "cases": 512,
+    "marked_windows": 287768,
+    "point_atoms": 811,
+    "code_ordinal_checks": 65536,
+    "scope": "exact rational common refinement and independent first-occurrence ordinal partition; not full floating dynamics"
+  },
+  "rank_prefix_oracle": {
+    "status": "PASS",
+    "seed": 20261128,
+    "exact_fraction_cases": 7221,
+    "prefix_endpoint_checks": 67287,
+    "sharp_example": {
+      "error": "1/2",
+      "bound": "1/2"
+    },
+    "adaptive_example": {
+      "raw_cells": 64,
+      "retained_bins": 6,
+      "local_prefix_tolerance_veh": "1/64",
+      "max_certified_error_veh": "0"
+    },
+    "scope": "nonnegative piecewise constant density local rank/admission bins; integral conservation and prefix error; no global junction or binary64 equivalence claim"
+  },
+  "validation": {
+    "native_lib_pass": 298,
+    "native_lib_ignored": 2,
+    "campaign_bin_pass": 2,
+    "headless_pass": 9,
+    "native_release_bins": "PASS",
+    "full_repository_ci": "NOT_RUN_DEFERRED_BY_USER",
+    "native_subagent": "NOT_RUN_NO_TOOL",
+    "source_diff_check": "PASS",
+    "checkpoint_binding": "on-disk SHA, manifest, executable, native identity and ledgers checked",
+    "red_green": "S03 direct receiving RED/GREEN; S04-S08 implementation tests after changes"
+  },
+  "limits": {
+    "address_space_bytes": 8589934592,
+    "accounting_bytes": 6442450944,
+    "original_wall_s_per_case": 7200,
+    "full_day_cases_completed": 0,
+    "full_day_cases_required": 9
+  },
+  "full_day_acceptance": "BLOCKED_LOGICAL_RECORD_CAP_AND_ACCEPTANCE_0_OF_9",
+  "limitations": [
+    "No original25760 committed; record cap not changed; physical row count not reduced by dictionary.",
+    "B10 scoped native policy and review only; arbitrary graph replacement and city-wide endogenous route selection remain.",
+    "B15 native campaign prefix pair, no full-day or original 8h acceptance.",
+    "Only 60s delay matched old binary; longer same-identity continuation separately recovered. Shared host timings not isolated performance proof.",
+    "No whole-engine zero heap, no full CI/main merge, no independent native subagent."
+  ],
+  "next_action": "V03: preserve original 6GiB/8GiB/7200s limits and frozen matrix, logical cap unchanged this round. Candidate25760 has 95601045 logical rows against94438421; all traced byte guards passed. Prior exact compression cannot change row multiplicity. Construct exact persistent marked rank/span interval view with proof of ordered numerical operators and wire reconstruction; separately audit legacy dense Part count proxy vs actual work/memory, require explicit review before changing any guard; no silent cap increases. Distinct adaptive density-bounded bin model with protected causal cuts, marked prefix error min(M,h*osc/4), test node stability, long matched physical runs and resolution refinement. B15 native runner implemented with independent successful recovery, actual River20s dt10/dt5; acceptance partial until 3x3 24h and all 3 8h comparisons. B10 scoped single ready-head policy/predeclared variants, conservative graph deletion review, not arbitrary endogenous graph install. Extend full-city policy and new identity graph transaction when drained, evening return, durable delta checkpoint and full CI/main integration per user approval.",
+  "evidence_files": {
+    "artifacts/v03_direct_receiving_20261128/S01_identity.txt": "d3c8cc1361741f0562526880fc38be6da49a059433f5a89b2c409c7a8bedae83",
+    "artifacts/v03_direct_receiving_20261128/S01_original_env.txt": "7431b370c091b96dff167d048a3ca812757ecc22c912c20d9e8f53f61ed2a4e7",
+    "artifacts/v03_direct_receiving_20261128/S01_readiness.json": "4511604be8733b2733fc62225794831cb59f41b45b946c324dab2d75ed46a84c",
+    "artifacts/v03_direct_receiving_20261128/S02_cas.txt": "8d3cc50cab6291739a72eef60c9022da25f8aa991f337ec1623f292449bf365e",
+    "artifacts/v03_direct_receiving_20261128/S03_binary.sha256": "160bd3752f240e37bb7c81aa80f8e89de7fce55b8b0bf84bb6130e1a1df21769",
+    "artifacts/v03_direct_receiving_20261128/S03_build.log": "fb083da057744a91f9028b47ead733c35a4e856edbc458553e39dcfef7ab0433",
+    "artifacts/v03_direct_receiving_20261128/S03_green.log": "26b2bc6610b9aefe82a4d9fc04a7e7c16e62422b068f2defb9f59c8ddb46c109",
+    "artifacts/v03_direct_receiving_20261128/S03_red.log": "73989af1c65ad2a6346978ed6d3b72fde44a72afd11c8ce8402bdd0dc94337ee",
+    "artifacts/v03_direct_receiving_20261128/S04_original25760.json": "5cdd5448c7970c114a01bbcac79b9f2bebb239d85f1565cb9fff15f6212d9079",
+    "artifacts/v03_direct_receiving_20261128/S04_original_process.txt": "e29850c0a808d3b2ef1da6f6eced17116a7a440f053e07dccaaef1c78ebe1820",
+    "artifacts/v03_direct_receiving_20261128/S04_phase_test.log": "fa8964aaf1151aa129dca36222958280dc6bff196770806fd3ad3fd9b1ac797e",
+    "artifacts/v03_direct_receiving_20261128/S05_binary.sha256": "3b4f43f5b60efa758775eb0ec30c93c15f22c52e1e12abdf3016173e055ab895",
+    "artifacts/v03_direct_receiving_20261128/S05_build.log": "20903eca07b0d94d4ad719e9d22c233a6d0385d40b71d5b3d789fb0ff406d112",
+    "artifacts/v03_direct_receiving_20261128/S05_native.log": "9de0c946fa3ffafd0f4010e0f263ba201059cfe33f9966e14f62b3373e9e77d8",
+    "artifacts/v03_direct_receiving_20261128/S06_graph_test.log": "505cdd9ab27ff256a13f73d006030078737c49baf8790ff6cb5d6fb848fffc91",
+    "artifacts/v03_direct_receiving_20261128/S06_original25760.json": "ae93e83e83dc795923b9e2464df044522692b808dafc439a2b7961f5b57aa061",
+    "artifacts/v03_direct_receiving_20261128/S06_original_process.txt": "2eb905a8b2069a65cf24297ff91a3c8c318395836acad1517d1764feea5a46dd",
+    "artifacts/v03_direct_receiving_20261128/S07_campaign_test.log": "abd43d6d0f0a2be29ad04c94edbfaef91de8d590896198b2fc218b810a64903f",
+    "artifacts/v03_direct_receiving_20261128/S08_binaries.sha256": "5b3bcc793bf12f95e95bf341b51da5f6a916b7f6048d2dbf9524454c3d383aa6",
+    "artifacts/v03_direct_receiving_20261128/S08_build.log": "fc8d48125d6840b73e627b34dc7776f2f17657a32e29d6579767e787d0630e24",
+    "artifacts/v03_direct_receiving_20261128/S08_campaign.log": "4733322a61ad8d56879dc5b00b239aa2c299abd16e70f736c1c4879a594b2da2",
+    "artifacts/v03_direct_receiving_20261128/S08_exact_oracle.json": "c9e7071092ab597e611916452f77a6866e7ac5f4fb33c0d46a0e2771a2bc5021",
+    "artifacts/v03_direct_receiving_20261128/S08_headless.log": "b625865adce291b7b5c8099cdbdced8cb82b0d89ecbf11e7271f477992944a9e",
+    "artifacts/v03_direct_receiving_20261128/S08_native.log": "80b463077df5cf944888eaee05e93b897227e6f12c95f9aecae7ce0843a2b5bf",
+    "artifacts/v03_direct_receiving_20261128/S08_zero_alloc.jsonl": "785f474e2c82fef96d7f506dd4c470a809b97983dbdad03a2b953253b065bb8f",
+    "artifacts/v03_direct_receiving_20261128/S09_b10_evidence.json": "cb9bd6dcf305053c2af5590bea0bf93e379b0cfc9eaf9e1b290a71a0b9968874",
+    "artifacts/v03_direct_receiving_20261128/S09_b15_evidence.json": "43bb8e262363dec424558e979df59a4b77b4f0c948d72a253a76239926b3d0eb",
+    "artifacts/v03_direct_receiving_20261128/S09_campaign_river.json": "7f5a1b9d13580f7aedf274d265d7ce5f111ed223de7e68f55976640fca38bbd1",
+    "artifacts/v03_direct_receiving_20261128/S09_campaign_river_dt10_execution.json": "5decd4292cfbd626eb1a329b4375eb57c436af454990d9040f105b6308624fe0",
+    "artifacts/v03_direct_receiving_20261128/S09_campaign_river_dt10_prepare.json": "ec437c7d4c79fe57ffb376ea556720628e0fc5d926e840064be945640c70d5e9",
+    "artifacts/v03_direct_receiving_20261128/S09_campaign_river_dt10_recovery.json": "63979e3b0aa470ab6ea50ea748ddd4224438e6dfeac952fc31030bc89ebfd4b5",
+    "artifacts/v03_direct_receiving_20261128/S09_campaign_river_dt5_execution.json": "dcca55f47b3f96da10426d098622ca6db6aec2a5a0cb2358a8337b613a28c5ff",
+    "artifacts/v03_direct_receiving_20261128/S09_campaign_river_dt5_prepare.json": "866fda630fa69c6ad0bca2f4593b547d49905552eaa8c9c793e6586b83ba53c4",
+    "artifacts/v03_direct_receiving_20261128/S09_campaign_river_dt5_recovery.json": "6183058e3b4095342c47e0f8419cc159afaae289a2d38244f83013ffe1dc40f1",
+    "artifacts/v03_direct_receiving_20261128/S09_delay31200.json": "fe3cd47d41608de4c263fcc7aa67ee3b4ac7fe15660278011d12e04642c1461e",
+    "artifacts/v03_direct_receiving_20261128/S09_delay31200_recovery.json": "6d2be306430534ba79924e6ae188d42c2a60476a44d5bcf1ccfe3ca7a8534579",
+    "artifacts/v03_direct_receiving_20261128/S09_delay31380.json": "1a19642fb515aefd622091d0968c455e913c8b6dda1a276694fbbeb538533b0a",
+    "artifacts/v03_direct_receiving_20261128/S09_delay31380_recovery.json": "8ae82c6b954e5761c252d5c35d6266cb6dfd2edf70656452819edc6cc6c1600b",
+    "artifacts/v03_direct_receiving_20261128/S09_delay31980.json": "8f90d30e6e72672b9d68eacaba02022ada9b0c8e24075511ebafb195e8385c47",
+    "artifacts/v03_direct_receiving_20261128/S09_delay31980_recovery.json": "d719aa8ec341ace86ccb8a0b4f15de5eb2fc1ba44e6224378bf14c39713483b5",
+    "artifacts/v03_direct_receiving_20261128/S09_graph_early.json": "30796f729f021d200b0a66d1dbfbd00c0608ae896e91a513b63ba5be6e9b4bc0",
+    "artifacts/v03_direct_receiving_20261128/S09_graph_early_run.json": "817158b847df92070bfd3f94f69e14d434c7105a2a8d893830e9dff8d84e625b",
+    "artifacts/v03_direct_receiving_20261128/S09_graph_late.json": "7be2698b1dfa776bf457c034ed035a5cdddc4160c4ea24f2c99550dcc758d53a",
+    "artifacts/v03_direct_receiving_20261128/S09_graph_late_run.json": "a9801d1a5fd693b09c03b8290764aae6f5a894093d0dd34e6b4b7765638ff98b",
+    "artifacts/v03_direct_receiving_20261128/S09_graph_remove.json": "b43386e1d765fb3c81649874dd7a2bac6cc2a4a0b2fca123c1a37c06abbcf59e",
+    "artifacts/v03_direct_receiving_20261128/S09_matched31200.txt": "9bfce1cee23a0ee0078b667fc89b20467664bb8f6e6d992e69485d38edbb953e",
+    "artifacts/v03_direct_receiving_20261128/S09_native_cargo_tree.txt": "c51bd39f3fff95c6419c9f565e63ef491ada928cedbb51e7ff8ddd02d328f111",
+    "artifacts/v03_direct_receiving_20261128/S09_native_dependencies.txt": "ccd1147e4cd99e60e64ba96a3dbf44c2780c579e5fd1a76c0f7209379aa19f78",
+    "artifacts/v03_direct_receiving_20261128/S09_original25760.json": "43f7d8b000414460caeee2d9745b79c913b7356621e09fa649c269acf7214a36",
+    "artifacts/v03_direct_receiving_20261128/S09_original_process.txt": "c61a65c883a337a10c749cc83263863c254e4568f53f4be9383a8ed6cc9b3075",
+    "artifacts/v03_direct_receiving_20261128/S09_original_recovery.json": "42332f67d1c0b98598afa80440658cef35e828d7911c33ead1c96b90e9099e39",
+    "artifacts/v03_direct_receiving_20261128/S09_progressive_summary.json": "8599f2be8ad155d42f9f97b19cec9724d9626f1d51f568d01ad4846b02fb4916",
+    "artifacts/v03_direct_receiving_20261128/S09_rank_bound_oracle.json": "caaaf692c2b209155c8bbf9052c5eae19c7415929aecfbac78f2c0f9a7be4618",
+    "artifacts/v03_direct_receiving_20261128/S09_reference31200.json": "82df9c3d577dcacffe9a49119d03b3c2c285649feb8a2bfd41026b305a949451",
+    "artifacts/v03_direct_receiving_20261128/S09_reference31200_recovery.json": "4e36538d91c64359a49847114b4c73159a1aef309ae3452d4ed915786c175b9e",
+    "artifacts/v03_direct_receiving_20261128/S09_tracked_rust_sources.sha256": "97ab14a51c8707c2a050ad20c6adc633497df0e2c1ae7502e5884b39503ef8f7",
+    "artifacts/v03_direct_receiving_20261128/S10_backend_coverage.json": "ecc8bc53ebdb05c8ac40c8e7b374dbefa89b47171fba2db7daa15a9b15f87f38",
+    "artifacts/v03_direct_receiving_20261128/S10_readiness.json": "15328fcb789b87b8f43f951aea245e2b6afc50366bbdc93577fdecd1cc245aef"
+  }
+}

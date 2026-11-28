@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.52**, 2026-11-28. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.53**, 2026-11-28. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -2122,7 +2122,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-V03/B15: preserve original 6GiB/8GiB/7200s caps, all 3x3 original days and 8h refinement. Original 25760 passed source and transfer, now blocked timed incoming exact group allocation with 721499904 B interval_retained. Move bit-pair compression into ordered_interval_packet at production, not delayed end-of-tick interning; charge dense+dictionary overlap or plan directly in bounded passes, share keys, retain actual capacities, preserve bit-exact reduction/order and wire expansion. Verify interval-local density/mark transport and receiving lifetime, replay 25760 from bound checkpoint with identical flags and original ledger. No guard shaving. Extend persistent marked-rank views to reduce logical operation count; dictionary alone is not a logical-row closure. Delay calendar: persistent per-leg clock expansion and restart partition indexes, long matched return/5s vs 10s, durable delta snapshot with fsync/atomic manifest. Actual 3600s/8h/24h and River/Coastal remain; B10 endogenous graph/route edits and full CI/main integration remain. Do not alter original acceptance.
+V03: preserve original 6GiB/8GiB/7200s limits and frozen matrix, logical cap unchanged this round. Candidate25760 has 95601045 logical rows against94438421; all traced byte guards passed. Prior exact compression cannot change row multiplicity. Construct exact persistent marked rank/span interval view with proof of ordered numerical operators and wire reconstruction; separately audit legacy dense Part count proxy vs actual work/memory, require explicit review before changing any guard; no silent cap increases. Distinct adaptive density-bounded bin model with protected causal cuts, marked prefix error min(M,h*osc/4), test node stability, long matched physical runs and resolution refinement. B15 native runner implemented with independent successful recovery, actual River20s dt10/dt5; acceptance partial until 3x3 24h and all 3 8h comparisons. B10 scoped single ready-head policy/predeclared variants, conservative graph deletion review, not arbitrary endogenous graph install. Extend full-city policy and new identity graph transaction when drained, evening return, durable delta checkpoint and full CI/main integration per user approval.
 
 **예산·종료조건**
 
@@ -2306,11 +2306,11 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "V03"
   ],
   "native_subagent": "NOT_RUN_NO_TOOL",
-  "scope": "S01-S10: original 25750 dictionary-enabled independent recovery; 75,219,100 decoded rows, 344,185,460 B saved; source preflight 3,175,518,903 B, transfer max 4,018,728,439 B under 4,533,044,215 B, 584,088 checks zero exceedances; 25760 blocked timed incoming exact group allocation 4,533,180,239 B. Distinct same-identity delay model matched 30600 byte-identical and independently recovered30600/30780/31140, 600s new/5820s ancestry; stable bounded clock scatter removes ordered generation sorts, no measured speedup. Native295/headless9, pure Rust13/15 scoped, original full-day0/9.",
+  "scope": "S01-S10: original25750 independently recovered; direct dictionary 30301858 receiving rows/188876268 B saved, 29114990 code-sharing rows; decode saved416092828 B, all traced byte guards pass, rejected logical rows95601045>94438421; no original new tick. Same delay identity matched31200 byte-identical, recovered 31980, 840s new/6660s ancestry. B10 causal actual ready-head, replay, graph review and prior lagged growth native scoped, B15 actual original River20s dt10/dt5 independently recovered no acceptance credit. Native298, campaign2, headless9, pure Rust14/15 scoped; full-day0/9.",
   "full_repository_ci": "DEFERRED_BY_USER",
-  "full_day_100k": "BLOCKED_RESOURCE_AND_MIGRATION_0_OF_9",
+  "full_day_100k": "BLOCKED_LOGICAL_RECORD_CAP_AND_ACCEPTANCE_0_OF_9",
   "main_modified": false,
-  "evidence": "artifacts/v03_marked_payload_20261128/S10_RESEARCH_RECEIPT.json",
+  "evidence": "artifacts/v03_direct_receiving_20261128/S10_RESEARCH_RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
@@ -2319,20 +2319,20 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "status": "success"
   },
   "parallel_agents": [],
-  "active_branch": "research/v03-marked-payload-20261128",
-  "production_commit": "fbb154591012e30e902fc197bbea03a6da6658bd",
+  "active_branch": "research/v03-direct-receiving-20261128",
+  "production_commit": "25dde188d46b646c43b06698fb36261d4216ae27",
   "research_stages_completed": 10,
   "research_stages_total": 10,
-  "source_commit": "fbb154591012e30e902fc197bbea03a6da6658bd",
-  "native_source_sha256": "41b472a0e75463af28dfa1bb056c3622345377cd6a263bc36b34102b77b28f97",
-  "native_binary_sha256": "b55db04ea6a8ca1083375e1fa0e681cb26fb0211e41a6d98e2fa90bf97f93137",
+  "source_commit": "25dde188d46b646c43b06698fb36261d4216ae27",
+  "native_source_sha256": "97ab14a51c8707c2a050ad20c6adc633497df0e2c1ae7502e5884b39503ef8f7",
+  "native_binary_sha256": "9640ce189a4397ad8ae8bb5f7fdf084404b4ca0a26af2a6a0127b839ddf997c6",
   "current_loop_stages_completed": 10,
   "current_loop_stages_total": 10,
   "current_loop_native_subagent": "NOT_RUN_NO_TOOL",
-  "native_source_hash_method": "SHA256 of tracked Rust source manifest at S09; measured binaries bound individually in receipts",
-  "native_binary_feature": "native-cli no Python; final S09 bound; opt-in exact moment dictionary",
-  "rust_backend_scoped": "13/15 pure Rust scoped; 2 partial; zero unported; original recovered25750",
-  "theory_loop_scope": "Marked FIFO rank restriction and exact bit-pair factorization, phase-local source admission, exact clock scatter; distinct research identity, original acceptance unchanged"
+  "native_source_hash_method": "SHA256 of tracked Rust source manifest generated at S09; per-executable binding in receipts",
+  "native_binary_feature": "native-cli no Python; direct dictionary opt-in; native ready suffix/graph review/campaign",
+  "rust_backend_scoped": "14/15 pure Rust scoped; B15 partial; zero unimplemented; original recovered25750",
+  "theory_loop_scope": "Marked interval common refinement, direct bit-pair emission and ordinal reuse, local adaptive prefix bound; causal actual ready-head routing and native graph review; original acceptance unchanged"
 }
 ```
 
