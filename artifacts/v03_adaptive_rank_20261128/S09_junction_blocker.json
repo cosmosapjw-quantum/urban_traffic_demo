@@ -1,0 +1,19 @@
+{
+  "status": "BLOCKED_WORK_EVENT_COUNT",
+  "attempt_s": 25780,
+  "start_s": 25760,
+  "recovered_s": 25760,
+  "guard_source": "crates/metroflow-rust/src/v1_road.rs:4711-4718",
+  "junction_iterations_limit": 20000,
+  "first_rejected_iteration": 20001,
+  "byte_guards_exceeded": 0,
+  "checkpoint_sha256": "65017b6f31149ac355609b45bab53510608359568a9f88a6d40729cf52ec183d",
+  "failure": {
+    "kind": "Resource",
+    "message": "packet junction budget"
+  },
+  "all_junction_transfer_calls": 64791,
+  "note": "transfer calls are total across junctions, not per-junction iterations. Failed junction id, head count and retirement/future/exhaustion counts not recorded; cannot distinguish genuine event count from non-progress by this receipt alone. No cap change.",
+  "next_measurement": "Per-junction ready-head count, retired heads, new-ready events, receiving/free-space exhaustion, clock steps and sub-ulp progress. Prove structural bound and batch only identical-rate causal spans with exact order/observables; do not remove guard.",
+  "all_junction_transfer_head_rows": 8091968
+}

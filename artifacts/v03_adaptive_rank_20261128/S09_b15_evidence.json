@@ -1,0 +1,38 @@
+{
+  "status": "PARTIAL",
+  "scope": "Native B15 runner now validates optional full logical digest on both execution and independent recovery; actual active fixture360 and exact original25750 wire parity. Prior frozen River20s dt10/dt5 prefix verified. Full-day/refinement unaccepted.",
+  "execution": "artifacts/v03_adaptive_rank_20261128/S09_fixture_execution.json",
+  "recovery": "artifacts/v03_adaptive_rank_20261128/S09_fixture_recovery.json",
+  "canonical_logical_sha256": "2294fe0bcbb2e8011b86fd9f9352589268561ea36cb1c8c8d9791a24b569cdcc",
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 100.0,
+      "pending": 0.0,
+      "released": 100.0,
+      "released_intent_first_moment": 750.0,
+      "requested": 100.0
+    },
+    "persons": {
+      "active": 0.0,
+      "completed": 20.0,
+      "pending": 0.0,
+      "released": 20.0,
+      "released_intent_first_moment": 500.00000000000006,
+      "requested": 20.0
+    },
+    "vehicles": {
+      "active": 0.0,
+      "completed": 13.06,
+      "pending": 0.0,
+      "released": 13.06,
+      "released_intent_first_moment": 324.75000000000006,
+      "requested": 13.06
+    }
+  },
+  "prior_evidence": "artifacts/v03_direct_receiving_20261128/S09_b15_evidence.json",
+  "prior_evidence_sha256": "43bb8e262363dec424558e979df59a4b77b4f0c948d72a253a76239926b3d0eb",
+  "native_cli_sha256": "36110d1515f33cf503bfb43634195ee76f0745b84fb8c8874a3403366667ba22",
+  "original_full_days_accepted": 0,
+  "original_8h_refinement_completed": 0
+}

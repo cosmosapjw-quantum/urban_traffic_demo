@@ -1,0 +1,48 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "checkpoint_bytes": 830985904,
+  "checkpoint_sha256": "c137403500e43d70281628adc44fe63ab201e5933c55afa36bd6f58f756d8ddd",
+  "executable_sha256": "035e3559f36d4b33a7f3b98464790cba0c02e19c1588ac42c672902855104f3e",
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 3302.979030429193,
+      "completed": 21945.758764701266,
+      "pending": 16834.595538202666,
+      "released": 25248.73779513046,
+      "released_intent_first_moment": 726497791.2906252,
+      "requested": 42083.333333333125
+    },
+    "vehicles": {
+      "active": 2642.012833988956,
+      "completed": 17524.653832678152,
+      "pending": 454.1666666659112,
+      "released": 20166.666666667108,
+      "released_intent_first_moment": 580268166.6666679,
+      "requested": 20620.83333333302
+    }
+  },
+  "manifest_sha256": "433d2036f8efe0238f7e84df569624933a7598eb7ce69719e48a50220d0d41e1",
+  "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1:delay-calendar-v1:causal-adaptive-rank-v1:4:500",
+  "peak_rss_bytes": 742252544,
+  "python_runtime_dependency": "none",
+  "research_rank_adaptive": [
+    4,
+    500
+  ],
+  "schema": "metroflow_adaptive_rank_migration_v1",
+  "scope": "same initial owners; future causal transport delay-constrained rank remap; not original V03 acceptance",
+  "source_checkpoint_sha256": "c36869661291a60de3e77f65ab0355b732b54e87fc9765a7afcbb364b49f9590",
+  "source_manifest_sha256": "70a055a27b4833adf6569203113690455bdc5759263e607b87d8766850d2f232",
+  "source_native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1:delay-calendar-v1",
+  "status": "EXECUTED_FOR_REVIEW",
+  "time_s": 31980.0,
+  "wall_s": 60.311146614
+}

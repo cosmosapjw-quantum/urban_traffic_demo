@@ -1,0 +1,9 @@
+{
+  "status": "TIMEOUT",
+  "exit_code": 124,
+  "timeout_s": 200,
+  "scope": "per-cell/tag full state diagnostic from same source fixed1/adaptive4; no result; independent aggregates and recovery verified",
+  "retry_exit_code": 0,
+  "retry_timeout_s": 240,
+  "retry_status": "COMPLETE"
+}

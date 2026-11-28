@@ -1,0 +1,48 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "checkpoint_bytes": 2159988024,
+  "checkpoint_sha256": "09377033d4675379e28d2b01bbf0a07bb386696faa2b0467160caa24dd0afbbe",
+  "executable_sha256": "e1bea5b7ffb2388c908c97f4878cd819b10090f1975a66ff0777d6258afb3992",
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 1672.502809326112,
+      "completed": 130.38226959891634,
+      "pending": 1252.6704766304547,
+      "released": 1802.8850789250282,
+      "released_intent_first_moment": 45919482.96021985,
+      "requested": 3055.555555555483
+    },
+    "vehicles": {
+      "active": 1337.7059649434718,
+      "completed": 102.29403505655051,
+      "pending": 57.222222222158734,
+      "released": 1440.0000000000223,
+      "released_intent_first_moment": 36676800.000000395,
+      "requested": 1497.222222222181
+    }
+  },
+  "manifest_sha256": "fd98b49fbe11a447d9c1d7320244906cc7a18d157a795624ac8019699b27af4b",
+  "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-adaptive-rank-v1:4:500",
+  "peak_rss_bytes": 2491367424,
+  "python_runtime_dependency": "none",
+  "research_rank_adaptive": [
+    4,
+    500
+  ],
+  "schema": "metroflow_adaptive_rank_migration_v1",
+  "scope": "same initial owners; future causal transport delay-constrained rank remap; not original V03 acceptance",
+  "source_checkpoint_sha256": "3f9ce8a967d39c0110fe521f299100d71d2698b10a419cb2dfc0f47c443e54e0",
+  "source_manifest_sha256": "2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3",
+  "source_native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3",
+  "status": "EXECUTED_FOR_REVIEW",
+  "time_s": 25750.0,
+  "wall_s": 109.943156146
+}
