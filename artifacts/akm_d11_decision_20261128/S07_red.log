@@ -1,0 +1,24 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+___________________________ test_native_d11_decision ___________________________
+
+    def test_native_d11_decision():
+        raw = PATH.read_bytes()
+        data = json.loads(raw)
+>       view = read_akm_decision(PATH, expected_sha256=hashlib.sha256(raw).hexdigest())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/v1/test_akm_decision_frontend.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/akm_d11_decision_20261128/S06_decision.json')
+expected_sha256 = '88a8ff95a1082913d3e0abed85783b0bd60068398420c84ceb8a3d82bc93f1d3'
+
+    def read_akm_decision(path: str | Path, *, expected_sha256: str | None = None) -> AKMDecisionView:
+>       raise ValueError("unsupported AKM decision schema")
+E       ValueError: unsupported AKM decision schema
+
+src/metroflow/ui/akm_receipts.py:114: ValueError
+=========================== short test summary info ============================
+FAILED tests/v1/test_akm_decision_frontend.py::test_native_d11_decision - Val...
+1 failed, 1 deselected in 0.32s

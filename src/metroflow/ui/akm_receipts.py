@@ -99,3 +99,30 @@ def read_akm_receipt(path: str | Path, *, expected_sha256: str | None = None) ->
             times[-1], data["scope"], digest, payload,
         )
     raise ValueError("unsupported AKM receipt schema")
+
+@dataclass(frozen=True, slots=True)
+class AKMDecisionView:
+    schema: str
+    status: str
+    model: str
+    scope: str
+    sha256: str
+    payload: dict[str, Any]
+
+
+def read_akm_decision(path: str | Path, *, expected_sha256: str | None = None) -> AKMDecisionView:
+    """Display native archived decision, not a simulated observation."""
+    raw = Path(path).read_bytes()
+    digest = hashlib.sha256(raw).hexdigest()
+    if expected_sha256 is not None and digest != expected_sha256:
+        raise ValueError("AKM decision digest mismatch")
+    data = json.loads(raw, parse_constant=_reject_nonfinite)
+    if not isinstance(data, dict) or data.get("schema") != "akm_d11_decision_v1":
+        raise ValueError("unsupported AKM decision schema")
+    if data.get("status") != "NO_CANDIDATE_RESEARCH_DECISION" or "candidate_selected" not in data or data["candidate_selected"] is not None:
+        raise ValueError("unsupported AKM decision status")
+    for key in ("model_identity", "scope"):
+        if not isinstance(data.get(key), str) or not data[key]:
+            raise ValueError(f"invalid AKM decision {key}")
+    return AKMDecisionView(data["schema"], data["status"], data["model_identity"],
+                           data["scope"], digest, data)
