@@ -6,3 +6,5 @@ pub mod preflight;
 pub mod prepare;
 pub mod queue;
 pub mod receipt;
+
+pub mod active_kinetic;

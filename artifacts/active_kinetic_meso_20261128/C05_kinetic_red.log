@@ -1,0 +1,22 @@
+   Compiling metroflow-headless v0.1.0 (/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/crates/metroflow-headless)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.42s
+     Running unittests src/lib.rs (target/debug/deps/metroflow_headless-ce2312ae8c9f8ae3)
+
+running 1 test
+test active_kinetic::tests::drive_switch_and_finite_speed_response_are_distinct ... FAILED
+
+failures:
+
+---- active_kinetic::tests::drive_switch_and_finite_speed_response_are_distinct stdout ----
+
+thread 'active_kinetic::tests::drive_switch_and_finite_speed_response_are_distinct' (2054507) panicked at crates/metroflow-headless/src/active_kinetic.rs:45:9:
+assertion failed: (y.m[1] - 2. * (1. - (-1f64).exp())).abs() < 1e-13
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    active_kinetic::tests::drive_switch_and_finite_speed_response_are_distinct
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p metroflow-headless --lib`
