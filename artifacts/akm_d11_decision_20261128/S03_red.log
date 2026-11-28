@@ -1,0 +1,19 @@
+
+running 1 test
+tests::noncompensatory --- FAILED
+
+failures:
+
+---- tests::noncompensatory stdout ----
+
+thread 'tests::noncompensatory' (3165576) panicked at crates/metroflow-headless/src/bin/metroflow-akm-d11.rs:12:9:
+assertion failed: !eligible(&[Gate::Pass, Gate::Fail])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::noncompensatory
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p metroflow-headless --bin metroflow-akm-d11`
