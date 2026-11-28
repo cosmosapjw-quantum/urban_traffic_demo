@@ -1,0 +1,96 @@
+f3e13c2b0251f97c1fd5da601ab8995d44ec2f5c
+09bb334636f0f5c07fa6638f0c3b06e51005d4de
+049236458fdb5a7e327b0e494ab5f5cc3ad25b61 2026-03-26T09:29:31+09:00 import repaired bundle
+65245008af2387a8ce56e72d54a198394de3eee2 2026-03-26T14:28:50+09:00 docs: establish MetroFlow constitution v1.0.0 and sync spec-kit templates
+3ffc153f2f36ba15ff8400de13971bb0239ebcfd 2026-10-23T14:33:12+00:00 feat(traffic): add pure-Python finite-storage CTM research lane
+3d83db01e9d028578de857ab66d98bf7964a5e3c 2026-10-24T04:49:16+09:00 feat(traffic): add bounded active-matter mesoscopic cohorts and kinetic routing potential
+123b22062bdbfb03573b3595d063303fbb3c0c62 2026-10-24T17:18:58+09:00 docs(theory): derive conditional kinetic reduction and select gap sight information successors
+6f45a3ccc75fe1da07e0820776d0b5ae617a7ae2 2026-10-24T17:36:34+09:00 feat(traffic): add conditional continuous-speed characteristics and causal source information
+10737b2fb0e1396f1f8be97556cb66fdb5b6a9aa 2026-10-24T18:48:39+09:00 feat(traffic): evolve conditional gaps with exact projected-braking viability and passage clocks
+7d5e3886c1079e6eaef2f1dcae7657c085189870 2026-10-26T17:59:57+09:00 Implement T02 finite-response bulk kinetics and scoped physical oracles [skip ci]
+23b200d636ca9465942baacb2287ccb2830047bf 2026-11-18T21:21:24+09:00 research(theory): derive bounded kinetic conservative traffic bridge and field validation plan
+55e50ae787f85525f62e96e728bf699413354681 2026-11-19T00:50:58+09:00 research(kcmb): implement opt-in Rust kinetic conservative corridor and tests
+0b9caa8cc60a3ba087722e0360b997c5dfb61d62 2026-11-17T16:28:43+09:00 [V03] Add external audit brief with results, evidence map and open options [skip ci]
+862b288425920d8566cf23a474dc63eb5263abfe 2026-11-17T21:17:35+09:00 Record user decisions on boundary, release-timing and subnormal policies [skip ci]
+3277f9ede2620dca8b9d044c542aa3ad156aa999 2026-11-26T21:38:39+09:00 C10 Publish native policy trials, staged full-day model and original V03 readiness
+f3e13c2b0251f97c1fd5da601ab8995d44ec2f5c 2026-11-28T14:23:19+09:00 S10 Update V03 readiness and bind adaptive rank and exact restart evidence
+# Traffic Dynamics Design
+
+## 상태변수
+- edge queue q_e(t) >= 0
+- edge stock x_e(t) >= 0
+- movement queue q_m(t) >= 0
+- commodity mu = (destination d, candidate-path k, behavior class sigma)
+
+## generalized cost
+c_e(t) =
+  free-flow time
+  + queue delay
+  + density penalty
+  + event delay
+  + turn / signal penalty
+
+## bulk flow
+기본 baseline은 point-queue / LTM 계열로 시작한다.
+
+링크 업데이트:
+x_e(t+dt) = x_e(t) + inflow_e(t) - outflow_e(t)
+
+노드 제약:
+0 <= y_(e->f)(t) <= min(D_e(t), S_f(t), movement_capacity_(e->f)(t))
+
+필수 조건:
+- non-negativity
+- capacity respect
+- storage respect
+- deterministic update order
+
+## multirate
+- fast tick: traffic
+- medium tick: navigation / accessibility
+- slow tick: land-use / policy / learning
+# Routing and Learning Design
+
+## candidate path set
+각 OD pair에 대해 K개 경로 유지.
+권장 K = 4~8
+
+## time-dependent path cost
+각 path의 비용은 링크 비용을 해당 도착 예정 시각에서 평가한 합으로 둔다.
+
+## path-size correction
+중복 경로 과대평가 방지를 위해 path-size factor 사용.
+
+## path choice
+path probability ~ exp(
+  - lambda_sigma * expected_cost
+  + gamma_sigma * log(path_size)
+)
+
+## active-matter closure
+movement cost는 다음을 포함:
+- expected downstream cost
+- downstream density
+- movement queue
+- node pressure
+- alignment EMA
+- urgency
+- preference bias
+- noise
+
+split ratio는 softmax 형태로 계산.
+
+## conditional reroute
+reroute iff:
+- hard event on current route
+or
+- ETA degradation beyond threshold
+and
+- refractory window satisfied
+
+## learning 순서
+1. EMA perceived cost
+2. OD-path bandit
+3. archetype adaptation
+4. optional GNN/LSTM plugin
+0b9caa8cc60a3ba087722e0360b997c5dfb61d62
