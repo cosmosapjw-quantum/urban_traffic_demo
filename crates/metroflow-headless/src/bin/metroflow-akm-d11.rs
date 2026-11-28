@@ -7,7 +7,18 @@ enum Gate {
 fn eligible(gates: &[Gate]) -> bool {
     !gates.is_empty() && gates.iter().all(|g| *g == Gate::Pass)
 }
-fn main() {}
+fn main() -> Result<(), String> {
+    let args: Vec<_> = std::env::args_os().collect();
+    if args.len() != 2 {
+        return Err("usage: metroflow-akm-d11 REPO_ROOT".into());
+    }
+    let receipt = decision(Path::new(&args[1]))?;
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&receipt).map_err(|e| e.to_string())?
+    );
+    Ok(())
+}
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -312,5 +323,102 @@ mod archived_d {
         assert!((r["row_reduction_fraction"].as_f64().unwrap() - 0.6100550091472113).abs() < 1e-12);
         s["manifest_sha256"] = json!("wrong");
         assert!(analyze_d(&d, &old, &s).is_err());
+    }
+}
+
+fn gate_name(g: Gate) -> &'static str {
+    match g {
+        Gate::Pass => "PASS",
+        Gate::Fail => "FAIL",
+        Gate::Unknown => "UNKNOWN",
+    }
+}
+fn candidate(name: &str, gates: [Gate; 5], positives: &[&str], negatives: &[&str]) -> Value {
+    json!({"candidate":name,"gates":{
+        "physical_refinement":gate_name(gates[0]),"original_service_support":gate_name(gates[1]),
+        "original_full_day":gate_name(gates[2]),"original_full_day_replay":gate_name(gates[3]),
+        "independent_holdout":gate_name(gates[4])},
+        "eligible":eligible(&gates),"positive_scoped":positives,"negative_or_missing":negatives})
+}
+fn decision(root: &Path) -> Result<Value, String> {
+    let a = analyze_a(&read_pinned(root, A_PATH, EXTRA_MANIFEST)?)?;
+    let b = analyze_b(
+        &read_pinned(root, B_COARSE, EXTRA_MANIFEST)?,
+        &read_pinned(root, B_FINE, EXTRA_MANIFEST)?,
+    )?;
+    let d = analyze_d(
+        &read_pinned(root, D09, BASE_MANIFEST)?,
+        &read_pinned(root, D09_OLD, BASE_MANIFEST)?,
+        &read_pinned(root, SUPPORT, EXTRA_MANIFEST)?,
+    )?;
+    if a["policies"]
+        .as_array()
+        .ok_or("A policies missing")?
+        .iter()
+        .any(|x| x["mean_refinement_pass"] != false)
+        || b["receiving_diagnostic_pass"] != false
+        || d["free_flow_consistency_pass"] != false
+        || d["day_reached"] != false
+        || number(&d, "/bus_deficit_lower_bound")? <= 0.0
+    {
+        return Err("archived decision assumptions changed; fresh review required".into());
+    }
+    let d07 = read_pinned(
+        root,
+        "artifacts/akm_d07_causal_routing_20261128/S09_audit.json",
+        BASE_MANIFEST,
+    )?;
+    let d08 = read_pinned(
+        root,
+        "artifacts/akm_d08_rust_luti_20261128/S09_audit.json",
+        BASE_MANIFEST,
+    )?;
+    if d07["status"] != "D07_VERIFIED_SCOPED_SYNTHETIC_NOT_RELEASE"
+        || d08["status"] != "D08_VERIFIED_SCOPED_LAGGED_LUTI_AND_NATIVE_ENTRY_NOT_RELEASE"
+    {
+        return Err("D07/D08 scope changed".into());
+    }
+    use Gate::*;
+    let candidates=vec![
+        candidate("A",[Fail,Unknown,Unknown,Unknown,Unknown],
+            &["positive local moments, conservative fixed support, synthetic zero-allocation runs"],
+            &["joint refinement fails; two numerical stops; original service/full-day/holdout not established"]),
+        candidate("B",[Fail,Unknown,Unknown,Unknown,Unknown],
+            &["projected archive full-day vehicle run; matched AM mean stable"],
+            &["receiving peak diagnostic fails; archive not original calendar or original replay"]),
+        candidate("D",[Fail,Fail,Unknown,Unknown,Unknown],
+            &["reserved bus fixture and owner/replay; smaller matched-prefix support; actual city checkpoint recovery",
+              "D07/D08 synthetic causal/LUTI results retained in their own identities"],
+            &["sealed-cohort free-flow bias; fixed original service shortage; session-sliced city, not resource failure",
+              "no original full-day split/direct or independent holdout"])
+    ];
+    Ok(
+        json!({"schema":"akm_d11_decision_v1","status":"NO_CANDIDATE_RESEARCH_DECISION",
+       "model_identity":"akm-d11-archived-evidence-v1","scope":"D11 archived comparison, not a simulation or release",
+       "candidate_selected":null,"candidate_matrix":candidates,"a":a,"b":b,"d":d,
+       "cross_scope_pareto":"INCOMPARABLE: different calendars, physical closures and horizons; no scalar score",
+       "retained_scoped":[d07["status"].clone(),d08["status"].clone()],
+       "original_release":"UNCHANGED_BLOCKED","d10":"BLOCKED_TERMINAL_NOT_RUN",
+       "d12":"NO_APPROVED_CANDIDATE_NOT_RUN","new_simulation_runs":0}),
+    )
+}
+#[cfg(test)]
+mod decision_tests {
+    use super::*;
+    #[test]
+    fn archived_decision_has_no_candidate() {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+        let r = decision(&root).unwrap();
+        assert!(r["candidate_selected"].is_null());
+        let rows = r["candidate_matrix"].as_array().unwrap();
+        assert_eq!(rows.len(), 3);
+        assert!(rows.iter().all(|r| r["eligible"] == false));
+        assert_eq!(rows[2]["gates"]["original_full_day"], "UNKNOWN");
+        assert_eq!(r["new_simulation_runs"], 0);
+    }
+    #[test]
+    fn pin_missing_fails() {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+        assert!(read_pinned(&root, A_PATH, BASE_MANIFEST).is_err());
     }
 }

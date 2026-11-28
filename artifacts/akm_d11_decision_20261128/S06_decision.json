@@ -1,0 +1,220 @@
+{
+  "a": {
+    "cases": 24,
+    "failed": [
+      {
+        "scenario": {
+          "amplitude": 1.0,
+          "beta": 0.6,
+          "cells": 4,
+          "day_profile": true,
+          "dt": 1.25,
+          "fixed_offer": false,
+          "horizon": 86400.0,
+          "incident": true,
+          "policy": 0,
+          "weekday": true
+        },
+        "status": "BLOCKED_NUMERICAL:road moment cone",
+        "time_s": 28217.5
+      },
+      {
+        "scenario": {
+          "amplitude": 1.0,
+          "beta": 0.6,
+          "cells": 4,
+          "day_profile": true,
+          "dt": 1.25,
+          "fixed_offer": false,
+          "horizon": 86400.0,
+          "incident": true,
+          "policy": 2,
+          "weekday": true
+        },
+        "status": "BLOCKED_NUMERICAL:road moment cone",
+        "time_s": 28216.25
+      }
+    ],
+    "policies": [
+      {
+        "finest_adjacent_relative_gap": null,
+        "mean_refinement_pass": false,
+        "mean_s": [
+          833.769940225519,
+          902.1041491690264,
+          null
+        ],
+        "policy": 0
+      },
+      {
+        "finest_adjacent_relative_gap": 0.43283222034654706,
+        "mean_refinement_pass": false,
+        "mean_s": [
+          925.7922139505424,
+          1195.9091705617254,
+          1713.5371921887545
+        ],
+        "policy": 1
+      },
+      {
+        "finest_adjacent_relative_gap": null,
+        "mean_refinement_pass": false,
+        "mean_s": [
+          833.7699402255097,
+          902.1041491690264,
+          null
+        ],
+        "policy": 2
+      },
+      {
+        "finest_adjacent_relative_gap": 0.43283222034653746,
+        "mean_refinement_pass": false,
+        "mean_s": [
+          925.7922139505464,
+          1195.9091705617277,
+          1713.5371921887463
+        ],
+        "policy": 3
+      }
+    ],
+    "reached": 22,
+    "scope": "synthetic joint space/time ladder; incomplete day means excluded"
+  },
+  "b": {
+    "max_receiving_ratio_abs_gap": 0.028614155879121805,
+    "max_storage_ratio_abs_gap": 0.010942434506904714,
+    "mean_relative_gap": 0.00003218285117516428,
+    "mean_s": [
+      774.6864468254728,
+      774.6615152068472
+    ],
+    "mesh_s": [
+      300,
+      150
+    ],
+    "peak_rss_bytes": [
+      282583040.0,
+      453414912.0
+    ],
+    "receiving_diagnostic_pass": false,
+    "scope": "matched projected archive AM, not original calendar",
+    "wall_s": [
+      42.818731652,
+      84.683007869
+    ]
+  },
+  "candidate_matrix": [
+    {
+      "candidate": "A",
+      "eligible": false,
+      "gates": {
+        "independent_holdout": "UNKNOWN",
+        "original_full_day": "UNKNOWN",
+        "original_full_day_replay": "UNKNOWN",
+        "original_service_support": "UNKNOWN",
+        "physical_refinement": "FAIL"
+      },
+      "negative_or_missing": [
+        "joint refinement fails; two numerical stops; original service/full-day/holdout not established"
+      ],
+      "positive_scoped": [
+        "positive local moments, conservative fixed support, synthetic zero-allocation runs"
+      ]
+    },
+    {
+      "candidate": "B",
+      "eligible": false,
+      "gates": {
+        "independent_holdout": "UNKNOWN",
+        "original_full_day": "UNKNOWN",
+        "original_full_day_replay": "UNKNOWN",
+        "original_service_support": "UNKNOWN",
+        "physical_refinement": "FAIL"
+      },
+      "negative_or_missing": [
+        "receiving peak diagnostic fails; archive not original calendar or original replay"
+      ],
+      "positive_scoped": [
+        "projected archive full-day vehicle run; matched AM mean stable"
+      ]
+    },
+    {
+      "candidate": "D",
+      "eligible": false,
+      "gates": {
+        "independent_holdout": "UNKNOWN",
+        "original_full_day": "UNKNOWN",
+        "original_full_day_replay": "UNKNOWN",
+        "original_service_support": "FAIL",
+        "physical_refinement": "FAIL"
+      },
+      "negative_or_missing": [
+        "sealed-cohort free-flow bias; fixed original service shortage; session-sliced city, not resource failure",
+        "no original full-day split/direct or independent holdout"
+      ],
+      "positive_scoped": [
+        "reserved bus fixture and owner/replay; smaller matched-prefix support; actual city checkpoint recovery",
+        "D07/D08 synthetic causal/LUTI results retained in their own identities"
+      ]
+    }
+  ],
+  "candidate_selected": null,
+  "cross_scope_pareto": "INCOMPARABLE: different calendars, physical closures and horizons; no scalar score",
+  "d": {
+    "bus_deficit_fraction": 0.9679999999999955,
+    "bus_deficit_lower_bound": 29039.9999999958,
+    "bus_intent": 29999.9999999958,
+    "checkpoint_recovery_byte_equal": true,
+    "completed_person_relative_change": -0.20773957141474075,
+    "day_reached": false,
+    "free_flow_consistency_pass": false,
+    "last_actual_time_s": 26310.0,
+    "ledger_residuals": {
+      "cargo_kg": {
+        "released_minus_completed_active": 0.0,
+        "requested_minus_released_pending": 0.0
+      },
+      "persons": {
+        "released_minus_completed_active": 0.0,
+        "requested_minus_released_pending": 0.0
+      },
+      "vehicles": {
+        "released_minus_completed_active": 4.547473508864641e-13,
+        "requested_minus_released_pending": 0.0
+      }
+    },
+    "manifest_sha256": "2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3",
+    "new_rows": 371733.0,
+    "old_rows": 953296.0,
+    "parent_profile_uncompleted_fraction": 0.39903362574375,
+    "parent_profile_uncompleted_lower_bound": 47884.03508925,
+    "prefix_time_s": 25430.0,
+    "requested_end_s": 86400.0,
+    "row_reduction_fraction": 0.6100550091472113,
+    "scope": "fixed original registry and actual sealed-cohort prefix; no full day",
+    "seat_capacity": 960.0,
+    "synchronization_extra_s": [
+      7,
+      7,
+      7
+    ],
+    "synchronization_steps_s": [
+      1,
+      0.5,
+      0.25
+    ],
+    "termination": "D09 session slice reached; last committed state retained"
+  },
+  "d10": "BLOCKED_TERMINAL_NOT_RUN",
+  "d12": "NO_APPROVED_CANDIDATE_NOT_RUN",
+  "model_identity": "akm-d11-archived-evidence-v1",
+  "new_simulation_runs": 0,
+  "original_release": "UNCHANGED_BLOCKED",
+  "retained_scoped": [
+    "D07_VERIFIED_SCOPED_SYNTHETIC_NOT_RELEASE",
+    "D08_VERIFIED_SCOPED_LAGGED_LUTI_AND_NATIVE_ENTRY_NOT_RELEASE"
+  ],
+  "schema": "akm_d11_decision_v1",
+  "scope": "D11 archived comparison, not a simulation or release",
+  "status": "NO_CANDIDATE_RESEARCH_DECISION"
+}
