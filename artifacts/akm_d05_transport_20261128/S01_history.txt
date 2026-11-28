@@ -1,0 +1,14 @@
+8d111a041b6d1e18362bf3941cc19dd59ae5eb7d
+f9631864e9509210ea419f54fafcd18bf2aa8512
+f8cc371410ca0e24b0947cda3d6772787efddc7a
+e76ce40b9f0d56c165cad042744ebf7e47cf8c04
+43ae258bf224f336caa0e8bb1729499e134d97ae
+7c78e214c9558bcb1023854e55025f1c554aadee
+7809f9d5c8dcc9fc542fc668d4d34c059a0bde3a
+443de65b0840ae19f37eb82f79c6abded150ab8b8ec93e00c355d290a8e2f42e  docs/akm/RESEARCH_SSOT_KO.md
+80f64cb836782f1557f70eece21a1431e7e9f5aefdc0c208758ccef30b143313  docs/v1/PLAN.json
+0fe1b05e6792e45a578e871e25667e0d484457e15b8be1cc088a40f802912eb4  artifacts/akm_observables_owners_20261128/S09_audit.json
+{"status": "VALID_RESEARCH_PLAN_NOT_RELEASE", "nodes": 14, "scoped_or_accepted": 6, "terminal": 6, "attempts_used": 6, "attempts_limit": 24, "ready": ["D05"], "next": ["D05"]}
+rustc 1.99.0 (b940084d7 2026-09-28)
+cargo 1.99.0 (5f94df478 2026-08-27)
+2026-11-28T15:52:39+09:00
