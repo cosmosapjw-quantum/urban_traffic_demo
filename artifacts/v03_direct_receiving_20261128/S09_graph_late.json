@@ -1,0 +1,50 @@
+{
+  "active_removed_link": false,
+  "address_space_limit_bytes": 8589934592,
+  "checkpoint_mutated": false,
+  "checkpoint_sha256": "2294fe0bcbb2e8011b86fd9f9352589268561ea36cb1c8c8d9791a24b569cdcc",
+  "city_identity": "rust-host-fixture-city",
+  "executable_sha256": "9640ce189a4397ad8ae8bb5f7fdf084404b4ca0a26af2a6a0127b839ddf997c6",
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 100.0,
+      "pending": 0.0,
+      "released": 100.0,
+      "released_intent_first_moment": 750.0,
+      "requested": 100.0
+    },
+    "persons": {
+      "active": 0.0,
+      "completed": 20.0,
+      "pending": 0.0,
+      "released": 20.0,
+      "released_intent_first_moment": 500.00000000000006,
+      "requested": 20.0
+    },
+    "vehicles": {
+      "active": 0.0,
+      "completed": 13.06,
+      "pending": 0.0,
+      "released": 13.06,
+      "released_intent_first_moment": 324.75000000000006,
+      "requested": 13.06
+    }
+  },
+  "manifest_sha256": "2dbedc0ab2720529b71ef1377f9def399bb40e6e400ac22a6073e33bbf4f6a21",
+  "native_identity": "native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3",
+  "peak_rss_bytes": 6692864,
+  "pending_transport": false,
+  "python_runtime_dependency": "none",
+  "removed_links": [
+    "ab"
+  ],
+  "requires_new_city_and_transport_identity": true,
+  "schedule_identity": "rust-host-fixture-schedule",
+  "scheduled_removed_link": false,
+  "schema": "metroflow_native_graph_edit_review_v1",
+  "scope": "read-only deletion review; conservative future route and access commitments; replacement graph not installed",
+  "status": "READY_TRANSACTION",
+  "time_s": 360.0,
+  "wall_s": 0.000838272
+}

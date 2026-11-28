@@ -1,0 +1,87 @@
+{
+  "status": "PREFIX_PAIR_VERIFIED",
+  "scope": "Native campaign executes preparation and simulation; independent successful and failed recovery, original frozen River 20s pair; never 8h/full-day acceptance",
+  "campaign_status": "PREFIX_ONLY_NOT_ACCEPTANCE",
+  "campaign": {
+    "path": "artifacts/v03_direct_receiving_20261128/S09_campaign_river.json",
+    "sha256": "7f5a1b9d13580f7aedf274d265d7ce5f111ed223de7e68f55976640fca38bbd1"
+  },
+  "runs": [
+    {
+      "step_s": 10,
+      "checkpoint_sha256": "e085af746d17aa0f8b81284ded3a271a4de71aa85613a5fe4b063932968eda09",
+      "manifest_sha256": "dfea9809dd226bf655fd2151959605b35bffa8c7179d5c1010bfc813fd2edb1f",
+      "execution_wall_s": 52.493056434,
+      "peak_rss_bytes": 2132946944,
+      "independent_recovery_wall_s": 38.520249778,
+      "ledger": {
+        "cargo_kg": {
+          "active": 0.0,
+          "completed": 0.0,
+          "pending": 0.0,
+          "released": 0.0,
+          "released_intent_first_moment": 0.0,
+          "requested": 0.0
+        },
+        "persons": {
+          "active": 0.0,
+          "completed": 0.0,
+          "pending": 0.0,
+          "released": 0.0,
+          "released_intent_first_moment": 0.0,
+          "requested": 0.0
+        },
+        "vehicles": {
+          "active": 0.0,
+          "completed": 0.0,
+          "pending": 0.0,
+          "released": 0.0,
+          "released_intent_first_moment": 0.0,
+          "requested": 0.0
+        }
+      }
+    },
+    {
+      "step_s": 5,
+      "checkpoint_sha256": "ee7e46a2215c355a932b20229c0b4fca2a725387037b5c3dcde85340ecb9bb77",
+      "manifest_sha256": "62724c183fa2d6f78ca62e70ff02124b1bd4fb544697a82b0869170c76134410",
+      "execution_wall_s": 63.960874909,
+      "peak_rss_bytes": 2133303296,
+      "independent_recovery_wall_s": 55.664246167,
+      "ledger": {
+        "cargo_kg": {
+          "active": 0.0,
+          "completed": 0.0,
+          "pending": 0.0,
+          "released": 0.0,
+          "released_intent_first_moment": 0.0,
+          "requested": 0.0
+        },
+        "persons": {
+          "active": 0.0,
+          "completed": 0.0,
+          "pending": 0.0,
+          "released": 0.0,
+          "released_intent_first_moment": 0.0,
+          "requested": 0.0
+        },
+        "vehicles": {
+          "active": 0.0,
+          "completed": 0.0,
+          "pending": 0.0,
+          "released": 0.0,
+          "released_intent_first_moment": 0.0,
+          "requested": 0.0
+        }
+      }
+    }
+  ],
+  "full_days_completed": 0,
+  "full_days_required": 9,
+  "original_8h_completed": 0,
+  "original_8h_required": 3,
+  "native_cli": {
+    "path": "artifacts/v03_direct_receiving_20261128/S09_native_dependencies.txt",
+    "sha256": "ccd1147e4cd99e60e64ba96a3dbf44c2780c579e5fd1a76c0f7209379aa19f78"
+  }
+}

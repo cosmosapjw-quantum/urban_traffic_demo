@@ -1,0 +1,27 @@
+{
+  "status": "PURE_RUST_SCOPED",
+  "scope": "Native opt-in actual ready-head suffix and byte-identical replay, native graph deletion review, prior native lagged growth and next-epoch preparation. No occupied graph hot swap, whole-city endogenous routing or full-day acceptance claim.",
+  "historical_phase": {
+    "path": "artifacts/v03_marked_owner_20261127/S09_phase_parity.json",
+    "sha256": "a539fa90d97776be82955f79e82301821ce20f3450e3a4fe34078d1b7ee660e0"
+  },
+  "historical_lagged_growth": {
+    "path": "artifacts/v03_rust_atlas_integration_20261127/C07_next_epoch.json",
+    "sha256": "abc4023a262b914e2347bebb0b8a8bd84fef270aea69f3003de8097c01fceea1"
+  },
+  "tests": {
+    "path": "artifacts/v03_direct_receiving_20261128/S08_native.log",
+    "sha256": "80b463077df5cf944888eaee05e93b897227e6f12c95f9aecae7ce0843a2b5bf"
+  },
+  "graph_cli": [
+    {
+      "path": "artifacts/v03_direct_receiving_20261128/S09_graph_early.json",
+      "sha256": "30796f729f021d200b0a66d1dbfbd00c0608ae896e91a513b63ba5be6e9b4bc0"
+    },
+    {
+      "path": "artifacts/v03_direct_receiving_20261128/S09_graph_late.json",
+      "sha256": "7be2698b1dfa776bf457c034ed035a5cdddc4160c4ea24f2c99550dcc758d53a"
+    }
+  ],
+  "executable_sha256": "9640ce189a4397ad8ae8bb5f7fdf084404b4ca0a26af2a6a0127b839ddf997c6"
+}

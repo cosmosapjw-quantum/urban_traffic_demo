@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "seed": 20261128,
+  "exact_fraction_cases": 7221,
+  "prefix_endpoint_checks": 67287,
+  "sharp_example": {
+    "error": "1/2",
+    "bound": "1/2"
+  },
+  "adaptive_example": {
+    "raw_cells": 64,
+    "retained_bins": 6,
+    "local_prefix_tolerance_veh": "1/64",
+    "max_certified_error_veh": "0"
+  },
+  "scope": "nonnegative piecewise constant density local rank/admission bins; integral conservation and prefix error; no global junction or binary64 equivalence claim"
+}

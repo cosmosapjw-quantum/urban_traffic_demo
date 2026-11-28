@@ -1,0 +1,52 @@
+{
+  "activities": 1622,
+  "allocated_workers": 40000.0,
+  "calendar": {
+    "calendar_legs": 5093765,
+    "cargo_kg": 1000.0,
+    "persons": 120000.0,
+    "vehicles": 58801.0
+  },
+  "calendar_wall_s": 1.228451594,
+  "case": "river_weekday_s17",
+  "city_identity": "85d1c4351f39ded22781779f16bbbbb454bc29e73c500b18c030cd523c7bb088",
+  "fixed_runs": 24,
+  "home_factors": 508,
+  "identity_scope": "native declaration identity; input city identity preserved; old checkpoint compatibility not claimed",
+  "internal_laws": 1016,
+  "job_factors": 557,
+  "legal_turns": 7442,
+  "links": 3158,
+  "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "patch_sha256": "8040bf2037bdece32504b8079342abb025d3e8a62a4742a0cc5cb0213b691c27",
+  "peak_rss_bytes": 697266176,
+  "population": 100000.0,
+  "prepare_wall_s": 0.385770964,
+  "requested_workers": 50000.0,
+  "schedule_identity": "0eb9a13b0878b39793c1d50033d9898c8728a0cb4446536607d8982aeba5f225",
+  "service_assigned": 20000.0,
+  "service_factors": 557,
+  "source_sha256": "f7e7bd19a5a8af51b25526e25b15bf9314ac7d4fd3f50875c70db412e066c8b2",
+  "static_identity": "11a0806ed98abe9847f6da694dc8fc979df9c1a57b2b7979f44ab18087bb30d9",
+  "stops": [
+    [
+      "427",
+      "g2:23"
+    ],
+    [
+      "105",
+      "g14:17"
+    ],
+    [
+      "295",
+      "g24:23"
+    ],
+    [
+      "530",
+      "g38:18"
+    ]
+  ],
+  "threads": 8,
+  "unassigned_service": 0.0,
+  "unassigned_workers": 10000.0
+}

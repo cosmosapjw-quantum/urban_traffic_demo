@@ -1,0 +1,661 @@
+{
+  "original_attempts": [
+    {
+      "receipt": "artifacts/v03_direct_receiving_20261128/S04_original25760.json",
+      "failure": {
+        "kind": "Resource",
+        "message": "native road storage budget exceeded: phase=entry interval split, required_bytes=4533044234, budget_bytes=4533044215"
+      },
+      "wall_s": 133.287514304,
+      "peak_rss_bytes": 4276330496,
+      "guards": {
+        "road_work:entry interval split": {
+          "calls": 1341465,
+          "exceeded": 1,
+          "limit_at_max": 4533044215,
+          "live_at_max": null,
+          "max_ratio": 1.0000000041914439,
+          "max_required": 4533044234,
+          "terms_at_max": {
+            "base": 2476291855,
+            "event_bytes": 1319868480,
+            "event_candidate_live_bound": 729168584,
+            "extra": 0,
+            "full_source_base": 2476291855,
+            "incoming_actual_descriptor_bytes": 400608,
+            "incoming_actual_page_charge": 28269756,
+            "incoming_descriptors_frozen": 1,
+            "incoming_live_pages": 10916,
+            "incoming_rows": 1395157,
+            "interval_retained": 701136591,
+            "interval_transient": 7477552,
+            "packed_ref_sealed_credit": 14858640,
+            "source_key_growth": 0,
+            "timed_incoming_control_bytes": 16338752,
+            "transfer_exclusive_cell_scratch": 0
+          }
+        },
+        "road_work:timed incoming exact group allocation": {
+          "calls": 2108,
+          "exceeded": 0,
+          "limit_at_max": 4533044215,
+          "live_at_max": null,
+          "max_ratio": 0.9990030207547843,
+          "max_required": 4528524864,
+          "terms_at_max": {
+            "base": 2438788975,
+            "event_bytes": 1319868480,
+            "event_candidate_live_bound": 729168584,
+            "extra": 41316160,
+            "full_source_base": 2438788975,
+            "incoming_actual_descriptor_bytes": 597312,
+            "incoming_actual_page_charge": 29661828,
+            "incoming_descriptors_frozen": 1,
+            "incoming_live_pages": 17084,
+            "incoming_rows": 2184637,
+            "interval_retained": 698889421,
+            "interval_transient": 0,
+            "packed_ref_sealed_credit": 23343776,
+            "source_key_growth": 0,
+            "timed_incoming_control_bytes": 16338752,
+            "transfer_exclusive_cell_scratch": 0
+          }
+        },
+        "road_work:transfer candidates": {
+          "calls": 584088,
+          "exceeded": 0,
+          "limit_at_max": 4533044215,
+          "live_at_max": null,
+          "max_ratio": 0.886540754599721,
+          "max_required": 4018728439,
+          "terms_at_max": {
+            "base": 2575378607,
+            "event_bytes": 1319868480,
+            "event_candidate_live_bound": 729168584,
+            "extra": 0,
+            "full_source_base": 2978797391,
+            "incoming_actual_descriptor_bytes": 0,
+            "incoming_actual_page_charge": 123481352,
+            "incoming_descriptors_frozen": 0,
+            "incoming_live_pages": 330196,
+            "incoming_rows": 42184118,
+            "interval_retained": 0,
+            "interval_transient": 0,
+            "packed_ref_sealed_credit": 446249792,
+            "source_key_growth": 0,
+            "timed_incoming_control_bytes": 16338752,
+            "transfer_exclusive_cell_scratch": 403418784
+          }
+        }
+      },
+      "counters": {
+        "moment_dict.decode_rows": [
+          567628,
+          75219100,
+          464
+        ],
+        "moment_dict.decode_saved_bytes": [
+          567628,
+          344185460,
+          3216
+        ],
+        "moment_dict.direct_interval_fallback": [
+          6583,
+          6583,
+          1
+        ],
+        "moment_dict.direct_interval_rows": [
+          221605,
+          29080599,
+          454
+        ],
+        "moment_dict.direct_interval_saved_bytes": [
+          221605,
+          151264697,
+          3194
+        ],
+        "moment_dict.expired_source_key_growth_bytes": [
+          1,
+          0,
+          0
+        ],
+        "moment_dict.remainder_rows": [
+          93441,
+          16347604,
+          454
+        ],
+        "moment_dict.remainder_shared_codes": [
+          93441,
+          16347604,
+          454
+        ],
+        "moment_dict.remainder_shared_keys": [
+          623,
+          24452,
+          55
+        ],
+        "split.edges": [
+          1053,
+          556458,
+          14033
+        ],
+        "split.in_rows": [
+          1053,
+          38806488,
+          2465719
+        ],
+        "split.out_packets": [
+          1053,
+          701279,
+          19121
+        ],
+        "split.out_rows": [
+          1053,
+          40024739,
+          2496317
+        ],
+        "split.shared_adjacent_key_rows": [
+          217399,
+          28081895,
+          627
+        ]
+      }
+    },
+    {
+      "receipt": "artifacts/v03_direct_receiving_20261128/S06_original25760.json",
+      "failure": {
+        "kind": "Resource",
+        "message": "packet state budget"
+      },
+      "wall_s": 137.876216521,
+      "peak_rss_bytes": 4139761664,
+      "guards": {
+        "road_work:entry interval split": {
+          "calls": 1402199,
+          "exceeded": 0,
+          "limit_at_max": 4533044215,
+          "live_at_max": null,
+          "max_ratio": 0.9678442893811483,
+          "max_required": 4387280957,
+          "terms_at_max": {
+            "base": 2328744317,
+            "event_bytes": 1319868480,
+            "event_candidate_live_bound": 729168584,
+            "extra": 0,
+            "full_source_base": 2328744317,
+            "incoming_actual_descriptor_bytes": 13632,
+            "incoming_actual_page_charge": 25659528,
+            "incoming_descriptors_frozen": 1,
+            "incoming_live_pages": 316,
+            "incoming_rows": 40082,
+            "interval_retained": 705760332,
+            "interval_transient": 7248300,
+            "packed_ref_sealed_credit": 399632,
+            "source_key_growth": 0,
+            "timed_incoming_control_bytes": 16338752,
+            "transfer_exclusive_cell_scratch": 0
+          }
+        },
+        "road_work:timed incoming exact group allocation": {
+          "calls": 2170,
+          "exceeded": 0,
+          "limit_at_max": 4533044215,
+          "live_at_max": null,
+          "max_ratio": 0.9651357120062858,
+          "max_required": 4375002856,
+          "terms_at_max": {
+            "base": 2295162125,
+            "event_bytes": 1319868480,
+            "event_candidate_live_bound": 729168584,
+            "extra": 37101776,
+            "full_source_base": 2295162125,
+            "incoming_actual_descriptor_bytes": 210336,
+            "incoming_actual_page_charge": 26912416,
+            "incoming_descriptors_frozen": 1,
+            "incoming_live_pages": 5911,
+            "incoming_rows": 756138,
+            "interval_retained": 695958059,
+            "interval_transient": 0,
+            "packed_ref_sealed_credit": 8123008,
+            "source_key_growth": 0,
+            "timed_incoming_control_bytes": 16338752,
+            "transfer_exclusive_cell_scratch": 0
+          }
+        },
+        "road_work:transfer candidates": {
+          "calls": 584088,
+          "exceeded": 0,
+          "limit_at_max": 4533044215,
+          "live_at_max": null,
+          "max_ratio": 0.8548563405089133,
+          "max_required": 3875101589,
+          "terms_at_max": {
+            "base": 2431751757,
+            "event_bytes": 1319868480,
+            "event_candidate_live_bound": 729168584,
+            "extra": 0,
+            "full_source_base": 2835170541,
+            "incoming_actual_descriptor_bytes": 0,
+            "incoming_actual_page_charge": 123481352,
+            "incoming_descriptors_frozen": 0,
+            "incoming_live_pages": 330196,
+            "incoming_rows": 42184118,
+            "interval_retained": 0,
+            "interval_transient": 0,
+            "packed_ref_sealed_credit": 446249792,
+            "source_key_growth": 0,
+            "timed_incoming_control_bytes": 16338752,
+            "transfer_exclusive_cell_scratch": 403418784
+          }
+        }
+      },
+      "counters": {
+        "moment_dict.decode_rows": [
+          567628,
+          75219100,
+          464
+        ],
+        "moment_dict.decode_saved_bytes": [
+          567628,
+          416092828,
+          3680
+        ],
+        "moment_dict.decode_shared_code_rows": [
+          542292,
+          71907368,
+          464
+        ],
+        "moment_dict.direct_interval_fallback": [
+          6804,
+          6804,
+          1
+        ],
+        "moment_dict.direct_interval_rows": [
+          227542,
+          30301858,
+          454
+        ],
+        "moment_dict.direct_interval_saved_bytes": [
+          227542,
+          188876268,
+          3616
+        ],
+        "moment_dict.direct_interval_shared_code_rows": [
+          218465,
+          29114990,
+          450
+        ],
+        "moment_dict.expired_source_key_growth_bytes": [
+          1,
+          0,
+          0
+        ],
+        "moment_dict.remainder_rows": [
+          93441,
+          16347604,
+          454
+        ],
+        "moment_dict.remainder_shared_codes": [
+          93441,
+          16347604,
+          454
+        ],
+        "moment_dict.remainder_shared_keys": [
+          623,
+          24452,
+          55
+        ],
+        "split.edges": [
+          1085,
+          584469,
+          14033
+        ],
+        "split.in_rows": [
+          1085,
+          40922408,
+          2465719
+        ],
+        "split.out_packets": [
+          1085,
+          742406,
+          19121
+        ],
+        "split.out_rows": [
+          1085,
+          42182450,
+          2496317
+        ],
+        "split.shared_adjacent_key_rows": [
+          223425,
+          29297547,
+          627
+        ]
+      }
+    },
+    {
+      "receipt": "artifacts/v03_direct_receiving_20261128/S09_original25760.json",
+      "failure": {
+        "kind": "Resource",
+        "message": "packet state budget"
+      },
+      "wall_s": 161.09086194,
+      "peak_rss_bytes": 4139388928,
+      "guards": {
+        "road_work:entry interval split": {
+          "calls": 1402199,
+          "exceeded": 0,
+          "limit_at_max": 4533044215,
+          "live_at_max": null,
+          "max_ratio": 0.9678442893811483,
+          "max_required": 4387280957,
+          "terms_at_max": {
+            "base": 2328744317,
+            "event_bytes": 1319868480,
+            "event_candidate_live_bound": 729168584,
+            "extra": 0,
+            "full_source_base": 2328744317,
+            "incoming_actual_descriptor_bytes": 13632,
+            "incoming_actual_page_charge": 25659528,
+            "incoming_descriptors_frozen": 1,
+            "incoming_live_pages": 316,
+            "incoming_rows": 40082,
+            "interval_retained": 705760332,
+            "interval_transient": 7248300,
+            "packed_ref_sealed_credit": 399632,
+            "source_key_growth": 0,
+            "timed_incoming_control_bytes": 16338752,
+            "transfer_exclusive_cell_scratch": 0
+          }
+        },
+        "road_work:timed incoming exact group allocation": {
+          "calls": 2170,
+          "exceeded": 0,
+          "limit_at_max": 4533044215,
+          "live_at_max": null,
+          "max_ratio": 0.9651357120062858,
+          "max_required": 4375002856,
+          "terms_at_max": {
+            "base": 2295162125,
+            "event_bytes": 1319868480,
+            "event_candidate_live_bound": 729168584,
+            "extra": 37101776,
+            "full_source_base": 2295162125,
+            "incoming_actual_descriptor_bytes": 210336,
+            "incoming_actual_page_charge": 26912416,
+            "incoming_descriptors_frozen": 1,
+            "incoming_live_pages": 5911,
+            "incoming_rows": 756138,
+            "interval_retained": 695958059,
+            "interval_transient": 0,
+            "packed_ref_sealed_credit": 8123008,
+            "source_key_growth": 0,
+            "timed_incoming_control_bytes": 16338752,
+            "transfer_exclusive_cell_scratch": 0
+          }
+        },
+        "road_work:transfer candidates": {
+          "calls": 584088,
+          "exceeded": 0,
+          "limit_at_max": 4533044215,
+          "live_at_max": null,
+          "max_ratio": 0.8548563405089133,
+          "max_required": 3875101589,
+          "terms_at_max": {
+            "base": 2431751757,
+            "event_bytes": 1319868480,
+            "event_candidate_live_bound": 729168584,
+            "extra": 0,
+            "full_source_base": 2835170541,
+            "incoming_actual_descriptor_bytes": 0,
+            "incoming_actual_page_charge": 123481352,
+            "incoming_descriptors_frozen": 0,
+            "incoming_live_pages": 330196,
+            "incoming_rows": 42184118,
+            "interval_retained": 0,
+            "interval_transient": 0,
+            "packed_ref_sealed_credit": 446249792,
+            "source_key_growth": 0,
+            "timed_incoming_control_bytes": 16338752,
+            "transfer_exclusive_cell_scratch": 403418784
+          }
+        }
+      },
+      "counters": {
+        "moment_dict.decode_rows": [
+          567628,
+          75219100,
+          464
+        ],
+        "moment_dict.decode_saved_bytes": [
+          567628,
+          416092828,
+          3680
+        ],
+        "moment_dict.decode_shared_code_rows": [
+          542292,
+          71907368,
+          464
+        ],
+        "moment_dict.direct_interval_fallback": [
+          6804,
+          6804,
+          1
+        ],
+        "moment_dict.direct_interval_rows": [
+          227542,
+          30301858,
+          454
+        ],
+        "moment_dict.direct_interval_saved_bytes": [
+          227542,
+          188876268,
+          3616
+        ],
+        "moment_dict.direct_interval_shared_code_rows": [
+          218465,
+          29114990,
+          450
+        ],
+        "moment_dict.expired_source_key_growth_bytes": [
+          1,
+          0,
+          0
+        ],
+        "moment_dict.remainder_rows": [
+          93441,
+          16347604,
+          454
+        ],
+        "moment_dict.remainder_shared_codes": [
+          93441,
+          16347604,
+          454
+        ],
+        "moment_dict.remainder_shared_keys": [
+          623,
+          24452,
+          55
+        ],
+        "road.state_record_limit": [
+          1,
+          94438421,
+          94438421
+        ],
+        "road.state_rejected_logical_rows": [
+          1,
+          95601045,
+          95601045
+        ],
+        "split.edges": [
+          1085,
+          584469,
+          14033
+        ],
+        "split.in_rows": [
+          1085,
+          40922408,
+          2465719
+        ],
+        "split.out_packets": [
+          1085,
+          742406,
+          19121
+        ],
+        "split.out_rows": [
+          1085,
+          42182450,
+          2496317
+        ],
+        "split.shared_adjacent_key_rows": [
+          223425,
+          29297547,
+          627
+        ]
+      }
+    }
+  ],
+  "original_recovery": "artifacts/v03_direct_receiving_20261128/S09_original_recovery.json",
+  "original_logical_count": 95601045,
+  "original_logical_cap": 94438421,
+  "original_logical_excess": 1162624,
+  "original_byte_guard_exceedances": 0,
+  "matched": {
+    "status": "BYTE_IDENTICAL_CHECKPOINT",
+    "start_s": 31140,
+    "end_s": 31200,
+    "checkpoint_sha256": "53f36d806a91342e4df8a9f3eddd762172d3d2d8d40e8fdb167a99f4e0c60252",
+    "checkpoint_bytes": 831546370,
+    "reference_advance_s": 28.361911095,
+    "candidate_advance_s": 21.503560099,
+    "reference_wall_s": 57.499558795,
+    "candidate_wall_s": 50.951758733,
+    "reference_rss_bytes": 1985556480,
+    "candidate_rss_bytes": 2175246336,
+    "reference": "artifacts/v03_direct_receiving_20261128/S09_reference31200.json",
+    "candidate": "artifacts/v03_direct_receiving_20261128/S09_delay31200.json"
+  },
+  "runs": [
+    {
+      "start_s": 31140,
+      "recovered_s": 31200,
+      "advanced_s": 60,
+      "wall_s": 50.951758733,
+      "advance_s": 21.503560099,
+      "checkpoint_write_s": 16.788108254,
+      "peak_rss_bytes": 2175246336,
+      "max_traced_guard_required_bytes": 1822067969,
+      "guard_exceedances": 0,
+      "checkpoint_bytes": 831546370,
+      "checkpoint_sha256": "53f36d806a91342e4df8a9f3eddd762172d3d2d8d40e8fdb167a99f4e0c60252",
+      "journey_records": {
+        "dynamic_bytes": 159789872,
+        "egress": 1742788,
+        "enter": 1752182,
+        "history": 102460,
+        "history_bytes": 40164320,
+        "internal": 146424,
+        "nonempty_histories": 102460,
+        "stage_bytes": [
+          57559568,
+          57252864,
+          4813120
+        ]
+      },
+      "road_records": {
+        "cell_packets": 2925,
+        "cell_parts": 5607838,
+        "mixed_parts": 0,
+        "pending_packets": 0,
+        "pending_parts": 0,
+        "retained_storage_bytes": 106716640,
+        "uniform_parts": 5607838
+      },
+      "execution": "artifacts/v03_direct_receiving_20261128/S09_delay31200.json",
+      "recovery": "artifacts/v03_direct_receiving_20261128/S09_delay31200_recovery.json"
+    },
+    {
+      "start_s": 31200,
+      "recovered_s": 31380,
+      "advanced_s": 180,
+      "wall_s": 100.087023391,
+      "advance_s": 61.649503656,
+      "checkpoint_write_s": 26.775721256,
+      "peak_rss_bytes": 2702958592,
+      "max_traced_guard_required_bytes": 1823025425,
+      "guard_exceedances": 0,
+      "checkpoint_bytes": 830985874,
+      "checkpoint_sha256": "f260d464f8a117a8469fb2ac8e220b4fc6fc45ffbfbbd2894ada92383d24d3ed",
+      "journey_records": {
+        "dynamic_bytes": 159789872,
+        "egress": 1742778,
+        "enter": 1752182,
+        "history": 102460,
+        "history_bytes": 40164320,
+        "internal": 146424,
+        "nonempty_histories": 102460,
+        "stage_bytes": [
+          57559568,
+          57252864,
+          4813120
+        ]
+      },
+      "road_records": {
+        "cell_packets": 2926,
+        "cell_parts": 5607864,
+        "mixed_parts": 0,
+        "pending_packets": 0,
+        "pending_parts": 0,
+        "retained_storage_bytes": 106694128,
+        "uniform_parts": 5607864
+      },
+      "execution": "artifacts/v03_direct_receiving_20261128/S09_delay31380.json",
+      "recovery": "artifacts/v03_direct_receiving_20261128/S09_delay31380_recovery.json"
+    },
+    {
+      "start_s": 31380,
+      "recovered_s": 31980,
+      "advanced_s": 600,
+      "wall_s": 294.589757741,
+      "advance_s": 202.051419296,
+      "checkpoint_write_s": 40.150623967,
+      "peak_rss_bytes": 2912071680,
+      "max_traced_guard_required_bytes": 1822067969,
+      "guard_exceedances": 0,
+      "checkpoint_bytes": 830985874,
+      "checkpoint_sha256": "c36869661291a60de3e77f65ab0355b732b54e87fc9765a7afcbb364b49f9590",
+      "journey_records": {
+        "dynamic_bytes": 159789872,
+        "egress": 1742778,
+        "enter": 1752182,
+        "history": 102460,
+        "history_bytes": 40164320,
+        "internal": 146424,
+        "nonempty_histories": 102460,
+        "stage_bytes": [
+          57559568,
+          57252864,
+          4813120
+        ]
+      },
+      "road_records": {
+        "cell_packets": 2926,
+        "cell_parts": 5607864,
+        "mixed_parts": 0,
+        "pending_packets": 0,
+        "pending_parts": 0,
+        "retained_storage_bytes": 106694128,
+        "uniform_parts": 5607864
+      },
+      "execution": "artifacts/v03_direct_receiving_20261128/S09_delay31980.json",
+      "recovery": "artifacts/v03_direct_receiving_20261128/S09_delay31980_recovery.json"
+    }
+  ],
+  "rust_b10": {
+    "path": "artifacts/v03_direct_receiving_20261128/S09_b10_evidence.json",
+    "sha256": "cb9bd6dcf305053c2af5590bea0bf93e379b0cfc9eaf9e1b290a71a0b9968874"
+  },
+  "rust_b15": {
+    "path": "artifacts/v03_direct_receiving_20261128/S09_b15_evidence.json",
+    "sha256": "43bb8e262363dec424558e979df59a4b77b4f0c948d72a253a76239926b3d0eb"
+  }
+}
