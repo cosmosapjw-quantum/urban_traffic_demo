@@ -2914,6 +2914,47 @@ pub fn run_native_suffix(manifest:serde_json::Value,threads:usize,input:&str,cel
     Ok(json!({"schema":"metroflow_native_suffix_v1","status":"EXECUTED_FOR_REVIEW","scope":"explicit checked ready-head route variant, canonical car journey; not endogenous route selection","time_s":next.time_s(),"city_identity":engine.city,"schedule_identity":engine.schedule,"native_identity":engine.identity,"old_tag":old,"new_tag":new,"cell":cell,"ledger":ledger["ledger"],"physical_suffix_applied":true}))
 }
 
+/// Native counterpart of the Python graph deletion review. No hot swap.
+#[cfg(feature="native-cli")]
+impl NativeWholeEngine{
+    fn graph_edit_review(&self,state:&NativeWholeState,links:&[String],removed:&[String])->CoreResult<serde_json::Value>{
+        use serde_json::json;
+        use std::collections::BTreeSet;
+        self.checked(state)?;
+        if links.len()!=self.group_count{return Err(bad("graph link census differs"))}
+        let mut indices=BTreeSet::new();let mut names=BTreeSet::new();
+        for name in removed{
+            let i=links.iter().position(|x|x==name).ok_or_else(||bad("graph edit references unknown link"))?;
+            indices.insert(i);names.insert(name);
+        }
+        let (active,road_pending)=state.value.road.graph_drain_flags(&indices);
+        let j=&state.value.journey;
+        // Access-stage rows have not entered the road yet, but are committed.
+        let pending=road_pending||!j.1.is_empty();
+        let mut scheduled=false;
+        for (tag,name) in self.tags.iter().enumerate(){
+            let path=self.road.registered_path(tag).ok_or_else(||bad("graph route absent"))?;
+            if !path.iter().any(|i|indices.contains(i)){continue}
+            let future=if let Some(i)=self.car_tag_legs[tag]{
+                let l=&self.journey.legs()[i];
+                // Conservative bound, including still-parent-gated releases after
+                // the declared profile end. Same division/cap as journey prepare.
+                l.1>0.&&l.4.iter().any(|w|w.2>0.)&&fraction(&l.4,f64::MAX)>j.4[i]/l.1
+            }else{self.service.scheduled_route_pending(&state.value.service.0,name)?};
+            scheduled|=future;
+            if scheduled{break}
+        }
+        Ok(json!({"schema":"metroflow_native_graph_edit_review_v1","status":if active||pending||scheduled{"DRAIN_REQUIRED"}else{"READY_TRANSACTION"},"scope":"read-only deletion review; conservative future route and access commitments; replacement graph not installed","removed_links":names,"time_s":state.time_s(),"native_identity":self.identity,"city_identity":self.city,"schedule_identity":self.schedule,"active_removed_link":active,"pending_transport":pending,"scheduled_removed_link":scheduled,"requires_new_city_and_transport_identity":true,"checkpoint_mutated":false,"ledger":ledger_json(self,state)?["ledger"]}))
+    }
+}
+#[cfg(feature="native-cli")]
+pub fn run_native_graph_edit(manifest:serde_json::Value,threads:usize,input:&str,removed:&[String])->CoreResult<serde_json::Value>{
+    let links:Vec<String>=serde_json::from_value(manifest["static"]["link_ids"].clone()).map_err(|_|bad("graph links absent"))?;
+    let (mut engine,_,_)=build_native_input(manifest,threads)?;
+    let state=engine.load(input.to_owned())?;
+    engine.graph_edit_review(&state,&links,removed)
+}
+
 #[cfg(all(test,feature="native-cli"))]
 mod canonical_variant_fixture_tests{
     use super::*;use serde_json::json;
@@ -2955,6 +2996,27 @@ mod canonical_variant_fixture_tests{
         assert_eq!(std::fs::read(full).unwrap(),std::fs::read(replay).unwrap());
         for p in ["full.bin","cut.bin","replay.bin"]{std::fs::remove_file(dir.join(p)).unwrap();}
         std::fs::remove_dir(dir).unwrap();
+    }
+    #[test]fn native_graph_deletion_reviews_real_commitments_without_mutation(){
+        let m=manifest();
+        let links:Vec<String>=serde_json::from_value(m["static"]["link_ids"].clone()).unwrap();
+        let (mut e,_,_)=build_native_input(m,1).unwrap();
+        let initial=e.initial();
+        let early=e.graph_edit_review(&initial,&links,&["ax".into()]).unwrap();
+        assert_eq!(early["status"],"DRAIN_REQUIRED");
+        assert_eq!(early["scheduled_removed_link"],true);
+        let active=e.advance_owned(&initial,49.).unwrap();
+        let before=ledger_json(&e,&active).unwrap();
+        let review=e.graph_edit_review(&active,&links,&["ax".into(),"ax".into()]).unwrap();
+        assert_eq!(review["status"],"DRAIN_REQUIRED");
+        assert_eq!(review["active_removed_link"],true);
+        assert_eq!(review["removed_links"],json!(["ax"]));
+        assert_eq!(review["checkpoint_mutated"],false);
+        assert_eq!(ledger_json(&e,&active).unwrap(),before);
+        let clear=e.advance_owned(&active,250.).unwrap();
+        let ready=e.graph_edit_review(&clear,&links,&["ax".into()]).unwrap();
+        assert_eq!(ready["status"],"READY_TRANSACTION","{ready}");
+        assert!(e.graph_edit_review(&clear,&links,&["missing".into()]).is_err());
     }
     #[test]fn canonical_alias_survives_actual_road_exit_and_completes_original_journey(){
         let mut m=manifest();

@@ -442,6 +442,28 @@ impl NativeServiceCore {
         }
         bytes
     }
+    /// Exact future service offer state, not a route-time inference.
+    #[cfg(feature="native-cli")]
+    pub(crate) fn scheduled_route_pending(&self,s:&Service,tag:&str)->CoreResult<bool>{
+        if let Some(name)=tag.strip_prefix("bus:"){
+            let (id,stop)=name.rsplit_once(':').ok_or_else(||bad("bus tag malformed"))?;
+            let stop=stop.parse::<usize>().map_err(|_|bad("bus stop malformed"))?;
+            let i=self.buses.iter().position(|b|b.0==id).ok_or_else(||bad("unknown bus tag"))?;
+            if stop>=self.buses[i].1.len(){return Err(bad("unknown bus stop"))}
+            let r=s.0.get(i).ok_or_else(||bad("missing bus state"))?;
+            return Ok(r.0<stop||(r.0==stop&&r.1==0));
+        }
+        if let Some(id)=tag.strip_prefix("freight:"){
+            let i=self.freight.iter().position(|b|b.0==id).ok_or_else(||bad("unknown freight tag"))?;
+            return Ok(!*s.2.get(i).ok_or_else(||bad("missing freight state"))?&&self.freight[i].2>0.);
+        }
+        if let Some(id)=tag.strip_prefix("car:"){
+            let i=self.cars.iter().position(|b|b.0==id).ok_or_else(||bad("unknown service car tag"))?;
+            return Ok(!*s.4.get(i).ok_or_else(||bad("missing service car state"))?&&self.cars[i].2>0.);
+        }
+        if tag=="__joint_clock__"{return Ok(false)}
+        Err(bad("unclassified physical route"))
+    }
     pub(crate) fn event_backing_matches(&self,other:&ServiceCheckpoint)->bool{Arc::ptr_eq(&self.last_events,&other.1)}
     pub(crate) fn event_storage_bytes(&self) -> usize {
         self.last_events.retained_storage_bytes()

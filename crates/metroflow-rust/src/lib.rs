@@ -1317,7 +1317,7 @@ mod tests {
 // Rust host interface for the existing original physical engine. The crate
 // still uses PyO3 error/binding types; no Python script participates.
 #[cfg(feature="native-cli")]
-pub use v1_engine::{run_native_declaration,run_native_declaration_with_plan,recover_native_checkpoint,run_native_phase,run_native_suffix,migrate_native_time_bins};
+pub use v1_engine::{run_native_declaration,run_native_declaration_with_plan,recover_native_checkpoint,run_native_phase,run_native_suffix,run_native_graph_edit,migrate_native_time_bins};
 #[cfg(feature="native-cli")]
 pub mod frozen_city;
 #[cfg(feature="native-cli")]

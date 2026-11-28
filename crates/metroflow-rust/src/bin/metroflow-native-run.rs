@@ -1,4 +1,4 @@
-use _metroflow_rust::{run_native_declaration_with_plan,recover_native_checkpoint,run_native_phase,run_native_suffix,migrate_native_time_bins,compare_native_rank_states};
+use _metroflow_rust::{run_native_declaration_with_plan,recover_native_checkpoint,run_native_phase,run_native_suffix,run_native_graph_edit,migrate_native_time_bins,compare_native_rank_states};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::{
@@ -98,6 +98,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         out["manifest_sha256"]=json!(mh);out["source_checkpoint_sha256"]=json!(ch);out["checkpoint_sha256"]=json!(digest(Path::new(&a[9]))?);out["executable_sha256"]=json!(digest(&std::env::current_exe()?)?);
         out["checkpoint_bytes"]=json!(std::fs::metadata(&a[9])?.len());out["address_space_limit_bytes"]=json!(cap);out["peak_rss_bytes"]=json!(rss());out["wall_s"]=json!(start.elapsed().as_secs_f64());out["python_runtime_dependency"]=json!("none");
         serde_json::to_writer_pretty(OpenOptions::new().write(true).create_new(true).open(&a[8])?,&out)?;println!("{}",serde_json::to_string(&out)?);return Ok(())
+    }
+    if a.get(1).is_some_and(|x|x=="--graph-edit"){
+        if a.len()!=8{return Err("usage: --graph-edit MANIFEST PRIOR_RECEIPT CHECKPOINT REMOVED_JSON OUTPUT THREADS".into())}
+        let start=Instant::now();let cap=address_cap()?;
+        if Path::new(&a[6]).exists(){return Err("output exists".into())}
+        let mh=digest(Path::new(&a[2]))?;let ch=digest(Path::new(&a[4]))?;
+        let prior:Value=serde_json::from_reader(BufReader::new(File::open(&a[3])?))?;
+        if prior["manifest_sha256"]!=mh||prior["checkpoint_sha256"]!=ch{return Err("graph review source binding differs".into())}
+        let removed:Vec<String>=serde_json::from_reader(BufReader::new(File::open(&a[5])?))?;
+        let input=serde_json::from_reader(BufReader::new(File::open(&a[2])?))?;
+        let mut out=run_native_graph_edit(input,a[7].parse()?,&a[4],&removed)?;
+        if mh!=digest(Path::new(&a[2]))?||ch!=digest(Path::new(&a[4]))?{return Err("graph review source changed".into())}
+        out["manifest_sha256"]=json!(mh);out["checkpoint_sha256"]=json!(ch);out["address_space_limit_bytes"]=json!(cap);out["peak_rss_bytes"]=json!(rss());out["wall_s"]=json!(start.elapsed().as_secs_f64());out["python_runtime_dependency"]=json!("none");
+        out["executable_sha256"]=json!(digest(&std::env::current_exe()?)?);
+        serde_json::to_writer_pretty(OpenOptions::new().write(true).create_new(true).open(&a[6])?,&out)?;println!("{}",serde_json::to_string(&out)?);return Ok(())
     }
     if a.get(1).is_some_and(|x|x=="--phase"){
         if ![9,11].contains(&a.len()){return Err("usage: metroflow-native-run --phase MANIFEST CONFIG INPUTS END_S THREADS RECEIPT CHECKPOINT [PRIOR_RECEIPT PRIOR_CHECKPOINT]".into())}

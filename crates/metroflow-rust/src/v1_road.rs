@@ -1405,6 +1405,12 @@ impl RoadState {
     pub(crate) fn summary(&self) -> (&[f64; 7], &[[f64; 5]]) {
         (&self.totals, &self.ledger)
     }
+    #[cfg(feature="native-cli")]
+    pub(crate) fn graph_drain_flags(&self, removed:&std::collections::BTreeSet<usize>)->(bool,bool){
+        let active=self.cells.iter().enumerate().any(|(i,c)|removed.contains(&i)&&!c.packets.is_empty());
+        let pending=self.cells.iter().any(|c|!c.packets.is_empty())||self.pending.iter().any(|q|!q.is_empty());
+        (active,pending)
+    }
     pub(crate) fn active_by_tag(&self) -> HashMap<usize, f64> {
         let mut out = HashMap::new();
         for p in self
