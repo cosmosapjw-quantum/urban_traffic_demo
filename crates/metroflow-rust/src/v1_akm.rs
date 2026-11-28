@@ -369,6 +369,43 @@ mod sparse_flux_tests{
         assert!((s.outlet_birth-1.).abs()<1e-12);
     }
     #[test]
+    fn competing_merge_reservation_consumes_current_receiver_supply(){
+        let road=V1Road::new("akm-reservation-merge".into(),1.,vec![vec![100.,10.,2.,2.,200.,1.];3],vec![None;3],
+            vec![(vec![0,2],0),(vec![1,2],1)],
+            vec![vec![10.,2.,2.,4.,2.,1.,5.,1.,0.2,0.,10.,0.,12.],vec![10.,2.,2.,4.,2.,1.,5.,1.,0.2,0.,10.,0.,5.]],
+            vec![vec![0,1],vec![2]],vec![],1000,Some(1000),true).unwrap();
+        let mut s=State::blank(1.,2);s.enable_whole_bus(0,&road).unwrap();s.interface=true;
+        s.road.insert((0,0),Moment::point(1.,1.,1.,0.));s.bus_tracks.insert((0,0),BusTrack{distance:100.,entry_s:0.});
+        s.road.insert((1,0),Moment::point(1.,1.,1.,0.));s.class[0][0]=1.;s.class[1][0]=1.;
+        let (next,e,st)=s.advance(&road,1.,&[],1000,256*1024*1024).unwrap();
+        assert_eq!(e.len(),0);assert!((next.crossings[&(0,0)]-10./12.).abs()<1e-12);
+        assert!((st.bus_boundary_internal*12.-10.).abs()<1e-12);
+        assert!(!next.road.contains_key(&(1,1))||next.road[&(1,1)].mass()<1e-12);
+        assert!((next.active_mass()-2.).abs()<1e-12);assert!((next.check(&road).unwrap()-0.05).abs()<1e-12);
+        let (third,e,st)=next.advance(&road,1.,&[],1000,256*1024*1024).unwrap();
+        assert_eq!(e.len(),0);assert_eq!(third.crossings.len(),0);
+        assert!((third.road[&(0,1)].mass()-1.).abs()<1e-12);
+        let car=third.road.get(&(1,1)).map_or(0.,|x|x.mass());
+        assert!(st.bus_boundary_internal*12.+car*5.<=9.5+1e-12);
+        assert!((third.active_mass()-2.).abs()<1e-12);
+    }
+    #[test]
+    fn exact_slack_remains_partial_without_fictitious_completion(){
+        let road=V1Road::new("akm-no-strict-slack".into(),1.,vec![vec![100.,10.,2.,2.,12.,1.]],vec![None],
+            vec![(vec![0],0)],vec![vec![10.,2.,2.,4.,2.,1.,5.,1.,0.2,0.,10.,0.,12.]],
+            vec![vec![0]],vec![],1000,Some(1000),true).unwrap();
+        let mut s=State::blank(0.,1);s.enable_whole_bus(0,&road).unwrap();s.interface=true;
+        for i in 0..128{
+            let offer=if i==0{vec![(0,1.,0.)]}else{vec![]};
+            let(next,e,_)=s.advance(&road,1.,&offer,1000,256*1024*1024).unwrap();
+            assert_eq!(e.len(),0);assert_eq!(next.road.len(),0);
+            assert_eq!(next.pending[&(0,0)].mass(),1.);s=next;
+        }
+        let a=s.crossings[&(0,0)];
+        assert!(a<1.&&(a-(1.-0.95f64.powi(128))).abs()<1e-12);
+        assert!((s.check(&road).unwrap()-a).abs()<1e-12);
+    }
+    #[test]
     fn sparse_transport_conserves_two_link_birth_and_mass(){
         let road=road();let mut s=State::blank(0.,1);let mut out=0.;
         for i in 0..100{
