@@ -54,6 +54,20 @@ def read_akm_receipt(path: str | Path, *, expected_sha256: str | None = None) ->
             schema, status, data["model_identity"], _time(data["time_s"]),
             data["scope"], digest, data,
         )
+    if schema == "akm_d07_causal_lab_v1":
+        status = data["status"]
+        if status not in {"EXECUTED_FOR_REVIEW", "BLOCKED"}:
+            raise ValueError("unsupported D07 research status")
+        time = _time(data["time_s"])
+        if _time(data["last_sample"]["time_s"]) != time:
+            raise ValueError("inconsistent D07 observation time")
+        times = [_time(r["time_s"]) for r in data["samples"]]
+        if any(a >= b for a, b in zip(times, times[1:])) or any(t > time for t in times):
+            raise ValueError("invalid D07 observation time sequence")
+        return AKMReceiptView(
+            schema, status, data["model_identity"], time,
+            data["scope"], digest, data,
+        )
     if schema == "akm_b_active_city_observed_v1":
         rows = data["result"]["snapshots"]
         times = [_time(r["time_s"]) for r in rows]

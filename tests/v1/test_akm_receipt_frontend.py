@@ -48,3 +48,32 @@ def test_frontend_fails_closed_on_hash_schema_and_nonfinite(tmp_path):
     q.write_text('{"schema":"metroflow_akm_native_owners_v1","time_s":NaN}')
     with pytest.raises(ValueError, match="nonfinite"):
         read_akm_receipt(q)
+
+
+def test_d07_route_receipt_preserves_native_observation_and_graph_identity():
+    path = ROOT / "artifacts/akm_d07_causal_routing_20261128/S06_2_reroute.json"
+    raw = path.read_bytes()
+    original = json.loads(raw)
+    view = read_akm_receipt(path, expected_sha256=hashlib.sha256(raw).hexdigest())
+    assert view.schema == original["schema"]
+    assert view.status == original["status"]
+    assert view.model == original["model_identity"]
+    assert view.time_s == 1800
+    assert view.scope == original["scope"]
+    for field in ["graph_events", "epochs", "reroutes", "last_sample", "samples"]:
+        assert view.payload[field] == original[field]
+
+
+def test_d07_rejects_bad_status_and_clock(tmp_path):
+    path = ROOT / "artifacts/akm_d07_causal_routing_20261128/S06_8_reroute.json"
+    original = json.loads(path.read_text())
+    q = tmp_path / "d07.json"
+    original["status"] = "ACCEPTED"
+    q.write_text(json.dumps(original))
+    with pytest.raises(ValueError, match="status"):
+        read_akm_receipt(q)
+    original["status"] = "EXECUTED_FOR_REVIEW"
+    original["time_s"] = 20
+    q.write_text(json.dumps(original))
+    with pytest.raises(ValueError, match="time"):
+        read_akm_receipt(q)
