@@ -1,7 +1,7 @@
 //! Native ownership bridge. A new wire and identity deliberately prevent an
 //! AKM state from being interpreted as the original exact packet engine.
 use super::*;
-use crate::v1_akm::{State,MODEL,ROAD_ROW_LIMIT};
+use crate::v1_akm::{State,MODEL,HYBRID_MODEL,ROAD_ROW_LIMIT};
 use crate::v1_journey::{Service,advance_akm_tick};
 use crate::v1_road::{read_len,write_len};
 use serde_json::{json,Value};
@@ -68,19 +68,19 @@ fn save(e:&NativeWholeEngine,s:&State,id:&str,path:&str)->CoreResult<()>{
     check(e,s,e.journey.state(),&e.service.checkpoint())?;
     let tmp=format!("{path}.stage-{}",std::process::id());
     let mut f=BufWriter::with_capacity(1024*1024,std::fs::OpenOptions::new().create_new(true).write(true).open(&tmp).map_err(io)?);
-    f.write_all(b"AKMFULL1").map_err(io)?;write_len(&mut f,id.len())?;f.write_all(id.as_bytes()).map_err(io)?;
+    f.write_all(if s.whole_bus_class.is_some(){b"AKMFULL2"}else{b"AKMFULL1"}).map_err(io)?;write_len(&mut f,id.len())?;f.write_all(id.as_bytes()).map_err(io)?;
     s.write(&mut f)?;e.service.write_state(&mut f)?;e.journey.write_state(&mut f)?;
     f.flush().map_err(io)?;f.get_ref().sync_all().map_err(io)?;drop(f);
     if std::path::Path::new(path).exists(){return Err(bad("AKM output already exists"))}
     std::fs::rename(tmp,path).map_err(io)?;sync_parent_native(path)
 }
-fn read(e:&mut NativeWholeEngine,id:&str,path:&str)->CoreResult<State>{
+fn read(e:&mut NativeWholeEngine,id:&str,path:&str,whole_bus_class:Option<usize>)->CoreResult<State>{
     let mut f=BufReader::with_capacity(1024*1024,File::open(path).map_err(io)?);
     let mut magic=[0;8];f.read_exact(&mut magic).map_err(io)?;
-    if &magic!=b"AKMFULL1"||read_len(&mut f,id.len())?!=id.len(){return Err(bad("AKM checkpoint schema/identity differs"))}
+    if &magic!=(if whole_bus_class.is_some(){b"AKMFULL2"}else{b"AKMFULL1"})||read_len(&mut f,id.len())?!=id.len(){return Err(bad("AKM checkpoint schema/identity differs"))}
     let mut raw=vec![0;id.len()];f.read_exact(&mut raw).map_err(io)?;
     if raw!=id.as_bytes(){return Err(bad("AKM checkpoint manifest binding differs"))}
-    let s=State::read(&mut f,&e.road)?;
+    let s=State::read(&mut f,&e.road,whole_bus_class)?;
     let pool=e.road_storage_bytes.ok_or_else(||bad("AKM dynamic pool absent"))?;
     let remaining=pool.checked_sub(s.work_reserve()).filter(|x|*x>0).ok_or_else(||CoreError::resource("AKM read reserve"))?;
     let service=e.service.read_state_codec(&mut f,e.event_limit,Some(remaining/3),false,false)?;
@@ -97,12 +97,16 @@ pub fn run_akm_native(manifest:Value,manifest_sha:&str,mode:&str,source:&str,tar
     let start=Instant::now();
     let(mut e,calendar_legs,calendar_totals)=build_native_input(manifest,threads)?;
     let build_s=start.elapsed().as_secs_f64();
-    let id=format!("{MODEL}:{}:{manifest_sha}",e.identity);
+    let (hybrid,mode)=if let Some(m)=mode.strip_prefix("hybrid-"){(true,m)}else{(false,mode)};
+    let model=if hybrid{HYBRID_MODEL}else{MODEL};
+    let whole_bus_class=if hybrid{Some(e.class_names.iter().position(|x|x=="scheduled_bus").ok_or_else(||bad("scheduled bus class absent"))?)}else{None};
+    let id=format!("{model}:{}:{manifest_sha}",e.identity);
     let init=Instant::now();let mut migration=Value::Null;
     let mut s=match mode{
         "fresh"|"migrate"=>{
             let old=if mode=="fresh"{e.initial()}else{e.load(source.to_owned())?};
-            let (projected,n)=e.road.akm_project(&old.value.road)?;
+            let (mut projected,n)=e.road.akm_project(&old.value.road)?;
+            if let Some(k)=whole_bus_class{projected.enable_whole_bus(k,&e.road)?;}
             check(&e,&projected,&old.value.journey,&old.value.service)?;
             migration=json!({"source_time_s":old.time_s(),"source_native_identity":e.identity,"source_rows":n,"projected_rows":projected.rows(),"projected_active_mass":projected.active_mass(),
                 "projected_active_birth":projected.total_birth(),"source_owner_ledger":ledger(&e,&old.value.journey),
@@ -111,7 +115,7 @@ pub fn run_akm_native(manifest:Value,manifest_sha:&str,mode:&str,source:&str,tar
             // Old exact road owner is no longer used after projection.
             e.road.install_state(e.initial_state.road.clone());drop(old);projected
         },
-        "resume"|"recover"=>read(&mut e,&id,source)?,
+        "resume"|"recover"=>read(&mut e,&id,source,whole_bus_class)?,
         _=>return Err(bad("AKM mode must be fresh/migrate/resume/recover"))
     };
     let source_time=s.t;let init_s=init.elapsed().as_secs_f64();
@@ -121,19 +125,19 @@ pub fn run_akm_native(manifest:Value,manifest_sha:&str,mode:&str,source:&str,tar
     let indices:HashMap<&str,usize>=e.tags.iter().enumerate().map(|(i,t)|(t.as_str(),i)).collect();
     if indices.len()!=e.tags.len(){return Err(bad("duplicate AKM route tags"))}
     let initial_ledger=ledger(&e,e.journey.state());let initial_rows=s.rows();
-    let mut peak_rows=s.rows();let mut peak_storage=s.check(&e.road)?;let mut steps=0usize;let mut failure=None;let mut exited=0.;let mut transferred=0.;let mut offered=0.;let mut substeps=0;
+    let mut peak_rows=s.rows();let mut peak_storage=s.check(&e.road)?;let mut steps=0usize;let mut failure=None;let mut exited=0.;let mut transferred=0.;let mut offered=0.;let mut substeps=0;let mut bus_exited=0.;let mut bus_moves=0usize;let mut bus_quota_blocks=0usize;
     let advance=Instant::now();let mut step_times=Vec::new();
     for _ in 0..count.round() as usize{
         let tick=Instant::now();
         let owners=&e.car_tag_legs;let classes=&e.class_names;let freight=&e.freight_vehicles;
         let result=e.parallel.run(||advance_akm_tick(&e.road,&mut s,&mut e.service,&mut e.journey,&e.tags,&indices,e.step,pool,e.event_limit,
             |next,j,service,legs|Binding{owners,classes,freight,legs}.check(next,j,service)));
-        match result{Ok(st)=>{steps+=1;peak_rows=peak_rows.max(st.peak_rows);peak_storage=peak_storage.max(st.peak_storage_ratio);exited+=st.exited;transferred+=st.transferred;offered+=st.offered;substeps+=st.substeps;step_times.push(tick.elapsed().as_secs_f64())},Err(err)=>{failure=Some(err.message);break}}
+        match result{Ok(st)=>{steps+=1;peak_rows=peak_rows.max(st.peak_rows);peak_storage=peak_storage.max(st.peak_storage_ratio);exited+=st.exited;transferred+=st.transferred;offered+=st.offered;substeps+=st.substeps;bus_exited+=st.bus_exited;bus_moves+=st.bus_moves;bus_quota_blocks+=st.bus_quota_blocks;step_times.push(tick.elapsed().as_secs_f64())},Err(err)=>{failure=Some(err.message);break}}
     }
     let advance_s=advance.elapsed().as_secs_f64();
     let save_start=Instant::now();save(&e,&s,&id,output)?;let save_s=save_start.elapsed().as_secs_f64();
     let support=e.road.akm_support();
-    let mut receipt=json!({"schema":"metroflow_akm_native_owners_v1","scope":"research sparse proportional kinetic transport; original native calendar/journey/service owners; not V03 acceptance",
+    let mut receipt=json!({"schema":"metroflow_akm_native_owners_v1","scope":"research sparse kinetic transport; original native calendar/journey/service owners; not V03 acceptance","transport_policy":model,
         "status":if failure.is_none(){"EXECUTED_FOR_REVIEW"}else{"BLOCKED"},"failure":failure,"model_identity":id,"original_identity":e.identity,
         "mode":mode,"city_identity":e.city,"schedule_identity":e.schedule,"manifest_sha256":manifest_sha,"threads":threads,"start_s":source_time,"requested_end_s":target,"time_s":s.t,
         "calendar_legs":calendar_legs,"calendar_totals":[calendar_totals.0,calendar_totals.1,calendar_totals.2],"unsupported_legs":e.unsupported,"unassigned":e.unassigned,"supported":e.supported,
@@ -146,5 +150,6 @@ pub fn run_akm_native(manifest:Value,manifest_sha:&str,mode:&str,source:&str,tar
         "build_s":build_s,"init_s":init_s,"advance_s":advance_s,"save_s":save_s,"wall_s":start.elapsed().as_secs_f64(),"tick_times_s":step_times,
         "dynamic_pool_bytes":pool,"byte_budget":e.byte_budget,"user_checkpoint":output});
     receipt.as_object_mut().unwrap().extend(measurements.as_object().unwrap().clone());
+    receipt["whole_bus"]=json!({"enabled":hybrid,"active_tracks":s.bus_tracks.len(),"exited_veh":bus_exited,"moves":bus_moves,"quota_blocks":bus_quota_blocks});
     Ok(receipt)
 }

@@ -78,6 +78,22 @@ pub fn react(x:Moment,r:Rates,h:f64)->Result<Moment>{
     }
     Ok(switch(x,r,h*0.5))
 }
+/// Positive integrated distance (in normalized-speed seconds) of the same
+/// Strang drift suboperator as react. Frozen coefficients; not a stochastic
+/// first-passage law. Small h/tau uses the cancellation-free expansion.
+pub fn react_with_distance(x:Moment,r:Rates,h:f64)->Result<(Moment,f64)>{
+    if !r.valid()||!h.is_finite()||h<0.{return Err("invalid distance rates/duration".into())}
+    let m=x.mass();if m==0.||h==0.{return Ok((react(x,r,h)?,0.))}
+    let mid=switch(x,r,h*0.5);
+    let xi=h/r.tau;
+    let b=if xi<0.001{
+        h*xi*(0.5+xi*(-1./6.+xi*(1./24.+xi*(-1./120.+xi/720.))))
+    }else{h-r.tau*(-(-xi).exp_m1())};
+    let a=h-b;
+    let distance=(mid.momentum()/m)*a+r.target*(mid.m[1]/m)*b;
+    if !distance.is_finite()||distance< -1e-12*h||distance>h*(1.+1e-12){return Err("mean distance outside speed support".into())}
+    Ok((react(x,r,h)?,distance.clamp(0.,h)))
+}
 /// Exact conditional means under frozen coefficients. The convolution is
 /// written with expm1 and the lower exponent to avoid resonance cancellation.
 #[derive(Clone,Copy,Debug,PartialEq,Serialize,Deserialize)]
@@ -101,6 +117,17 @@ impl Mobility {
 #[cfg(test)]
 mod tests{
     use super::*;
+    #[test]
+    fn finite_characteristic_drift_distance_matches_integral(){
+        let r=Rates{alpha:0.2,nu:0.,tau:2.,target:1.};let x=Moment::point(1.,1.,0.,0.);
+        for h in [1e-12,1e-5,0.1,1.,10.,100.]{
+            let(y,d)=react_with_distance(x,r,h).unwrap();
+            assert_eq!(y,react(x,r,h).unwrap());
+            assert!(d>=0.&&d<=h);
+            if h>=0.1{assert!((d-(h+2.*(-h/2.).exp_m1())).abs()<1e-12);}
+            else{assert!((d/(h*h/4.)-1.).abs()<1e-5);}
+        }
+    }
     #[test]
     fn selective_velocity_flux_carries_moving_mass_not_stopped_mass(){
         let x=Moment::point(0.5,1.,0.,2.).add(Moment::point(0.5,1.,1.,2.));
