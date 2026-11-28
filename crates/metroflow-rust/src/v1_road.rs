@@ -5315,14 +5315,23 @@ impl V1Road {
         // One exact-size rank ordinal scratch for the largest receiving cell.
         // All smaller cells reuse it; its whole lifetime stays in base charge.
         let mut rank_workspace:Vec<(u64,u32)>=Vec::new();
+        let mut rank_scatter=None;
         let rank_bytes=if self.research_rank_bins.is_some(){
             let max=if use_timed_incoming{timed_rows.iter().map(TimedIncomingRows::len).max().unwrap_or(0)}else{incoming.iter().map(ChunkedParts::len).max().unwrap_or(0)};
             let bytes=max.checked_mul(std::mem::size_of::<(u64,u32)>()).ok_or_else(||budget("rank workspace bytes overflow"))?;
-            work.require(bytes,"rank reusable ordinal workspace")?;
+            let scatter_bytes=if self.research_rank_adaptive_milli.is_some()&&max>=self.routes.len().saturating_mul(3){
+                v1_rank_projection::RankScatter::bytes(self.routes.len())
+            }else{0};
+            let total=bytes.checked_add(scatter_bytes).ok_or_else(||budget("rank workspace total overflow"))?;
+            work.require(total,"rank reusable ordinal workspace")?;
+            if scatter_bytes>0{
+                rank_scatter=Some(v1_rank_projection::RankScatter::new(self.routes.len())?);
+                crate::v1_trace::add("rank.scatter_workspace_bytes",scatter_bytes as u64);
+            }
             rank_workspace=checkpoint_vec(max)?;
             if rank_workspace.capacity()!=max{return Err(budget("rank reusable capacity differs"))}
-            crate::v1_trace::add("rank.workspace_reserved_bytes",bytes as u64);
-            bytes
+            crate::v1_trace::add("rank.workspace_reserved_bytes",total as u64);
+            total
         }else{0};
         let consumer_floor=consumer_floor.saturating_add(rank_bytes);
         if !local_consumer{work.base=work.base.saturating_add(rank_bytes);}
@@ -5396,7 +5405,7 @@ impl V1Road {
                 let source=std::mem::take(&mut timed_rows[i]);
                 let get=|index|source.get_with_events(index,&timed_controls,&events).0;
                 let parts=if let Some(bins)=self.research_rank_bins {
-                    projected=Some(v1_rank_projection::project_with(source.len(),get,target,bins,self.research_rank_adaptive_milli,dt,self.record_budget,local_peak,&mut work,&mut rank_workspace)?);
+                    projected=Some(v1_rank_projection::project_with(source.len(),get,target,bins,self.research_rank_adaptive_milli,dt,self.record_budget,local_peak,&mut work,&mut rank_workspace,rank_scatter.as_mut())?);
                     Vec::new()
                 }else if local_consumer {
                     combine_compact_indexed_parts(source.len(),get,|index_bytes,groups|{
@@ -5410,7 +5419,7 @@ impl V1Road {
             } else {
                 let source=std::mem::take(&mut incoming[i]);
                 let parts=if let Some(bins)=self.research_rank_bins{
-                    projected=Some(v1_rank_projection::project_with(source.len(),|index|source.get(index),target,bins,self.research_rank_adaptive_milli,dt,self.record_budget,local_peak,&mut work,&mut rank_workspace)?);
+                    projected=Some(v1_rank_projection::project_with(source.len(),|index|source.get(index),target,bins,self.research_rank_adaptive_milli,dt,self.record_budget,local_peak,&mut work,&mut rank_workspace,rank_scatter.as_mut())?);
                     Vec::new()
                 }else{combine_chunked_parts(&source)?};
                 let expired_marks=std::mem::take(&mut marks[i]);
@@ -5495,6 +5504,7 @@ impl V1Road {
             for cell in &mut out.cells{v1_ready_rank::coalesce(&mut cell.packets,cell.v[0],milli as f64/1000.,60.,&mut work)?;}
         }
         drop(rank_workspace);
+        drop(rank_scatter);
         work.base = full_consumer_base;
         // No timed source/control owner survives into validation or the
         // persistent candidate. Legacy state/checkpoint representation stays.

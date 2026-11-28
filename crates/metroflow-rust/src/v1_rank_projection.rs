@@ -97,6 +97,48 @@ fn adapt_grid(g:Grid,len:usize,get:&impl Fn(usize)->Part,dt:f64,milli:u64)->Core
     adaptive_partition(g,mass,delay,dt,milli)
 }
 
+// A receiving cell normally has one route offset per tag. When this is
+// checked, stable tag scatter is exactly the original (tag,offset,ordinal)
+// order, without comparison sort. Repeated-cell paths use the old fallback.
+#[derive(Clone,Copy,Default)]
+struct TagSlot{offset:u32,count:u32,cursor:u32}
+pub(super) struct RankScatter{slots:Vec<TagSlot>}
+impl RankScatter{
+    pub(super) fn bytes(tags:usize)->usize{tags.saturating_mul(std::mem::size_of::<TagSlot>())}
+    pub(super) fn new(tags:usize)->CoreResult<Self>{
+        let mut slots=checkpoint_vec(tags)?;
+        if slots.capacity()!=tags{return Err(budget("rank scatter exact allocation differs"))}
+        slots.resize(tags,TagSlot::default());Ok(Self{slots})
+    }
+    fn reorder(&mut self,len:usize,get:&impl Fn(usize)->Part,order:&mut Vec<(u64,u32)>)->CoreResult<bool>{
+        if len<self.slots.len().saturating_mul(2)||len>u32::MAX as usize||order.capacity()<len{return Ok(false)}
+        self.slots.fill(TagSlot::default());
+        for i in 0..len{
+            let p=get(i);let (tag,offset)=compact_indices(p.tag,p.offset).ok_or_else(||val("rank scatter wide source"))?;
+            let slot=self.slots.get_mut(tag as usize).ok_or_else(||val("rank scatter tag outside registry"))?;
+            if slot.count!=0&&slot.offset!=offset{return Ok(false)}
+            slot.offset=offset;slot.count=slot.count.checked_add(1).ok_or_else(||budget("rank scatter count overflow"))?;
+        }
+        let mut total=0u32;
+        for s in &mut self.slots{s.cursor=total;total=total.checked_add(s.count).ok_or_else(||budget("rank scatter prefix overflow"))?;}
+        if total as usize!=len{return Err(arithmetic("rank scatter census differs"))}
+        order.clear();order.resize(len,(0,0));
+        for i in 0..len{
+            let p=get(i);let (tag,offset)=compact_indices(p.tag,p.offset).ok_or_else(||val("rank scatter wide source"))?;
+            let slot=&mut self.slots[tag as usize];
+            order[slot.cursor as usize]=(((tag as u64)<<32)|offset as u64,i as u32);
+            slot.cursor+=1;
+        }
+        Ok(true)
+    }
+}
+fn sorted_ordinals(len:usize,get:&impl Fn(usize)->Part,order:&mut Vec<(u64,u32)>,scatter:Option<&mut RankScatter>)->CoreResult<bool>{
+    if let Some(scatter)=scatter{if scatter.reorder(len,get,order)?{return Ok(true)}}
+    order.clear();
+    for i in 0..len{let p=get(i);let (tag,offset)=compact_indices(p.tag,p.offset).ok_or_else(||val("rank sort wide source"))?;order.push((((tag as u64)<<32)|offset as u64,i as u32));}
+    order.sort_unstable();Ok(false)
+}
+
 // Explicit two-pass count and emit. Cached integer keys avoid repeated packed
 // payload decoding in the sort comparator; source ordinal resolves ties.
 // All output vectors reserved once with actual cardinality. No per-row maps.
@@ -105,9 +147,9 @@ pub(super) fn project(len:usize,get:impl Fn(usize)->Part,target:f64,bins:usize,d
     let bytes=len.saturating_mul(std::mem::size_of::<(u64,u32)>());
     work.interval(scratch.saturating_add(bytes))?;
     let mut workspace=checkpoint_vec(len)?;
-    project_with(len,get,target,bins,None,dt,record_budget,scratch.saturating_add(bytes),work,&mut workspace)
+    project_with(len,get,target,bins,None,dt,record_budget,scratch.saturating_add(bytes),work,&mut workspace,None)
 }
-pub(super) fn project_with(len:usize,get:impl Fn(usize)->Part,target:f64,bins:usize,adaptive:Option<u64>,dt:f64,record_budget:usize,scratch:usize,work:&mut RoadWorkBudget,order:&mut Vec<(u64,u32)>)->CoreResult<(Vec<Packet>,f64)>{
+pub(super) fn project_with(len:usize,get:impl Fn(usize)->Part,target:f64,bins:usize,adaptive:Option<u64>,dt:f64,record_budget:usize,scratch:usize,work:&mut RoadWorkBudget,order:&mut Vec<(u64,u32)>,scatter:Option<&mut RankScatter>)->CoreResult<(Vec<Packet>,f64)>{
     let grid=grid(len,&get,bins,dt)?;
     let grid=if let Some(milli)=adaptive{adapt_grid(grid,len,&get,dt,milli)?}else{grid};
     if len==0{return Ok((vec![],0.))}
@@ -116,9 +158,10 @@ pub(super) fn project_with(len:usize,get:impl Fn(usize)->Part,target:f64,bins:us
     let shell=grid.n*std::mem::size_of::<Packet>()+grid.n*96;
     let base=scratch.saturating_add(shell).saturating_add(128*1024);
     work.interval(base)?;
-    order.clear();
-    for i in 0..len{let p=get(i);let (tag,offset)=compact_indices(p.tag,p.offset).unwrap();order.push((((tag as u64)<<32)|offset as u64,i as u32));}
-    order.sort_unstable();
+    if sorted_ordinals(len,&get,order,scatter)?{
+        crate::v1_trace::add("rank.stable_scatter_rows",len as u64);
+        crate::v1_trace::add("rank.stable_scatter_cells",1);
+    }else{crate::v1_trace::add("rank.comparator_sort_rows",len as u64);}
     let mut counts=[0usize;MAX_BINS];
     for group in order.chunk_by(|a,b|a.0==b.0){
         if grid.n==1{counts[0]+=1;continue}
@@ -218,8 +261,18 @@ mod tests {
         let chosen=adapt_grid(fine,early.len(),&|i|early[i],4.,500).unwrap();
         assert_eq!(chosen.n,2);assert_eq!(chosen.ends[1],4.);
         let mut ws=Vec::with_capacity(early.len());let mut w=work();
-        let (out,m)=project_with(early.len(),|i|early[i],10.,4,Some(500),4.,100,0,&mut w,&mut ws).unwrap();
+        let (out,m)=project_with(early.len(),|i|early[i],10.,4,Some(500),4.,100,0,&mut w,&mut ws,None).unwrap();
         assert_eq!(m,10.);assert_eq!(out.len(),2);assert!(out.iter().flat_map(|p|p.parts.iter()).all(|p|p.a.0==p.b.0));
+    }
+    #[test] fn stable_scatter_matches_sort_and_repeated_offsets_fall_back(){
+        let rows:Vec<_>=(0..1024).map(|i|p((i*13)%17,0.,2.,(i+1)as f64)).collect();
+        let mut scatter=RankScatter::new(17).unwrap();let mut a=Vec::with_capacity(rows.len());let mut b=Vec::with_capacity(rows.len());
+        assert!(sorted_ordinals(rows.len(),&|i|rows[i],&mut a,Some(&mut scatter)).unwrap());
+        assert!(!sorted_ordinals(rows.len(),&|i|rows[i],&mut b,None).unwrap());
+        assert_eq!(a,b);
+        let mut rows=rows;rows[17].offset=2;
+        assert!(!sorted_ordinals(rows.len(),&|i|rows[i],&mut a,Some(&mut scatter)).unwrap());
+        sorted_ordinals(rows.len(),&|i|rows[i],&mut b,None).unwrap();assert_eq!(a,b);
     }
     #[test] fn adaptive_partition_matches_exhaustive_fine_grid_partitions(){
         let mut ends=[0.;MAX_BINS];ends[..4].copy_from_slice(&[1.,2.,3.,4.]);
