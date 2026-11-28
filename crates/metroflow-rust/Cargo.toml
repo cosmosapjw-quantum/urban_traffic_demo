@@ -9,6 +9,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 pyo3 = { version = "0.23", optional = true }
+metroflow-headless = { path = "../metroflow-headless", optional = true }
 rayon = "1.10"
 smallvec = "1.15.1"
 serde = { version = "1", features = ["derive"], optional = true }
@@ -21,6 +22,7 @@ lzma-rust2 = { version = "0.25", default-features = false, features = ["std","xz
 default = ["python-extension"]
 python-extension = ["dep:pyo3", "pyo3/extension-module"]
 native-cli = ["dep:serde", "dep:serde_json", "dep:sha2", "dep:libc", "dep:lzma-rust2"]
+akm-research = ["native-cli", "dep:metroflow-headless"]
 # Diagnostic instrument only: counting allocator and observe-mode guards.
 budget_trace = []
 

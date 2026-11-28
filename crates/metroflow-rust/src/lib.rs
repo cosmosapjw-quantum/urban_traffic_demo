@@ -20,6 +20,8 @@ mod v1_journey;
 mod v1_history;
 mod v1_stage;
 mod v1_engine;
+#[cfg(feature="akm-research")]
+mod v1_akm;
 mod v1_parallel;
 mod v1_trace;
 

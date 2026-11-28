@@ -215,6 +215,7 @@ version = "0.1.0"
 dependencies = [
  "libc",
  "lzma-rust2",
+ "metroflow-headless",
  "pyo3",
  "rayon",
  "serde",

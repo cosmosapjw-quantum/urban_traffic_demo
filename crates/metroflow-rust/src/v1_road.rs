@@ -9791,3 +9791,61 @@ impl V1Road{
         Ok((cells,out))
     }
 }
+
+#[cfg(feature="akm-research")]
+impl V1Road{
+    pub(crate) fn akm_geometry(&self)->(&[Vec<f64>],&[Vec<f64>]){(&self.groups,&self.classes)}
+    pub(crate) fn akm_support(&self)->(usize,usize){
+        (self.routes.len(),self.routes.iter().map(|&(p,_)|self.paths[p].len()).sum())
+    }
+    /// Global normalized reference speed covers source common-cell speed
+    /// and all class desired speed caps; q retains each link/class cap.
+    pub(crate) fn akm_reference_speed(&self)->f64{
+        self.groups.iter().map(|g|g[1]).chain(self.classes.iter().map(|c|c[0])).fold(0.,f64::max)
+    }
+    pub(crate) fn akm_factors(&self,t:f64,end:f64)->CoreResult<Vec<(f64,bool)>>{
+        for &(_,a,b,_) in &self.windows{
+            if (t+1e-10<a&&a<end-1e-10)||(t+1e-10<b&&b<end-1e-10){return Err(val("AKM substep crosses closure boundary"))}
+        }
+        for &(cycle,green,offset) in self.signals.iter().flatten(){for phase in [0.,green]{
+            let edge=offset+phase+(((t-offset-phase)/cycle).floor()+1.)*cycle;
+            if t+1e-10<edge&&edge<end-1e-10{return Err(val("AKM substep crosses signal boundary"))}
+        }}
+        Ok((0..self.groups.len()).map(|j|(self.factor(j,t),self.green(j,t))).collect())
+    }
+    /// Irreversible projection of the exact road owner: preserve slot, mass,
+    /// global/class ledgers and birth. Discard distance-to-ready, rank and
+    /// sub-cell correlations; inherit the original bulk speed and latent p.
+    pub(crate) fn akm_project(&self,s:&RoadState)->CoreResult<(crate::v1_akm::State,usize)>{
+        use crate::v1_akm::{State,add};
+        use metroflow_headless::active_kinetic::Moment;
+        let mut out=State::blank(s.t,self.classes.len());
+        out.class=s.ledger.iter().map(|v|[v[0],v[1]]).collect();
+        let uref=self.akm_reference_speed();
+        let mut n=0usize;let mut birth=RoadExpansion::default();
+        for (j,cell) in s.cells.iter().enumerate(){
+            for p in cell.packets.iter().flat_map(|q|q.parts.iter()){
+                let k=self.class(&p);if self.path(p.tag).get(p.offset)!=Some(&j){return Err(val("AKM projection route-position mismatch"))}
+                let u=cell.v[7]/uref;let latent=*cell.latent.get(&k).unwrap_or(&self.classes[k][7]);
+                if !u.is_finite()||!(0. ..=1.).contains(&u)||!(0. ..=1.).contains(&latent){return Err(val("AKM projection velocity/latent outside support"))}
+                let mut x=Moment::point(p.mass,latent,u,0.);x.birth=p.birth;
+                add(&mut out.road,(p.tag,p.offset),x,s.t)?;birth.add_finite(p.birth)?;n+=1;
+            }
+        }
+        for (j,q) in s.pending.iter().enumerate(){
+            for p in q.iter().flat_map(|q|q.parts.iter()){
+                let k=self.class(&p);if p.offset!=0||self.path(p.tag).first()!=Some(&j){return Err(val("AKM pending projection mismatch"))}
+                let c=&self.classes[k];let u=c[11]/uref;
+                if !(0. ..=1.).contains(&u){return Err(val("AKM source speed outside support"))}
+                let mut x=Moment::point(p.mass,c[7],u,0.);x.birth=p.birth;
+                add(&mut out.pending,(p.tag,0),x,s.t)?;birth.add_finite(p.birth)?;n+=1;
+            }
+        }
+        out.initial_birth=birth.finish_finite()?;
+        out.check(self)?;
+        let old=s.active_by_tag();let new=out.active_by_tag();
+        if old.len()!=new.len()||old.iter().any(|(tag,m)|(new.get(tag).copied().unwrap_or(0.)-m).abs()>1e-9*m.max(1.)){return Err(val("AKM projection tag mass differs"))}
+        if (out.active_mass()-(s.totals[0]-s.totals[1])).abs()>1e-9*s.totals[0].max(1.){return Err(val("AKM projection total mass differs"))}
+        Ok((out,n))
+    }
+}
