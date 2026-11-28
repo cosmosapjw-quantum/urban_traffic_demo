@@ -26,6 +26,8 @@ mod v1_akm;
 mod v1_akm_interface;
 #[cfg(feature="akm-research")]
 pub mod akm_d07;
+#[cfg(feature="akm-research")]
+pub mod akm_d08;
 mod v1_parallel;
 mod v1_trace;
 
