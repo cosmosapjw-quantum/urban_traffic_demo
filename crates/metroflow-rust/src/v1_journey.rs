@@ -1216,6 +1216,25 @@ impl NativeJourneyCore {
     pub(crate) fn state(&self) -> &Journey {
         &self.state
     }
+    /// Optimistic structural coverage, not actual service completion.
+    #[cfg(feature="akm-research")]
+    pub(crate) fn akm_direct_support(&self)->CoreResult<Vec<f64>>{
+        let mut out:Vec<_>=self.legs.iter().map(|l|if l.5==0{0.}else{1.}).collect();
+        for b in &self.bus{
+            if b.1<=0.||self.legs[b.0].5!=0{return Err(bad("D09 bus support binding"))}
+            out[b.0]+=b.2/b.1;
+        }
+        for f in &self.freight{
+            let mass=self.legs[f.0].1;
+            if mass<=0.||self.legs[f.0].5!=0{return Err(bad("D09 freight support binding"))}
+            out[f.0]+=f.1/mass;
+        }
+        for x in &mut out{
+            if !x.is_finite()||*x<0.||*x>1.+1e-9{return Err(bad("D09 direct support fraction"))}
+            *x=x.min(1.);
+        }
+        Ok(out)
+    }
     pub(crate) fn legs(&self) -> &[SharedJourneyLeg] {
         &self.legs
     }

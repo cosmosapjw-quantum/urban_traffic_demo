@@ -110,3 +110,8 @@ required-features = ["akm-research"]
 name = "metroflow-native-city"
 path = "src/bin/metroflow-native-city.rs"
 required-features = ["native-cli"]
+
+[[bin]]
+name = "metroflow-akm-support"
+path = "src/bin/metroflow-akm-support.rs"
+required-features = ["akm-research"]

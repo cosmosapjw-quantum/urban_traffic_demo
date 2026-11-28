@@ -3193,4 +3193,4 @@ pub fn compare_native_rank_states(left:serde_json::Value,right:serde_json::Value
 #[path="v1_akm_engine.rs"]
 mod v1_akm_engine;
 #[cfg(feature="akm-research")]
-pub use v1_akm_engine::run_akm_native;
+pub use v1_akm_engine::{run_akm_native,akm_support_audit};

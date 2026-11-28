@@ -155,3 +155,55 @@ pub fn run_akm_native(manifest:Value,manifest_sha:&str,mode:&str,source:&str,tar
     receipt["interface"]=json!({"enabled":interface,"partial_crossings":s.crossings.len(),"peak_crossings_at_owner_tick":peak_crossings,"sum_fraction":s.crossings.values().sum::<f64>(),"physical_boundary_in_veh":boundary[0],"physical_boundary_internal_veh":boundary[1],"physical_boundary_sink_veh":boundary[2],"logical_sink_completed_veh":bus_exited});
     Ok(receipt)
 }
+
+fn support_ceiling(profile:f64,direct:f64,parent:f64)->CoreResult<f64>{
+    if [profile,direct,parent].iter().any(|x|!x.is_finite()||*x<0.||*x>1.+1e-9){return Err(bad("D09 support fraction domain"))}
+    Ok(profile.min(direct).min(parent).min(1.))
+}
+#[cfg(test)]
+mod d09_support_tests{
+    use super::*;
+    #[test]
+    fn parent_and_declared_service_limit_are_both_binding(){
+        assert_eq!(support_ceiling(0.8,0.7,0.4).unwrap(),0.4);
+        assert_eq!(support_ceiling(1.,0.,1.).unwrap(),0.);
+        assert_eq!(support_ceiling(0.2,1.,1.).unwrap(),0.2);
+    }
+}
+
+/// Rebuild the actual calendar and native static owner admission; no tick.
+pub fn akm_support_audit(manifest:Value,threads:usize)->CoreResult<Value>{
+    if manifest.as_object().is_some_and(|m|m.keys().any(|k|k.starts_with("research_"))){return Err(bad("original input required"))}
+    let budget=manifest["byte_budget"].as_u64().ok_or_else(||bad("budget"))? as usize;
+    let declaration:crate::v1_calendar::FactorizedDeclaration=serde_json::from_value(manifest["calendar"].clone()).map_err(|e|bad(e.to_string()))?;
+    let(e,n,totals)=build_native_input(manifest,threads)?;
+    let cal=declaration.compile(budget)?;
+    let direct=e.journey.akm_direct_support()?;
+    let legs=e.journey.legs();
+    if n!=legs.len()||n!=direct.len()||cal.owned_legs().len()!=n{return Err(bad("D09 calendar binding"))}
+    let mut groups=std::collections::BTreeMap::<(String,String),[f64;8]>::new();
+    for (i,l) in cal.owned_legs().iter().enumerate(){
+        if cal.text(l.id).as_ref()!=Some(&legs[i].0){return Err(bad("D09 ordered leg identity"))}
+        let key=(cal.owned_labels()[l.metadata[3]as usize].clone(),cal.owned_labels()[l.metadata[7]as usize].clone());
+        let g=groups.entry(key).or_default();
+        g[0]+=1.;
+        if direct[i]==0.{g[1]+=1.;}
+        for k in 0..3{g[2+k]+=e.amounts[i][k];g[5+k]+=e.amounts[i][k]*(1.-direct[i]);}
+    }
+    let mut windows=vec![];
+    for t in [21600.,25320.,28800.,43200.,61200.,64800.,86400.]{
+        let mut u=vec![0.;n];let mut totals:[[Sum;3];3]=std::array::from_fn(|_|std::array::from_fn(|_|Sum::default()));
+        for (i,l) in legs.iter().enumerate(){
+            let f=fraction(&l.4,t).clamp(0.,1.);
+            let p=if let Some(p)=l.2{if p>=i{return Err(bad("D09 parent order unsupported"))}u[p]}else{1.};
+            u[i]=support_ceiling(f,direct[i],p)?;
+            for k in 0..3{let a=e.amounts[i][k];totals[0][k].add(a*f);totals[1][k].add(a*u[i]);totals[2][k].add(a*(f-u[i]));}
+        }
+        let rows:Vec<Vec<f64>>=totals.into_iter().map(|r|r.into_iter().map(|s|s.finish()).collect()).collect();
+        windows.push(json!({"time_s":t,"requested":rows[0],"optimistic_completion_ceiling":rows[1],"uncompleted_lower_bound":rows[2]}));
+    }
+    Ok(json!({"schema":"akm_d09_support_v1","scope":"optimistic structural support, not simulated completion","status":"EXECUTED_FOR_REVIEW","calendar_legs":n,
+        "calendar_totals":[totals.0,totals.1,totals.2],"original_identity":e.identity,"unsupported_legs":e.unsupported,"original_unassigned":e.unassigned,
+        "groups":groups.into_iter().map(|((mode,endpoint),r)|json!({"mode":mode,"endpoint":endpoint,"legs":r[0],"zero_direct_support_legs":r[1],"amounts":&r[2..5],"direct_uncompleted_lower_bound":&r[5..8]})).collect::<Vec<_>>(),
+        "windows":windows}))
+}
