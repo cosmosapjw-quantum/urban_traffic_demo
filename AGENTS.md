@@ -51,3 +51,5 @@
 - User retains final approval for candidate/release contract, full CI/main merge. No original V03 acceptance credit from archived projected city or synthetic labs. Historical positive_next_action and prior watchdog notes are evidence, not current research scheduler.
 
 - 2026-11-28 D05 final: retain Rust calculation backend and Python presentation frontend (user instruction). Python scientific oracle/receipt audit is not runtime. Read latest AKM SSOT status; D05 exhausted, D07 distinct ready node. No claim of whole-model convergence from service fixture.
+
+- 2026-11-28 D08 user architecture correction: reuse existing Rust implementations before writing replacement kernels. Current default manifest entry is Rust native via metroflow-v1 run --manifest; native city/AKM aliases delegate directly. Historical Python facade lazy, explicit oracle only, no fallback. Report actual execution ownership separately from raw LOC; do not delete historical reference code to inflate ratio. D08 scoped terminal; next D09 original-city pilot, original PLAN unchanged.

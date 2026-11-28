@@ -20,7 +20,7 @@ digraph AKM {
   D07 [label="D07 인과적 경로 선택과 인프라 개입 [VERIFIED_SCOPED]"];
   D04 -> D07;
   D05 -> D07;
-  D08 [label="D08 접근성-도시발전 지연 feedback [READY]"];
+  D08 [label="D08 접근성-도시발전 지연 feedback [VERIFIED_SCOPED]"];
   D06 -> D08;
   D07 -> D08;
   D09 [label="D09 전체 수요 1개 도시 pilot [READY]"];

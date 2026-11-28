@@ -143,6 +143,16 @@ D07 VERIFIED_SCOPED, attempts_used=1/2. Fixed-set path-size logit TV sensitivity
 
 Evidence: [D07 report](../research/AKM_D07_CAUSAL_ROUTING_20261128.md); `artifacts/akm_d07_causal_routing_20261128/S09_audit.json`, `S10_RESEARCH_RECEIPT.json`.
 
+## 6.5. 2026-11-28 D08 attempt 1: native lagged LUTI and Rust-first entry
+
+D08 VERIFIED_SCOPED, attempts_used=1/2. Existing D07 World adapted to explicit birth registry (old fixed-gap wire byte identical), existing M04 Growth/compile_accessibility reused without duplicate solver. Four paired synthetic arms, 3 actual drained fast windows each, 2 slow updates each; same external increments25/25, 150 initial residents, one authored site50 capacity, access threshold72s, fast1800, slow3600. No bypass: placed150 each, pending0/25/50, trips150, mean77.2467s. Bypass+ready reroute fixed: placed150/175/200, trips150/150/150, explicitly inactive0/25/50, means69.0667s. Endogenous: placed150/175/200, trips150/175/200, means69.0667/49.8114/49.925s; 525 total trips and29062 veh*s vs frozen450 and31080 veh*s. Nonmonotone response depends on changed birth timing, routing and scenario, not general induced-demand or welfare theorem. Observations at1800/5400/9000 and growth3600/7200; population/activity/age ledgers independently verified. Partial slow checkpoint after first drained window recover/resume byte equality; invalid stamp/stock/birth/config rejected. No occupied-traffic reset or hot swap. Single origin one-way synthetic work model, authored threshold/inflow, not full original calendar, empirical calibration or full city LUTI. Prior D05/D07 limitations retained.
+
+Rust-first correction requested by user: previous native atlas generation, v1_prepare_city and v1_calendar reused through metroflow-native-city CLI. Real Valley100k fresh generated city and manifest match older Rust backup exact bytes; 918450 calendar legs,120000 person trips,58801 veh-equivalent,1000kg. Historical 100010-person grown snapshot also re-prepared exact bytes,120004 persons/58802.96 veh/1000kg. This is actual preparation, not a new full-city growth feedback or original acceptance run. Prior modules' blob IDs verified; not wholesale stale source restore. S06 receipt null identity corrected S07 static identity, reverified. README previously named Python authority; corrected current authority and labelled old notes historical. Python v1 lazy compatibility facade; native command aliases and default run --manifest calls Rust exact; AKM optional research mode, missing native binary fails closed, explicit oracle only. Actual python -S frontend executed native D08, original exact120s fixture (20 people complete), AKM interface360 fixture same previous bytes, historical-next city prep same bytes. Native Rust324 passed/2 ignored, headless20, Python13 passed incl explicit historical oracle. Historical Python test opt-in failure diagnosed and corrected test environment only. Current source census Rust40391/Python96567 physical lines (29.49% Rust); prior historical 13/15 functional coverage is not a new whole-repo coverage claim. Remaining large Python legacy APIs not migrated globally, no full GUI or CI acceptance. Native dependency tree/ldd no Python runtime.
+
+**AD1** original lagged land use/transport motive, actual accessibility/stock/activity and historical code provenance; explicit architecture correction. **AD2** strict lag, exact old artifacts and actual source/demand ledger, separate synthetic identity; conditional outcomes not calibration. **ALM1** zero new original city exact ticks or guard changes; time fraction not measured. **ALM2** one D08 attempt, finite scoped decision, no automatic D09. Next D09 READY: use existing original calendar/owner paths and Rust native-city/CLI, assess actual shared transport AM/PM/24h and restart within original limits, preserve D05 convergence/owner history and D07/D08 small-lab limitations; no V03 acceptance without authorized candidate. Native subagent not available; direct execution and independent arithmetic/receipt audit. Original V1 PLAN v1.1.55 unchanged. Verdict CAUTION_RESEARCH_ONLY.
+
+Evidence: [D08 report](../research/AKM_D08_RUST_LUTI_20261128.md); `artifacts/akm_d08_rust_luti_20261128/S09_audit.json`, `S10_RESEARCH_RECEIPT.json`.
+
 ## 7. 유한 DAG: 정의와 종료
 
 D00–D03은 이번 재정초의 실측 범위에 대해 VERIFIED_SCOPED. D04–D10은 유한 science/implementation 실험. D11은 성공뿐 아니라 실패가 담긴 terminal evidence로 decision. 후보가 없다는 근거 있는 decision 자체는 D11 VERIFIED_SCOPED로 기록하며, D12는 STOPPED reason으로 종료해 D13을 활성화한다. D12는 candidate가 선택되고 사용자 승인으로 release candidate contract가 명시된 경우에만 기존 V03 전체 수용시험; 기존 3×3/3 matched refinement와 외부 limits 변경 없음. D13은 결과·통합심사 및 사용자 결정 기록으로 닫는다. 선택되지 않거나 실패한 dependency 때문에 실행할 수 없는 노드는 정확한 terminal reason과 evidence로 STOPPED/BLOCKED_TERMINAL (환경이 재개되면 새 승인된 계획) 처리. 종료까지 진행하기 위한 terminal dependency는 성공 dependency와 다르다. D11이 실행된 뒤 후보를 재생성하거나 D05로 역행하는 edge가 없다. 모든 노드는 최대 시도 횟수(실행된 차별 가설 단위, 하위 반복 횟수는 사전 기록)를 소비한다. D00–D03 각 1회 이미 소비. D04–D13 합 20회 이하의 추가 시도, global max 24회. 한 시도에 사용할 finite run matrix를 먼저 고정하고, resource failure 후 동일 run blind repeat는 최대 1회이며 같은 시도 예산에서 소모한다. V03 9+3 실행은 D12의 명시된 하나의 캠페인으로 취급(실패 시 예산 내 한 후보의 추가 캠페인만, 승인 없는 재시작 금지). 사용자가 새 연구 범위를 요청하면 버전을 변경하며 기존 종료 결과를 덮어쓰지 않는다.
@@ -302,13 +312,16 @@ D00–D03은 이번 재정초의 실측 범위에 대해 VERIFIED_SCOPED. D04–
         "D07"
       ],
       "requires_terminal": [],
-      "status": "READY",
-      "attempts_used": 0,
+      "status": "VERIFIED_SCOPED",
+      "attempts_used": 1,
       "max_attempts": 2,
       "question": "Q4",
       "deliverable": "port verified growth/phase laws to selected candidate; two slow epochs with paired frozen vs endogenous demand",
       "claim_gate": "source population/activity ledger and lagged update; no same-tick feedback, observed accessibility/land-use/demand differences; no calibration claim",
-      "prior_findings": "D07 finite causal routing lab completed; original owner bridge D06 and reserved-service D05 remain scoped, A/B convergence limitations preserved. No original full-city or release acceptance. Rust backend/Python frontend."
+      "prior_findings": "D07 finite causal routing lab completed; original owner bridge D06 and reserved-service D05 remain scoped, A/B convergence limitations preserved. No original full-city or release acceptance. Rust backend/Python frontend.",
+      "evidence": "artifacts/akm_d08_rust_luti_20261128/S09_audit.json",
+      "scope": "two actual slow transitions per paired arm, existing D07/M04 synthetic lagged LUTI, native historical city/calendar preparation byte replay, Rust-first frontend; original city LUTI and full-day unverified",
+      "last_attempt_result": "D08_VERIFIED_SCOPED_LAGGED_LUTI_AND_NATIVE_ENTRY_NOT_RELEASE"
     },
     {
       "id": "D09",
@@ -325,7 +338,7 @@ D00–D03은 이번 재정초의 실측 범위에 대해 VERIFIED_SCOPED. D04–
       "question": "Q1,Q2,Q3,Q5",
       "deliverable": "one original 100k city shared transport, AM/PM and 24h candidate run, full physical observables, actual restart",
       "claim_gate": "all declared demand, 24h, peakRSS≤8GiB/wall≤7200s as pilot, byte/semantic replay within model; record full active/pending; no original campaign credit",
-      "prior_findings": "D07 finite causal routing lab completed; original owner bridge D06 and reserved-service D05 remain scoped, A/B convergence limitations preserved. No original full-city or release acceptance. Rust backend/Python frontend."
+      "prior_findings": "D05 D06 native owner/interface scoped; D07 D08 finite causal transport/lagged feedback synthetic only. Existing Rust atlas, preparation and calendar exact historical parity; run --manifest defaults Rust exact, optional interface research. Original full-city 24h not validated; carry all D05 negatives and history/unsupported demand."
     },
     {
       "id": "D10",
