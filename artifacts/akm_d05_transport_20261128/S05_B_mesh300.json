@@ -1,0 +1,140 @@
+{
+  "config": {
+    "horizon_s": 28800.0,
+    "mesh_s": 300.0,
+    "seed": 7,
+    "shock_factor": 1.0,
+    "shock_link": null
+  },
+  "executable_sha256": "545de9c991fc486178a15876fa6bea6ac718fb7e939711c9166ee688696a2e33",
+  "groups": 796098,
+  "network_sha256": "af8a0c16e2bd31d4a42282e83d076ea10075e6cbe0bb3982dfb5978cfa9f72a5",
+  "passages_sha256": "a310ee706ae3eb64ba35eef2c9275da38141dbd32eb89f86bcb6a90c89bd73c1",
+  "paths": 38916,
+  "peak_rss_bytes": 283369472,
+  "policy": {
+    "alpha": 0.2,
+    "beta": 0.6,
+    "tau": 2.0
+  },
+  "prep_s": 0.39201461,
+  "result": {
+    "active_mobility": {
+      "added_passage_veh_s": 83039.72687463366,
+      "admitted_base_veh_s": 3036717.808455643,
+      "min_mobility": 0.8519101840518225,
+      "peak_ready_entries": 5603,
+      "policy": {
+        "alpha": 0.2,
+        "beta": 0.6,
+        "tau": 2.0
+      },
+      "updates": 341617
+    },
+    "blocked_veh_s": 0.0,
+    "event_bytes": 48,
+    "event_count": 110208942,
+    "initial_batches": 12731472,
+    "snapshots": [
+      {
+        "classes": [
+          {
+            "active": 1302.8518831726644,
+            "admitted": 971.3747181442378,
+            "completed": 73.33847422733542,
+            "error": 2.2737367544323206e-13,
+            "exited": 152.16844896688542,
+            "expected": 57095.9403264,
+            "released": 1376.1903574,
+            "road": 819.2062691773524,
+            "trip_seconds": 23524.509333783073
+          },
+          {
+            "active": 0.0,
+            "admitted": 0.0,
+            "completed": 0.0,
+            "error": 0.0,
+            "exited": 0.0,
+            "expected": 0.998825,
+            "released": 0.0,
+            "road": 0.0,
+            "trip_seconds": 0.0
+          },
+          {
+            "active": 0.0,
+            "admitted": 4.0,
+            "completed": 4.0,
+            "error": 0.0,
+            "exited": 4.0,
+            "expected": 24.0,
+            "released": 4.0,
+            "road": 0.0,
+            "trip_seconds": 2890.0
+          }
+        ],
+        "max_meter_error": 0.0,
+        "max_receiving_ratio": 0.3208857890084753,
+        "max_storage_ratio": 0.14692815778519824,
+        "outstanding_blocked_veh_s": 0.0,
+        "queued_requests": 524181,
+        "rate_blocks": 0,
+        "storage_blocks": 0,
+        "time_s": 25720.0
+      },
+      {
+        "classes": [
+          {
+            "active": 2141.253751626143,
+            "admitted": 9112.560854496955,
+            "completed": 7374.736302773857,
+            "error": 9.094947017729282e-13,
+            "exited": 7730.8995517524945,
+            "expected": 57095.9403264,
+            "released": 9515.9900544,
+            "road": 1381.6613027444591,
+            "trip_seconds": 5713108.262670703
+          },
+          {
+            "active": 0.0,
+            "admitted": 0.0,
+            "completed": 0.0,
+            "error": 0.0,
+            "exited": 0.0,
+            "expected": 0.998825,
+            "released": 0.0,
+            "road": 0.0,
+            "trip_seconds": 0.0
+          },
+          {
+            "active": 0.0,
+            "admitted": 4.0,
+            "completed": 4.0,
+            "error": 0.0,
+            "exited": 4.0,
+            "expected": 24.0,
+            "released": 4.0,
+            "road": 0.0,
+            "trip_seconds": 2890.0
+          }
+        ],
+        "max_meter_error": 0.0,
+        "max_receiving_ratio": 0.4595175046630062,
+        "max_storage_ratio": 0.252193010257325,
+        "outstanding_blocked_veh_s": 0.0,
+        "queued_requests": 5532763,
+        "rate_blocks": 0,
+        "storage_blocks": 0,
+        "time_s": 28800.0
+      }
+    ],
+    "transfers": 50730300,
+    "wait_veh_s": 380092.7557200003,
+    "worst_link": 0
+  },
+  "roads": 1586,
+  "run_s": 34.720291663,
+  "schema": "akm_b_active_city_v1",
+  "scope": "archived projected city fixed-route common-rank access and whole-batch queue; mean-field frozen passage time dilation, not original V03 acceptance",
+  "threads": 8,
+  "wall_s": 35.156414159
+}
