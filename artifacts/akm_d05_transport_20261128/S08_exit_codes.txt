@@ -1,0 +1,6 @@
+S08_hybrid_half 0
+S08_mixed_half 0
+S08_hybrid_two 0
+S08_mixed_two 0
+S08_hybrid_city25380 0
+S08_hybrid_city25380_recover 0
