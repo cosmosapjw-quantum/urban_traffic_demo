@@ -1,0 +1,19 @@
+d8cff71574898976bbb19600bbe2826d317a0742
+2b85745e31268370dabbd9e402ee191da70565ba
+f8cc371410ca0e24b0947cda3d6772787efddc7a
+e76ce40b9f0d56c165cad042744ebf7e47cf8c04
+43ae258bf224f336caa0e8bb1729499e134d97ae
+7c78e214c9558bcb1023854e55025f1c554aadee
+67859a170cd3c7d5418b1c1003cc8f257171fe6acba317c94c86319e03a98b60  docs/akm/RESEARCH_SSOT_KO.md
+80f64cb836782f1557f70eece21a1431e7e9f5aefdc0c208758ccef30b143313  docs/v1/PLAN.json
+2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3  /home/cosmosapjw/research_backups/metroflow_akm_d09_city_pilot_20261128/valley-original.manifest.json
+e7bbb23f52e271e0d520110cf7fb6c1c4c8c89ba9b01776924d4613d0d745ad0  /home/cosmosapjw/research_backups/metroflow_akm_d09_city_pilot_20261128/valley25320_source.bin
+{"status": "VALID_RESEARCH_PLAN_NOT_RELEASE", "nodes": 14, "scoped_or_accepted": 9, "terminal": 9, "attempts_used": 10, "attempts_limit": 24, "ready": ["D09"], "next": ["D09"]}
+4221505 S07 Bind sparse AKM transport to original journey and service transactions and independent checkpoint wire
+0693475 S06 Port graph deletion drain review to native physical state
+8d418d4 S07 Stable bounded clock scatter eliminates sorting for ordered generations
+c4853d2 S08 Verify native replay and multi-law delay fixture plus allocation-free cell kernel
+9528587 S07 Integrate persistent entry and protected egress calendars under typed identity
+rustc 1.99.0 (b940084d7 2026-09-28)
+cargo 1.99.0 (5f94df478 2026-08-27)
+2026-11-28T18:13:47+09:00
