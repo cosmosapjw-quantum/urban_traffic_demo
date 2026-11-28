@@ -1,0 +1,17 @@
+metroflow-akm-native
+	linux-vdso.so.1 (0x00007b1b040ea000)
+	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007b1b03eaa000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007b1b03dc1000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007b1b03a00000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007b1b040ec000)
+metroflow-akm-native-final
+	linux-vdso.so.1 (0x00007d5d67950000)
+	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007d5d6770b000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007d5d67622000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007d5d67400000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007d5d67952000)
+metroflow-akm-support
+	linux-vdso.so.1 (0x000076d4264a7000)
+	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x000076d426301000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x000076d426000000)
+	/lib64/ld-linux-x86-64.so.2 (0x000076d4264a9000)

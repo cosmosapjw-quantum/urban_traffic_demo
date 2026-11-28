@@ -1,0 +1,487 @@
+{
+  "status": "D09_ATTEMPT1_BLOCKED_SCOPED_POSITIVE_RESULTS_NOT_RELEASE",
+  "support": {
+    "day": {
+      "optimistic_completion_ceiling": [
+        72115.96491075,
+        57601.02129515,
+        998.825
+      ],
+      "requested": [
+        120000.0,
+        58801.0,
+        1000.0
+      ],
+      "time_s": 86400.0,
+      "uncompleted_lower_bound": [
+        47884.03508925,
+        1199.97870485,
+        1.175000000000003
+      ]
+    },
+    "direct_uncompleted": [
+      47882.91988049407,
+      1199.9340965000633,
+      1.175000000000003
+    ],
+    "groups": [
+      {
+        "amounts": [
+          29807.661404995797,
+          1192.3064562000627,
+          0.0
+        ],
+        "direct_uncompleted_lower_bound": [
+          29805.98444249579,
+          1192.2393777000634,
+          0.0
+        ],
+        "endpoint": "\"interzonal\"",
+        "legs": 304764.0,
+        "mode": "\"bus\"",
+        "zero_direct_support_legs": 304746.0
+      },
+      {
+        "amounts": [
+          192.3385950000005,
+          7.693543799999966,
+          0.0
+        ],
+        "direct_uncompleted_lower_bound": [
+          192.3385950000005,
+          7.693543799999966,
+          0.0
+        ],
+        "endpoint": "\"intrazonal\"",
+        "legs": 1308.0,
+        "mode": "\"bus\"",
+        "zero_direct_support_legs": 1308.0
+      },
+      {
+        "amounts": [
+          71538.38737199311,
+          57230.709897597735,
+          0.0
+        ],
+        "direct_uncompleted_lower_bound": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "endpoint": "\"interzonal\"",
+        "legs": 304764.0,
+        "mode": "\"car\"",
+        "zero_direct_support_legs": 0.0
+      },
+      {
+        "amounts": [
+          461.6126280000008,
+          369.29010240000076,
+          0.0
+        ],
+        "direct_uncompleted_lower_bound": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "endpoint": "\"intrazonal\"",
+        "legs": 1308.0,
+        "mode": "\"car\"",
+        "zero_direct_support_legs": 0.0
+      },
+      {
+        "amounts": [
+          0.0,
+          0.9999999999999997,
+          999.999999999999
+        ],
+        "direct_uncompleted_lower_bound": [
+          0.0,
+          0.0011750000000000029,
+          1.175000000000003
+        ],
+        "endpoint": "\"external\"",
+        "legs": 234.0,
+        "mode": "\"freight\"",
+        "zero_direct_support_legs": 2.0
+      },
+      {
+        "amounts": [
+          17884.59684299828,
+          0.0,
+          0.0
+        ],
+        "direct_uncompleted_lower_bound": [
+          17884.59684299828,
+          0.0,
+          0.0
+        ],
+        "endpoint": "\"interzonal\"",
+        "legs": 304764.0,
+        "mode": "\"noncar\"",
+        "zero_direct_support_legs": 304764.0
+      },
+      {
+        "amounts": [
+          115.4031570000002,
+          0.0,
+          0.0
+        ],
+        "direct_uncompleted_lower_bound": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "endpoint": "\"intrazonal\"",
+        "legs": 1308.0,
+        "mode": "\"noncar\"",
+        "zero_direct_support_legs": 0.0
+      }
+    ],
+    "windows": [
+      {
+        "optimistic_completion_ceiling": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "requested": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "time_s": 21600.0,
+        "uncompleted_lower_bound": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "optimistic_completion_ceiling": [
+          400.6473703583333,
+          320.0002496683333,
+          0.0
+        ],
+        "requested": [
+          666.6666666666666,
+          326.66666666666663,
+          0.0
+        ],
+        "time_s": 25320.0,
+        "uncompleted_lower_bound": [
+          266.0192963083333,
+          6.666416998333333,
+          0.0
+        ]
+      },
+      {
+        "optimistic_completion_ceiling": [
+          12019.42111075,
+          9600.00749005,
+          0.0
+        ],
+        "requested": [
+          20000.0,
+          9800.0,
+          0.0
+        ],
+        "time_s": 28800.0,
+        "uncompleted_lower_bound": [
+          7980.5788892499995,
+          199.99250995,
+          0.0
+        ]
+      },
+      {
+        "optimistic_completion_ceiling": [
+          36058.26333225,
+          28800.621765149997,
+          599.295
+        ],
+        "requested": [
+          60000.0,
+          29400.6,
+          600.0
+        ],
+        "time_s": 43200.0,
+        "uncompleted_lower_bound": [
+          23941.73666775,
+          599.97823485,
+          0.7050000000000001
+        ]
+      },
+      {
+        "optimistic_completion_ceiling": [
+          48077.49719175,
+          38401.02129515,
+          998.825
+        ],
+        "requested": [
+          80000.0,
+          39201.0,
+          1000.0
+        ],
+        "time_s": 61200.0,
+        "uncompleted_lower_bound": [
+          31922.50280825,
+          799.97870485,
+          1.175000000000003
+        ]
+      },
+      {
+        "optimistic_completion_ceiling": [
+          60096.73105125,
+          48001.02129515,
+          998.825
+        ],
+        "requested": [
+          100000.0,
+          49001.0,
+          1000.0
+        ],
+        "time_s": 64800.0,
+        "uncompleted_lower_bound": [
+          39903.268948749996,
+          999.97870485,
+          1.175000000000003
+        ]
+      },
+      {
+        "optimistic_completion_ceiling": [
+          72115.96491075,
+          57601.02129515,
+          998.825
+        ],
+        "requested": [
+          120000.0,
+          58801.0,
+          1000.0
+        ],
+        "time_s": 86400.0,
+        "uncompleted_lower_bound": [
+          47884.03508925,
+          1199.97870485,
+          1.175000000000003
+        ]
+      }
+    ]
+  },
+  "fixture": {
+    "old_history": 1012,
+    "pilot_history": 15,
+    "recovery": true
+  },
+  "matched": {
+    "time_s": 25380,
+    "old_records": [
+      1833556,
+      287095,
+      55921,
+      59571
+    ],
+    "pilot_records": [
+      876091,
+      149339,
+      55921,
+      2121
+    ],
+    "ledger_exact": true,
+    "class_ledger_max_abs_delta": 7.16227077646181e-12,
+    "road_rows": 624850,
+    "old_checkpoint_bytes": 146702340,
+    "pilot_checkpoint_bytes": 110736097
+  },
+  "actual_city": [
+    {
+      "status": "BLOCKED",
+      "failure": "AKM state shape/record budget",
+      "time_s": 25430.0,
+      "requested_end_s": 86400.0,
+      "wall_s": 66.712366303,
+      "peak_rss_kib": 1122936,
+      "road_rows": 953296,
+      "journey_records": [
+        876091,
+        642381,
+        62128,
+        26206
+      ],
+      "ledger": {
+        "cargo_kg": {
+          "active": 0.0,
+          "completed": 0.0,
+          "pending": 0.0,
+          "released": 0.0,
+          "released_intent_first_moment": 0.0,
+          "requested": 0.0
+        },
+        "persons": {
+          "active": 727.7984622080993,
+          "completed": 6.71027365021504,
+          "pending": 543.2690419194212,
+          "released": 734.5087358583144,
+          "released_intent_first_moment": 18590416.104574416,
+          "requested": 1277.7777777777355
+        },
+        "vehicles": {
+          "active": 581.9548560217125,
+          "completed": 4.711810644944638,
+          "pending": 39.444444444440705,
+          "released": 586.6666666666572,
+          "released_intent_first_moment": 14848533.333333086,
+          "requested": 626.1111111110979
+        }
+      },
+      "whole_bus": {
+        "active_tracks": 0,
+        "enabled": true,
+        "exited_veh": 3.9999999999999947,
+        "moves": 102,
+        "quota_blocks": 0
+      },
+      "checkpoint_sha256": "a3a976f6001b0c2e48155f0ee1c03cdd088ad069c02ff6d3cc2c4ebc091cf3da"
+    },
+    {
+      "status": "BLOCKED",
+      "failure": "AKM state shape/record budget",
+      "time_s": 25470.0,
+      "requested_end_s": 86400.0,
+      "wall_s": 25.48538602,
+      "peak_rss_kib": 1102936,
+      "road_rows": 959509,
+      "journey_records": [
+        876091,
+        651698,
+        65419,
+        26401
+      ],
+      "ledger": {
+        "cargo_kg": {
+          "active": 0.0,
+          "completed": 0.0,
+          "pending": 0.0,
+          "released": 0.0,
+          "released_intent_first_moment": 0.0,
+          "requested": 0.0
+        },
+        "persons": {
+          "active": 856.8446480941321,
+          "completed": 11.211130647536704,
+          "pending": 631.9442212583052,
+          "released": 868.0557787416689,
+          "released_intent_first_moment": 21987852.875526123,
+          "requested": 1499.999999999974
+        },
+        "vehicles": {
+          "active": 685.1853309585925,
+          "completed": 8.148002374750899,
+          "pending": 41.66666666667027,
+          "released": 693.3333333333435,
+          "released_intent_first_moment": 17562133.33333368,
+          "requested": 735.0000000000138
+        }
+      },
+      "whole_bus": {
+        "active_tracks": 0,
+        "enabled": true,
+        "exited_veh": 0.0,
+        "moves": 0,
+        "quota_blocks": 0
+      },
+      "checkpoint_sha256": "6230d04892f4c8f4f3f4f0fca2fc3434ed3572a7217a4b5ef760c94163f22ce9"
+    }
+  ],
+  "rollback": {
+    "attempted_rows": 1004024,
+    "limit": 1000000,
+    "last_rows": 953296,
+    "unchanged_bytes": true,
+    "recovered_both": true
+  },
+  "tail": {
+    "independent_wire": [
+      {
+        "storage": "road",
+        "rows": 953296,
+        "distinct_tags": 50728,
+        "mass_veh": 232.03765220720007,
+        "birth": 5863179.026886042,
+        "bins": [
+          {
+            "threshold_veh": 1e-15,
+            "rows": 47360,
+            "mass_veh": 4.583400105487996e-12,
+            "birth_veh_s": 1.1552648516259516e-07
+          },
+          {
+            "threshold_veh": 1e-12,
+            "rows": 93039,
+            "mass_veh": 7.853261221714566e-09,
+            "birth_veh_s": 0.00019795024856035905
+          },
+          {
+            "threshold_veh": 1e-09,
+            "rows": 173429,
+            "mass_veh": 1.423480515477642e-05,
+            "birth_veh_s": 0.3588279568442412
+          },
+          {
+            "threshold_veh": 1e-06,
+            "rows": 335965,
+            "mass_veh": 0.03158531490192304,
+            "birth_veh_s": 796.3634532185098
+          },
+          {
+            "threshold_veh": 0.001,
+            "rows": 881083,
+            "mass_veh": 81.49505812505464,
+            "birth_veh_s": 2058349.4806889112
+          }
+        ]
+      },
+      {
+        "storage": "pending",
+        "rows": 0,
+        "distinct_tags": 0,
+        "mass_veh": 0.0,
+        "birth": 0.0,
+        "bins": [
+          {
+            "threshold_veh": 1e-15,
+            "rows": 0,
+            "mass_veh": 0.0,
+            "birth_veh_s": 0.0
+          },
+          {
+            "threshold_veh": 1e-12,
+            "rows": 0,
+            "mass_veh": 0.0,
+            "birth_veh_s": 0.0
+          },
+          {
+            "threshold_veh": 1e-09,
+            "rows": 0,
+            "mass_veh": 0.0,
+            "birth_veh_s": 0.0
+          },
+          {
+            "threshold_veh": 1e-06,
+            "rows": 0,
+            "mass_veh": 0.0,
+            "birth_veh_s": 0.0
+          },
+          {
+            "threshold_veh": 0.001,
+            "rows": 0,
+            "mass_veh": 0.0,
+            "birth_veh_s": 0.0
+          }
+        ]
+      }
+    ],
+    "fraction_rows_le_1e_9": 0.18192565582987866,
+    "fraction_mass_le_1e_9": 6.134696252686321e-08
+  },
+  "decision": "D09 READY 1/2 consumed; 24h and PM not reached; structural unsupported demand and positive spatial support are independent. Next final attempt must change closure/support, not raise cap. Preserve D05/D07/D08 and original release gate."
+}

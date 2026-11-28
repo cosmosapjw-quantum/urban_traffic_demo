@@ -1,0 +1,1 @@
+Initial independent audit failed overly strict cross-closure class ledger bit equality. Car cumulative offered differed 145.14306689511372 vs 145.14306689510656 (7.16e-12 veh). Other matched ledger and road mass/birth exact. No native mutation.
