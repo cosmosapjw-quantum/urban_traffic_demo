@@ -374,3 +374,39 @@ mod causal_tests{
         for k in [4,8]{let (p,_,truncated)=model.search_inner("s","d",k,100).unwrap();assert!(!truncated);assert_eq!(p.len(),k);assert_eq!(p[0],["a1","b1"]);assert!(p.iter().all(|x|x[0]!="a0"));}
     }
 }
+
+#[derive(Serialize,Deserialize)]
+struct Wire{schema:String,model:String,world:World}
+fn model_id(c:&Config)->CoreResult<String>{
+    let raw=serde_json::to_vec(&("akm-d07-reserved-cohort-v1",c,IDS,TAIL,HEAD,L,CAP,TURNS,ELL,U)).map_err(|e|CoreError::value(e.to_string()))?;
+    Ok(hash(&raw))
+}
+/// Actual finite synthetic experiment. The wire is distinct from AKMFULL3:
+/// this is not the original calendar/journey/service owner.
+pub fn execute(config:Config,target:u32,source:Option<&[u8]>)->CoreResult<(Vec<u8>,serde_json::Value)>{
+    use serde_json::json;
+    let id=model_id(&config)?;
+    let mut w=if let Some(bytes)=source{
+        let v:Wire=serde_json::from_slice(bytes).map_err(|e|CoreError::value(e.to_string()))?;
+        if v.schema!="AKMD07LAB1"||v.model!=id||v.world.config!=config{return Err(bad("D07 checkpoint model/config mismatch"))}
+        v.world.check()?;
+        let info=information()?;info.advance(&info.initial(),v.world.time as f64,&v.world.reports)?;
+        v.world
+    }else{World::new(config.clone())?};
+    if target!=w.time{w.advance(target)?;}else{w.check()?;}
+    let last=w.sample()?;
+    let mut initial=std::collections::BTreeMap::<String,usize>::new();
+    let mut final_branches=initial.clone();
+    for o in &w.owners{
+        *initial.entry(o.initial_branch.clone().unwrap_or_else(||"unassigned".into())).or_default()+=1;
+        *final_branches.entry(o.route.as_ref().and_then(|r|r.links.get(1)).cloned().unwrap_or_else(||"unassigned".into())).or_default()+=1;
+    }
+    let arrival_mean=if last.completed>0{Some(last.completed_age_s/last.completed as f64)}else{None};
+    let result=json!({"schema":"akm_d07_causal_lab_v1","scope":"bounded synthetic reserved cohort transport with existing causal Rust router; not original calendar, calibrated network or release","status":"EXECUTED_FOR_REVIEW","model_identity":id,"config":config,
+        "time_s":w.time,"last_sample":last,"mean_completed_s":arrival_mean,
+        "initial_branches":initial,"final_branches":final_branches,"graph":w.graph,
+        "graph_events":w.graph_events,"reroutes":w.reroutes,"epochs":w.epochs,"samples":w.samples,
+        "owners":w.owners,"physical":w.physical});
+    let bytes=serde_json::to_vec(&Wire{schema:"AKMD07LAB1".into(),model:id,world:w}).map_err(|e|CoreError::value(e.to_string()))?;
+    Ok((bytes,result))
+}

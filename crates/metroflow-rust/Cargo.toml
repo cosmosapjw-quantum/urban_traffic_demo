@@ -95,3 +95,8 @@ required-features = ["native-cli"]
 name = "metroflow-akm-native"
 path = "src/bin/metroflow-akm-native.rs"
 required-features = ["akm-research"]
+
+[[bin]]
+name = "metroflow-akm-d07"
+path = "src/bin/metroflow-akm-d07.rs"
+required-features = ["akm-research"]

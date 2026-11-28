@@ -1,0 +1,9 @@
+S06_2_baseline 0
+S06_2_bypass 0
+S06_2_reroute 0
+S06_4_baseline 0
+S06_4_bypass 0
+S06_4_reroute 0
+S06_8_baseline 0
+S06_8_bypass 0
+S06_8_reroute 0
