@@ -4468,7 +4468,13 @@ impl V1Road {
                     let mut packet_mass=RoadExpansion::default();
                     for p in &packet.parts{
                         records=records.checked_add(1).ok_or_else(||budget("packet row count overflow"))?;
-                        if records>self.record_budget{return Err(budget("packet state budget"))}
+                        if records>self.record_budget{
+                            // Failure-only exact logical census; no row decoding or allocation.
+                            let logical=s.cells.iter().flat_map(|c|&c.packets).chain(s.pending.iter().flatten()).map(|p|p.parts.len()).fold(0usize,usize::saturating_add);
+                            crate::v1_trace::add("road.state_record_limit",self.record_budget as u64);
+                            crate::v1_trace::add("road.state_rejected_logical_rows",logical as u64);
+                            return Err(budget("packet state budget"))
+                        }
                         if p.tag>=self.routes.len()||!p.mass.is_finite()||p.mass<=0.||!finite_nonnegative(p.birth)||p.birth>p.mass*s.t+1e-8{return Err(val("invalid homogeneous native part"))}
                         if self.path(p.tag).get(p.offset)!=Some(&i){return Err(val("native route suffix mismatch"))}
                         if p.a.is_some()!=p.b.is_some()||p.a.is_some_and(|a|!a.is_finite()||a<0.||!p.b.unwrap().is_finite()||a>p.b.unwrap()||p.b.unwrap()>s.t+1e-9){return Err(val("invalid native entry interval"))}
@@ -9642,6 +9648,17 @@ pub fn allocation_probe_moment_dictionary()->CoreResult<[usize;2]>{
     Ok([p.bytes(),checksum])
 }
 
+
+#[cfg(feature="native-cli")]
+pub fn allocation_probe_direct_code_reuse()->CoreResult<[usize;2]>{
+    let values=std::hint::black_box([(0.125,-0.),(0.125,0.),(0.25,1.),(0.5,2.)]);
+    let mut rows=[(0.,0.);32];let mut codes=[0u8;32];
+    let mut plan=v1_moment_dict::MomentDictPlan::new();
+    for i in 0..32{rows[i]=values[i%4];codes[i]=(i%4)as u8;if !plan.add(rows[i]){return Err(val("code reuse probe insert"))}}
+    if !plan.matches_codes(&rows,&codes){return Err(val("code reuse probe equality"))}
+    codes[31]=0;if plan.matches_codes(&rows,&codes){return Err(val("code reuse probe false match"))}
+    Ok([plan.bytes(),32])
+}
 
 #[cfg(feature="native-cli")]
 impl V1Road{

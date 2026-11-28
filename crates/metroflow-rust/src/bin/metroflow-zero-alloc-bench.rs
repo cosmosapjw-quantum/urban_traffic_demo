@@ -81,6 +81,10 @@ mod probe {
         for _ in 0..nd{dictionary=black_box(_metroflow_rust::allocation_probe_moment_dictionary().unwrap());}
         let(da,dr,dw)=finish(t);assert_eq!(dictionary,[224,6]);assert_eq!((da,dr),(0,0));
         println!("{}",json!({"kernel":"bit_pair_dictionary_plan_lookup","iterations":nd,"allocation_calls":da,"reallocation_calls":dr,"wall_s":dw,"answer":dictionary,"scope":"actual fixed stack plan of 32 input rows and 4 bit-distinct pairs; output dictionary Vecs excluded"}));
+        let t=start();let mut reuse=[0usize;2];
+        for _ in 0..nd{reuse=black_box(_metroflow_rust::allocation_probe_direct_code_reuse().unwrap());}
+        let(ra,rr,rw)=finish(t);assert_eq!(reuse,[224,32]);assert_eq!((ra,rr),(0,0));
+        println!("{}",json!({"kernel":"direct_dictionary_ordinal_reuse","iterations":nd,"allocation_calls":ra,"reallocation_calls":rr,"wall_s":rw,"answer":reuse,"scope":"fixed stack first occurrence plan, full matching and mismatch rejection; new output Vec/Arc allocation excluded"}));
         let t=start();let mut x=[0;2];for _ in 0..n{x=black_box(_metroflow_rust::allocation_probe_outlet_and_wire().unwrap());}let(a6,r6,w6)=finish(t);assert_eq!(x[0],3);assert_eq!((a6,r6),(0,0));println!("{}",json!({"kernel":"outlet_group_and_stack_wire","iterations":n,"allocation_calls":a6,"reallocation_calls":r6,"wall_s":w6,"checksum":x,"scope":"actual fixed-slice grouped outlet and stack word writer; no allocation for tested small fsum; full histories may spill"}));
 
     }

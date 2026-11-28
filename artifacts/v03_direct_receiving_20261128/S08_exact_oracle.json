@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "arithmetic": "Fraction",
+  "seed": 20261128,
+  "cases": 512,
+  "marked_windows": 287768,
+  "point_atoms": 811,
+  "code_ordinal_checks": 65536,
+  "scope": "exact rational common refinement and independent first-occurrence ordinal partition; not full floating dynamics"
+}
