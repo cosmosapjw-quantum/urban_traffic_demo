@@ -1,0 +1,16 @@
+
+==================================== ERRORS ====================================
+____________ ERROR collecting tests/v1/test_akm_receipt_frontend.py ____________
+ImportError while importing test module '/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/tests/v1/test_akm_receipt_frontend.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/v1/test_akm_receipt_frontend.py:8: in <module>
+    from metroflow.ui.akm_receipts import read_akm_receipt
+E   ModuleNotFoundError: No module named 'metroflow.ui.akm_receipts'
+=========================== short test summary info ============================
+ERROR tests/v1/test_akm_receipt_frontend.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 0.54s
