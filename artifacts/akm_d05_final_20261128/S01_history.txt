@@ -1,0 +1,29 @@
+d0f023968f5d5375cb8ad97bbe01f524496d29f5
+8641210f8be1f70cd75dbd154ee243ff0326713c
+f8cc371410ca0e24b0947cda3d6772787efddc7a
+e76ce40b9f0d56c165cad042744ebf7e47cf8c04
+43ae258bf224f336caa0e8bb1729499e134d97ae
+7c78e214c9558bcb1023854e55025f1c554aadee
+7809f9d5c8dcc9fc542fc668d4d34c059a0bde3a
+4180f4b919d45489ebb17c2af1e846360fcb9d90535943f224f60c6736ac176c  docs/akm/RESEARCH_SSOT_KO.md
+80f64cb836782f1557f70eece21a1431e7e9f5aefdc0c208758ccef30b143313  docs/v1/PLAN.json
+f784f1b3bb2a685c88a02db05b23040683a8b37b310589d50b652cbdb7a58c87  artifacts/akm_d05_transport_20261128/S09_audit.json
+{"status": "VALID_RESEARCH_PLAN_NOT_RELEASE", "nodes": 14, "scoped_or_accepted": 6, "terminal": 6, "attempts_used": 7, "attempts_limit": 24, "ready": ["D05"], "next": ["D05"]}
+rustc 1.99.0 (b940084d7 2026-09-28)
+cargo 1.99.0 (5f94df478 2026-08-27)
+2026-11-28T16:09:19+09:00
+src/metroflow/backends/__init__.py
+src/metroflow/backends/jax_flow.py
+src/metroflow/backends/rust_cpu.py
+src/metroflow/ui/__init__.py
+src/metroflow/ui/control_adapter.py
+src/metroflow/ui/morphology_atlas.py
+src/metroflow/ui/morphology_landuse_audit.py
+src/metroflow/ui/morphology_quality_report.py
+src/metroflow/ui/packets.py
+src/metroflow/ui/scenario_controls.py
+src/metroflow/ui/snapshots.py
+src/metroflow/ui/static_map.py
+src/metroflow/ui/stream_buffer.py
+src/metroflow/ui/stream_server.py
+src/metroflow/v1/native_engine.py
