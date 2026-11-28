@@ -1,0 +1,209 @@
+{
+  "schema": "akm_d09_final_research_v1",
+  "status": "D09_STOPPED_FINAL_NONACCEPTANCE",
+  "baseline": "786a3fdc84ccf15d8c933603f6b8c9a4da5df245",
+  "ssot_version": "1.0.0",
+  "stages": 10,
+  "commits_before_S10": [
+    "2b9feb5518a95a6d2ec3d58fa252bf0bffdf7c31 S01 Lock final D09 finite cohort closure and original city gates",
+    "d85fc3c090dfaf356e700056be2dc6d39d8a9a9b S02 Derive finite local drainage and explicit sealed-batch synchronization error",
+    "90acc4aadd83e9123b5a8633ac5adf8ab67ea7a7 S03 Implement sealed mean-characteristic cohorts with finite quota drainage",
+    "e7a4fbbb2668b1a5e3906f9473556afb7e274bc7 S04 Bind finite cohort progress and waiting stock to distinct native wire",
+    "22d7655e272697cb30d0f49ff387fbb39ca57744 S05 Run actual service fixture and same-identity partial checkpoint replay",
+    "fe00618ac5bc7b6d2778d23c7efde6b7ef2ad4fa S06 Execute matched original-city prefix with finite gated fluid cohorts",
+    "94f655125dcbd23c09b6eb85f9cbd606125257e0 S07 Execute actual continuation toward 24h and independently recover city state",
+    "b63cce120e1f3b1a3fe19ffb3db6e4425dba5000 S08 Preserve Rust-first cohort frontend and explicit original service limits",
+    "385a5a8558894ff1a1bead149d2603e4636ba565 S09 Audit finite-cohort city evidence and nonvanishing synchronization error"
+  ],
+  "dag": {
+    "status": "VALID_RESEARCH_PLAN_NOT_RELEASE",
+    "nodes": 14,
+    "scoped_or_accepted": 9,
+    "terminal": 11,
+    "attempts_used": 12,
+    "attempts_limit": 24,
+    "ready": [
+      "D11"
+    ],
+    "next": [
+      "D11"
+    ]
+  },
+  "original_plan_sha256": "80f64cb836782f1557f70eece21a1431e7e9f5aefdc0c208758ccef30b143313",
+  "ssot_sha256": "639e4028e495bf571142ad5e9af8a63d9dc1eac0caf1726c09373c2a3e582a85",
+  "audit_sha256": "0ceab1c2f5928c5207ea3a14e59af226b913e16b2908c5bd7daa4e86f4d6b084",
+  "source_manifest_sha256": "fa63564d00cd9ee7becdfa6da5599bff71d2b48f87d9ab7fe0fc0d455c9ba5e0",
+  "same_prefix": {
+    "time_s": 25430.0,
+    "old_rows": 953296,
+    "new_rows": 371733,
+    "row_reduction_fraction": 0.6100550091472113,
+    "old_person_completed": 6.71027365021504,
+    "new_person_completed": 5.31628427804374,
+    "old_road_mass": 232.03765220720007,
+    "new_road_mass": 239.66897760832182,
+    "old_history": [
+      876091,
+      642381,
+      62128,
+      26206
+    ],
+    "new_history": [
+      876091,
+      39609,
+      62128,
+      3239
+    ],
+    "old_tiny_rows": 173429,
+    "new_tiny_rows": 0,
+    "old_peak_rss_kib": 1122936,
+    "new_peak_rss_kib": 821364
+  },
+  "continuation": {
+    "status": "BLOCKED",
+    "failure": "D09 session slice reached; last committed state retained",
+    "time_s": 26310.0,
+    "requested_end_s": 86400.0,
+    "wall_s": 190.238522441,
+    "advance_s": 180.978216906,
+    "peak_rss_kib": 1502732,
+    "road_rows": 882264,
+    "peak_road_rows": 900304,
+    "ledger": {
+      "cargo_kg": {
+        "active": 0.0,
+        "completed": 0.0,
+        "pending": 0.0,
+        "released": 0.0,
+        "released_intent_first_moment": 0.0,
+        "requested": 0.0
+      },
+      "persons": {
+        "active": 2347.707003990828,
+        "completed": 1324.8366753008418,
+        "pending": 2494.122987374959,
+        "released": 3672.54367929167,
+        "released_intent_first_moment": 94567999.74176082,
+        "requested": 6166.666666666629
+      },
+      "vehicles": {
+        "active": 1877.8692909088497,
+        "completed": 1055.4640424244037,
+        "pending": 88.33333333335077,
+        "released": 2933.3333333332534,
+        "released_intent_first_moment": 75533333.33333163,
+        "requested": 3021.666666666604
+      }
+    },
+    "checkpoint_sha256": "ac30e5ad19da7a104a937b10ed42bec22fe7bd490e3731039cb0207b114f3a71"
+  },
+  "support": {
+    "status": "UNCHANGED_ORIGINAL_SERVICE_SCOPE",
+    "manifest_sha256": "2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3",
+    "runs": 24,
+    "sum_single_run_seat_capacity": 960.0,
+    "bus_person_intent": 29999.999999995798,
+    "direct_unsupported_bus_person": 29998.32303749579,
+    "optimistic_all_run_seat_deficit_person": 29039.999999995798,
+    "parent_profile_bound": {
+      "optimistic_completion_ceiling": [
+        72115.96491075,
+        57601.02129515,
+        998.825
+      ],
+      "requested": [
+        120000.0,
+        58801.0,
+        1000.0
+      ],
+      "time_s": 86400.0,
+      "uncompleted_lower_bound": [
+        47884.03508925,
+        1199.97870485,
+        1.175000000000003
+      ]
+    },
+    "scope": "reused previous actual Rust owner census bound to identical manifest; additional independent seat upper bound for one-stop-to-one-stop fixed runs, assumes one passenger trip per seat per run; not new fleet, no reassignments; parent/dwell may further restrict"
+  },
+  "tests": {
+    "native": 329,
+    "ignored": 2,
+    "headless": 20,
+    "python": 17,
+    "full_CI": "NOT_RUN"
+  },
+  "decision": "D09 STOPPED 2/2; D10 BLOCKED_TERMINAL attempts0; D11 READY separate decision, not executed",
+  "review": {
+    "verdict": "BLOCK_D09_ACCEPTANCE_RESEARCH_ONLY",
+    "P1": [
+      "Original structural unsupported demand unchanged",
+      "Actual nonvanishing sealed-batch delay",
+      "PM and24h untested; assistant selected bounded session slice, not external resource failure"
+    ],
+    "P2": [
+      "No strict FIFO/fairness/global convergence proof",
+      "City restore bytes checked, not full trajectory split-direct parity",
+      "No original D07/D08 coupling, no full CI/main merge",
+      "No native subagent; independent arithmetic/wire audit"
+    ]
+  },
+  "watchdog": {
+    "AD1": "original Q1/Q2/Q5 finite travel/actual matched city/support and counterexample",
+    "AD2": "owner and physical waiting mass, birth, distinct model and checkpoint identities",
+    "ALM1": "zero new exact ticks or guard changes; time fraction not measured",
+    "ALM2": "D09 attempts exhausted; no further loop"
+  },
+  "architecture": "Rust calculation backend, Python dispatch/presentation frontend, old exact default",
+  "release": "Original V03 0/9 day and0/3 refinement unchanged, no acceptance",
+  "files_sha256": {
+    "S01_contract.json": "0ac3915a9da51fa4072616c92002a43b31d662273b1e2d938b37096e6dc93cad",
+    "S01_history.txt": "9b391361bff69e5e0a68659ed932da4555fd8f03b568fe82b6de2820804f3876",
+    "S02_oracle.json": "dede664eecab1996db27c2556aa3528d949a0ca8b04ff6b46571dd9ae769f162",
+    "S03_green.log": "828b9117a9cdef5fe4ca0d3c272c9f090504a1a8669c6b3f5a36e6968a5877cb",
+    "S03_red.log": "6e2f6be6aeabc5bb0eb80b2e086be4e319118da3d7dafc0c852d4993287b743f",
+    "S04_build.log": "7146557045ff74da21a48502e2169b6193d79f53641ec4cb7d998527108caf75",
+    "S04_tests.log": "7bed4efabab8f4cbd4ca4b87ae489b6fcefeb3f1695c20c8809c2093c07c1bc9",
+    "S05_checkpoint_hashes.txt": "2ec5de8a444015159f75abbd1ab86e6da71f462cc925cb11ac2d44cfce3fc0b3",
+    "S05_cohort31.json": "c779a0b395d6af35b003ef68ede4db13a496f933f289839fafccbdae82dce6da",
+    "S05_cohort31.log": "2b4914cce8e92113f7ee21b1b3da0d74b38fe39129968793ba21044c6c9fe149",
+    "S05_cohort360.json": "735226e601f5ae348489117d16e2124d5040dacdf982d1e15f572f976f87f582",
+    "S05_cohort360.log": "2f4d1e9646a648b89f043d3912a4f59a41cbaf7d224ea7a35b801da34adb6529",
+    "S05_negative.log": "e7580adda29a4a281296931293ad0b4ad8d5c6e973377473b639c35c68b79fe8",
+    "S05_old_pilot.json": "c1ad362240c956b01d7fb5ab8d26a22a9713c2afc2526d62f9f1e8c399f48901",
+    "S05_old_pilot.log": "71e75e31dda56b911474466f7865edeef624dc45077da0002df9c0b284b4319d",
+    "S05_recover31.json": "745dc4b066bcb274117851a0ec029d2a92e3a3283ba0d36627197804518145af",
+    "S05_recover31.log": "c52383221fc16e7960e70a4df63236c8aedd6546eedde7a89d7be6bfdebea974",
+    "S05_resume360.json": "cf6812408c3913333aefa3e9554b5b79856a2fd8b3b79e19f5e593503085ad87",
+    "S05_resume360.log": "33f18159c02aecb36093582d9e5b645c9e5deb12e56ffb8763927649fc53f04d",
+    "S06_exit.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "S06_prefix.json": "61a03101989e3ec9ebebd107f4f5b3dcb5e4d42be9023c8690967e9e00b24db9",
+    "S06_prefix.log": "a275ec5d74b912e8f6547cb53f7294a1080b97ceabece8180d65f374a3323dce",
+    "S07_checkpoint_hashes.txt": "0c20ec659128618d435196746b2b85803621f8b35c1e511f73f5683a35e43dea",
+    "S07_day.json": "d51bc9610369bf86d22bd1f26632eb1da4178d69c9f1567a5414bb39f9afe6e8",
+    "S07_day.log": "6038329b6329797a164e42c4c5b640e4d7b116f4a656a241b12e211cec2ac7af",
+    "S07_exit_codes.txt": "9b17830dbcef3587a934b1a192e0d7df9a3291d6b4565168f59fa97b4d14b1b6",
+    "S07_recover_final.json": "72e116fe40f3a6e38397849efe7d61aba66d0945cedf2e948ce68efed009e7a1",
+    "S07_recover_final.log": "cadf17585ed05b8544b7048b2b0a15c9622b577d04a63cc7be0d6dd15c25ad57",
+    "S07_recover_prefix.json": "d62ab0697b8e1d2bda0f6f5a2cce40aaeb2a6173f1054edee7fc50518970ae61",
+    "S07_recover_prefix.log": "77ecfb1855bba465b50880c0c223c31bd4ecc0a780fbd499c00964150c6fb9fa",
+    "S08_capabilities.json": "9bd263f7b3a47c8e7e792515e8d4e332b4bf46edd12eff713f43c83c1ee5a7cd",
+    "S08_front.json": "5846a2868715c69dbb207f79a4fdccefe8c88738181272672f2310134a60b0ce",
+    "S08_front.log": "e9c6743e2a4bd37cb19642bf1f22788eaa380956198c05b4cd914c02a5550603",
+    "S08_green.log": "543df23b421183f96154fc945c14277d243a6783f8bff82084c12a577e1942ef",
+    "S08_red.log": "1f26b815cb67d0e3eb47e12cb0656aeff0902ca55947a38d91a485bbce9dad24",
+    "S08_support.json": "94d06fbdc8f8b7acf6b74e8719195cda1afcb4a0e588139bb00d01929d5bda31",
+    "S09_audit.json": "0ceab1c2f5928c5207ea3a14e59af226b913e16b2908c5bd7daa4e86f4d6b084",
+    "S09_batch_bias.log": "2f3db2f7d6193d80898906cda6df1b15f187d8434b4badff14c47603b00a674d",
+    "S09_dependencies.txt": "a259c8d8856d0bad86bae3d1e58de18338cb648c62ed6fdb811965042b61fbff",
+    "S09_frontend_tests.log": "0f5c69619219f3518029272f0697d250c704b5df2f57834477d69bd5aecb6ec5",
+    "S09_headless_tests.log": "4ca650a6b8609cf151ca59b789c3924836c960c0aa6c68ca6b379f0415c7c764",
+    "S09_ldd.txt": "76fb333f211c3fe842e5d61424b57c53b92846f6d0ef0f12ebfae068918c62f3",
+    "S09_native_tests.log": "5a8628431d03870fc06620a7095a723e11e2f0ecd639644b3840d61d2ef95b08",
+    "S10_DAG_next.json": "920bb668b034d64b1b6febd913cca92e906ac188a97ae38fd29ca122bd3d7cb3",
+    "S10_DAG_render.json": "920bb668b034d64b1b6febd913cca92e906ac188a97ae38fd29ca122bd3d7cb3",
+    "S10_DAG_validate.json": "920bb668b034d64b1b6febd913cca92e906ac188a97ae38fd29ca122bd3d7cb3",
+    "S10_V1_validate.json": "cabc71c360f58f5e1df585603cb4d609e0af9b101ec4024b1ecd3e1426fafcca",
+    "S10_source_manifest.sha256": "fa63564d00cd9ee7becdfa6da5599bff71d2b48f87d9ab7fe0fc0d455c9ba5e0",
+    "S10_source_verify.log": "8521a4077decdfdae6c32c16c7b6c8fa0d339d629286667e91c4fb1959810819"
+  }
+}

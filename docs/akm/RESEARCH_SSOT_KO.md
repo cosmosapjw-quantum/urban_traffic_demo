@@ -163,6 +163,14 @@ Fresh day target86400은 실제 25430s에서 중단 (wall66.712s, peakRSS1122936
 
 **D09 READY, attempts 1/2.** 마지막 시도는 동일 D family에서 보존적 finite-propagation/route 또는 temporal support 표현을 실질 변경하고, mode/service별 미지원 범위와 parent obligation을 명시해야 한다. 단순 cap 증설, tiny-mass pruning, blind resume 또는 새 후보 우회 금지. 원본 support 해결 및 실제 24h/restart gate를 만족하지 못하면 STOPPED/redirect, D10은 자동 시작하지 않는다. 자료: [연구보고서](../research/AKM_D09_CITY_PILOT_20261128.md), `artifacts/akm_d09_city_pilot_20261128/S09_audit.json`, S10 receipt. Verdict BLOCKED_D09 / CAUTION_RESEARCH_ONLY.
 
+## 6.7. 2026-11-28 D09 final attempt: sealed finite cohorts, terminal nonacceptance
+
+D09 final attempt2/2. Same D reserved-service family, new research identity akm-native-reserved-sealed-cohort-clock-v1 / AKMFULL4. One sealed active mean-distance fluid cohort plus one waiting aggregate per route-position; waiting footprint counted and no reset of moving batch by new arrival. Reuse existing Rust kinetic react_with_distance, reserved bus interface and prior native clock-cell journey quotient; no exact source migration, no mass pruning or cap increase. Conditional finite local drainage derived and4096 rational cases; native two-link pulse, quota and malformed progress checks. Actual fixture360 completes20 persons/13.06veh/100kg, old road rows3/history15 ->0/5, same-identity partial31 recovery/split-direct bytes; old pilot360 bytes unchanged. Free-flow 100m/10m/s second .125veh arrival3s later: h=1/.5/.25 actual extra delay7s each vs independent single arrival. Batch synchronization has a nonvanishing physical error; not a convergent arbitrary-arrival model or strict FIFO.
+
+Original fresh Valley25430 matched comparison: old953296 -> new371733 support (including45477 waiting; -61.0055%), <=1e-9veh rows173429 ->0; same requested1277.77778/released734.50874 persons, completed6.71027 ->5.31628; road mass232.037652->239.668978veh. Four physical buses completed, no passenger-coverage equivalence. History26206->3239. New wall61.455s/RSS821364KiB vs old66.712s/1122936KiB (shared host, no controlled performance claim). Continuation toward86400 reaches26310, peak900304 below unchanged1M, final882264 incl55272 waiting, waiting51.177645veh, active1175.013227veh, <=1e-9 rows0. Persons requested6166.66667/released3672.54368/completed1324.83668/active2347.70700/pending2494.12299. Stopped by assistant-chosen180s advance slice (actual180.978s, wall190.239s, RSS1502732KiB), NOT a resource guard or full external7200s trial. Total fresh+continuation wall251.693s, no PM/day verification. Both checkpoints independently byte recovered, full-city direct/split trajectory not run. No conclusion of later full-day performance/no-go. Original 24 fixed one-run buses 960 aggregate seats vs30000 passenger intents; prior actual owner admission bound47884.03508925 person trips/day uncompleted and610820 unsupported legs retained, no mode substitution or extra fleet; independent seat bound not new calendar. Original D05/D07/D08 limitations unchanged.
+
+**D09 STOPPED, attempts2/2**, not verified-scoped node acceptance. Physical evidence and failed gate kept. **D10 BLOCKED_TERMINAL, attempts0/2** because successful D09 is prerequisite; no holdout claimed or executed. **D11 READY** distinct decision: compare A/B/D physical and computational Pareto/claim matrix including negatives, select one only if evidence supports it, otherwise no candidate. D12 still requires explicit user authorization and original unchanged acceptance gates; no automatic execution. Rust-first --engine cohort opt-in, default exact and no Python fallback. Native329 passed/2 ignored, headless20, Python17. Independent wire/receipt and arithmetic checks, no native subagent/full CI/merge. Original V1 PLAN byte-identical. AD1 actual Q1/Q2/Q5 and original service capacity, AD2 owner/birth/progress/clock and negative refinement, ALM1 zero new exact ticks/no guard change (time fraction not measured), ALM2 final differentiated attempt exhausted. Evidence [report](../research/AKM_D09_FINAL_COHORT_20261128.md), `artifacts/akm_d09_final_cohort_20261128/S09_audit.json`, S10 receipt. Verdict STOPPED_D09 / CAUTION_RESEARCH_ONLY.
+
 ## 7. 유한 DAG: 정의와 종료
 
 D00–D03은 이번 재정초의 실측 범위에 대해 VERIFIED_SCOPED. D04–D10은 유한 science/implementation 실험. D11은 성공뿐 아니라 실패가 담긴 terminal evidence로 decision. 후보가 없다는 근거 있는 decision 자체는 D11 VERIFIED_SCOPED로 기록하며, D12는 STOPPED reason으로 종료해 D13을 활성화한다. D12는 candidate가 선택되고 사용자 승인으로 release candidate contract가 명시된 경우에만 기존 V03 전체 수용시험; 기존 3×3/3 matched refinement와 외부 limits 변경 없음. D13은 결과·통합심사 및 사용자 결정 기록으로 닫는다. 선택되지 않거나 실패한 dependency 때문에 실행할 수 없는 노드는 정확한 terminal reason과 evidence로 STOPPED/BLOCKED_TERMINAL (환경이 재개되면 새 승인된 계획) 처리. 종료까지 진행하기 위한 terminal dependency는 성공 dependency와 다르다. D11이 실행된 뒤 후보를 재생성하거나 D05로 역행하는 edge가 없다. 모든 노드는 최대 시도 횟수(실행된 차별 가설 단위, 하위 반복 횟수는 사전 기록)를 소비한다. D00–D03 각 1회 이미 소비. D04–D13 합 20회 이하의 추가 시도, global max 24회. 한 시도에 사용할 finite run matrix를 먼저 고정하고, resource failure 후 동일 run blind repeat는 최대 1회이며 같은 시도 예산에서 소모한다. V03 9+3 실행은 D12의 명시된 하나의 캠페인으로 취급(실패 시 예산 내 한 후보의 추가 캠페인만, 승인 없는 재시작 금지). 사용자가 새 연구 범위를 요청하면 버전을 변경하며 기존 종료 결과를 덮어쓰지 않는다.
@@ -342,16 +350,18 @@ D00–D03은 이번 재정초의 실측 범위에 대해 VERIFIED_SCOPED. D04–
         "D07"
       ],
       "requires_terminal": [],
-      "status": "READY",
-      "attempts_used": 1,
+      "status": "STOPPED",
+      "attempts_used": 2,
       "max_attempts": 2,
       "question": "Q1,Q2,Q3,Q5",
       "deliverable": "one original 100k city shared transport, AM/PM and 24h candidate run, full physical observables, actual restart",
       "claim_gate": "all declared demand, 24h, peakRSS≤8GiB/wall≤7200s as pilot, byte/semantic replay within model; record full active/pending; no original campaign credit",
       "prior_findings": "D05 D06 native owner/interface scoped; D07 D08 finite causal transport/lagged feedback synthetic only. Existing Rust atlas, preparation and calendar exact historical parity; run --manifest defaults Rust exact, optional interface research. Original full-city 24h not validated; carry all D05 negatives and history/unsupported demand. D09 attempt1 quantified unsupported persons >=47884.03508925/day, actual 1004024>1000000 next-step rows, positive tiny tail, matched AM temporal quotient; actual native owner history compressed, spatial route support still fails.",
-      "last_attempt_evidence": "artifacts/akm_d09_city_pilot_20261128/S09_audit.json",
-      "last_attempt_result": "BLOCKED: original structural unsupported demand; fresh 25430s and migrated 25470s stop at 1M road support; both recover byte-identically; AM temporal quotient and tail census scoped positive; no PM or 24h",
-      "next_action": "Final attempt: differentiated conservative finite-propagation/route or temporal support representation within same D family; explicit unsupported mode/service and parent obligations without substitution/deletion; unchanged original gates. If not satisfied, terminal STOPPED/redirect under SSOT; D10 stays PLANNED until prerequisites."
+      "last_attempt_evidence": "artifacts/akm_d09_final_cohort_20261128/S09_audit.json",
+      "last_attempt_result": "FINAL_NONACCEPTANCE: actual finite-cohort prefix improvement and checkpoint recovery; 26310s session-limited, original service support and free-flow consistency unresolved; full day not tested",
+      "next_action": "D09 closed, no further attempt; D11 candidate decision only",
+      "evidence": "artifacts/akm_d09_final_cohort_20261128/S09_audit.json",
+      "scope": "final bounded same-D closure attempt; no original city acceptance"
     },
     {
       "id": "D10",
@@ -361,12 +371,16 @@ D00–D03은 이번 재정초의 실측 범위에 대해 VERIFIED_SCOPED. D04–
         "D09"
       ],
       "requires_terminal": [],
-      "status": "PLANNED",
+      "status": "BLOCKED_TERMINAL",
       "attempts_used": 0,
       "max_attempts": 2,
       "question": "Q1-Q5",
       "deliverable": "River/Coastal held-out geometry/weekday/weekend; 10s/5s 8h matched active comparison; lagged experiment repeat",
-      "claim_gate": "predeclared original-compatible metrics, no source/schedule change hidden; paired and held-out results plus resource profile, failures retained"
+      "claim_gate": "predeclared original-compatible metrics, no source/schedule change hidden; paired and held-out results plus resource profile, failures retained",
+      "evidence": "artifacts/akm_d09_final_cohort_20261128/S09_audit.json",
+      "scope": "unmet D09 success prerequisite; no holdout run or attempt",
+      "last_attempt_result": "NOT_RUN_DEPENDENCY_D09_STOPPED",
+      "next_action": "D11 decision; do not claim holdout evidence"
     },
     {
       "id": "D11",
@@ -385,12 +399,13 @@ D00–D03은 이번 재정초의 실측 범위에 대해 VERIFIED_SCOPED. D04–
         "D09",
         "D10"
       ],
-      "status": "PLANNED",
+      "status": "READY",
       "attempts_used": 0,
       "max_attempts": 2,
       "question": "Q1-Q5",
       "deliverable": "Pareto/claim matrix for A/B and optional one fallback, select one or no candidate",
-      "claim_gate": "all paths terminal with evidence; no survivor based solely on runtime. If unresolved physical discrepancies, STOPPED/decision report rather than endlessly extend"
+      "claim_gate": "all paths terminal with evidence; no survivor based solely on runtime. If unresolved physical discrepancies, STOPPED/decision report rather than endlessly extend",
+      "prior_findings": "D09 STOPPED after2 differentiated attempts, D10 BLOCKED_TERMINAL unrun. Compare original A/B/D scoped benefits and unresolved physical/owner/support/scale limits; select none unless evidence warrants candidate. No D12 without explicit user authorization."
     },
     {
       "id": "D12",
