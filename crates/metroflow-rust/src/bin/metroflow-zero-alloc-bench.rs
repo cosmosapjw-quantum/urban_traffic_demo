@@ -81,6 +81,10 @@ mod probe {
         for _ in 0..nd{dictionary=black_box(_metroflow_rust::allocation_probe_moment_dictionary().unwrap());}
         let(da,dr,dw)=finish(t);assert_eq!(dictionary,[224,6]);assert_eq!((da,dr),(0,0));
         println!("{}",json!({"kernel":"bit_pair_dictionary_plan_lookup","iterations":nd,"allocation_calls":da,"reallocation_calls":dr,"wall_s":dw,"answer":dictionary,"scope":"actual fixed stack plan of 32 input rows and 4 bit-distinct pairs; output dictionary Vecs excluded"}));
+        let t=start();let mut adaptive=[0usize;2];
+        for _ in 0..nd{adaptive=black_box(_metroflow_rust::allocation_probe_adaptive_rank().unwrap());}
+        let(aa,ar,aw)=finish(t);assert_eq!(adaptive,[2,1]);assert_eq!((aa,ar),(0,0));
+        println!("{}",json!({"kernel":"adaptive_causal_rank_partition","iterations":nd,"allocation_calls":aa,"reallocation_calls":ar,"wall_s":aw,"answer":adaptive,"scope":"actual grid, positive histogram, minimal-bin DP; no output packet or ordinal allocation included"}));
         let t=start();let mut reuse=[0usize;2];
         for _ in 0..nd{reuse=black_box(_metroflow_rust::allocation_probe_direct_code_reuse().unwrap());}
         let(ra,rr,rw)=finish(t);assert_eq!(reuse,[224,32]);assert_eq!((ra,rr),(0,0));

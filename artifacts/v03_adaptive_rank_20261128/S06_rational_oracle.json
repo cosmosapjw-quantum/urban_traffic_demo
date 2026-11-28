@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "seed": 20261128,
+  "cases": 512,
+  "block_cost_identities": 10202,
+  "partitions_examined": 24928,
+  "cdf_integral_intervals": 9634,
+  "sharp_atom_counterexample": "mass 1 at left mapped to right: prefix supremum 1, not 1/4",
+  "scope": "exact Fraction local transport, fixed fine grid partition; not global nonlinear network stability"
+}

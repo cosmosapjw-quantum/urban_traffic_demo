@@ -2557,6 +2557,28 @@ pub fn migrate_native_time_bins(source:serde_json::Value,target:serde_json::Valu
     save_atomic_native(&mut engine,checkpoint,&next)?;
     Ok(json!({"schema":"metroflow_marked_time_bin_migration_v1","status":"EXECUTED_FOR_REVIEW","scope":"unchanged initial physical owners, changed future time-bin closure, not original V03 acceptance","time_s":next.time_s(),"native_identity":engine.identity,"source_native_identity":source_identity,"research_closure":field,"research_bins":bins,"research_interval_bins":if rank{None}else{Some(bins)},"research_rank_bins":if rank{Some(bins)}else{None},"ledger":ledger["ledger"]}))
 }
+/// Hash the exact expanded MFWHOLE1 logical stream without materializing it.
+#[cfg(feature="native-cli")]
+fn canonical_state_digest(engine:&NativeWholeEngine,state:&NativeWholeState)->CoreResult<(String,u64)>{
+    use sha2::{Digest,Sha256};
+    struct HashWriter{h:Sha256,n:u64}
+    impl Write for HashWriter{
+        fn write(&mut self,b:&[u8])->std::io::Result<usize>{
+            self.n=self.n.checked_add(b.len() as u64).ok_or_else(||std::io::Error::other("canonical digest length overflow"))?;
+            self.h.update(b);Ok(b.len())
+        }
+        fn flush(&mut self)->std::io::Result<()>{Ok(())}
+    }
+    engine.checked(state)?;
+    let mut w=HashWriter{h:Sha256::new(),n:0};
+    w.write_all(b"MFWHOLE1").map_err(io)?;
+    w.write_all(&(engine.identity.len() as u64).to_le_bytes()).map_err(io)?;
+    w.write_all(engine.identity.as_bytes()).map_err(io)?;
+    engine.road.write_snapshot(&mut w,&state.value.road)?;
+    NativeServiceCore::write_snapshot(&mut w,&state.value.service.0,&state.value.service.1)?;
+    NativeJourneyCore::write_snapshot(&mut w,&state.value.journey)?;
+    Ok((format!("{:x}",w.h.finalize()),w.n))
+}
 /// Strict full decoder recovery: no stepping and no acceptance credit.
 #[cfg(feature="native-cli")]
 pub fn recover_native_checkpoint(manifest:serde_json::Value,threads:usize,path:&str)->CoreResult<serde_json::Value>{
@@ -2571,7 +2593,14 @@ pub fn recover_native_checkpoint(manifest:serde_json::Value,threads:usize,path:&
     let j=journey_debug(&state.value.journey);
     out["journey_records"]=json!({"enter":j.counts[0],"egress":j.counts[1],"internal":j.counts[2],"history":j.counts[3],"nonempty_histories":j.nonempty_histories,"dynamic_bytes":journey_storage_bytes(&state.value.journey),"history_bytes":state.value.journey.6.iter().map(|h|h.storage_bytes()).sum::<usize>(),"stage_bytes":[state.value.journey.1.storage_bytes(),state.value.journey.2.storage_bytes(),state.value.journey.3.storage_bytes()]});
     let (owner,scratch)=state.value.road.compact_decode_envelope();let (old_owner,old_scratch)=state.value.road.legacy_decode_envelope();
-    out["decode_envelopes"]=json!({"compact_owner_bytes":owner,"compact_validation_scratch_bytes":scratch,"historical_legacy_owner_estimate_bytes":old_owner,"historical_legacy_validation_scratch_bytes":old_scratch});
+    let (dictionary_owner,dictionary_scratch)=state.value.road.compact_decode_envelope_version(true);
+    out["decode_envelopes"]=json!({"compact_owner_bytes":owner,"compact_validation_scratch_bytes":scratch,"dictionary_owner_bytes":dictionary_owner,"dictionary_validation_scratch_bytes":dictionary_scratch,"historical_legacy_owner_estimate_bytes":old_owner,"historical_legacy_validation_scratch_bytes":old_scratch});
+    if std::env::var("METROFLOW_NATIVE_SEMANTIC_DIGEST").as_deref()==Ok("1"){
+        let t=Instant::now();let (h,n)=canonical_state_digest(&engine,&state)?;
+        out["canonical_logical_sha256"]=json!(h);out["canonical_logical_bytes"]=json!(n);
+        out["canonical_logical_digest_scope"]=json!("expanded MFWHOLE1 full state stream, including ordered road rows, event and journey owners, identity; not file byte identity");
+        out["canonical_logical_digest_wall_s"]=json!(t.elapsed().as_secs_f64());
+    }
     if crate::v1_trace::enabled(){out["budget_trace"]=crate::v1_trace::native_snapshot();}
     Ok(out)
 }
@@ -3028,6 +3057,16 @@ mod canonical_variant_fixture_tests{
         assert_eq!(std::fs::read(full).unwrap(),std::fs::read(replay).unwrap());
         for p in ["full.bin","cut.bin","replay.bin"]{std::fs::remove_file(dir.join(p)).unwrap();}
         std::fs::remove_dir(dir).unwrap();
+    }
+    #[test]fn canonical_logical_digest_matches_legacy_whole_file(){
+        use sha2::{Digest,Sha256};
+        let(mut e,_,_)=build_native_input(manifest(),1).unwrap();
+        let state=e.advance_owned(&e.initial(),49.).unwrap();
+        let(h,n)=canonical_state_digest(&e,&state).unwrap();
+        let p=std::env::temp_dir().join(format!("metroflow-canonical-digest-{}.bin",std::process::id()));
+        e.save(p.to_str().unwrap().into(),&state).unwrap();
+        let bytes=std::fs::read(&p).unwrap();assert_eq!(n,bytes.len() as u64);assert_eq!(h,format!("{:x}",Sha256::digest(&bytes)));
+        std::fs::remove_file(p).unwrap();
     }
     #[test]fn adaptive_rank_migration_preserves_initial_owners_and_replays(){
         let source=manifest();let mut target=source.clone();target["research_rank_adaptive"]=json!([4,500]);

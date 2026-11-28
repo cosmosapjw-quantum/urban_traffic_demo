@@ -221,6 +221,32 @@ mod tests {
         let (out,m)=project_with(early.len(),|i|early[i],10.,4,Some(500),4.,100,0,&mut w,&mut ws).unwrap();
         assert_eq!(m,10.);assert_eq!(out.len(),2);assert!(out.iter().flat_map(|p|p.parts.iter()).all(|p|p.a.0==p.b.0));
     }
+    #[test] fn adaptive_partition_matches_exhaustive_fine_grid_partitions(){
+        let mut ends=[0.;MAX_BINS];ends[..4].copy_from_slice(&[1.,2.,3.,4.]);
+        let g=Grid{lo:0.,ends,n:4,sparse:false};
+        for encoded in 0..256usize{
+            let mut mass=[Acc::default();MAX_BINS];let mut delay=[Acc::default();MAX_BINS];
+            let m:[u64;4]=std::array::from_fn(|k|((encoded>>(2*k))&3)as u64);
+            for mask in 0..16usize{
+                let d:[u64;4]=std::array::from_fn(|k|m[k]*((mask>>k)&1)as u64);
+                for k in 0..4{mass[k]=Acc::default();mass[k].add(m[k] as f64).unwrap();delay[k]=Acc::default();delay[k].add(d[k] as f64*0.5).unwrap();}
+                let mut best=(usize::MAX,u64::MAX);
+                for bits in 0..8usize{
+                    let(mut lo,mut count,mut sum_d,mut ok)=(0usize,0usize,0u64,true);
+                    for hi in 0..4{if hi==3||bits&(1<<hi)!=0{
+                        let mm=m[lo..=hi].iter().sum::<u64>();
+                        let dd=(lo..=hi).map(|k|d[k]+2*m[k]*(hi-k)as u64).sum::<u64>();
+                        ok&=dd<=4*mm;count+=1;sum_d+=dd;lo=hi+1;
+                    }}
+                    if ok{best=best.min((count,sum_d));}
+                }
+                let q=adaptive_partition(g,mass,delay,4.,500).unwrap();
+                let(mut lo,mut sum_d)=(0usize,0u64);
+                for &r in &q.ends[..q.n]{let hi=r as usize-1;sum_d+=(lo..=hi).map(|k|d[k]+2*m[k]*(hi-k)as u64).sum::<u64>();lo=hi+1;}
+                assert_eq!((q.n,sum_d),best);
+            }
+        }
+    }
     #[test] fn sparse_point_clocks_are_unchanged_and_budget_fail_closed(){
         let parts=[p(1,1.,1.,1.),p(2,4.,4.,2.),p(1,1.,1.,3.)];
         let (out,_)=project(parts.len(),|i|parts[i],10.,4,10.,10,0,&mut work()).unwrap();
@@ -234,4 +260,16 @@ pub(super) fn moment_probe(values:&[(f64,f64)])->CoreResult<[f64;2]>{
     let (mut m,mut b)=(Acc::default(),Acc::default());
     for &(x,y) in values{m.add(x)?;b.add(y)?;}
     Ok([m.value(),b.value()])
+}
+
+
+#[cfg(feature="native-cli")]
+pub(super) fn adaptive_probe()->CoreResult<[usize;2]>{
+    let make=|tag,a,b,m|Ok(Part{tag,offset:0,mass:m,birth:m,a:PackedTime::new(Some(a))?,b:PackedTime::new(Some(b))?});
+    let early=[make(0,0.,0.5,9.)?,make(1,3.,4.,1.)?];
+    let late=[make(0,0.,4.,1.)?,make(1,3.,4.,9.)?];
+    let early=std::hint::black_box(early);let late=std::hint::black_box(late);
+    let e=adapt_grid(grid(2,&|i|early[i],4,4.)?,2,&|i|early[i],4.,500)?;
+    let l=adapt_grid(grid(2,&|i|late[i],4,4.)?,2,&|i|late[i],4.,500)?;
+    Ok([e.n,l.n])
 }
