@@ -1,0 +1,4 @@
+future 1
+stock 1
+birth 1
+model 1

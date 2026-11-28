@@ -24,7 +24,9 @@ fn main()->Result<(),Box<dyn std::error::Error>>{
     let out=Path::new(&a[6]);if out.exists(){return Err("output directory exists".into())}
     let t=Instant::now();let pool=rayon::ThreadPoolBuilder::new().num_threads(threads).build()?;
     let (city,atlas,source_sha)=if fresh{
-        let (city,atlas)=pool.install(||atlas_generate::generate(&a[7],&a[8],a[9].parse::<f64>().unwrap_or(f64::NAN),a[10].parse::<usize>().unwrap_or(0),case.seed,matrix.population,true))?;
+        let size:f64=a[9].parse()?;let resolution:usize=a[10].parse()?;
+        if !size.is_finite()||size<=0.||resolution==0{return Err("invalid native city geometry".into())}
+        let (city,atlas)=pool.install(||atlas_generate::generate(&a[7],&a[8],size,resolution,case.seed,matrix.population,true))?;
         (city,Some(atlas),None)
     }else{
         if fs::metadata(&a[7])?.len()>64*1024*1024{return Err("city input byte bound".into())}
@@ -40,7 +42,7 @@ fn main()->Result<(),Box<dyn std::error::Error>>{
     let report=json!({"schema":"metroflow_native_city_pipeline_v1","scope":"Rust atlas/physical portal validation and factorized activity/calendar preparation; no traffic advancement or V03 acceptance",
         "status":"EXECUTED_FOR_REVIEW","mode":a[1],"case":case.id,"matrix_sha256":matrix_sha,"source_city_sha256":source_sha,
         "city_identity":city["identity"],"schedule_identity":manifest["calendar"]["schedule_identity"],"city_sha256":city_sha,
-        "manifest_sha256":manifest_sha,"model_identity":prepare["native_identity"],"atlas":atlas,"prepare":prepare,"calendar":calendar,
+        "manifest_sha256":manifest_sha,"model_identity":prepare["static_identity"],"atlas":atlas,"prepare":prepare,"calendar":calendar,
         "threads":threads,"step_s":step,"wall_s":t.elapsed().as_secs_f64(),"python_runtime_dependency":"none",
         "peak_rss_kib":status.lines().find(|x|x.starts_with("VmHWM:")).and_then(|x|x.split_whitespace().nth(1)).and_then(|x|x.parse::<u64>().ok()),
         "executable_sha256":sha(&fs::read(std::env::current_exe()?)?)});
