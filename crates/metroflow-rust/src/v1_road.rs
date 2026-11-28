@@ -9322,6 +9322,18 @@ mod compact_decode_envelope_tests{
 impl V1Road {
     #[allow(dead_code)]
     pub(crate) fn registered_path(&self,tag:usize)->Option<&[usize]>{self.routes.get(tag).map(|&(p,_)|self.paths[p].as_slice())}
+    pub(crate) fn ready_route_position(&self,s:&RoadState,cell:usize,tag:usize)->CoreResult<Option<usize>>{
+        let c=s.cells.get(cell).ok_or_else(||val("ready route cell missing"))?;
+        let path=self.registered_path(tag).ok_or_else(||val("ready route tag missing"))?;
+        let Some(head)=c.packets.first()else{return Ok(None)};
+        if head.target>c.v[0]{return Ok(None)}
+        let mut pos=None;
+        for p in head.parts.iter().filter(|p|p.tag==tag){
+            if path.get(p.offset)!=Some(&cell)||p.offset+1>=path.len()||pos.is_some_and(|v|v!=p.offset){return Err(val("ready route position differs"))}
+            pos=Some(p.offset);
+        }
+        Ok(pos)
+    }
     pub(crate) fn apply_ready_suffix(&self, s: &RoadState, cell: usize,
         old_tag: usize, new_tag: usize, owners: &[Option<usize>],
         legal_turns: &[(usize,usize)]) -> CoreResult<RoadState> {

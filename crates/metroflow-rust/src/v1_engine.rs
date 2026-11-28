@@ -2781,8 +2781,29 @@ pub fn run_native_phase(
     let static_data:Static=serde_json::from_value(manifest["static"].clone()).map_err(|e|bad(format!("phase static input: {e}")))?;
     let lengths:std::collections::BTreeMap<_,_>=static_data.links.iter().zip(&static_data.groups).map(|(id,g)|(id.as_str(),g.first().copied())).collect();
     let links=static_data.arcs.iter().map(|(id,tail,head)|Ok(Link{id:id.clone(),tail:tail.clone(),head:head.clone(),length_m:lengths.get(id.as_str()).and_then(|x|*x).ok_or_else(||bad("phase link length"))?,toll_units:0.})).collect::<CoreResult<Vec<_>>>()?;
+    let suffix_policy=config.ready_suffix.clone();
+    let suffix_static=if suffix_policy.is_some(){Some((static_data.links.clone(),static_data.arcs.clone(),static_data.route_variants.clone()))}else{None};
     let turns=static_data.turns;drop(lengths);
     let (mut engine,calendar_legs,calendar_totals)=build_native_input(manifest,threads)?;
+    let suffix_binding=if let (Some(p),Some((ids,arcs,variants)))=(&suffix_policy,&suffix_static){
+        let cell=ids.iter().position(|id|id==&p.at_link).ok_or_else(||bad("suffix policy link missing"))?;
+        let old=engine.tags.binary_search(&p.old_tag).map_err(|_|bad("suffix policy tag missing"))?;
+        let owner=engine.car_tag_legs[old].ok_or_else(||bad("suffix policy requires private car owner"))?;
+        if engine.road.class_for_route(old).and_then(|c|engine.class_names.get(c))!=Some(&config.preference.class){return Err(bad("suffix policy class differs"))}
+        let path=engine.road.registered_path(old).ok_or_else(||bad("suffix policy path missing"))?.iter().map(|&i|ids.get(i).cloned().ok_or_else(||bad("suffix link index"))).collect::<CoreResult<Vec<_>>>()?;
+        if !path.contains(&p.at_link)||path.last()==Some(&p.at_link){return Err(bad("suffix policy link not a nonterminal commitment"))}
+        let node=arcs.iter().find(|(id,_,_)|id==&p.at_link).ok_or_else(||bad("suffix policy node"))?.2.clone();
+        let destination=arcs.iter().find(|(id,_,_)|Some(id)==path.last()).ok_or_else(||bad("suffix policy destination"))?.2.clone();
+        let mut eligible=Vec::new();
+        for (canonical,alias,variant) in variants{
+            if canonical!=&p.old_tag{continue}
+            let v=engine.tags.binary_search(alias).map_err(|_|bad("suffix alias missing"))?;
+            if engine.car_tag_legs[v]!=Some(owner){return Err(bad("suffix alias owner differs"))}
+            eligible.push((alias.clone(),variant.clone()));
+        }
+        if eligible.is_empty(){return Err(bad("suffix policy requires predeclared alternatives"))}
+        Some((cell,old,path,node,destination,eligible))
+    }else{None};
     let runtime=Runtime::new(&engine.city,&engine.schedule,&engine.identity,engine.step,links,turns,config)?;
     let build_s=t.elapsed().as_secs_f64();
     let (mut state,mut world,mut window)=if let Some((path,wire,window))=resume{let state=engine.load(path.to_owned())?;let world=runtime.restore(wire,state.time_s())?;window.validate(world.wire.observation_cursor_s,state.time_s(),engine.tags.len())?;(state,world,window)}else{(engine.initial(),runtime.initial()?,crate::phase_window::PhaseWindow::new(0.))};
@@ -2796,7 +2817,8 @@ pub fn run_native_phase(
     let mut tick_times=vec![];
     while state.time_s()<end_s{
         let target=runtime.boundary(&world,end_s).min(state.time_s()+engine.step);
-        let next=engine.advance_owned(&state,target)?;
+        let mut next=engine.advance_owned(&state,target)?;
+        let medium=runtime.medium(&world,target);
         window.append_tick(state.time_s(),target,engine.tags.len(),next.value.service.1.iter())?;
         let (times,_)=engine.advance_metrics();tick_times.extend(times);
         let (totals,_)=next.value.road.summary();
@@ -2813,6 +2835,21 @@ pub fn run_native_phase(
             observations
         }else{vec![]};
         pool.install(||runtime.transition(&mut world,target,totals[1],completed,&mut pending))?;
+        if medium{
+            if let (Some(p),Some((cell,old,path,node,dest,variants)))=(&suffix_policy,&suffix_binding){
+                if let Some(pos)=engine.road.ready_route_position(&next.value.road,*cell,*old)?{
+                    let decision=pool.install(||runtime.ready_suffix_decision(&mut world,path.clone(),pos,node.clone(),dest.clone()))?;
+                    // Separate opt-in deterministic policy. Do not fabricate
+                    // a probability sample or use unavailable link costs.
+                    let alias=if decision.regret_s.is_some_and(|g|g>p.min_gain_s){
+                        decision.alternatives.iter().min_by(|a,b|a.generalized_cost_s.total_cmp(&b.generalized_cost_s).then(a.commitment.links.cmp(&b.commitment.links)))
+                            .and_then(|a|variants.iter().find(|(_,v)|v==&a.commitment.links)).map(|(tag,_)|tag.clone())
+                    }else{None};
+                    if let Some(tag)=&alias{next=engine.suffix_transaction(&next,*cell,&p.old_tag,tag)?;}
+                    runtime.record_ready_suffix(&mut world,pos,decision,alias)?;
+                }
+            }
+        }
         state=next;
     }
     let wire=runtime.finalize(world,&pending)?;
@@ -2822,6 +2859,8 @@ pub fn run_native_phase(
     if window_bytes.len()>16*1024*1024{return Err(CoreError::resource("phase outlet window wire byte bound"))}
     let phase_window_sha256=crate::frozen_city::hash(&window_bytes);drop(window_bytes);
     let growth_stock_identity=runtime.growth_stock_identity(&wire)?;
+    let physical_suffix_applied=wire.ready_suffixes.iter().any(|r|r.applied_alias.is_some());
+    let phase_scope=if suffix_policy.is_some(){"C01 opt-in causal ready-head policy on predeclared car variants; no occupied prefix edit or same-tick physical feedback"}else{"C01 proposal-only phase semantics on actual native T04 state; explicit growth publications; no occupied suffix mutation"};
     let phase_wire=serde_json::to_value(&wire).map_err(|e|bad(e.to_string()))?;
     let wire_bytes=serde_json::to_vec(&phase_wire).map_err(|e|bad(e.to_string()))?;
     if wire_bytes.len()>16*1024*1024{return Err(CoreError::resource("phase wire byte bound"))}
@@ -2830,7 +2869,7 @@ pub fn run_native_phase(
     let ledger=ledger_json(&engine,&state)?;
     let advance_s=t.elapsed().as_secs_f64();
     save_atomic_native(&mut engine,checkpoint,&state)?;
-    Ok(json!({"schema":"metroflow_native_world_v2","scope":"C01 proposal-only phase semantics on actual native T04 state; explicit growth publications; no occupied suffix mutation","status":"EXECUTED_FOR_REVIEW","city_identity":engine.city,"schedule_identity":engine.schedule,"native_identity":engine.identity,"phase_model_identity":runtime.id,"start_s":begin,"time_s":state.time_s(),"calendar_legs":calendar_legs,"calendar_totals":calendar_totals,"threads":threads,"byte_budget":engine.byte_budget,"build_s":build_s,"advance_s":advance_s,"tick_times_s":tick_times,"ledger":ledger["ledger"],"phase_wire":phase_wire,"phase_wire_sha256":phase_wire_sha256,"phase_window":phase_window,"phase_window_sha256":phase_window_sha256,"growth_stock_identity":growth_stock_identity,"physical_suffix_applied":false}))
+    Ok(json!({"schema":"metroflow_native_world_v2","scope":phase_scope,"status":"EXECUTED_FOR_REVIEW","city_identity":engine.city,"schedule_identity":engine.schedule,"native_identity":engine.identity,"phase_model_identity":runtime.id,"start_s":begin,"time_s":state.time_s(),"calendar_legs":calendar_legs,"calendar_totals":calendar_totals,"threads":threads,"byte_budget":engine.byte_budget,"build_s":build_s,"advance_s":advance_s,"tick_times_s":tick_times,"ledger":ledger["ledger"],"phase_wire":phase_wire,"phase_wire_sha256":phase_wire_sha256,"phase_window":phase_window,"phase_window_sha256":phase_window_sha256,"growth_stock_identity":growth_stock_identity,"physical_suffix_applied":physical_suffix_applied}))
 }
 
 /// Explicit native transaction on a predeclared legal route variant; not an
@@ -2890,6 +2929,32 @@ mod canonical_variant_fixture_tests{
         s["incoming"]=json!([[0],[1],[2,4],[3],[5],[6]]);
         s["corridor_routes"]=json!([["out",["ax","xy","yz","zb"]],["back",["ba"]]]);
         m
+    }
+    #[test]fn causal_ready_head_phase_applies_registered_suffix_and_replays(){
+        use crate::phase_runtime::{Config,Inputs,ReadySuffixPolicy,Wire};
+        use crate::causal::{Prior,Key};
+        use crate::causal_routing::Preference;
+        let mut m=manifest();
+        let (base,_,_)=build_native_input(m.clone(),1).unwrap();
+        let old=base.tags.iter().zip(&base.car_tag_legs).find(|(tag,owner)|owner.is_some()&&base.road.registered_path(base.tags.binary_search(tag).unwrap()).unwrap().first()==Some(&0)).unwrap().0.clone();
+        m["static"]["route_variants"]=json!([[old,"__variant__:alternate",["ax","xw","wz","zb"]]]);
+        let prior=|id:&str,seconds:f64|Prior{key:Key{kind:"link".into(),id:id.into(),class:"car".into()},seconds,version:"declared-prior".into(),measure:"link time".into()};
+        let cfg=Config{medium_s:49.,slow_s:980.,record_budget:1000,origin:"a".into(),destination:"b".into(),observer_xy:[0.,0.],preference:Preference{class:"car".into(),purpose:"work".into(),time_weight:1.,distance_s_per_m:0.,money_s_per_unit:0.,logit_scale_s:30.,path_size_beta:1.},priors:vec![prior("ax",1.),prior("xy",40.),prior("yz",40.),prior("xw",3.),prior("wz",3.),prior("zb",1.),prior("ba",1.)],channels:vec![],k:2,expansion_budget:100,frontier_budget:100,cache_limit:2,growth:None,ready_suffix:Some(ReadySuffixPolicy{at_link:"ax".into(),old_tag:old,observer_xy:[0.,0.],min_gain_s:1.})};
+        let dir=std::env::temp_dir().join(format!("metroflow-causal-ready-{}",std::process::id()));
+        std::fs::create_dir(&dir).unwrap();
+        let full=dir.join("full.bin");let cut=dir.join("cut.bin");let replay=dir.join("replay.bin");
+        let a=run_native_phase(m.clone(),1,49.,cfg.clone(),Inputs::default(),None,cut.to_str().unwrap()).unwrap();
+        assert_eq!(a["physical_suffix_applied"],true);
+        assert_eq!(a["phase_wire"]["ready_suffixes"][0]["applied_alias"],"__variant__:alternate");
+        assert_eq!(a["phase_wire"]["ready_suffixes"][0]["position"],0);
+        let wire:Wire=serde_json::from_value(a["phase_wire"].clone()).unwrap();
+        let window=serde_json::from_value(a["phase_window"].clone()).unwrap();
+        let b=run_native_phase(m.clone(),1,250.,cfg.clone(),Inputs::default(),Some((cut.to_str().unwrap(),wire,window)),replay.to_str().unwrap()).unwrap();
+        let c=run_native_phase(m,1,250.,cfg,Inputs::default(),None,full.to_str().unwrap()).unwrap();
+        assert_eq!(b["phase_wire"],c["phase_wire"]);assert_eq!(b["ledger"],c["ledger"]);
+        assert_eq!(std::fs::read(full).unwrap(),std::fs::read(replay).unwrap());
+        for p in ["full.bin","cut.bin","replay.bin"]{std::fs::remove_file(dir.join(p)).unwrap();}
+        std::fs::remove_dir(dir).unwrap();
     }
     #[test]fn canonical_alias_survives_actual_road_exit_and_completes_original_journey(){
         let mut m=manifest();

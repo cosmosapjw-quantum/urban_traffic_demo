@@ -32,6 +32,22 @@ pub struct GrowthConfig {
     pub max_access_s: f64,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ReadySuffixPolicy {
+    pub at_link: String,
+    pub old_tag: String,
+    pub observer_xy: [f64;2],
+    pub min_gain_s: f64,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ReadySuffixRecord{
+    pub time_s:f64,
+    pub at_link:String,
+    pub old_tag:String,
+    pub position:usize,
+    pub decision:Decision,
+    pub applied_alias:Option<String>,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Config {
     pub medium_s: f64,
     pub slow_s: f64,
@@ -48,6 +64,8 @@ pub struct Config {
     pub cache_limit: usize,
     #[serde(default)]
     pub growth: Option<GrowthConfig>,
+    #[serde(default,skip_serializing_if="Option::is_none")]
+    pub ready_suffix:Option<ReadySuffixPolicy>,
 }
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct Inputs {
@@ -93,6 +111,8 @@ pub struct Wire {
     pub growth_state: Option<GrowthState>,
     pub growth_snapshot: Option<Accessibility>,
     pub growth_increment: u64,
+    #[serde(default,skip_serializing_if="Vec::is_empty")]
+    pub ready_suffixes:Vec<ReadySuffixRecord>,
 }
 pub(crate) struct World {
     pub wire: Wire,
@@ -139,6 +159,7 @@ impl Runtime {
             || cfg.frontier_budget == 0
             || cfg.frontier_budget > 20000
             || cfg.expansion_budget > 20000
+            || cfg.ready_suffix.as_ref().is_some_and(|p|p.at_link.is_empty()||p.old_tag.is_empty()||p.old_tag.starts_with("__variant__:")||p.observer_xy.iter().any(|x|!x.is_finite())||!p.min_gain_s.is_finite()||p.min_gain_s<0.)
         {
             return Err(bad("invalid native phase configuration"));
         }
@@ -226,6 +247,7 @@ impl Runtime {
             growth_state: self.growth.as_ref().map(Growth::initial),
             growth_snapshot: None,
             growth_increment: 0,
+            ready_suffixes:vec![],
         };
         Ok(World {
             wire,
@@ -271,6 +293,13 @@ impl Runtime {
         {
             return Err(bad("invalid native world identity/clock/history"));
         }
+        if !w.ready_suffixes.is_empty()&&self.cfg.ready_suffix.is_none(){return Err(bad("unexpected physical suffix history"))}
+        if let Some(p)=&self.cfg.ready_suffix{
+            if w.ready_suffixes.windows(2).any(|q|q[0].time_s>=q[1].time_s)
+                || w.ready_suffixes.iter().any(|r|r.time_s>w.time_s||r.time_s!=r.decision.time_s||r.at_link!=p.at_link||r.old_tag!=p.old_tag||!w.journal.iter().any(|e|e.phase=="medium"&&e.time_s==r.time_s)||r.applied_alias.as_ref().is_some_and(|a|!a.starts_with("__variant__:"))){
+                return Err(bad("ready suffix wire history differs"))
+            }
+        }
         self.count(w)?;
         match (&self.growth, &w.growth_state) {
             (Some(g), Some(s)) => {
@@ -289,7 +318,7 @@ impl Runtime {
             .journal
             .len()
             .saturating_add(w.completed_costs.len())
-            .saturating_add(w.decisions.len());
+            .saturating_add(w.decisions.len()).saturating_add(w.ready_suffixes.len());
         if n > self.cfg.record_budget || w.information_reports.len() > self.cfg.record_budget {
             return Err(CoreError::resource("C01 world observation/journal budget"));
         }
@@ -464,6 +493,24 @@ impl Runtime {
         self.count(&w.wire)?;
         Ok(())
     }
+    /// An actual occupied commitment at the completed medium boundary;
+    /// consumed information is available before any next physical tick.
+    pub(crate) fn ready_suffix_decision(&self,w:&mut World,links:Vec<String>,position:usize,node:String,destination:String)->CoreResult<Decision>{
+        let p=self.cfg.ready_suffix.as_ref().ok_or_else(||bad("ready suffix policy missing"))?;
+        if w.wire.time_s!=w.wire.info_time_s||w.wire.time_s==0.||links.get(position)!=Some(&p.at_link)||w.wire.ready_suffixes.last().is_some_and(|r|r.time_s>=w.wire.time_s){
+            return Err(bad("ready suffix decision boundary differs"))
+        }
+        let delivered=self.information.observe(&w.information,p.observer_xy,"en_route")?;
+        let current=crate::causal_routing::Commitment{graph_id:self.routing.graph_id.clone(),links,position};
+        let(next,d)=self.routing.decide(&w.routing,&delivered,&Boundary{time_s:w.wire.time_s,node,incoming:Some(p.at_link.clone())},&self.cfg.preference,&destination,Some(&current),&[])?;
+        w.routing=next;Ok(d)
+    }
+    pub(crate) fn record_ready_suffix(&self,w:&mut World,position:usize,decision:Decision,applied_alias:Option<String>)->CoreResult<()>{
+        let p=self.cfg.ready_suffix.as_ref().ok_or_else(||bad("ready suffix policy missing"))?;
+        if decision.time_s!=w.wire.time_s||w.wire.ready_suffixes.last().is_some_and(|r|r.time_s>=w.wire.time_s){return Err(bad("duplicate ready suffix decision"))}
+        w.wire.ready_suffixes.push(ReadySuffixRecord{time_s:w.wire.time_s,at_link:p.at_link.clone(),old_tag:p.old_tag.clone(),position,decision,applied_alias});
+        self.count(&w.wire)
+    }
     pub(crate) fn growth_stock_identity(&self, w: &Wire) -> CoreResult<Option<String>> {
         match (&self.growth, &w.growth_state) {
             (Some(g), Some(s)) => Ok(Some(g.materialized_identity(s)?)),
@@ -518,6 +565,7 @@ mod tests {
             frontier_budget: 100,
             cache_limit: 2,
             growth: None,
+            ready_suffix:None,
         }
     }
     fn model(c: Config) -> Runtime {
