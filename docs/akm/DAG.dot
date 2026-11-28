@@ -12,12 +12,12 @@ digraph AKM {
   D01 -> D04;
   D02 -> D04;
   D03 -> D04;
-  D05 [label="D05 혼합/순서 및 해상도 closure 선택 [READY]"];
+  D05 [label="D05 혼합/순서 및 해상도 closure 선택 [VERIFIED_SCOPED]"];
   D04 -> D05;
   D06 [label="D06 원 도시 선언 및 전체 질량 장부 연결 [VERIFIED_SCOPED]"];
   D02 -> D06;
   D03 -> D06;
-  D07 [label="D07 인과적 경로 선택과 인프라 개입 [PLANNED]"];
+  D07 [label="D07 인과적 경로 선택과 인프라 개입 [READY]"];
   D04 -> D07;
   D05 -> D07;
   D08 [label="D08 접근성-도시발전 지연 feedback [PLANNED]"];

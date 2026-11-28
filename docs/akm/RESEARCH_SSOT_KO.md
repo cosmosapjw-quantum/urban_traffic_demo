@@ -125,6 +125,16 @@ One optional D fallback family: whole scheduled-bus characteristic with determin
 
 Evidence: [theory and implementation report](../research/AKM_D05_TRANSPORT_20261128.md); `artifacts/akm_d05_transport_20261128/S09_audit.json`, `S10_RESEARCH_RECEIPT.json`. Release verdict CAUTION_RESEARCH_ONLY.
 
+## 6.3. 2026-11-28 D05 final attempt: reserved boundary and bounded closure decision
+
+D05 VERIFIED_SCOPED, attempts_used=2/2, no further attempt. D04/D06 prior scoped evidence unchanged. D05's terminal decision is NOT a whole-model convergence PASS: all four A policies fail joint spatial/temporal day criterion; 22/24 actual runs completed and two moment-cone failures at 28217.5/28216.25s preserved. B projected mesh300/150 seven stamps: mean gap 0.003218%, completed gap 0.07278%, peak storage gap .010942, receiving .028614 > .02 diagnostic gate; B remains projected comparator, not production. D reserved interface (AKMFULL3) selected only as scheduled-service subclosure: original dt1 and distinct .5/2s diagnostic manifests all complete 20 persons,13.06 vehicle-equivalent,100kg, both buses, arrivals44/74.5,45/75,46/76s. Source t31 and sink t45 (separate .5veh/s exit diagnostic) partial checkpoint recovery and split/direct continuation bit-identical. Competing merge consumes current quota, exact slack control retains partial carrier, no fictitious service completion. No cap, original timetable or V1 release gate change. Old AKMFULL1/2 fixture bytes unchanged. D retains unvalidated proportional fluid car/freight; no original active-bus city run or full-day convergence. Reject A whole-network convergence solution, retain local kernels; B for comparison; D scoped service research, no production candidate selection. This is a physical result enabling the next distinct research question D07, not an invitation to retry D05.
+
+User architecture instruction (2026-11-28): retain Rust backend / Python frontend. Physical solver, observation, ownership and persistence logic stays Rust; Python UI/receipt presentation and independent mathematical oracle only. Native dependency and ldd checked; new read-only Python UI adapter has 3 passing tests; no claim production GUI integration.
+
+**AD1** Q1/Q2 same physical inputs, real service resolution and counterexamples; original historical blob IDs in S01. **AD2** separate model identities, conserved physical boundary increments and logical owners, raw negative evidence; partial sink reservoir is not completed service. **ALM1** zero new original exact ticks/cap changes, no exact time-fraction measurement. **ALM2** D05 bounded two attempts exhausted; do not repeat same closure refinement loop. Next D07 use scoped selected interface service plus explicitly identified comparator/limitations for causal legal routing and paired infrastructure intervention, not unsupported production claims. D09/D11 retain global transport and history, unsupported demand, exact-slack and cross-class fairness obligations. No D07 execution in this turn. Original PLAN v1.1.55 byte-identical. Full CI/main merge not run. Native subagent unavailable, independent arithmetic/wire audit instead.
+
+Evidence: [D05 final theory/implementation report](../research/AKM_D05_FINAL_INTERFACE_20261128.md); `artifacts/akm_d05_final_20261128/S09_audit.json`, `S10_RESEARCH_RECEIPT.json`. Verdict CAUTION_RESEARCH_ONLY.
+
 ## 7. 유한 DAG: 정의와 종료
 
 D00–D03은 이번 재정초의 실측 범위에 대해 VERIFIED_SCOPED. D04–D10은 유한 science/implementation 실험. D11은 성공뿐 아니라 실패가 담긴 terminal evidence로 decision. 후보가 없다는 근거 있는 decision 자체는 D11 VERIFIED_SCOPED로 기록하며, D12는 STOPPED reason으로 종료해 D13을 활성화한다. D12는 candidate가 선택되고 사용자 승인으로 release candidate contract가 명시된 경우에만 기존 V03 전체 수용시험; 기존 3×3/3 matched refinement와 외부 limits 변경 없음. D13은 결과·통합심사 및 사용자 결정 기록으로 닫는다. 선택되지 않거나 실패한 dependency 때문에 실행할 수 없는 노드는 정확한 terminal reason과 evidence로 STOPPED/BLOCKED_TERMINAL (환경이 재개되면 새 승인된 계획) 처리. 종료까지 진행하기 위한 terminal dependency는 성공 dependency와 다르다. D11이 실행된 뒤 후보를 재생성하거나 D05로 역행하는 edge가 없다. 모든 노드는 최대 시도 횟수(실행된 차별 가설 단위, 하위 반복 횟수는 사전 기록)를 소비한다. D00–D03 각 1회 이미 소비. D04–D13 합 20회 이하의 추가 시도, global max 24회. 한 시도에 사용할 finite run matrix를 먼저 고정하고, resource failure 후 동일 run blind repeat는 최대 1회이며 같은 시도 예산에서 소모한다. V03 9+3 실행은 D12의 명시된 하나의 캠페인으로 취급(실패 시 예산 내 한 후보의 추가 캠페인만, 승인 없는 재시작 금지). 사용자가 새 연구 범위를 요청하면 버전을 변경하며 기존 종료 결과를 덮어쓰지 않는다.
@@ -227,16 +237,18 @@ D00–D03은 이번 재정초의 실측 범위에 대해 VERIFIED_SCOPED. D04–
         "D04"
       ],
       "requires_terminal": [],
-      "status": "READY",
-      "attempts_used": 1,
+      "status": "VERIFIED_SCOPED",
+      "attempts_used": 2,
       "max_attempts": 2,
       "question": "Q1,Q2",
       "deliverable": "A: active blocked-turn/residual allocation and dt 5/2.5/1.25 day; B: same archive active mesh1200/600/300 or bounded matched peak windows; optional one ordered hybrid",
       "claim_gate": "matched observable deltas and support/complexity; overload incomplete/curve error distinguished; reject or redirect if refinement does not improve within fixed two attempts",
       "prior_findings": "D04 geometric residence and sharp third-moment envelope; D06 missed fixed return connection; compare finite propagation/spatial refinement, actual arrival/eligibility curves and journey history growth; no cap escalation",
-      "last_attempt_evidence": "artifacts/akm_d05_transport_20261128/S09_audit.json",
-      "last_attempt_result": "EXECUTED_NEGATIVE_AND_POSITIVE_SCOPED: combined A mean gap 9.271%, original A 2.531%; B projected mean .0179%, unresolved receiving/storage peaks; strict atomic D dt1 fails, dt2 diagnostic passes; retained original gates",
-      "next_action": "FINAL attempt: conservative boundary crossing/reservation state, actual same-fixture h=.5/1/2 and active wire/merge controls; matched spatial-temporal A and B congestion comparison; select/redirect/stop, no further attempt without new scope"
+      "last_attempt_evidence": "artifacts/akm_d05_final_20261128/S09_audit.json",
+      "last_attempt_result": "D05_FINAL_SELECTION_VERIFIED_SCOPED_NOT_RELEASE",
+      "next_action": "D05 closed; D07 distinct causal routing/infrastructure study; preserve negative findings for later gates",
+      "evidence": "artifacts/akm_d05_final_20261128/S09_audit.json",
+      "scope": "terminal closure discrimination and verified scheduled-service interface on native fixture only; all A day-resolution arms rejected, B projected comparator with receiving limitation; full network convergence unresolved"
     },
     {
       "id": "D06",
@@ -263,12 +275,13 @@ D00–D03은 이번 재정초의 실측 범위에 대해 VERIFIED_SCOPED. D04–
         "D05"
       ],
       "requires_terminal": [],
-      "status": "PLANNED",
+      "status": "READY",
       "attempts_used": 0,
       "max_attempts": 2,
       "question": "Q3",
       "deliverable": "K legal path candidates, medium information delay/expiry, source-only and ready-boundary reroute, graph transaction, paired bridge/bypass experiment",
-      "claim_gate": "same demand/topology except intervention; no future info/illegal path, reroute conserves committed journey owner; nontrivial flow/queue/route response, compare negative cases"
+      "claim_gate": "same demand/topology except intervention; no future info/illegal path, reroute conserves committed journey owner; nontrivial flow/queue/route response, compare negative cases",
+      "prior_findings": "D05 terminal scoped selection: D AKMFULL3 service interface; A global day refinement unvalidated, B projected comparator only. Rust backend/Python frontend. Proceed causal legal route/graph and paired intervention research, no production acceptance."
     },
     {
       "id": "D08",
