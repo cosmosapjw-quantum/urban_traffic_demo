@@ -1,0 +1,1527 @@
+{
+  "status": "D05_FINAL_SELECTION_VERIFIED_SCOPED_NOT_RELEASE",
+  "A": {
+    "cases": 24,
+    "reached": 22,
+    "failed": [
+      {
+        "policy": 0,
+        "time_s": 28217.5,
+        "reason": "BLOCKED_NUMERICAL:road moment cone",
+        "last_state_digest": "ea1c2b4c3a950aaac91e8e62a9a02614c17b595f57d6eb30ef0ad186565497dd",
+        "full_checkpoint_retained": false
+      },
+      {
+        "policy": 2,
+        "time_s": 28216.25,
+        "reason": "BLOCKED_NUMERICAL:road moment cone",
+        "last_state_digest": "883e042d3c9a621c900b5b7f4ee307815fef3a1ba21e2bdd041a0f7c84149f2d",
+        "full_checkpoint_retained": false
+      }
+    ],
+    "factorial": {
+      "0": {
+        "day_means_s": [
+          833.769940225519,
+          902.1041491690264,
+          null
+        ],
+        "day_comparisons": [
+          {
+            "mesh": [
+              [
+                1,
+                5.0
+              ],
+              [
+                2,
+                2.5
+              ]
+            ],
+            "mean_gap_relative": 0.08195811056107916,
+            "completion_curve_gap_fraction": 0.009323998872232609,
+            "incomplete_curve_gap_fraction": 0.009323998872396254,
+            "stock_integral_gap_relative": 0.08546800091724727
+          }
+        ],
+        "overload_comparisons": [
+          {
+            "mesh": [
+              [
+                1,
+                5.0
+              ],
+              [
+                2,
+                2.5
+              ]
+            ],
+            "mean_gap_relative": 0.006354964102648797,
+            "completion_curve_gap_fraction": 0.004488644805604714,
+            "incomplete_curve_gap_fraction": 0.004488644805623758,
+            "stock_integral_gap_relative": 0.0028627803208385316
+          },
+          {
+            "mesh": [
+              [
+                2,
+                2.5
+              ],
+              [
+                4,
+                1.25
+              ]
+            ],
+            "mean_gap_relative": 0.0026758431376290304,
+            "completion_curve_gap_fraction": 0.002437677086791046,
+            "incomplete_curve_gap_fraction": 0.002437677086790572,
+            "stock_integral_gap_relative": 0.0017113715437306887
+          }
+        ],
+        "finest_day_gate": false
+      },
+      "1": {
+        "day_means_s": [
+          925.7922139505424,
+          1195.9091705617254,
+          1713.5371921887545
+        ],
+        "day_comparisons": [
+          {
+            "mesh": [
+              [
+                1,
+                5.0
+              ],
+              [
+                2,
+                2.5
+              ]
+            ],
+            "mean_gap_relative": 0.2917684471103288,
+            "completion_curve_gap_fraction": 0.030822019004540808,
+            "incomplete_curve_gap_fraction": 0.030822019004720994,
+            "stock_integral_gap_relative": 0.29606636438554546
+          },
+          {
+            "mesh": [
+              [
+                2,
+                2.5
+              ],
+              [
+                4,
+                1.25
+              ]
+            ],
+            "mean_gap_relative": 0.4328322203465471,
+            "completion_curve_gap_fraction": 0.052455546872722,
+            "incomplete_curve_gap_fraction": 0.05245554687247306,
+            "stock_integral_gap_relative": 0.434785127376659
+          }
+        ],
+        "overload_comparisons": [
+          {
+            "mesh": [
+              [
+                1,
+                5.0
+              ],
+              [
+                2,
+                2.5
+              ]
+            ],
+            "mean_gap_relative": 0.004666709930805091,
+            "completion_curve_gap_fraction": 0.013242710527153609,
+            "incomplete_curve_gap_fraction": 0.013242710527175565,
+            "stock_integral_gap_relative": 0.006718858771756375
+          },
+          {
+            "mesh": [
+              [
+                2,
+                2.5
+              ],
+              [
+                4,
+                1.25
+              ]
+            ],
+            "mean_gap_relative": 0.010498286482783503,
+            "completion_curve_gap_fraction": 0.01919216711202853,
+            "incomplete_curve_gap_fraction": 0.019192167112027734,
+            "stock_integral_gap_relative": 0.009865078104182912
+          }
+        ],
+        "finest_day_gate": false
+      },
+      "2": {
+        "day_means_s": [
+          833.7699402255097,
+          902.1041491690264,
+          null
+        ],
+        "day_comparisons": [
+          {
+            "mesh": [
+              [
+                1,
+                5.0
+              ],
+              [
+                2,
+                2.5
+              ]
+            ],
+            "mean_gap_relative": 0.08195811056109115,
+            "completion_curve_gap_fraction": 0.009323998872232316,
+            "incomplete_curve_gap_fraction": 0.009323998872396278,
+            "stock_integral_gap_relative": 0.08546800091724704
+          }
+        ],
+        "overload_comparisons": [
+          {
+            "mesh": [
+              [
+                1,
+                5.0
+              ],
+              [
+                2,
+                2.5
+              ]
+            ],
+            "mean_gap_relative": 0.006354964102648575,
+            "completion_curve_gap_fraction": 0.004488644805604714,
+            "incomplete_curve_gap_fraction": 0.004488644805623998,
+            "stock_integral_gap_relative": 0.0028627803208385316
+          },
+          {
+            "mesh": [
+              [
+                2,
+                2.5
+              ],
+              [
+                4,
+                1.25
+              ]
+            ],
+            "mean_gap_relative": 0.0026758431376292524,
+            "completion_curve_gap_fraction": 0.0024376770867910766,
+            "incomplete_curve_gap_fraction": 0.0024376770867905744,
+            "stock_integral_gap_relative": 0.0017113715437306887
+          }
+        ],
+        "finest_day_gate": false
+      },
+      "3": {
+        "day_means_s": [
+          925.7922139505464,
+          1195.9091705617277,
+          1713.5371921887465
+        ],
+        "day_comparisons": [
+          {
+            "mesh": [
+              [
+                1,
+                5.0
+              ],
+              [
+                2,
+                2.5
+              ]
+            ],
+            "mean_gap_relative": 0.2917684471103257,
+            "completion_curve_gap_fraction": 0.03082201900454066,
+            "incomplete_curve_gap_fraction": 0.03082201900472099,
+            "stock_integral_gap_relative": 0.29606636438554434
+          },
+          {
+            "mesh": [
+              [
+                2,
+                2.5
+              ],
+              [
+                4,
+                1.25
+              ]
+            ],
+            "mean_gap_relative": 0.43283222034653757,
+            "completion_curve_gap_fraction": 0.052455546872722,
+            "incomplete_curve_gap_fraction": 0.052455546872473065,
+            "stock_integral_gap_relative": 0.4347851273766594
+          }
+        ],
+        "overload_comparisons": [
+          {
+            "mesh": [
+              [
+                1,
+                5.0
+              ],
+              [
+                2,
+                2.5
+              ]
+            ],
+            "mean_gap_relative": 0.004666709930804758,
+            "completion_curve_gap_fraction": 0.01324271052715367,
+            "incomplete_curve_gap_fraction": 0.013242710527175563,
+            "stock_integral_gap_relative": 0.006718858771756375
+          },
+          {
+            "mesh": [
+              [
+                2,
+                2.5
+              ],
+              [
+                4,
+                1.25
+              ]
+            ],
+            "mean_gap_relative": 0.010498286482783281,
+            "completion_curve_gap_fraction": 0.01919216711202853,
+            "incomplete_curve_gap_fraction": 0.019192167112027734,
+            "stock_integral_gap_relative": 0.009865078104182912
+          }
+        ],
+        "finest_day_gate": false
+      }
+    },
+    "decision": "reject all tested A policies as validated day-resolution solution; local kernels retained; do not infer numerical root cause"
+  },
+  "B": {
+    "mesh_s": [
+      300,
+      150
+    ],
+    "means_s": [
+      774.6864468254728,
+      774.6615152068472
+    ],
+    "comparison": {
+      "released": 0.00017242235295540902,
+      "completed": 0.0007277716672517306,
+      "active": 0.0007277716672517306,
+      "road": 0.0007827493502486244,
+      "max_storage_ratio": 0.010942434506904741,
+      "max_receiving_ratio": 0.028614155879121805,
+      "mean_gap_relative": 3.2182851175122096e-05
+    },
+    "old_mesh300_observation_invariance": true,
+    "decision": "projected comparator only; receiving peak diagnostic fails"
+  },
+  "D": {
+    "arrivals_s": [
+      [
+        44.0,
+        74.5
+      ],
+      [
+        45.0,
+        75.0
+      ],
+      [
+        46.0,
+        76.0
+      ]
+    ],
+    "wire_checks": {
+      "S04_interface_half": {
+        "receipt_sha256": "18b1396b195bf6830f643038116062def8830d3018e5dd5ce7ef2f35eca54745",
+        "checkpoint_sha256": "ab96ed4ab5d4bda694ffe2d69c77ddb1b6b95c81b49b03f75edb25df4adb9aef",
+        "wire": {
+          "time": 360.0,
+          "identity": "akm-native-reserved-bus-interface-v1:native-whole-v1:rust-host-fixture-static-d05-diagnostic-dt-0.5:268435456:bounded_bytes_v1:retained_capacity_v3:88afac07f9232402dbef0b5efdf4514fbc966e6261dcf4271c64a7cf47950bf3",
+          "tracks": [],
+          "cross": [],
+          "runs": [
+            [
+              1,
+              2,
+              44.0,
+              0.0,
+              0.0
+            ],
+            [
+              1,
+              2,
+              74.5,
+              0.0,
+              0.0
+            ]
+          ],
+          "people": [
+            [
+              0.0,
+              0.0,
+              2.0,
+              40.0,
+              88.0
+            ],
+            [
+              0.0,
+              0.0,
+              2.0,
+              20.0,
+              149.0
+            ]
+          ],
+          "road": [
+            [
+              2,
+              0,
+              3.540862902105975e-39,
+              2.6198498837774704e-13,
+              2.8667335424956247e-41,
+              2.6151800195565403e-13,
+              1.457256034042495e-41,
+              2.6116785002503363e-13,
+              1.2604788643693811e-11
+            ],
+            [
+              3,
+              0,
+              1.6407255357099978e-44,
+              1.545799414342148e-15,
+              6.490957317881349e-48,
+              1.545799414342148e-15,
+              3.2885531535931315e-48,
+              1.5457994143421475e-15,
+              8.548862341039564e-15
+            ],
+            [
+              4,
+              0,
+              9.343469523678808e-47,
+              3.4712257652931005e-17,
+              3.6440009735733388e-50,
+              3.4712257652931005e-17,
+              1.8461823590071717e-50,
+              3.4712257652931005e-17,
+              3.471225765293101e-16
+            ]
+          ],
+          "pending": [],
+          "class_road_ledger": [
+            [
+              12.800000000000006,
+              12.799999999999706
+            ],
+            [
+              0.1,
+              0.09999999999999987
+            ],
+            [
+              2.0,
+              1.9999999999999998
+            ]
+          ]
+        },
+        "interface": {
+          "enabled": true,
+          "logical_sink_completed_veh": 1.9999999999999998,
+          "partial_crossings": 0,
+          "peak_crossings_at_owner_tick": 1,
+          "physical_boundary_in_veh": 2.0,
+          "physical_boundary_internal_veh": 0.0,
+          "physical_boundary_sink_veh": 1.9999999999999998,
+          "sum_fraction": -0.0
+        }
+      },
+      "S04_interface_one": {
+        "receipt_sha256": "47c518f5730745ccb684a65b2791693792d7e09602f6282c30e9116ddd27b19a",
+        "checkpoint_sha256": "5322731ae0f92b11199a1dba5c83b4b09085f23089699727ba256b00f43a7249",
+        "wire": {
+          "time": 360.0,
+          "identity": "akm-native-reserved-bus-interface-v1:native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3:2dbedc0ab2720529b71ef1377f9def399bb40e6e400ac22a6073e33bbf4f6a21",
+          "tracks": [],
+          "cross": [],
+          "runs": [
+            [
+              1,
+              2,
+              45.0,
+              0.0,
+              0.0
+            ],
+            [
+              1,
+              2,
+              75.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "people": [
+            [
+              0.0,
+              0.0,
+              2.0,
+              40.0,
+              90.0
+            ],
+            [
+              0.0,
+              0.0,
+              2.0,
+              20.0,
+              150.0
+            ]
+          ],
+          "road": [
+            [
+              2,
+              0,
+              8.295091608635747e-40,
+              1.1296707965140737e-13,
+              2.522558713759864e-42,
+              1.128172490376737e-13,
+              1.3413095483566403e-42,
+              1.1269451536300329e-13,
+              5.440219877589583e-12
+            ],
+            [
+              3,
+              0,
+              6.936121314569527e-45,
+              5.925535881815114e-16,
+              3.998473591112645e-49,
+              5.925535881815114e-16,
+              2.1195862285397862e-49,
+              5.925535881815114e-16,
+              3.302783533049781e-15
+            ],
+            [
+              4,
+              0,
+              3.86911250275868e-47,
+              1.301253673479641e-17,
+              2.1951721129198808e-51,
+              1.301253673479641e-17,
+              1.1636581995092846e-51,
+              1.301253673479641e-17,
+              1.3012536734796427e-16
+            ]
+          ],
+          "pending": [],
+          "class_road_ledger": [
+            [
+              12.800000000000004,
+              12.799999999999885
+            ],
+            [
+              0.1,
+              0.09999999999999991
+            ],
+            [
+              2.0,
+              1.9999999999999996
+            ]
+          ]
+        },
+        "interface": {
+          "enabled": true,
+          "logical_sink_completed_veh": 1.9999999999999996,
+          "partial_crossings": 0,
+          "peak_crossings_at_owner_tick": 1,
+          "physical_boundary_in_veh": 2.0,
+          "physical_boundary_internal_veh": 0.0,
+          "physical_boundary_sink_veh": 1.9999999999999996,
+          "sum_fraction": -0.0
+        }
+      },
+      "S04_interface_two": {
+        "receipt_sha256": "c7694592079d918036dbb3165b2e5c5fd82d1b09bf18300c372628a73beb2698",
+        "checkpoint_sha256": "70ec8f163176de681baac4bb31d785f812da0f141d054cf03517bce381fff125",
+        "wire": {
+          "time": 360.0,
+          "identity": "akm-native-reserved-bus-interface-v1:native-whole-v1:rust-host-fixture-static-d05-diagnostic-dt-2:268435456:bounded_bytes_v1:retained_capacity_v3:08b52b1ad1a96fb45317ceb023e690c8778a35c08d3ca4fcc79edecc93a898b6",
+          "tracks": [],
+          "cross": [],
+          "runs": [
+            [
+              1,
+              2,
+              46.0,
+              0.0,
+              0.0
+            ],
+            [
+              1,
+              2,
+              76.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "people": [
+            [
+              0.0,
+              0.0,
+              2.0,
+              40.0,
+              92.0
+            ],
+            [
+              0.0,
+              0.0,
+              2.0,
+              20.0,
+              152.0
+            ]
+          ],
+          "road": [
+            [
+              2,
+              0,
+              8.946566799136018e-41,
+              1.9134924078918102e-14,
+              1.5735757039006014e-44,
+              1.9133199758729692e-14,
+              9.627637306452896e-45,
+              1.913148615538217e-14,
+              9.230801681008428e-13
+            ],
+            [
+              3,
+              0,
+              1.041235033201518e-45,
+              7.733994954632297e-17,
+              1.1294514884027467e-51,
+              7.733994954632297e-17,
+              6.905654849345558e-52,
+              7.733994954632297e-17,
+              4.368429380968286e-16
+            ],
+            [
+              4,
+              0,
+              5.56830905427993e-48,
+              1.6269538709617932e-18,
+              5.939897433020023e-54,
+              1.6269538709617932e-18,
+              3.631752397879279e-54,
+              1.6269538709617932e-18,
+              1.6269538709617924e-17
+            ]
+          ],
+          "pending": [],
+          "class_road_ledger": [
+            [
+              12.800000000000002,
+              12.79999999999998
+            ],
+            [
+              0.1,
+              0.10000000000000005
+            ],
+            [
+              2.0,
+              2.0
+            ]
+          ]
+        },
+        "interface": {
+          "enabled": true,
+          "logical_sink_completed_veh": 2.0,
+          "partial_crossings": 0,
+          "peak_crossings_at_owner_tick": 0,
+          "physical_boundary_in_veh": 2.0,
+          "physical_boundary_internal_veh": 0.0,
+          "physical_boundary_sink_veh": 2.0,
+          "sum_fraction": -0.0
+        }
+      },
+      "S07_entry31": {
+        "receipt_sha256": "f9780fafc08581d7d3b92e4c9495d9abd14518be8ca9390a487dcf69d97d8d1e",
+        "checkpoint_sha256": "d37a79434f08510f276e4e9dc01569213e09c5dba58588406c78b289c0f403e1",
+        "wire": {
+          "time": 31.0,
+          "identity": "akm-native-reserved-bus-interface-v1:native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3:2dbedc0ab2720529b71ef1377f9def399bb40e6e400ac22a6073e33bbf4f6a21",
+          "tracks": [],
+          "cross": [
+            [
+              1,
+              0,
+              0.817885319742386
+            ]
+          ],
+          "runs": [
+            [
+              0,
+              1,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0,
+              0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "people": [
+            [
+              0.0,
+              2.0,
+              0.0,
+              40.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "road": [
+            [
+              3,
+              0,
+              0.005089515378462429,
+              0.6339510329690223,
+              0.0004908422606838868,
+              0.6313603404713298,
+              0.0002612436815764348,
+              0.6298712801148314,
+              3.561893206166276
+            ],
+            [
+              4,
+              0,
+              2.796850922729568e-05,
+              0.014532178665123381,
+              2.8304213337326037e-06,
+              0.014517549600339404,
+              1.506632390005923e-06,
+              0.014508905078580018,
+              0.1456014717435068
+            ]
+          ],
+          "pending": [
+            [
+              1,
+              0,
+              0.0,
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              30.0
+            ]
+          ],
+          "class_road_ledger": [
+            [
+              6.4,
+              5.760959451652517
+            ],
+            [
+              0.1,
+              0.08543985282564928
+            ],
+            [
+              1.0,
+              0.0
+            ]
+          ]
+        },
+        "interface": {
+          "enabled": true,
+          "logical_sink_completed_veh": 0.0,
+          "partial_crossings": 1,
+          "peak_crossings_at_owner_tick": 1,
+          "physical_boundary_in_veh": 0.817885319742386,
+          "physical_boundary_internal_veh": 0.0,
+          "physical_boundary_sink_veh": 0.0,
+          "sum_fraction": 0.817885319742386
+        }
+      },
+      "S07_entry31_recover": {
+        "receipt_sha256": "417ef3c27ac6373dc3cbb7acadb95c9ff7f31af52c4e9d6332c46d6220ebbc18",
+        "checkpoint_sha256": "d37a79434f08510f276e4e9dc01569213e09c5dba58588406c78b289c0f403e1",
+        "wire": {
+          "time": 31.0,
+          "identity": "akm-native-reserved-bus-interface-v1:native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3:2dbedc0ab2720529b71ef1377f9def399bb40e6e400ac22a6073e33bbf4f6a21",
+          "tracks": [],
+          "cross": [
+            [
+              1,
+              0,
+              0.817885319742386
+            ]
+          ],
+          "runs": [
+            [
+              0,
+              1,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0,
+              0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "people": [
+            [
+              0.0,
+              2.0,
+              0.0,
+              40.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "road": [
+            [
+              3,
+              0,
+              0.005089515378462429,
+              0.6339510329690223,
+              0.0004908422606838868,
+              0.6313603404713298,
+              0.0002612436815764348,
+              0.6298712801148314,
+              3.561893206166276
+            ],
+            [
+              4,
+              0,
+              2.796850922729568e-05,
+              0.014532178665123381,
+              2.8304213337326037e-06,
+              0.014517549600339404,
+              1.506632390005923e-06,
+              0.014508905078580018,
+              0.1456014717435068
+            ]
+          ],
+          "pending": [
+            [
+              1,
+              0,
+              0.0,
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              30.0
+            ]
+          ],
+          "class_road_ledger": [
+            [
+              6.4,
+              5.760959451652517
+            ],
+            [
+              0.1,
+              0.08543985282564928
+            ],
+            [
+              1.0,
+              0.0
+            ]
+          ]
+        },
+        "interface": {
+          "enabled": true,
+          "logical_sink_completed_veh": 0.0,
+          "partial_crossings": 1,
+          "peak_crossings_at_owner_tick": 1,
+          "physical_boundary_in_veh": 0.0,
+          "physical_boundary_internal_veh": 0.0,
+          "physical_boundary_sink_veh": 0.0,
+          "sum_fraction": 0.817885319742386
+        }
+      },
+      "S07_entry_resume360": {
+        "receipt_sha256": "bc29b6a889e785c4abe1db5ea92ab6fe9fb35c29b61fe76c8e80dc05840a5efc",
+        "checkpoint_sha256": "5322731ae0f92b11199a1dba5c83b4b09085f23089699727ba256b00f43a7249",
+        "wire": {
+          "time": 360.0,
+          "identity": "akm-native-reserved-bus-interface-v1:native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3:2dbedc0ab2720529b71ef1377f9def399bb40e6e400ac22a6073e33bbf4f6a21",
+          "tracks": [],
+          "cross": [],
+          "runs": [
+            [
+              1,
+              2,
+              45.0,
+              0.0,
+              0.0
+            ],
+            [
+              1,
+              2,
+              75.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "people": [
+            [
+              0.0,
+              0.0,
+              2.0,
+              40.0,
+              90.0
+            ],
+            [
+              0.0,
+              0.0,
+              2.0,
+              20.0,
+              150.0
+            ]
+          ],
+          "road": [
+            [
+              2,
+              0,
+              8.295091608635747e-40,
+              1.1296707965140737e-13,
+              2.522558713759864e-42,
+              1.128172490376737e-13,
+              1.3413095483566403e-42,
+              1.1269451536300329e-13,
+              5.440219877589583e-12
+            ],
+            [
+              3,
+              0,
+              6.936121314569527e-45,
+              5.925535881815114e-16,
+              3.998473591112645e-49,
+              5.925535881815114e-16,
+              2.1195862285397862e-49,
+              5.925535881815114e-16,
+              3.302783533049781e-15
+            ],
+            [
+              4,
+              0,
+              3.86911250275868e-47,
+              1.301253673479641e-17,
+              2.1951721129198808e-51,
+              1.301253673479641e-17,
+              1.1636581995092846e-51,
+              1.301253673479641e-17,
+              1.3012536734796427e-16
+            ]
+          ],
+          "pending": [],
+          "class_road_ledger": [
+            [
+              12.800000000000004,
+              12.799999999999885
+            ],
+            [
+              0.1,
+              0.09999999999999991
+            ],
+            [
+              2.0,
+              1.9999999999999996
+            ]
+          ]
+        },
+        "interface": {
+          "enabled": true,
+          "logical_sink_completed_veh": 1.9999999999999996,
+          "partial_crossings": 0,
+          "peak_crossings_at_owner_tick": 1,
+          "physical_boundary_in_veh": 1.1821146802576141,
+          "physical_boundary_internal_veh": 0.0,
+          "physical_boundary_sink_veh": 1.9999999999999996,
+          "sum_fraction": -0.0
+        }
+      },
+      "S07_exit_full360": {
+        "receipt_sha256": "0a9bbbefcd7d3f86bf09c196ef64ef1ca3e1a7abef6d00fb862554eb7ebd7148",
+        "checkpoint_sha256": "5f9c8b80e2ebc6c0ad91b7eb1477e70a2ed684a959f7f8eb9f82cc60fc54440d",
+        "wire": {
+          "time": 360.0,
+          "identity": "akm-native-reserved-bus-interface-v1:native-whole-v1:rust-host-fixture-d05-diagnostic-exit-half:268435456:bounded_bytes_v1:retained_capacity_v3:3e0b81cf27eebfa5335560a57d768799a9dbbe4f89e2b6b133b98b720c8e4cdc",
+          "tracks": [],
+          "cross": [],
+          "runs": [
+            [
+              1,
+              2,
+              46.0,
+              0.0,
+              0.0
+            ],
+            [
+              1,
+              2,
+              77.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "people": [
+            [
+              0.0,
+              0.0,
+              2.0,
+              40.0,
+              92.0
+            ],
+            [
+              0.0,
+              0.0,
+              2.0,
+              20.0,
+              154.0
+            ]
+          ],
+          "road": [
+            [
+              2,
+              0,
+              1.3827931421443984e-39,
+              1.3974199690518047e-13,
+              4.7538182977937103e-42,
+              1.3941551099929003e-13,
+              2.5308629958203018e-42,
+              1.3917871186499654e-13,
+              6.731944087077937e-12
+            ],
+            [
+              3,
+              0,
+              9.311814799770786e-45,
+              7.281304834467729e-16,
+              7.421074381256182e-49,
+              7.281304834467729e-16,
+              3.9339029509765954e-49,
+              7.28130483446773e-16,
+              4.058463940822383e-15
+            ],
+            [
+              4,
+              0,
+              5.210353735629072e-47,
+              1.6045746831824205e-17,
+              4.088438935357312e-51,
+              1.6045746831824205e-17,
+              2.167276753526791e-51,
+              1.6045746831824205e-17,
+              1.604574683182419e-16
+            ]
+          ],
+          "pending": [],
+          "class_road_ledger": [
+            [
+              12.79999999999999,
+              12.799999999999848
+            ],
+            [
+              0.1,
+              0.09999999999999978
+            ],
+            [
+              2.0,
+              1.9999999999999998
+            ]
+          ]
+        },
+        "interface": {
+          "enabled": true,
+          "logical_sink_completed_veh": 1.9999999999999998,
+          "partial_crossings": 0,
+          "peak_crossings_at_owner_tick": 1,
+          "physical_boundary_in_veh": 2.0,
+          "physical_boundary_internal_veh": 0.0,
+          "physical_boundary_sink_veh": 1.9999999999999998,
+          "sum_fraction": -0.0
+        }
+      },
+      "S07_exit_partial": {
+        "receipt_sha256": "bbdc9f513943f172fa0a4ad008b6ecdf68f8493d5b5bb7ffe52ed59032070eb8",
+        "checkpoint_sha256": "3a8eab049e8a2df50796d64e86b730f4017a50e94e1dc920439789e51c63b2ad",
+        "wire": {
+          "time": 45.0,
+          "identity": "akm-native-reserved-bus-interface-v1:native-whole-v1:rust-host-fixture-d05-diagnostic-exit-half:268435456:bounded_bytes_v1:retained_capacity_v3:3e0b81cf27eebfa5335560a57d768799a9dbbe4f89e2b6b133b98b720c8e4cdc",
+          "tracks": [
+            [
+              1,
+              0,
+              100.0,
+              32.0
+            ]
+          ],
+          "cross": [
+            [
+              1,
+              0,
+              0.5000000000000002
+            ]
+          ],
+          "runs": [
+            [
+              0,
+              1,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0,
+              0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "people": [
+            [
+              0.0,
+              2.0,
+              0.0,
+              40.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "road": [
+            [
+              1,
+              0,
+              0.004269677901456626,
+              0.9957303220985431,
+              0.0012707734192929684,
+              0.993049082116703,
+              0.0007799886844631006,
+              0.9909185083831145,
+              30.0
+            ],
+            [
+              2,
+              0,
+              0.004999463688008872,
+              2.3570676063465448,
+              0.0017967935647491063,
+              1.0210561655576866,
+              0.0009587565478685286,
+              0.6504919319544161,
+              99.35896630486647
+            ],
+            [
+              3,
+              0,
+              0.0041650969339698035,
+              0.16294956171204783,
+              0.0011967181850950693,
+              0.16174696469149963,
+              0.0007320565028295853,
+              0.16109506989256034,
+              0.9314660373607091
+            ],
+            [
+              4,
+              0,
+              2.3625922819084106e-05,
+              0.003703888638508527,
+              6.836747411399991e-06,
+              0.003697047633649699,
+              4.1941902342385486e-06,
+              0.003693327544844143,
+              0.03727514561327616
+            ]
+          ],
+          "pending": [],
+          "class_road_ledger": [
+            [
+              8.96,
+              6.4308182713194295
+            ],
+            [
+              0.1,
+              0.09627248543867233
+            ],
+            [
+              1.0,
+              0.0
+            ]
+          ]
+        },
+        "interface": {
+          "enabled": true,
+          "logical_sink_completed_veh": 0.0,
+          "partial_crossings": 1,
+          "peak_crossings_at_owner_tick": 1,
+          "physical_boundary_in_veh": 1.0,
+          "physical_boundary_internal_veh": 0.0,
+          "physical_boundary_sink_veh": 0.5,
+          "sum_fraction": 0.5000000000000002
+        }
+      },
+      "S07_exit_partial_recover": {
+        "receipt_sha256": "6c64fe68224604bf50d2e3e318b776cec93d8ba8e28e556f47f61cd4c889f02a",
+        "checkpoint_sha256": "3a8eab049e8a2df50796d64e86b730f4017a50e94e1dc920439789e51c63b2ad",
+        "wire": {
+          "time": 45.0,
+          "identity": "akm-native-reserved-bus-interface-v1:native-whole-v1:rust-host-fixture-d05-diagnostic-exit-half:268435456:bounded_bytes_v1:retained_capacity_v3:3e0b81cf27eebfa5335560a57d768799a9dbbe4f89e2b6b133b98b720c8e4cdc",
+          "tracks": [
+            [
+              1,
+              0,
+              100.0,
+              32.0
+            ]
+          ],
+          "cross": [
+            [
+              1,
+              0,
+              0.5000000000000002
+            ]
+          ],
+          "runs": [
+            [
+              0,
+              1,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0,
+              0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "people": [
+            [
+              0.0,
+              2.0,
+              0.0,
+              40.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "road": [
+            [
+              1,
+              0,
+              0.004269677901456626,
+              0.9957303220985431,
+              0.0012707734192929684,
+              0.993049082116703,
+              0.0007799886844631006,
+              0.9909185083831145,
+              30.0
+            ],
+            [
+              2,
+              0,
+              0.004999463688008872,
+              2.3570676063465448,
+              0.0017967935647491063,
+              1.0210561655576866,
+              0.0009587565478685286,
+              0.6504919319544161,
+              99.35896630486647
+            ],
+            [
+              3,
+              0,
+              0.0041650969339698035,
+              0.16294956171204783,
+              0.0011967181850950693,
+              0.16174696469149963,
+              0.0007320565028295853,
+              0.16109506989256034,
+              0.9314660373607091
+            ],
+            [
+              4,
+              0,
+              2.3625922819084106e-05,
+              0.003703888638508527,
+              6.836747411399991e-06,
+              0.003697047633649699,
+              4.1941902342385486e-06,
+              0.003693327544844143,
+              0.03727514561327616
+            ]
+          ],
+          "pending": [],
+          "class_road_ledger": [
+            [
+              8.96,
+              6.4308182713194295
+            ],
+            [
+              0.1,
+              0.09627248543867233
+            ],
+            [
+              1.0,
+              0.0
+            ]
+          ]
+        },
+        "interface": {
+          "enabled": true,
+          "logical_sink_completed_veh": 0.0,
+          "partial_crossings": 1,
+          "peak_crossings_at_owner_tick": 1,
+          "physical_boundary_in_veh": 0.0,
+          "physical_boundary_internal_veh": 0.0,
+          "physical_boundary_sink_veh": 0.0,
+          "sum_fraction": 0.5000000000000002
+        }
+      },
+      "S07_exit_resume360": {
+        "receipt_sha256": "f189605f29539a5199552181003f76f8bf77405ae636cab3e24d765fb77b427a",
+        "checkpoint_sha256": "5f9c8b80e2ebc6c0ad91b7eb1477e70a2ed684a959f7f8eb9f82cc60fc54440d",
+        "wire": {
+          "time": 360.0,
+          "identity": "akm-native-reserved-bus-interface-v1:native-whole-v1:rust-host-fixture-d05-diagnostic-exit-half:268435456:bounded_bytes_v1:retained_capacity_v3:3e0b81cf27eebfa5335560a57d768799a9dbbe4f89e2b6b133b98b720c8e4cdc",
+          "tracks": [],
+          "cross": [],
+          "runs": [
+            [
+              1,
+              2,
+              46.0,
+              0.0,
+              0.0
+            ],
+            [
+              1,
+              2,
+              77.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "people": [
+            [
+              0.0,
+              0.0,
+              2.0,
+              40.0,
+              92.0
+            ],
+            [
+              0.0,
+              0.0,
+              2.0,
+              20.0,
+              154.0
+            ]
+          ],
+          "road": [
+            [
+              2,
+              0,
+              1.3827931421443984e-39,
+              1.3974199690518047e-13,
+              4.7538182977937103e-42,
+              1.3941551099929003e-13,
+              2.5308629958203018e-42,
+              1.3917871186499654e-13,
+              6.731944087077937e-12
+            ],
+            [
+              3,
+              0,
+              9.311814799770786e-45,
+              7.281304834467729e-16,
+              7.421074381256182e-49,
+              7.281304834467729e-16,
+              3.9339029509765954e-49,
+              7.28130483446773e-16,
+              4.058463940822383e-15
+            ],
+            [
+              4,
+              0,
+              5.210353735629072e-47,
+              1.6045746831824205e-17,
+              4.088438935357312e-51,
+              1.6045746831824205e-17,
+              2.167276753526791e-51,
+              1.6045746831824205e-17,
+              1.604574683182419e-16
+            ]
+          ],
+          "pending": [],
+          "class_road_ledger": [
+            [
+              12.79999999999999,
+              12.799999999999848
+            ],
+            [
+              0.1,
+              0.09999999999999978
+            ],
+            [
+              2.0,
+              1.9999999999999998
+            ]
+          ]
+        },
+        "interface": {
+          "enabled": true,
+          "logical_sink_completed_veh": 1.9999999999999998,
+          "partial_crossings": 0,
+          "peak_crossings_at_owner_tick": 1,
+          "physical_boundary_in_veh": 1.0,
+          "physical_boundary_internal_veh": 0.0,
+          "physical_boundary_sink_veh": 1.4999999999999998,
+          "sum_fraction": -0.0
+        }
+      },
+      "S09_final_fixture": {
+        "receipt_sha256": "3985eb42054c096289835af46226129cd5dbf84e61ecc44f7ca12d7ab33b8822",
+        "checkpoint_sha256": "5322731ae0f92b11199a1dba5c83b4b09085f23089699727ba256b00f43a7249",
+        "wire": {
+          "time": 360.0,
+          "identity": "akm-native-reserved-bus-interface-v1:native-whole-v1:rust-host-fixture-static:268435456:bounded_bytes_v1:retained_capacity_v3:2dbedc0ab2720529b71ef1377f9def399bb40e6e400ac22a6073e33bbf4f6a21",
+          "tracks": [],
+          "cross": [],
+          "runs": [
+            [
+              1,
+              2,
+              45.0,
+              0.0,
+              0.0
+            ],
+            [
+              1,
+              2,
+              75.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "people": [
+            [
+              0.0,
+              0.0,
+              2.0,
+              40.0,
+              90.0
+            ],
+            [
+              0.0,
+              0.0,
+              2.0,
+              20.0,
+              150.0
+            ]
+          ],
+          "road": [
+            [
+              2,
+              0,
+              8.295091608635747e-40,
+              1.1296707965140737e-13,
+              2.522558713759864e-42,
+              1.128172490376737e-13,
+              1.3413095483566403e-42,
+              1.1269451536300329e-13,
+              5.440219877589583e-12
+            ],
+            [
+              3,
+              0,
+              6.936121314569527e-45,
+              5.925535881815114e-16,
+              3.998473591112645e-49,
+              5.925535881815114e-16,
+              2.1195862285397862e-49,
+              5.925535881815114e-16,
+              3.302783533049781e-15
+            ],
+            [
+              4,
+              0,
+              3.86911250275868e-47,
+              1.301253673479641e-17,
+              2.1951721129198808e-51,
+              1.301253673479641e-17,
+              1.1636581995092846e-51,
+              1.301253673479641e-17,
+              1.3012536734796427e-16
+            ]
+          ],
+          "pending": [],
+          "class_road_ledger": [
+            [
+              12.800000000000004,
+              12.799999999999885
+            ],
+            [
+              0.1,
+              0.09999999999999991
+            ],
+            [
+              2.0,
+              1.9999999999999996
+            ]
+          ]
+        },
+        "interface": {
+          "enabled": true,
+          "logical_sink_completed_veh": 1.9999999999999996,
+          "partial_crossings": 0,
+          "peak_crossings_at_owner_tick": 1,
+          "physical_boundary_in_veh": 2.0,
+          "physical_boundary_internal_veh": 0.0,
+          "physical_boundary_sink_veh": 1.9999999999999996,
+          "sum_fraction": -0.0
+        }
+      }
+    },
+    "decision": "select reserved-interface service subclosure for next research; scoped same fixture and controls only; no full-city validated transport"
+  },
+  "architecture": {
+    "backend": "Rust native and headless, no Python dependency in native research build",
+    "frontend": "Python read-only typed receipt adapter, 3 tests"
+  },
+  "remaining": "A mixed fluid cone/time refinement; B current full-calendar bridge and receiving peak; D exact-slack liveness, bus priority/fairness, whole-city positive service and mixed fluid coupling, journey history. D05 no further attempts; D07 research only."
+}
