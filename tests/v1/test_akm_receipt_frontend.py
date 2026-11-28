@@ -77,3 +77,13 @@ def test_d07_rejects_bad_status_and_clock(tmp_path):
     q.write_text(json.dumps(original))
     with pytest.raises(ValueError, match="time"):
         read_akm_receipt(q)
+
+
+def test_d08_receipt_preserves_rust_epochs():
+    path = ROOT / "artifacts/akm_d08_rust_luti_20261128/S05_b1_e1.json"
+    data = json.loads(path.read_text())
+    view = read_akm_receipt(path)
+    assert view.model == data["model_identity"]
+    assert view.payload["epochs"] == data["epochs"]
+    assert view.time_s == 9000
+    assert view.payload["slow_updates"] == 2

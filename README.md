@@ -1,9 +1,31 @@
 # Metroflow Urban Traffic Research Simulator
 
 Metroflow는 결정론적 합성 도시, mesoscopic link/node flow, 동적 경로 탐색,
-active agents, replay, 정적 지도 진단, 그리고 optional Rust/JAX 실험 표면을
-결합하는 연구용 프로토타입이다. Python 3.12 + NumPy baseline이 권위 경로이며,
-현재 구현은 실도시 검증이나 완결된 100k 통합 시뮬레이션으로 간주하면 안 된다.
+active agents, replay 및 지연 도시발전 연구용 프로토타입이다.
+
+**현재 실행 권위 (2026-11-28): Rust backend / Python frontend.** 연구 순서는
+`docs/akm/RESEARCH_SSOT_KO.md`, 원래 수용 조건은 `docs/v1/PLAN.json`이 정한다.
+과거 Python/NumPy/JAX 구현은 비교 oracle과 역사적 연구 자료이며 신규 생산/과학 계산
+경로의 fallback이 아니다. 원본 100k 전체 도시 수용시험은 아직 검증되지 않았다.
+
+```sh
+cargo build --release -p metroflow-rust --no-default-features --features akm-research --bins
+export METROFLOW_NATIVE_BIN_DIR="$PWD/target/release"
+# Python launcher only forwards args and returns the Rust process result.
+PYTHONPATH=src python -m metroflow.v1 native city generate scenarios/v1/release_matrix.json valley_weekday_s7 4 10 run-city corridor valley 8000 42
+PYTHONPATH=src python -m metroflow.v1 run --manifest run-city/manifest.json --until 10 --threads 4 --checkpoint run-city/state.bin --out run-city/run.json
+# Bounded D08 research: bypass, endogenous demand, seed, epochs, threads.
+PYTHONPATH=src python -m metroflow.v1 native d08 1 1 7 3 4 - - d08.bin d08.json
+```
+
+`run --manifest` defaults to the existing exact Rust engine; `--engine interface`
+is explicitly research-only AKM. Missing Rust binary fails closed. Historical
+`run --scenario` and other Python scientific commands require
+`METROFLOW_ENABLE_PYTHON_ORACLE=1`. Existing reference API names remain lazy
+imports for compatibility. This does not claim all old Python application entry
+points have been migrated.
+
+## Historical implementation notes (2026-07 onward; not current backend authority)
 
 외부 감사용 전체 발전사, 알고리즘 설명, 실패한 실험, claim boundary, 재현
 절차는 `docs/audit/metroflow_external_audit_20260711/README.md`에서 시작한다.
@@ -17,13 +39,12 @@ active agents, replay, 정적 지도 진단, 그리고 optional Rust/JAX 실험 
 ## 로컬 Python / GPU 기준
 - Ubuntu 24.04 기본 Python 3.12를 기준으로 한다.
 - repo-local `.venv`를 사용한다.
-- 기본 설치는 NumPy baseline만 요구한다.
+- 역사적 Python oracle의 기본 설치는 NumPy만 요구한다.
 - NVIDIA RTX 3080 Ti 12GB는 optional `jax` extra의 JAX CUDA 13과 Optax를
   GPU benchmark/NN experiment에만 선택적으로 사용한다.
-- core loop 기본값은 항상 baseline이며, JAX/CUDA 경로는 명시적으로 요청한 경우에만 사용한다.
+- 당시 역사적 core loop 기본값은 NumPy baseline이었다. 현재 manifest 실행은 Rust다.
 - JAX/GPU와 NN surrogate는 route scoring, policy scoring, dense flow batch처럼 tensor-friendly stage의
-  후보 실험 표면으로 유지한다. Python/NumPy baseline만 replay와 validation authority이며 Rust는
-  parity-tested optional accelerator다.
+  후보 실험 표면으로 유지한다. 아래 Python/NumPy replay authority 및 optional Rust accelerator 설명은 역사적 상태이며 현재 native 실행 계약이 아니다.
 - cost-to-go NN 실험은 baseline Dijkstra label, ID-free versioned model inputs,
   target-independent destination-group split을 먼저 요구한다. Row-local v1은
   cross-city 일반화 증거가 아니며 runtime route legality를 소유하지 않는다.

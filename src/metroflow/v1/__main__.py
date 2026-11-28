@@ -8,10 +8,42 @@ import platform
 import sys
 
 from . import __all__
-from .city import CityContractError, load_city, iter_validation_matrix
 
 
-def main():
+def main(argv=None):
+    from .native_cli import NATIVE_COMMANDS, native_main, manifest_main
+
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if argv == ["capabilities"]:
+        print(json.dumps({
+            "api": "metroflow.v1", "exports": __all__,
+            "full_day_runner": "PYTHON_ORACLE_OPT_IN",
+            "rust_native_runner": "metroflow-native-run",
+            "full_city_100k_runner": "NOT_VERIFIED",
+            "default_manifest_runner": "RUST_NATIVE",
+            "native_commands": NATIVE_COMMANDS,
+            "legacy_python_scope": "explicit reference oracle only",
+        }, sort_keys=True))
+        return 0
+    if argv[:1] == ["native"]:
+        return native_main(argv[1:])
+    if argv[:1] == ["run"] and not any(x == "--scenario" or x.startswith("--scenario=") for x in argv[1:]):
+        return manifest_main(argv[1:])
+    if not argv or argv in (["-h"], ["--help"]):
+        print("metroflow-v1 run --manifest MANIFEST --until SECONDS --checkpoint STATE --out RECEIPT")
+        print("metroflow-v1 native [--bin-dir DIR] BACKEND [ARGS...]")
+        print("metroflow-v1 capabilities")
+        print("Legacy scientific commands require METROFLOW_ENABLE_PYTHON_ORACLE=1.")
+        return 0
+    if os.environ.get("METROFLOW_ENABLE_PYTHON_ORACLE") != "1":
+        print("Historical scientific commands are opt-in oracle only. Use the Rust backend executables.", file=sys.stderr)
+        return 2
+    return _oracle_main(argv)
+
+
+def _oracle_main(argv):
+    from .city import CityContractError, load_city, iter_validation_matrix
+
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("capabilities")
@@ -40,7 +72,7 @@ def main():
     run.add_argument("--resume", type=Path)
     run.add_argument("--until", type=float, default=60.0)
     run.add_argument("--out", type=Path)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     if args.command == "capabilities":
         print(
             json.dumps(

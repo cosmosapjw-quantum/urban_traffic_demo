@@ -68,6 +68,18 @@ def read_akm_receipt(path: str | Path, *, expected_sha256: str | None = None) ->
             schema, status, data["model_identity"], time,
             data["scope"], digest, data,
         )
+    if schema == "akm_d08_luti_v1":
+        status = data["status"]
+        if status not in {"EXECUTED_FOR_REVIEW", "BLOCKED"}:
+            raise ValueError("unsupported D08 research status")
+        time = _time(data["time_s"])
+        rows = data["epochs"]
+        if len(rows) != data["completed_epochs"] or [r["index"] for r in rows] != list(range(len(rows))):
+            raise ValueError("invalid D08 epoch sequence")
+        if any(_time(r["access"]["stamp_s"]) > time for r in rows):
+            raise ValueError("future D08 observation")
+        return AKMReceiptView(schema, status, data["model_identity"], time,
+                              data["scope"], digest, data)
     if schema == "akm_b_active_city_observed_v1":
         rows = data["result"]["snapshots"]
         times = [_time(r["time_s"]) for r in rows]
