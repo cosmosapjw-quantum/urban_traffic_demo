@@ -2022,7 +2022,8 @@ crate::optional_binding::optional_pymethods!(NativeWholeEngine,
         let mut f = BufReader::with_capacity(1024*1024,File::open(path).map_err(io)?);
         let mut magic = [0u8; 8];
         f.read_exact(&mut magic).map_err(io)?;
-        let event_runs=&magic==b"MFWHOLE3";let compact=&magic==b"MFWHOLE2"||event_runs;
+        let dictionary_wire=&magic==b"MFWHOLE4";
+        let event_runs=&magic==b"MFWHOLE3"||dictionary_wire;let compact=&magic==b"MFWHOLE2"||event_runs;
         if &magic!=b"MFWHOLE1"&&!compact{return Err(bad("native whole checkpoint schema differs"));}
         let mut raw = [0u8; 8];
         f.read_exact(&mut raw).map_err(io)?;
@@ -2046,7 +2047,7 @@ crate::optional_binding::optional_pymethods!(NativeWholeEngine,
                 )?;
                 self.road.set_phase_storage_budget(road_limit)?;
             }
-            let road=self.road.read_state_codec(&mut f,compact)?;
+            let road=self.road.read_state_codec_version(&mut f,compact,dictionary_wire)?;
             let road_bytes = road
                 .retained_storage_bytes()
                 .max(self.road.owned_storage_bytes());
@@ -2675,7 +2676,7 @@ pub fn run_native_declaration_with_plan(
     result["save_s"]=json!(clock.elapsed().as_secs_f64());
     result["checkpoint_write_s"]=json!(checkpoint_write_s);
     result["initial_checkpoint_method"]=json!(initial_checkpoint_method);
-    result["wire_writer"]=json!(if native_checkpoint_magic()==b"MFWHOLE3"{"compact_v3_events"}else if crate::v1_road::compact_checkpoint_enabled(){"compact_v2"}else if std::env::var_os("METROFLOW_NATIVE_SCALAR_WIRE").is_some(){"scalar"}else{"batched_stack"});
+    result["wire_writer"]=json!(if native_checkpoint_magic()==b"MFWHOLE4"{"compact_v4_dictionary_events"}else if native_checkpoint_magic()==b"MFWHOLE3"{"compact_v3_events"}else if crate::v1_road::compact_checkpoint_enabled(){"compact_v2"}else if std::env::var_os("METROFLOW_NATIVE_SCALAR_WIRE").is_some(){"scalar"}else{"batched_stack"});
     result["checkpoint_writer"]=json!(if std::env::var("METROFLOW_NATIVE_LEGACY_SAVE").as_deref()==Ok("1"){"legacy_restore"}else{"immutable_snapshot"});
     if let Ok(cursor)=std::env::var("METROFLOW_NATIVE_COMPLETED_SINCE_S"){
         let since:f64=cursor.parse().map_err(|_|bad("invalid completed observation cursor"))?;
@@ -2716,7 +2717,7 @@ fn sync_parent_native(path:&str)->CoreResult<()>{
     std::fs::File::open(p).map_err(io)?.sync_all().map_err(io)
 }
 #[cfg(feature="native-cli")]
-fn native_checkpoint_magic()->&'static [u8;8]{if crate::v1_road::compact_checkpoint_enabled(){if std::env::var("METROFLOW_NATIVE_EVENT_WIRE").as_deref()==Ok("1"){b"MFWHOLE3"}else{b"MFWHOLE2"}}else{b"MFWHOLE1"}}
+fn native_checkpoint_magic()->&'static [u8;8]{if crate::v1_road::compact_checkpoint_enabled(){if crate::v1_road::dictionary_checkpoint_enabled(){b"MFWHOLE4"}else if std::env::var("METROFLOW_NATIVE_EVENT_WIRE").as_deref()==Ok("1"){b"MFWHOLE3"}else{b"MFWHOLE2"}}else{b"MFWHOLE1"}}
 #[cfg(feature="native-cli")]
 fn save_atomic_native(engine:&mut NativeWholeEngine,path:&str,state:&NativeWholeState)->CoreResult<()>{
     // Unique scratch path, same filesystem as destination. A failed save
@@ -2735,10 +2736,10 @@ fn save_atomic_native(engine:&mut NativeWholeEngine,path:&str,state:&NativeWhole
             f.write_all(&(engine.identity.len()as u64).to_le_bytes()).map_err(io)?;
             f.write_all(engine.identity.as_bytes()).map_err(io)?;
             let phase=std::time::Instant::now();
-            engine.road.write_snapshot_codec(&mut f,&state.value.road,compact)?;
+            engine.road.write_snapshot_codec_version(&mut f,&state.value.road,compact,magic==b"MFWHOLE4")?;
             crate::v1_trace::add("checkpoint.write_road_ns",phase.elapsed().as_nanos().min(u64::MAX as u128)as u64);
             let phase=std::time::Instant::now();
-            NativeServiceCore::write_snapshot_codec(&mut f,&state.value.service.0,&state.value.service.1,magic==b"MFWHOLE3")?;
+            NativeServiceCore::write_snapshot_codec(&mut f,&state.value.service.0,&state.value.service.1,magic==b"MFWHOLE3"||magic==b"MFWHOLE4")?;
             crate::v1_trace::add("checkpoint.write_service_ns",phase.elapsed().as_nanos().min(u64::MAX as u128)as u64);
             let phase=std::time::Instant::now();
             NativeJourneyCore::write_snapshot(&mut f,&state.value.journey)?;

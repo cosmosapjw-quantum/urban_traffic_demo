@@ -1394,6 +1394,7 @@ fn check_storage_limit(limit: Option<usize>, required: usize, phase: &str) -> Co
 // <=4096 finite partials; 128 KiB each covers Vec growth overlap.
 // 2 MiB covers these accumulators and local metadata. A key-pointer
 // HashSet census needs O(packet count), not O(physical row count).
+pub(crate) fn dictionary_checkpoint_enabled()->bool{compact_checkpoint_enabled()&&cfg!(feature="native-cli")&&std::env::var("METROFLOW_NATIVE_DICTIONARY_WIRE").as_deref()==Ok("1")}
 pub(crate) fn compact_checkpoint_enabled()->bool{cfg!(feature="native-cli")&&std::env::var("METROFLOW_NATIVE_COMPACT_WIRE").as_deref()==Ok("1")&&std::env::var("METROFLOW_NATIVE_LEGACY_SAVE").as_deref()!=Ok("1")}
 fn road_stream_validation_bound(packets:usize,cells:usize)->usize{
     (2*1024*1024usize).saturating_add(packets.saturating_mul(64)).saturating_add(cells.saturating_mul(32))
@@ -1859,14 +1860,15 @@ impl RoadState {
     /// the final decoded owner, the largest such overlap is one raw packet;
     /// all preceding packet/tree/outer-vector charges remain retained below.
     pub(crate) fn checkpoint_decode_envelope(&self)->(usize,usize){
-        if compact_checkpoint_enabled(){return self.compact_decode_envelope();}
+        if compact_checkpoint_enabled(){return self.compact_decode_envelope_version(dictionary_checkpoint_enabled());}
         self.legacy_decode_envelope()
     }
     /// Exact structural owner projection for the actual MFWHOLE2 decoder.
     /// Reuse is ONLY within a queue and only for the preceding shared-key
     /// allocation, exactly as write_packets_compact emits. No optimistic
     /// alias credit across an independently reconstructed snapshot.
-    pub(crate) fn compact_decode_envelope(&self)->(usize,usize){
+    pub(crate) fn compact_decode_envelope(&self)->(usize,usize){self.compact_decode_envelope_version(false)}
+    pub(crate) fn compact_decode_envelope_version(&self,dictionary_wire:bool)->(usize,usize){
         let cells=self.cells.len();
         let mut owner=std::mem::size_of::<RoadState>().saturating_add(3*32)
             .saturating_add(cells.saturating_mul(std::mem::size_of::<Cell>()+256+2*32+std::mem::size_of::<Vec<Packet>>()))
@@ -1875,6 +1877,7 @@ impl RoadState {
         let mut packets=0usize;
         for queue in self.cells.iter().map(|c|&c.packets).chain(&self.pending){
             let mut previous:Option<&Arc<Vec<(u32,u32)>>>=None;
+            let mut previous_codes:Option<&Arc<Vec<u8>>>=None;
             packets=packets.saturating_add(queue.len());
             owner=owner.saturating_add(queue.len().saturating_mul(std::mem::size_of::<Packet>()+32));
             for packet in queue{
@@ -1882,6 +1885,11 @@ impl RoadState {
                 let bytes=match &packet.parts{
                     PacketParts::Uniform{..}=>n.saturating_mul(std::mem::size_of::<CorePart>()),
                     PacketParts::Mixed(_)=>n.saturating_mul(std::mem::size_of::<Part>()),
+                    PacketParts::DictionaryKeys{keys,moments,..} if dictionary_wire=>{
+                        let reuse=previous.is_some_and(|p|Arc::ptr_eq(p,keys));previous=Some(keys);
+                        let rc=previous_codes.is_some_and(|p|Arc::ptr_eq(p,&moments.codes));previous_codes=Some(&moments.codes);
+                        moments.values.len().saturating_mul(16).saturating_add(128).saturating_add(if rc{0}else{n}).saturating_add(if reuse{0}else{n.saturating_mul(8).saturating_add(96)})
+                    }
                     PacketParts::SharedKeys{keys,..}|PacketParts::DictionaryKeys{keys,..}=>{
                         let reuse=previous.is_some_and(|p|Arc::ptr_eq(p,keys));previous=Some(keys);
                         n.saturating_mul(16).saturating_add(if reuse{0}else{n.saturating_mul(8).saturating_add(96)})
@@ -3408,6 +3416,9 @@ impl V1Road {
         self.write_snapshot_codec(w,s,false)
     }
     pub(crate) fn write_snapshot_codec<W:Write>(&self,w:&mut W,s:&RoadState,compact:bool)->CoreResult<()> {
+        self.write_snapshot_codec_version(w,s,compact,false)
+    }
+    pub(crate) fn write_snapshot_codec_version<W:Write>(&self,w:&mut W,s:&RoadState,compact:bool,dictionary_wire:bool)->CoreResult<()> {
         write_len(w, self.identity.len())?;
         w.write_all(self.identity.as_bytes())
             .map_err(|e| CoreError::io(e.to_string()))?;
@@ -3417,7 +3428,7 @@ impl V1Road {
             for &v in &c.v {
                 write_f64(w, v)?;
             }
-            if compact{self.write_packets_compact(w,&c.packets)?;}else{self.write_packets(w,&c.packets)?;}
+            if compact{self.write_packets_compact_version(w,&c.packets,dictionary_wire)?;}else{self.write_packets(w,&c.packets)?;}
             write_len(w, c.latent.len())?;
             for (&k, &v) in &c.latent {
                 write_len(w, k)?;
@@ -3426,7 +3437,7 @@ impl V1Road {
         }
         write_len(w, s.pending.len())?;
         for q in &s.pending {
-            if compact{self.write_packets_compact(w,q)?;}else{self.write_packets(w,q)?;}
+            if compact{self.write_packets_compact_version(w,q,dictionary_wire)?;}else{self.write_packets(w,q)?;}
         }
         for &v in &s.totals {
             write_f64(w, v)?;
@@ -3555,6 +3566,9 @@ impl V1Road {
     }
     pub(crate) fn read_state<R: Read>(&self,r:&mut R)->CoreResult<RoadState>{self.read_state_codec(r,false)}
     pub(crate) fn read_state_codec<R:Read>(&self,r:&mut R,compact:bool)->CoreResult<RoadState>{
+        self.read_state_codec_version(r,compact,false)
+    }
+    pub(crate) fn read_state_codec_version<R:Read>(&self,r:&mut R,compact:bool,dictionary_wire:bool)->CoreResult<RoadState>{
         read_exact_len(r, self.identity.len())?;
         let mut identity = vec![0; self.identity.len()];
         r.read_exact(&mut identity)
@@ -3590,7 +3604,7 @@ impl V1Road {
             for x in &mut v {
                 *x = read_f64(r)?;
             }
-            let packets=if compact{self.read_packets_compact(r,&mut remaining,&mut work)?}else{self.read_packets(r,&mut remaining,&mut work)?};
+            let packets=if compact{self.read_packets_compact_version(r,&mut remaining,&mut work,dictionary_wire)?}else{self.read_packets(r,&mut remaining,&mut work)?};
             let n = read_len(r, self.classes.len())?;
             work.reserve(n.saturating_mul(256), 0)?;
             let mut latent = BTreeMap::new();
@@ -3612,7 +3626,7 @@ impl V1Road {
         )?;
         let mut pending = if compact{compact_checkpoint_vec(self.groups.len())?}else{checkpoint_vec(self.groups.len())?};
         for _ in &self.groups {
-            pending.push(if compact{self.read_packets_compact(r,&mut remaining,&mut work)?}else{self.read_packets(r,&mut remaining,&mut work)?});
+            pending.push(if compact{self.read_packets_compact_version(r,&mut remaining,&mut work,dictionary_wire)?}else{self.read_packets(r,&mut remaining,&mut work)?});
         }
         let mut totals = [0.; 7];
         for v in &mut totals {
@@ -9105,11 +9119,15 @@ impl V1Road{
     /// reused. No pointer values enter the wire. All interval/birth/mass bits
     /// are copied, never normalized or re-associated.
     fn write_packets_compact<W:Write>(&self,w:&mut W,q:&[Packet])->CoreResult<()>{
-        if std::env::var_os("METROFLOW_NATIVE_SCALAR_COMPACT_WIRE").as_deref()==Some(std::ffi::OsStr::new("1")){
+        self.write_packets_compact_version(w,q,false)
+    }
+    fn write_packets_compact_version<W:Write>(&self,w:&mut W,q:&[Packet],dictionary_wire:bool)->CoreResult<()>{
+        if !dictionary_wire&&std::env::var_os("METROFLOW_NATIVE_SCALAR_COMPACT_WIRE").as_deref()==Some(std::ffi::OsStr::new("1")){
             return self.write_packets_compact_scalar(w,q)
         }
         write_len(w,q.len())?;
         let mut previous:Option<&Arc<Vec<(u32,u32)>>>=None;
+        let mut previous_codes:Option<&Arc<Vec<u8>>>=None;
         let mut scratch=[0u8;24*1024];
         for p in q{
             write_f64(w,p.target)?;write_len(w,p.parts.len())?;
@@ -9127,6 +9145,19 @@ impl V1Road{
                 }
                 PacketParts::DictionaryKeys{a,b,keys,moments}=>{
                     let reuse=previous.is_some_and(|old|Arc::ptr_eq(old,keys));
+                    if dictionary_wire{
+                        let reuse_codes=previous_codes.is_some_and(|old|Arc::ptr_eq(old,&moments.codes));
+                        if moments.values.is_empty()||moments.values.len()>256||moments.codes.len()!=keys.len()||moments.codes.iter().any(|&i|i as usize>=moments.values.len()){return Err(val("dictionary wire invalid backing"))}
+                        write_u64(w,4+u64::from(reuse)+2*u64::from(reuse_codes))?;write_u64(w,a.0)?;write_u64(w,b.0)?;
+                        if !reuse{wire_fixed_batch(w,keys.as_slice(),&mut scratch,wire_key_row)?;}
+                        write_len(w,moments.values.len())?;
+                        wire_fixed_batch(w,&moments.values,&mut scratch,wire_moment_row)?;
+                        if !reuse_codes{w.write_all(&moments.codes).map_err(|e|CoreError::io(e.to_string()))?;}
+                        previous=Some(keys);previous_codes=Some(&moments.codes);
+                        crate::v1_trace::add("dictionary_wire.rows",moments.len() as u64);
+                        crate::v1_trace::add("dictionary_wire.moment_bytes_saved",moments.len().saturating_mul(16).saturating_sub(8+moments.values.len()*16+if reuse_codes{0}else{moments.len()})as u64);
+                        continue
+                    }
                     write_u64(w,if reuse{3}else{2})?;write_u64(w,a.0)?;write_u64(w,b.0)?;
                     if !reuse{wire_fixed_batch(w,keys.as_slice(),&mut scratch,wire_key_row)?;}
                     let mut used=0usize;
@@ -9179,11 +9210,15 @@ impl V1Road{
         Ok(())
     }
     fn read_packets_compact<R:Read>(&self,r:&mut R,remaining:&mut usize,work:&mut RoadDecodeBudget)->CoreResult<Vec<Packet>>{
+        self.read_packets_compact_version(r,remaining,work,false)
+    }
+    fn read_packets_compact_version<R:Read>(&self,r:&mut R,remaining:&mut usize,work:&mut RoadDecodeBudget,dictionary_wire:bool)->CoreResult<Vec<Packet>>{
         let n=read_len(r,*remaining)?;
         work.reserve(n.saturating_mul(std::mem::size_of::<Packet>()+32),n.saturating_mul(64))?;
         let mut out=compact_checkpoint_vec(n)?;
         let mut previous:Option<Arc<Vec<(u32,u32)>>>=None;
         let mut previous_codes:Option<Arc<Vec<u8>>>=None;
+        let mut previous_wire_codes:Option<Arc<Vec<u8>>>=None;
         let check_key=|tag:usize,offset:usize|->CoreResult<()>{
             let &(p,_)=self.routes.get(tag).ok_or_else(||val("compact wire route tag"))?;
             if offset>=self.paths[p].len(){return Err(val("compact wire route offset"))}Ok(())
@@ -9249,6 +9284,29 @@ impl V1Road{
                         }else{PacketParts::SharedKeys{a,b,keys,moments:Arc::new(moments)}}
                     }else{PacketParts::SharedKeys{a,b,keys,moments:Arc::new(moments)}}
                 }
+                4..=7 if dictionary_wire=>{
+                    let a=packed_from_wire(read_u64(r)?)?;let b=packed_from_wire(read_u64(r)?)?;
+                    let reuse=kind&1!=0;let reuse_codes=kind&2!=0;
+                    let keys=if reuse{previous.as_ref().filter(|k|k.len()==m).ok_or_else(||val("dictionary wire key reference absent or wrong length"))?.clone()}
+                    else{
+                        work.reserve(m.saturating_mul(8).saturating_add(96),0)?;
+                        let mut keys=compact_checkpoint_vec(m)?;
+                        for _ in 0..m{let tag=read_wire_u32(r)?;let offset=read_wire_u32(r)?;check_key(tag as usize,offset as usize)?;keys.push((tag,offset));}
+                        Arc::new(keys)
+                    };
+                    let d=read_len(r,256)?;if d==0{return Err(val("empty dictionary wire values"))}
+                    work.reserve(d.saturating_mul(16).saturating_add(128).saturating_add(if reuse_codes{0}else{m}),0)?;
+                    let mut values=compact_checkpoint_vec(d)?;
+                    for _ in 0..d{let x=read_f64(r)?;let y=read_f64(r)?;if !finite_nonnegative(x)||!finite_nonnegative(y){return Err(val("invalid dictionary wire value"))}values.push((x,y));}
+                    let codes=if reuse_codes{previous_wire_codes.as_ref().filter(|c|c.len()==m).ok_or_else(||val("dictionary wire code reference absent or wrong length"))?.clone()}else{
+                        let mut codes=compact_checkpoint_vec(m)?;codes.resize(m,0);
+                        r.read_exact(&mut codes).map_err(|e|CoreError::io(e.to_string()))?;Arc::new(codes)
+                    };
+                    if codes.iter().any(|&i|i as usize>=d){return Err(val("dictionary wire code outside values"))}
+                    previous=Some(keys.clone());previous_wire_codes=Some(codes.clone());
+                    crate::v1_trace::add("dictionary_wire.decoded_rows",m as u64);
+                    PacketParts::DictionaryKeys{a,b,keys,moments:Arc::new(v1_moment_dict::MomentDict{codes,values})}
+                }
                 _=>return Err(val("compact wire packet kind")),
             };
             out.push(Packet{target,parts});
@@ -9259,6 +9317,34 @@ impl V1Road{
 #[cfg(test)]
 mod compact_checkpoint_wire_tests{
     use super::*;
+    #[test]
+    fn dictionary_wire_direct_roundtrip_preserves_bits_and_shares_ordinals(){
+        let road=V1Road::new("dict-wire-v4".into(),1.,vec![vec![1.;6];2],vec![None;2],vec![(vec![0,1],0)],vec![vec![1.;13]],vec![vec![0,1]],vec![],100000,None,true).unwrap();
+        let keys=Arc::new(vec![(0,0);1024]);let a=PackedTime::new(Some(-0.)).unwrap();let b=PackedTime::new(Some(1.)).unwrap();
+        let x:Vec<_>=(0..1024).map(|i|if i%2==0{(0.125,-0.)}else{(0.25,0.125)}).collect();
+        let first=Arc::new(v1_moment_dict::plan(&x).unwrap().build(&x).unwrap());
+        let second=Arc::new(v1_moment_dict::MomentDict{codes:first.codes.clone(),values:vec![(0.5,0.),(0.75,0.25)]});
+        let q=[Packet{target:1.,parts:PacketParts::DictionaryKeys{a,b,keys:keys.clone(),moments:first}},Packet{target:2.,parts:PacketParts::DictionaryKeys{a,b,keys,moments:second}}];
+        let(mut legacy,mut compact)=(vec![],vec![]);
+        road.write_packets_compact(&mut legacy,&q).unwrap();road.write_packets_compact_version(&mut compact,&q,true).unwrap();
+        assert!(compact.len()<legacy.len()/2,"dictionary wire must not expand the moment rows");
+        let decode=|bytes:&[u8],enabled:bool|{
+            let mut work=RoadDecodeBudget{limit:None,retained_input:0,decoded:0,validation:0};
+            road.read_packets_compact_version(&mut &bytes[..],&mut 100000,&mut work,enabled)
+        };
+        assert!(decode(&compact,false).is_err());assert!(decode(&compact[..compact.len()-1],true).is_err());
+        let got=decode(&compact,true).unwrap();
+        match (&got[0].parts,&got[1].parts){(PacketParts::DictionaryKeys{keys:a,moments:x,..},PacketParts::DictionaryKeys{keys:b,moments:y,..})=>{
+            assert!(Arc::ptr_eq(a,b));assert!(Arc::ptr_eq(&x.codes,&y.codes));assert_ne!(x.values,y.values);
+        },_=>panic!("dictionary wire lost backing")}
+        let mut expanded=vec![];road.write_packets_compact(&mut expanded,&got).unwrap();assert_eq!(legacy,expanded);
+        // First packet cannot refer to absent dictionary codes.
+        let mut bad=compact.clone();bad[24..32].copy_from_slice(&6u64.to_le_bytes());assert!(decode(&bad,true).is_err());
+        // Codes start after queue header, packet header, endpoint bits, keys,
+        // dictionary count and two 16-byte values.
+        let mut bad=compact.clone();let first_code=8+24+16+1024*8+8+32;bad[first_code]=2;
+        assert!(decode(&bad,true).is_err());
+    }
     #[test]
     fn dictionary_packet_is_bitwise_observable_and_scales_without_rebuilding_codes(){
         let road=V1Road::new("dictionary-wire".into(),1.,vec![vec![1.;6];2],vec![None;2],vec![(vec![0,1],0)],vec![vec![1.;13]],vec![vec![0,1]],vec![],100000,None,true).unwrap();
