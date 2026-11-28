@@ -1,6 +1,6 @@
 //! AKM-A: fixed-support, conservative moment transport.
 //! Mixing closure, not exact arrival-order FIFO. SI units.
-use crate::{active_kinetic::{Moment,Rates,react},input::Result};
+use crate::{active_kinetic::{Moment,Rates,react,split_velocity_selected},input::Result};
 use serde::{Deserialize,Serialize};
 use sha2::{Digest,Sha256};
 #[derive(Clone,Copy,Debug,Serialize,Deserialize)]
@@ -24,17 +24,21 @@ pub struct Stats{
     pub max_storage_ratio:f64,pub max_mass_residual:f64,pub max_birth_residual:f64,
     pub admitted:f64,pub transferred:f64,pub exited:f64,pub unused_receive_veh:f64,
 }
-pub struct Model{decl:Declaration,slots:Vec<Slot>,roots:Vec<usize>,identity:String}
+#[derive(Clone,Copy,Debug,PartialEq,Eq,Serialize)]
+pub enum FluxPolicy{Proportional,SelectiveResidual}
+pub struct Model{decl:Declaration,slots:Vec<Slot>,roots:Vec<usize>,identity:String,policy:FluxPolicy}
 pub struct Workspace{
     candidate:State,kinetic:Vec<Moment>,proposal:Vec<f64>,source:Vec<f64>,
     occupancy:Vec<f64>,send:Vec<f64>,receive:Vec<f64>,metres:Vec<f64>,
     ratio:Vec<f64>,scale:Vec<f64>,incoming:Vec<f64>,incoming_m:Vec<f64>,
     mass_check:Vec<f64>,birth_check:Vec<f64>,
+    left_count:Vec<f64>,left_metres:Vec<f64>,extra:Vec<f64>,extra_source:Vec<f64>,
 }
 fn positive(x:f64)->bool{x.is_finite()&&x>0.}
 fn nonnegative(x:f64)->bool{x.is_finite()&&x>=0.}
 impl Model{
-    pub fn new(decl:Declaration)->Result<Self>{
+    pub fn new(decl:Declaration)->Result<Self>{Self::new_with_policy(decl,FluxPolicy::Proportional)}
+    pub fn new_with_policy(decl:Declaration,policy:FluxPolicy)->Result<Self>{
         if !positive(decl.dt)||decl.links.is_empty()||decl.classes.is_empty()||decl.routes.is_empty(){return Err("invalid AKM declaration".into())}
         for c in &decl.classes{
             if ![c.speed_ref,c.footprint,c.alpha,c.tau].iter().all(|&x|positive(x))||![c.nu0,c.beta].iter().all(|&x|nonnegative(x))||!(c.nu0+c.beta+c.alpha).is_finite(){return Err("invalid AKM class".into())}
@@ -52,7 +56,8 @@ impl Model{
             }
         }
         let identity=format!("akm-a-v1:{:x}",Sha256::digest(serde_json::to_vec(&decl).map_err(|e|e.to_string())?));
-        Ok(Self{decl,slots,roots,identity})
+        let identity=if policy==FluxPolicy::Proportional{identity}else{format!("{identity}:selective-residual-v1")};
+        Ok(Self{decl,slots,roots,identity,policy})
     }
     pub fn identity(&self)->&str{&self.identity}
     pub fn declaration(&self)->&Declaration{&self.decl}
@@ -66,7 +71,8 @@ impl Model{
         let(e,r,p)=(self.decl.links.len(),self.roots.len(),self.slots.len());
         Workspace{candidate:self.initial(),kinetic:vec![Moment::default();p],proposal:vec![0.;p],source:vec![0.;r],
             occupancy:vec![0.;e],send:vec![0.;e],receive:vec![0.;e],metres:vec![0.;e],ratio:vec![0.;e],scale:vec![0.;e],
-            incoming:vec![0.;e],incoming_m:vec![0.;e],mass_check:vec![0.;r],birth_check:vec![0.;r]}
+            incoming:vec![0.;e],incoming_m:vec![0.;e],mass_check:vec![0.;r],birth_check:vec![0.;r],
+            left_count:vec![0.;e],left_metres:vec![0.;e],extra:vec![0.;e],extra_source:vec![0.;e]}
     }
     fn shape(&self,s:&State)->bool{
         let r=self.roots.len();
@@ -155,11 +161,42 @@ impl Model{
         for (i,sl) in self.slots.iter().enumerate(){
             if w.proposal[i]>0.{if let Some(j)=sl.next{w.scale[sl.link]=w.scale[sl.link].min(w.ratio[self.slots[j].link]);}}
         }
+        // One bounded residual allocation pass. A donor whose positive
+        // remaining movement needs exhausted supply cannot increase its
+        // common fraction and is excluded from residual competition.
+        if self.policy==FluxPolicy::SelectiveResidual{
+            for (i,sl) in self.slots.iter().enumerate(){
+                if let Some(dst)=sl.next{let j=self.slots[dst].link;let q=w.proposal[i]*w.scale[sl.link];
+                    w.incoming[j]+=q;w.incoming_m[j]+=q*self.decl.classes[self.decl.routes[sl.route].class].footprint;}
+            }
+            for i in 0..r{let j=self.slots[self.roots[i]].link;let q=w.source[i]*w.ratio[j];w.incoming[j]+=q;w.incoming_m[j]+=q*self.decl.classes[self.decl.routes[i].class].footprint;}
+            for j in 0..e{let l=self.decl.links[j];w.left_count[j]=(h*l.entry-w.incoming[j]).max(0.);
+                w.left_metres[j]=((l.storage-w.occupancy[j]).max(0.)*(h*l.wave_speed/l.length).min(1.)-w.incoming_m[j]).max(0.);}
+            w.extra.fill(1.);w.receive.fill(0.);w.metres.fill(0.);
+            for (i,sl) in self.slots.iter().enumerate(){if w.proposal[i]*(1.-w.scale[sl.link])>0.{if let Some(dst)=sl.next{
+                let j=self.slots[dst].link;if w.left_count[j]==0.||w.left_metres[j]==0.{w.extra[sl.link]=0.;}
+            }}}
+            for (i,sl) in self.slots.iter().enumerate(){if w.extra[sl.link]>0.{if let Some(dst)=sl.next{
+                let j=self.slots[dst].link;let q=w.proposal[i]*(1.-w.scale[sl.link]);w.receive[j]+=q;w.metres[j]+=q*self.decl.classes[self.decl.routes[sl.route].class].footprint;
+            }}}
+            for i in 0..r{let j=self.slots[self.roots[i]].link;let q=w.source[i]*(1.-w.ratio[j]);w.receive[j]+=q;w.metres[j]+=q*self.decl.classes[self.decl.routes[i].class].footprint;}
+            for j in 0..e{let c=if w.receive[j]>0.{(w.left_count[j]/w.receive[j]).min(1.)}else{1.};
+                let b=if w.metres[j]>0.{(w.left_metres[j]/w.metres[j]).min(1.)}else{1.};w.extra_source[j]=c.min(b);}
+            for (i,sl) in self.slots.iter().enumerate(){if w.proposal[i]*(1.-w.scale[sl.link])>0.{if let Some(dst)=sl.next{
+                w.extra[sl.link]=w.extra[sl.link].min(w.extra_source[self.slots[dst].link]);
+            }}}
+            for j in 0..e{w.scale[j]=(w.scale[j]+(1.-w.scale[j])*w.extra[j]).min(1.);
+                w.ratio[j]=(w.ratio[j]+(1.-w.ratio[j])*w.extra_source[j]).min(1.);}
+            w.incoming.fill(0.);w.incoming_m.fill(0.);
+        }
         let mut stats=Stats::default();
         for (i,sl) in self.slots.iter().enumerate(){
             let x=w.kinetic[i];let m=x.mass();
             let f=if m>0.{(w.proposal[i]*w.scale[sl.link]/m).min(1.)}else{0.};
-            let y=x.scaled(f);let remain=x.scaled(1.-f);
+            let (remain,y)=if self.policy==FluxPolicy::SelectiveResidual{
+                let c=if x.momentum()>0.{(w.proposal[i]*w.scale[sl.link]/x.momentum()).min(1.)}else{0.};
+                split_velocity_selected(x,c,end)?
+            }else{(x.scaled(1.-f),x.scaled(f))};
             if f>0.&&m>0.&&y.mass()==0.{return Err("positive transfer underflow".into())}
             if f<1.&&m>0.&&remain.mass()==0.{return Err("positive remainder underflow".into())}
             next.road[i]=next.road[i].add(remain);
@@ -235,15 +272,32 @@ pub fn relaxed_pair(old:f64,costs:[f64;2],temperature:f64,relax:f64,dt:f64)->Res
         let q=((costs[1]-costs[0])/temperature).exp();q/(1.+q)};
     Ok(old+(target-old)*(-(-dt/relax).exp_m1()))
 }
-pub fn diamond(dt:f64,beta:f64)->Result<Model>{
+pub fn diamond(dt:f64,beta:f64)->Result<Model>{diamond_with_policy(dt,beta,FluxPolicy::Proportional)}
+pub fn diamond_with_policy(dt:f64,beta:f64,policy:FluxPolicy)->Result<Model>{
     let l=|length,exit,storage|Link{length,speed_limit:10.,entry:1.4,exit,storage,wave_speed:5.};
-    Model::new(Declaration{dt,links:vec![l(100.,1.2,150.),l(100.,0.6,150.),l(160.,0.9,240.),l(100.,1.2,150.)],
+    Model::new_with_policy(Declaration{dt,links:vec![l(100.,1.2,150.),l(100.,0.6,150.),l(160.,0.9,240.),l(100.,1.2,150.)],
     classes:vec![Class{speed_ref:10.,footprint:5.,alpha:0.2,nu0:0.,beta,tau:2.},Class{speed_ref:8.,footprint:10.,alpha:0.15,nu0:0.,beta,tau:3.}],
-    routes:vec![Route{class:0,links:vec![0,1,3]},Route{class:0,links:vec![0,2,3]},Route{class:1,links:vec![0,1,3]},Route{class:1,links:vec![0,2,3]}]})
+    routes:vec![Route{class:0,links:vec![0,1,3]},Route{class:0,links:vec![0,2,3]},Route{class:1,links:vec![0,1,3]},Route{class:1,links:vec![0,2,3]}]},policy)
 }
 #[cfg(test)]
 mod tests{
     use super::*;
+    #[test] fn residual_donor_recovers_stranded_receiving_capacity(){
+        let l=Link{length:100.,speed_limit:10.,entry:0.1,exit:10.,storage:100.,wave_speed:10.};
+        let c=Class{speed_ref:10.,footprint:5.,alpha:0.2,nu0:0.,beta:0.,tau:2.};
+        let decl=Declaration{dt:10.,links:vec![l;4],classes:vec![c],
+            routes:vec![Route{class:0,links:vec![0,2]},Route{class:0,links:vec![0,3]},Route{class:0,links:vec![1,3]},Route{class:0,links:vec![2]}]};
+        for policy in [FluxPolicy::Proportional,FluxPolicy::SelectiveResidual]{
+            let m=Model::new_with_policy(decl.clone(),policy).unwrap();let mut s=m.initial();let mut w=m.workspace();
+            for (i,mass) in [(0,1.),(2,1.),(4,1.),(6,20.)]{s.road[i]=Moment::point(mass,1.,1.,0.);}
+            s.released.copy_from_slice(&[1.,1.,1.,20.]);
+            let x=m.step(&mut s,&mut w,&[0.;4],&[1.,1.,0.,1.]).unwrap();
+            let expected=if policy==FluxPolicy::Proportional{0.5}else{1.};
+            assert!((s.road[5].mass()-expected).abs()<1e-12,"policy {:?} expected {}, actual {}",policy,expected,s.road[5].mass());
+            assert_eq!(s.road[1].mass(),0.);assert_eq!(s.road[3].mass(),0.);
+            assert!((x.transferred-expected).abs()<1e-12);
+        }
+    }
     #[test] fn conservation_storage_clock_and_restart(){
         let m=diamond(2.,0.6).unwrap();let mut s=m.initial();let mut w=m.workspace();
         let mut backup=vec![];

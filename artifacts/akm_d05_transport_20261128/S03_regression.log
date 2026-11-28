@@ -1,0 +1,24 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (target/debug/deps/metroflow_headless-ce2312ae8c9f8ae3)
+
+running 17 tests
+test active_kinetic::tests::drive_switch_and_finite_speed_response_are_distinct ... ok
+test active_kinetic::tests::selective_velocity_flux_carries_moving_mass_not_stopped_mass ... ok
+test access::tests::repeated_atoms_invalid_and_dyadic ... ok
+test active_network::tests::residual_donor_recovers_stranded_receiving_capacity ... ok
+test preflight::tests::vector_matches_scalar ... ok
+test kinetics::tests::passage_residual_and_limiting_cases ... ok
+test queue::tests::mirrored_ranks ... ok
+test active_kinetic::tests::conditional_means_and_cone ... ok
+test active_kinetic::tests::velocity_flux_cone_and_exact_first_two_outgoing_moments ... ok
+test input::tests::parser_fail_closed ... ok
+test active_network::tests::physical_source_spillback_and_mixture ... ok
+test queue::tests::mixed_constraints_and_replay ... ok
+test prepare::tests::typed_fixture_roundtrip_and_budget ... ok
+test queue::tests::active_zero_hazard_recovers_old_queue_and_positive_hazard_delays ... ok
+test active_network::tests::conservation_storage_clock_and_restart ... ok
+test kinetics::tests::indexed_route_parallel_replay ... ok
+test access::tests::exact_marginals_900_cases ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
