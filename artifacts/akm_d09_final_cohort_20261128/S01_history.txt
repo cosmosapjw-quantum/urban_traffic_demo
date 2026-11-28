@@ -1,0 +1,14 @@
+786a3fdc84ccf15d8c933603f6b8c9a4da5df245
+0c6c0da45c4e0a5dcecbad65f0f07412e48770ff
+f8cc371410ca0e24b0947cda3d6772787efddc7a
+e76ce40b9f0d56c165cad042744ebf7e47cf8c04
+43ae258bf224f336caa0e8bb1729499e134d97ae
+7c78e214c9558bcb1023854e55025f1c554aadee
+fa509fad65098d1bc3a4934a7f0182f9e9e9ee47eb33fde206e6be039ea086b8  docs/akm/RESEARCH_SSOT_KO.md
+80f64cb836782f1557f70eece21a1431e7e9f5aefdc0c208758ccef30b143313  docs/v1/PLAN.json
+2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3  /home/cosmosapjw/research_backups/metroflow_akm_d09_final_cohort_20261128/valley-original.manifest.json
+92a986855cfd77d8388c21a6ea802c065d5e9ac1bd97c98d99462caf2f2d5129  artifacts/akm_d09_city_pilot_20261128/S09_audit.json
+{"status": "VALID_RESEARCH_PLAN_NOT_RELEASE", "nodes": 14, "scoped_or_accepted": 9, "terminal": 9, "attempts_used": 11, "attempts_limit": 24, "ready": ["D09"], "next": ["D09"]}
+rustc 1.99.0 (b940084d7 2026-09-28)
+cargo 1.99.0 (5f94df478 2026-08-27)
+2026-11-28T21:55:49+09:00
