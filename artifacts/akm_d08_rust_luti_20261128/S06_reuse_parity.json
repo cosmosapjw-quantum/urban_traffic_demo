@@ -1,0 +1,34 @@
+{
+  "generated_valley": {
+    "city_identity": "caafda83fc75f7500ea31dff53ef59452e1c782ae45aba3c0ea26cb55923d007",
+    "schedule_identity": "cf9e501e8b7af67abad61f0889f62d54da27dd89cbb75dcdcc5ac7f735232313",
+    "city_semantic_identical": true,
+    "manifest_semantic_identical": true,
+    "city_bytes_identical": true,
+    "manifest_bytes_identical": true,
+    "calendar": {
+      "calendar_legs": 918450,
+      "cargo_kg": 1000.0,
+      "persons": 120000.0,
+      "vehicles": 58801.0
+    },
+    "wall_s": 1.334598381,
+    "peak_rss_kib": 154612
+  },
+  "historical_next_valley": {
+    "city_identity": "5d2e76766d36a436571760d3fa4724ef459a1cd500f86363c518861c2d8dfc13",
+    "schedule_identity": "18f9d3ee6b6da1bfa5a130b5095e472b96e82d9e366023aa5e610d4aea59f582",
+    "city_semantic_identical": true,
+    "manifest_semantic_identical": true,
+    "city_bytes_identical": true,
+    "manifest_bytes_identical": true,
+    "calendar": {
+      "calendar_legs": 918450,
+      "cargo_kg": 1000.0,
+      "persons": 120004.0,
+      "vehicles": 58802.96
+    },
+    "wall_s": 0.64942843,
+    "peak_rss_kib": 151644
+  }
+}
