@@ -1,0 +1,162 @@
+{
+  "active_road_birth": 12109755.158141365,
+  "active_road_mass": 478.08347068747776,
+  "advance_s": 31.808877467,
+  "build_s": 3.543001146,
+  "byte_budget": 6442450944,
+  "calendar_legs": 918450,
+  "calendar_totals": [
+    120000.0,
+    58801.0,
+    1000.0
+  ],
+  "checkpoint_bytes": 313747580,
+  "checkpoint_sha256": "c1ce24c4acb7012854f85d228bbca6f78efcd1af527be473128e3d1b2a603283",
+  "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+  "class_names": [
+    "car",
+    "freight",
+    "scheduled_bus"
+  ],
+  "class_road_ledger": [
+    [
+      556.9622880584046,
+      78.87881737075817
+    ],
+    [
+      0.0,
+      0.0
+    ],
+    [
+      4.0,
+      4.0
+    ]
+  ],
+  "committed_steps": 18,
+  "declared_route_positions": 5867764,
+  "declared_route_tags": 304856,
+  "dynamic_pool_bytes": 5788792895,
+  "executable_sha256": "2587bdfa8170402f5541636e086f2d39972be7dd864fc19c1fd482b2c4e15f6b",
+  "failure": null,
+  "init_s": 0.497223872,
+  "initial_ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 564.5309532746429,
+      "completed": 3.043978979526845,
+      "pending": 432.4250677458177,
+      "released": 567.5749322541698,
+      "released_intent_first_moment": 14351132.1620469,
+      "requested": 999.9999999999875
+    },
+    "vehicles": {
+      "active": 451.35560135893,
+      "completed": 1.9777319744083652,
+      "pending": 36.66666666664878,
+      "released": 453.3333333333384,
+      "released_intent_first_moment": 11462533.333333112,
+      "requested": 489.99999999998715
+    }
+  },
+  "initial_road_birth": 1225644.532731572,
+  "journey_records": [
+    2253968,
+    3373009,
+    69738,
+    1631182
+  ],
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 1131.0676506187804,
+      "completed": 37.468974610385025,
+      "pending": 831.4633747708097,
+      "released": 1168.5366252291653,
+      "released_intent_first_moment": 29651616.865190063,
+      "requested": 1999.999999999975
+    },
+    "vehicles": {
+      "active": 904.5586571534078,
+      "completed": 28.774676179928193,
+      "pending": 46.66666666663832,
+      "released": 933.333333333336,
+      "released_intent_first_moment": 23683333.333332792,
+      "requested": 979.9999999999743
+    }
+  },
+  "manifest_sha256": "2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3",
+  "migration": null,
+  "mode": "resume",
+  "model_identity": "akm-native-sparse-proportional-v1:native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3",
+  "new_offered_birth": 12873108.410606649,
+  "original_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3",
+  "outlet_birth": 1988997.785195454,
+  "peak_road_rows": 976004,
+  "peak_rss_kib": 1519900,
+  "peak_storage_ratio": 0.06953671006955874,
+  "requested_end_s": 25560.0,
+  "road_exited": 73.6988549621015,
+  "road_initial_rows": 624850,
+  "road_offered": 411.8192211631468,
+  "road_rows": 976004,
+  "road_rows_guard": 1000000,
+  "road_substeps": 36,
+  "road_transferred": 2765.9804771370614,
+  "save_s": 1.178689225,
+  "schedule_identity": "61bf90204d22e3442c565f3f62b8ef4cba7d7be3e74b1d33e6c8bcf96208c920",
+  "schema": "metroflow_akm_native_owners_v1",
+  "scope": "research sparse proportional kinetic transport; original native calendar/journey/service owners; not V03 acceptance",
+  "service_events_last_tick": 101456,
+  "source_checkpoint_sha256": "614baf80d42b5a1d1ec1fb07eb8e92794d9b6c4b3b3580244e6eb1efeaf4d1e3",
+  "start_s": 25380.0,
+  "status": "EXECUTED_FOR_REVIEW",
+  "supported": [
+    611070,
+    304368,
+    3012
+  ],
+  "threads": 8,
+  "tick_times_s": [
+    1.307697499,
+    1.373988367,
+    1.371665623,
+    1.376868206,
+    1.442250163,
+    1.579341834,
+    1.6437272410000001,
+    1.737715605,
+    1.841023818,
+    1.793840058,
+    1.861539179,
+    1.95354681,
+    1.965659638,
+    2.021329796,
+    2.088764011,
+    2.101144742,
+    2.15337536,
+    2.195387745
+  ],
+  "time_s": 25560.0,
+  "unassigned": [
+    119998.3230375,
+    58799.9340965,
+    1.175
+  ],
+  "unsupported_legs": 610820,
+  "user_checkpoint": "/home/cosmosapjw/research_backups/metroflow_akm_observables_owners_20261128/S08_valley25560.bin",
+  "wall_s": 37.217411808
+}

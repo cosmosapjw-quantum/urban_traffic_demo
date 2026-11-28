@@ -1,0 +1,5 @@
+S08_fixture120 0
+S08_fixture360 0
+S08_valley25380 0
+S08_valley25560 0
+S08_valley26160 0
