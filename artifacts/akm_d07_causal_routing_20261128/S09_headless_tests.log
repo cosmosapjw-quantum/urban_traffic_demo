@@ -1,0 +1,105 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.03s
+     Running unittests src/lib.rs (target/debug/deps/metroflow_headless-ce2312ae8c9f8ae3)
+
+running 19 tests
+test active_kinetic::tests::finite_characteristic_drift_distance_matches_integral ... ok
+test preflight::tests::vector_matches_scalar ... ok
+test active_kinetic::tests::drive_switch_and_finite_speed_response_are_distinct ... ok
+test active_kinetic::tests::selective_velocity_flux_carries_moving_mass_not_stopped_mass ... ok
+test kinetics::tests::passage_residual_and_limiting_cases ... ok
+test access::tests::repeated_atoms_invalid_and_dyadic ... ok
+test queue::tests::mirrored_ranks ... ok
+test active_network::tests::residual_donor_recovers_stranded_receiving_capacity ... ok
+test input::tests::parser_fail_closed ... ok
+test active_network::tests::refined_geometry_and_policy_identity ... ok
+test queue::tests::mixed_constraints_and_replay ... ok
+test active_network::tests::physical_source_spillback_and_mixture ... ok
+test prepare::tests::typed_fixture_roundtrip_and_budget ... ok
+test queue::tests::active_zero_hazard_recovers_old_queue_and_positive_hazard_delays ... ok
+test active_kinetic::tests::conditional_means_and_cone ... ok
+test active_kinetic::tests::velocity_flux_cone_and_exact_first_two_outgoing_moments ... ok
+test active_network::tests::conservation_storage_clock_and_restart ... ok
+test kinetics::tests::indexed_route_parallel_replay ... ok
+test access::tests::exact_marginals_900_cases ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+     Running unittests src/bin/metroflow-active-city.rs (target/debug/deps/metroflow_active_city-1613a6156a2f12ee)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/metroflow-active-city-observed.rs (target/debug/deps/metroflow_active_city_observed-2835ce3dc5a9564c)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/metroflow-active-lab.rs (target/debug/deps/metroflow_active_lab-7626095d91a190b6)
+
+running 1 test
+test tests::delayed_closure_does_not_change_new_route_choice_before_delivery ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/metroflow-active-micro.rs (target/debug/deps/metroflow_active_micro-1d1c2aedad97c6f8)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/metroflow-akm-d05-factorial.rs (target/debug/deps/metroflow_akm_d05_factorial-190cd8d8c7dbc410)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/metroflow-akm-d05-lab.rs (target/debug/deps/metroflow_akm_d05_lab-fcb48b5a930fb5f7)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/metroflow-akm-discriminators.rs (target/debug/deps/metroflow_akm_discriminators-e1f52cb2eb497d95)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/metroflow-backend-audit.rs (target/debug/deps/metroflow_backend_audit-59a7c2ab36d28f99)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/metroflow-headless.rs (target/debug/deps/metroflow_headless-c7b7e68149150df9)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/metroflow-preflight-bench.rs (target/debug/deps/metroflow_preflight_bench-b6defc819c740535)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/metroflow-prepare.rs (target/debug/deps/metroflow_prepare-45fdfc14a9bfaf30)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/metroflow-verify.rs (target/debug/deps/metroflow_verify-7a8b07b0573bacf1)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests metroflow_headless
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

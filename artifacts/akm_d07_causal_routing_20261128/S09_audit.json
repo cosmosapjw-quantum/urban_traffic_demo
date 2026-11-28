@@ -1,0 +1,327 @@
+{
+  "status": "D07_VERIFIED_SCOPED_SYNTHETIC_NOT_RELEASE",
+  "matrix": [
+    {
+      "name": "S06_2_baseline",
+      "demand": 300,
+      "mean_s": 145.11666666666667,
+      "stock_veh_s": 43535.0,
+      "peak_storage": 0.9934036707056696,
+      "peak_ready": 44,
+      "blocked_steps": 14269,
+      "reroutes": 0,
+      "rerouted_owners": 0,
+      "hard_reroutes": 0,
+      "initial_branches": {
+        "bridge": 173,
+        "long": 127
+      },
+      "final_branches": {
+        "bridge": 173,
+        "long": 127
+      },
+      "delivered_cost_count": 213,
+      "closure_reports": 3,
+      "live_bypass_at_rejection": 0,
+      "wall_s": 0.185295442,
+      "peak_rss_kib": 10772
+    },
+    {
+      "name": "S06_2_bypass",
+      "demand": 300,
+      "mean_s": 120.56666666666666,
+      "stock_veh_s": 36170.0,
+      "peak_storage": 0.9924955438853159,
+      "peak_ready": 44,
+      "blocked_steps": 11571,
+      "reroutes": 0,
+      "rerouted_owners": 0,
+      "hard_reroutes": 0,
+      "initial_branches": {
+        "bridge": 138,
+        "bypass": 89,
+        "long": 73
+      },
+      "final_branches": {
+        "bridge": 138,
+        "bypass": 89,
+        "long": 73
+      },
+      "delivered_cost_count": 205,
+      "closure_reports": 3,
+      "live_bypass_at_rejection": 63,
+      "wall_s": 0.177950922,
+      "peak_rss_kib": 11072
+    },
+    {
+      "name": "S06_2_reroute",
+      "demand": 300,
+      "mean_s": 84.40333333333334,
+      "stock_veh_s": 25321.0,
+      "peak_storage": 0.765447742708379,
+      "peak_ready": 29,
+      "blocked_steps": 8200,
+      "reroutes": 115,
+      "rerouted_owners": 111,
+      "hard_reroutes": 12,
+      "initial_branches": {
+        "bridge": 141,
+        "bypass": 90,
+        "long": 69
+      },
+      "final_branches": {
+        "bridge": 113,
+        "bypass": 171,
+        "long": 16
+      },
+      "delivered_cost_count": 149,
+      "closure_reports": 3,
+      "live_bypass_at_rejection": 18,
+      "wall_s": 0.177206919,
+      "peak_rss_kib": 11092
+    },
+    {
+      "name": "S06_4_baseline",
+      "demand": 150,
+      "mean_s": 77.24666666666667,
+      "stock_veh_s": 11587.0,
+      "peak_storage": 0.7622222222222222,
+      "peak_ready": 29,
+      "blocked_steps": 3997,
+      "reroutes": 0,
+      "rerouted_owners": 0,
+      "hard_reroutes": 0,
+      "initial_branches": {
+        "bridge": 82,
+        "long": 68
+      },
+      "final_branches": {
+        "bridge": 82,
+        "long": 68
+      },
+      "delivered_cost_count": 165,
+      "closure_reports": 3,
+      "live_bypass_at_rejection": 0,
+      "wall_s": 0.095557222,
+      "peak_rss_kib": 9316
+    },
+    {
+      "name": "S06_4_bypass",
+      "demand": 150,
+      "mean_s": 69.62666666666667,
+      "stock_veh_s": 10444.0,
+      "peak_storage": 0.7622222222222222,
+      "peak_ready": 29,
+      "blocked_steps": 3388,
+      "reroutes": 0,
+      "rerouted_owners": 0,
+      "hard_reroutes": 0,
+      "initial_branches": {
+        "bridge": 64,
+        "bypass": 43,
+        "long": 43
+      },
+      "final_branches": {
+        "bridge": 64,
+        "bypass": 43,
+        "long": 43
+      },
+      "delivered_cost_count": 176,
+      "closure_reports": 3,
+      "live_bypass_at_rejection": 17,
+      "wall_s": 0.087962748,
+      "peak_rss_kib": 9936
+    },
+    {
+      "name": "S06_4_reroute",
+      "demand": 150,
+      "mean_s": 69.06666666666666,
+      "stock_veh_s": 10360.0,
+      "peak_storage": 0.7622222222222222,
+      "peak_ready": 29,
+      "blocked_steps": 3440,
+      "reroutes": 13,
+      "rerouted_owners": 13,
+      "hard_reroutes": 2,
+      "initial_branches": {
+        "bridge": 64,
+        "bypass": 43,
+        "long": 43
+      },
+      "final_branches": {
+        "bridge": 61,
+        "bypass": 56,
+        "long": 33
+      },
+      "delivered_cost_count": 171,
+      "closure_reports": 3,
+      "live_bypass_at_rejection": 21,
+      "wall_s": 0.094200066,
+      "peak_rss_kib": 9444
+    },
+    {
+      "name": "S06_8_baseline",
+      "demand": 75,
+      "mean_s": 67.66666666666667,
+      "stock_veh_s": 5075.0,
+      "peak_storage": 0.36925925925925923,
+      "peak_ready": 14,
+      "blocked_steps": 1438,
+      "reroutes": 0,
+      "rerouted_owners": 0,
+      "hard_reroutes": 0,
+      "initial_branches": {
+        "bridge": 41,
+        "long": 34
+      },
+      "final_branches": {
+        "bridge": 41,
+        "long": 34
+      },
+      "delivered_cost_count": 161,
+      "closure_reports": 2,
+      "live_bypass_at_rejection": 0,
+      "wall_s": 0.054820201,
+      "peak_rss_kib": 8168
+    },
+    {
+      "name": "S06_8_bypass",
+      "demand": 75,
+      "mean_s": 64.56,
+      "stock_veh_s": 4842.0,
+      "peak_storage": 0.3907407407407408,
+      "peak_ready": 15,
+      "blocked_steps": 1469,
+      "reroutes": 0,
+      "rerouted_owners": 0,
+      "hard_reroutes": 0,
+      "initial_branches": {
+        "bridge": 37,
+        "bypass": 19,
+        "long": 19
+      },
+      "final_branches": {
+        "bridge": 37,
+        "bypass": 19,
+        "long": 19
+      },
+      "delivered_cost_count": 160,
+      "closure_reports": 2,
+      "live_bypass_at_rejection": 2,
+      "wall_s": 0.051018144,
+      "peak_rss_kib": 8892
+    },
+    {
+      "name": "S06_8_reroute",
+      "demand": 75,
+      "mean_s": 50.36,
+      "stock_veh_s": 3777.0,
+      "peak_storage": 0.25,
+      "peak_ready": 5,
+      "blocked_steps": 450,
+      "reroutes": 6,
+      "rerouted_owners": 6,
+      "hard_reroutes": 2,
+      "initial_branches": {
+        "bridge": 37,
+        "bypass": 19,
+        "long": 19
+      },
+      "final_branches": {
+        "bridge": 32,
+        "bypass": 25,
+        "long": 18
+      },
+      "delivered_cost_count": 157,
+      "closure_reports": 2,
+      "live_bypass_at_rejection": 2,
+      "wall_s": 0.052166403,
+      "peak_rss_kib": 9048
+    }
+  ],
+  "paired": [
+    {
+      "gap": 2,
+      "comparison": "bypass_vs_baseline",
+      "better": 150,
+      "worse": 0,
+      "same": 150,
+      "min_delta_s": -131.0,
+      "max_delta_s": 0.0,
+      "mean_delta_s": -24.55
+    },
+    {
+      "gap": 2,
+      "comparison": "reroute_vs_bypass",
+      "better": 153,
+      "worse": 128,
+      "same": 19,
+      "min_delta_s": -121.0,
+      "max_delta_s": 62.0,
+      "mean_delta_s": -36.163333333333334
+    },
+    {
+      "gap": 4,
+      "comparison": "bypass_vs_baseline",
+      "better": 65,
+      "worse": 0,
+      "same": 85,
+      "min_delta_s": -34.0,
+      "max_delta_s": 0.0,
+      "mean_delta_s": -7.62
+    },
+    {
+      "gap": 4,
+      "comparison": "reroute_vs_bypass",
+      "better": 14,
+      "worse": 33,
+      "same": 103,
+      "min_delta_s": -18.0,
+      "max_delta_s": 6.0,
+      "mean_delta_s": -0.56
+    },
+    {
+      "gap": 8,
+      "comparison": "bypass_vs_baseline",
+      "better": 28,
+      "worse": 2,
+      "same": 45,
+      "min_delta_s": -26.0,
+      "max_delta_s": 107.0,
+      "mean_delta_s": -3.1066666666666665
+    },
+    {
+      "gap": 8,
+      "comparison": "reroute_vs_bypass",
+      "better": 19,
+      "worse": 0,
+      "same": 56,
+      "min_delta_s": -98.0,
+      "max_delta_s": 0.0,
+      "mean_delta_s": -14.2
+    }
+  ],
+  "recovery": {
+    "cut_s": 440,
+    "partial_owners": [
+      {
+        "id": 180,
+        "fraction": 0.6000000000000001
+      },
+      {
+        "id": 215,
+        "fraction": 0.9217944412633894
+      }
+    ],
+    "cut_sha256": "2d4568d05ef17c77fa90e56cefe1793e6a27b0335ed288bc8dc3f70378622d71",
+    "final_sha256": "f3089089b53e0a66115fd0890424ee6d1c36da136298c4b2a4ed573859a6fed9"
+  },
+  "scope": "all nine finite synthetic cohorts; no original native calendar, service schedule, demand elasticity, equilibrium or city-wide convergence claim",
+  "limitations": [
+    "actual owner route updates in separate bounded lab, not original NativeJourneyCore integration",
+    "unit logical cohort, no all-class or empirical calibration; report closure is observed affected-ready availability, not completed passage mean",
+    "reroute policy enabled from t0, not only after bypass",
+    "checkpoint byte replay and selected malformed controls; not adversarial wire completeness",
+    "full receipt/history allocations, not no-heap or city scalability"
+  ]
+}

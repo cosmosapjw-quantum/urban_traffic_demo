@@ -1,0 +1,1 @@
+Independent Python audit initially overcounted unique rerouted owners: iterating all owners populated empty defaultdict lists. Corrected the derived census to count nonempty journals, reran the full audit. Initial erroneous report preserved only in backup; native simulation bytes unchanged.
