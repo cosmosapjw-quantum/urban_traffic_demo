@@ -32,6 +32,31 @@ pub struct Rates{pub alpha:f64,pub nu:f64,pub tau:f64,pub target:f64}
 impl Rates{
     pub fn valid(self)->bool{self.alpha.is_finite()&&self.alpha>0.&&self.nu.is_finite()&&self.nu>=0.&&(self.alpha+self.nu).is_finite()&&self.tau.is_finite()&&self.tau>0.&&self.target.is_finite()&&(0. ..=1.).contains(&self.target)}
 }
+/// D04 diagnostic, not the default A network flux. Reconstruct each
+/// conditional positive measure at 0 and Z/J. Exact outgoing M and J;
+/// sharp lower third moment. Aggregate birth follows mass fraction only.
+pub fn split_velocity_selected(x:Moment,c:f64,t:f64)->Result<(Moment,Moment)>{
+    if !x.valid(t)||!c.is_finite()||!(0. ..=1.).contains(&c){return Err("invalid velocity flux".into())}
+    let (mut r,mut y)=(Moment::default(),Moment::default());
+    for i in 0..2{
+        let(m,j,z)=(x.m[i],x.j[i],x.z[i]);
+        if j==0.{if z!=0.{return Err("zero first moment with positive second".into())}r.m[i]=m;continue}
+        if m<=0.||z<=0.{return Err("nonpositive moving mass reconstruction".into())}
+        let u=z/j;
+        if !u.is_finite()||u<=0.||u>1.+1e-10{return Err("velocity quadrature support".into())}
+        let u=u.min(1.);
+        // Using the known moments avoids forming J^2 or Z^2 at tiny mass.
+        let f=(c*u).min(1.);
+        y.m[i]=c*j;y.j[i]=f*j;y.z[i]=f*z;
+        r.m[i]=m-y.m[i];r.j[i]=(1.-f)*j;r.z[i]=(1.-f)*z;
+        if c>0.&&y.m[i]==0.{return Err("positive velocity flux underflow".into())}
+        if r.m[i]<0.{return Err("velocity flux negative remainder".into())}
+    }
+    let f=if x.mass()>0.{(y.mass()/x.mass()).min(1.)}else{0.};
+    y.birth=x.birth*f;r.birth=x.birth-y.birth;
+    if !r.valid(t)||!y.valid(t){return Err("velocity split moment cone".into())}
+    Ok((r,y))
+}
 /// Exact switching map on three conditional moment pairs.
 fn switch(mut x:Moment,r:Rates,h:f64)->Moment{
     let k=r.alpha+r.nu;let a=-(-k*h).exp_m1();
@@ -76,6 +101,31 @@ impl Mobility {
 #[cfg(test)]
 mod tests{
     use super::*;
+    #[test]
+    fn selective_velocity_flux_carries_moving_mass_not_stopped_mass(){
+        let x=Moment::point(0.5,1.,0.,2.).add(Moment::point(0.5,1.,1.,2.));
+        let (r,y)=split_velocity_selected(x,1.,2.).unwrap();
+        assert_eq!(y.mass(),0.5);assert_eq!(y.momentum(),0.5);
+        assert_eq!(r.momentum(),0.);assert_eq!(r.add(y),x);
+        assert!(r.valid(2.)&&y.valid(2.));
+        let z=Moment::point(2.,0.,0.,2.);
+        assert_eq!(split_velocity_selected(z,1.,2.).unwrap(),(z,Moment::default()));
+    }
+    #[test]
+    fn velocity_flux_cone_and_exact_first_two_outgoing_moments(){
+        for a in 0..17{for b in a..17{for k in 0..9{
+            let x=Moment::point(0.25,0.2,a as f64/16.,2.).add(Moment::point(0.75,0.8,b as f64/16.,1.));
+            let c=k as f64/8.;
+            let(r,y)=split_velocity_selected(x,c,2.).unwrap();
+            assert!(r.valid(2.)&&y.valid(2.));
+            for i in 0..2{
+                assert!((y.m[i]-c*x.j[i]).abs()<1e-14);
+                assert!((y.j[i]-c*x.z[i]).abs()<1e-14);
+                for (v,w) in [(r.m[i]+y.m[i],x.m[i]),(r.j[i]+y.j[i],x.j[i]),(r.z[i]+y.z[i],x.z[i])]{assert!((v-w).abs()<1e-14);}
+            }
+            assert!((r.birth+y.birth-x.birth).abs()<1e-14);
+        }}}
+    }
     #[test]
     fn conditional_means_and_cone(){
         for k in 0..32{

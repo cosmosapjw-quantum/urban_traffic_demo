@@ -1,0 +1,11 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (target/debug/deps/metroflow_headless-ce2312ae8c9f8ae3)
+
+running 4 tests
+test active_kinetic::tests::drive_switch_and_finite_speed_response_are_distinct ... ok
+test active_kinetic::tests::selective_velocity_flux_carries_moving_mass_not_stopped_mass ... ok
+test active_kinetic::tests::velocity_flux_cone_and_exact_first_two_outgoing_moments ... ok
+test active_kinetic::tests::conditional_means_and_cone ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.00s
+
