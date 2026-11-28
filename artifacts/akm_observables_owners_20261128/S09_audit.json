@@ -1,0 +1,348 @@
+{
+  "status": "VERIFIED_SCOPED",
+  "D04": {
+    "mean_error_s": 2.660716091895665e-10,
+    "variance_error_s2": 6.626797244280169e-08,
+    "pulse_matrix": 16,
+    "response_reference_max_relative_error": 1.393932858469043e-06,
+    "scope": "aligned free-flow ballistic limit, spatial/temporal pulse dispersion, dense active pulse, node order counterexample, metre supply and prior frozen local response; no network jam-wave convergence claim"
+  },
+  "D06": {
+    "scope": "original input/calendar and existing service/journey owners, positive original city prefix and actual independent recovery; not transport equivalence or all modes implemented",
+    "migration_source_rows": 262130,
+    "projected_rows": 112197,
+    "last_time_s": 26160.0,
+    "city_ticks": 84,
+    "metrics": [
+      {
+        "name": "S08_fixture120",
+        "time_s": 120.0,
+        "rows": 5,
+        "peak_rows": 7,
+        "wall_s": 0.015271981,
+        "advance_s": 0.000790946,
+        "peak_rss_bytes": 4206592,
+        "checkpoint_bytes": 6275,
+        "road_mass_residual_veh": -6.138319019743932e-15,
+        "road_birth_residual_veh_s": -1.990074771640593e-13
+      },
+      {
+        "name": "S08_fixture360",
+        "time_s": 360.0,
+        "rows": 5,
+        "peak_rows": 5,
+        "wall_s": 0.021757016,
+        "advance_s": 0.004433399,
+        "peak_rss_bytes": 4947968,
+        "checkpoint_bytes": 17571,
+        "road_mass_residual_veh": -1.4132942949421337e-15,
+        "road_birth_residual_veh_s": -7.0234859469196275e-15
+      },
+      {
+        "name": "S08_valley25380",
+        "time_s": 25380.0,
+        "rows": 624850,
+        "peak_rows": 624850,
+        "wall_s": 12.240961269,
+        "advance_s": 4.628308123,
+        "peak_rss_bytes": 946860032,
+        "checkpoint_bytes": 146702340,
+        "road_mass_residual_veh": -9.947598300641403e-12,
+        "road_birth_residual_veh_s": -2.8638169169425964e-08
+      },
+      {
+        "name": "S08_valley25560",
+        "time_s": 25560.0,
+        "rows": 976004,
+        "peak_rows": 976004,
+        "wall_s": 37.217411808,
+        "advance_s": 31.808877467,
+        "peak_rss_bytes": 1556377600,
+        "checkpoint_bytes": 313747580,
+        "road_mass_residual_veh": 1.687112671788782e-10,
+        "road_birth_residual_veh_s": 1.4014076441526413e-06
+      },
+      {
+        "name": "S08_valley26160",
+        "time_s": 26160.0,
+        "rows": 976004,
+        "peak_rows": 976004,
+        "wall_s": 165.992872582,
+        "advance_s": 158.965492398,
+        "peak_rss_bytes": 2405191680,
+        "checkpoint_bytes": 645653068,
+        "road_mass_residual_veh": 1.583430275786668e-09,
+        "road_birth_residual_veh_s": -1.1502066627144814e-05
+      },
+      {
+        "name": "S09_fixture360_direct",
+        "time_s": 360.0,
+        "rows": 5,
+        "peak_rows": 7,
+        "wall_s": 0.010611062,
+        "advance_s": 0.002436875,
+        "peak_rss_bytes": 4296704,
+        "checkpoint_bytes": 17571,
+        "road_mass_residual_veh": -1.4132942949421337e-15,
+        "road_birth_residual_veh_s": -7.0234859469196275e-15
+      },
+      {
+        "name": "S09_fixture360_recover",
+        "time_s": 360.0,
+        "rows": 5,
+        "peak_rows": 5,
+        "wall_s": 0.00784498,
+        "advance_s": 4e-08,
+        "peak_rss_bytes": 4059136,
+        "checkpoint_bytes": 17571,
+        "road_mass_residual_veh": -1.4132942949421337e-15,
+        "road_birth_residual_veh_s": -7.0234859469196275e-15
+      },
+      {
+        "name": "S09_valley25380_recover",
+        "time_s": 25380.0,
+        "rows": 624850,
+        "peak_rows": 624850,
+        "wall_s": 4.697945382,
+        "advance_s": 2.5e-07,
+        "peak_rss_bytes": 499036160,
+        "checkpoint_bytes": 146702340,
+        "road_mass_residual_veh": -9.947598300641403e-12,
+        "road_birth_residual_veh_s": -2.8638169169425964e-08
+      },
+      {
+        "name": "S09_valley26160_recover",
+        "time_s": 26160.0,
+        "rows": 976004,
+        "peak_rows": 976004,
+        "wall_s": 17.841313071,
+        "advance_s": 1.91e-07,
+        "peak_rss_bytes": 1191186432,
+        "checkpoint_bytes": 645653068,
+        "road_mass_residual_veh": 1.583430275786668e-09,
+        "road_birth_residual_veh_s": -1.1502066627144814e-05
+      }
+    ],
+    "fixture_service_independent_decode": [
+      {
+        "time_s": 120.0,
+        "bus_runs": [
+          [
+            0,
+            1,
+            0.0,
+            0.9998974780960986,
+            0.0
+          ],
+          [
+            0,
+            1,
+            0.0,
+            0.9975658331452899,
+            0.0
+          ]
+        ],
+        "people_rows": [
+          [
+            0.0,
+            2.0,
+            0.0,
+            40.0,
+            0.0
+          ],
+          [
+            2.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "run_fields": [
+          "stop_index",
+          "phase",
+          "ready_s",
+          "partial_sink",
+          "delay_s"
+        ],
+        "people_fields": [
+          "waiting",
+          "onboard",
+          "completed",
+          "wait_person_s",
+          "arrival_person_s"
+        ]
+      },
+      {
+        "time_s": 360.0,
+        "bus_runs": [
+          [
+            1,
+            2,
+            230.0,
+            0.0,
+            0.0
+          ],
+          [
+            1,
+            2,
+            260.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "people_rows": [
+          [
+            0.0,
+            0.0,
+            2.0,
+            40.0,
+            460.0
+          ],
+          [
+            2.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "run_fields": [
+          "stop_index",
+          "phase",
+          "ready_s",
+          "partial_sink",
+          "delay_s"
+        ],
+        "people_fields": [
+          "waiting",
+          "onboard",
+          "completed",
+          "wait_person_s",
+          "arrival_person_s"
+        ]
+      }
+    ],
+    "fixture_original_120_ledger": {
+      "cargo_kg": {
+        "active": 0.0,
+        "completed": 100.0,
+        "pending": 0.0,
+        "released": 100.0,
+        "released_intent_first_moment": 750.0,
+        "requested": 100.0
+      },
+      "persons": {
+        "active": 0.0,
+        "completed": 20.0,
+        "pending": 0.0,
+        "released": 20.0,
+        "released_intent_first_moment": 500.00000000000006,
+        "requested": 20.0
+      },
+      "vehicles": {
+        "active": 0.0,
+        "completed": 13.06,
+        "pending": 0.0,
+        "released": 13.06,
+        "released_intent_first_moment": 324.75000000000006,
+        "requested": 13.06
+      }
+    },
+    "fixture_akm_120_ledger": {
+      "cargo_kg": {
+        "active": 0.0012417027880644582,
+        "completed": 99.99875829721194,
+        "pending": 0.0,
+        "released": 100.0,
+        "released_intent_first_moment": 750.0,
+        "requested": 100.0
+      },
+      "persons": {
+        "active": 2.006529440224199,
+        "completed": 15.99324853507061,
+        "pending": 2.0002220247051916,
+        "released": 17.99977797529481,
+        "released_intent_first_moment": 409.98889879554997,
+        "requested": 20.0
+      },
+      "vehicles": {
+        "active": 0.08522479388214421,
+        "completed": 12.8945975863537,
+        "pending": 0.0801776197641555,
+        "released": 12.979822380235845,
+        "released_intent_first_moment": 321.14111903643993,
+        "requested": 13.06
+      }
+    },
+    "fixture_akm_360_ledger": {
+      "cargo_kg": {
+        "active": 1.1368683772161603e-13,
+        "completed": 99.99999999999989,
+        "pending": 0.0,
+        "released": 100.0,
+        "released_intent_first_moment": 750.0,
+        "requested": 100.0
+      },
+      "persons": {
+        "active": 1.3855583347321954e-13,
+        "completed": 17.99999999999986,
+        "pending": 2.0,
+        "released": 18.0,
+        "released_intent_first_moment": 409.99999999999966,
+        "requested": 20.0
+      },
+      "vehicles": {
+        "active": 1.1013412404281553e-13,
+        "completed": 12.979999999999889,
+        "pending": 0.08000000000000185,
+        "released": 12.979999999999999,
+        "released_intent_first_moment": 321.1499999999997,
+        "requested": 13.06
+      }
+    },
+    "calendar_legs": 918450,
+    "calendar_totals": [
+      120000.0,
+      58801.0,
+      1000.0
+    ],
+    "unsupported_legs_inherited": 610820,
+    "model_identity": "akm-native-sparse-proportional-v1:native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3",
+    "remaining": "2-person missed return stays waiting; original unsupported mode/path ownership retained; dense egress and receipt history grow; no claim full day or global speedup",
+    "last_city_ledger": {
+      "cargo_kg": {
+        "active": 0.0,
+        "completed": 0.0,
+        "pending": 0.0,
+        "released": 0.0,
+        "released_intent_first_moment": 0.0,
+        "requested": 0.0
+      },
+      "persons": {
+        "active": 2081.7920768046397,
+        "completed": 1089.9501916744832,
+        "pending": 2161.591064854435,
+        "released": 3171.7422684791227,
+        "released_intent_first_moment": 81434482.74320142,
+        "requested": 5333.333333333558
+      },
+      "vehicles": {
+        "active": 1665.137349159965,
+        "completed": 868.195984173309,
+        "pending": 80.00000000002592,
+        "released": 2533.333333333274,
+        "released_intent_first_moment": 65043333.33333312,
+        "requested": 2613.3333333333
+      }
+    },
+    "journey_records_last": [
+      2330693,
+      4661780,
+      73210,
+      19637339
+    ],
+    "recovery_sha256": "3023a851ec4bcac9ae908e8ef6ac41ce01971ff758cb563d82e25b6569177f0c"
+  },
+  "scope": "independent arithmetic and bytes of actual receipts and fixture service prefix; native cross-owner invariants checked during each committed tick"
+}

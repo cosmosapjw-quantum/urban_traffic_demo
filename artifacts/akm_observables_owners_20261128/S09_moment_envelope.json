@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "generated": 4096,
+  "nondegenerate_cases": 4019,
+  "max_sample_width_per_mass": 0.062496444419160316,
+  "scope": "sharp third moment bounds; not global transport error or FIFO theorem"
+}
