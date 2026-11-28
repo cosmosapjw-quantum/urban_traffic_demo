@@ -1,0 +1,10 @@
+   Compiling metroflow-headless v0.1.0 (/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/crates/metroflow-headless)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.04s
+     Running unittests src/lib.rs (target/debug/deps/metroflow_headless-ce2312ae8c9f8ae3)
+
+running 2 tests
+test active_network::tests::physical_source_spillback_and_mixture ... ok
+test active_network::tests::conservation_storage_clock_and_restart ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 0.01s
+

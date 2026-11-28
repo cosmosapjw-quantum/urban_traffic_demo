@@ -8,3 +8,4 @@ pub mod queue;
 pub mod receipt;
 
 pub mod active_kinetic;
+pub mod active_network;
