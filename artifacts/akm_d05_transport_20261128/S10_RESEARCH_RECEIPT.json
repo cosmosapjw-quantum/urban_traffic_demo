@@ -1,0 +1,178 @@
+{
+  "schema": "akm_d05_research_v1",
+  "status": "EXECUTED_D05_ATTEMPT_1_NOT_CONVERGED_NOT_RELEASE",
+  "baseline": "8d111a041b6d1e18362bf3941cc19dd59ae5eb7d",
+  "ssot_version": "1.0.0",
+  "commits_before_S10": [
+    "dc0d21a3db4e050d4513f9f04cc2ce71155c461a S01 Preregister D05 paired closure and refinement matrix against AKM authority",
+    "7f9b3d17e190cf0cffd7fb5d43e82982ecf74623 S02 Derive bounded residual allocation and positive finite characteristic service distance",
+    "2bd11e7e5483ccc47b727116d572bedfc8e91a03 S03 Add opt-in selective kinetic flux and one-pass feasible residual donor allocation",
+    "9f8b78e76debda5d8371ea809cb65040047c3e98 S04 Run full-day A policy refinement and matched overload completion curves",
+    "48498dbab43196487c74f1cafe0c4cf54c9fde66 S05 Record matched archived B peak-window mesh 1200 600 300 experiments",
+    "ed0161563a84b44ad48724f293390fdf3ffca777 S06 Implement optional whole scheduled-vehicle mean-characteristic hybrid with independent wire",
+    "976c1d1ec21ece4615be02bf8758f69530e671f5 S07 Execute same-manifest service hybrid fixture and independent restart/negative controls",
+    "9f4127dafca049296f3ebc699371d7c0a8eb0cbe S08 Test atomic service quota obstruction and matched no-bus original-city projection",
+    "a8678f23b2c458edaccdf5819879c6ee77081784 S09 Verify active-track replay and classify D05 convergence and atomic quota counterexample"
+  ],
+  "stages": 10,
+  "dag": {
+    "status": "VALID_RESEARCH_PLAN_NOT_RELEASE",
+    "nodes": 14,
+    "scoped_or_accepted": 6,
+    "terminal": 6,
+    "attempts_used": 7,
+    "attempts_limit": 24,
+    "ready": [
+      "D05"
+    ],
+    "next": [
+      "D05"
+    ]
+  },
+  "D05_attempts_used": 1,
+  "D05_attempts_limit": 2,
+  "original_plan_sha256": "80f64cb836782f1557f70eece21a1431e7e9f5aefdc0c208758ccef30b143313",
+  "ssot_sha256": "4180f4b919d45489ebb17c2af1e846360fcb9d90535943f224f60c6736ac176c",
+  "audit_sha256": "f784f1b3bb2a685c88a02db05b23040683a8b37b310589d50b652cbdb7a58c87",
+  "tracked_rust_sources_manifest_sha256": "e22991d34df19b53abbbe0e62e29adbc05bf1ab4bd6ebc9274d65c68f5dd6370",
+  "decision": {
+    "A": "retain original for comparison; reject combined selective/residual variant as current day-resolution solution; both fail 2% mean gate",
+    "B": "preferred fixed-route projected comparison lane on sampled AM completion/mean; storage and receiving peaks unresolved, not current calendar bridge",
+    "D": "retain exactly one fallback family; strict atomic arm negative at original dt, successful causal transit at dt2 is diagnostic only. Next final attempt use reserved interface transfer, no quota relaxation",
+    "D05": "READY attempt 1/2 consumed; next attempt final, no automatic D07, no V03 credit"
+  },
+  "interface_bound": {
+    "status": "DERIVED_NUMERICALLY_CHECKED_NOT_IMPLEMENTED",
+    "cases": 512,
+    "fixture_constant_other_stock": [
+      {
+        "dt_s": 0.5,
+        "strict_atomic_eligible": false,
+        "incremental_entry_time_s": 1.5,
+        "conditional_bound_s": 1.7765957446808511
+      },
+      {
+        "dt_s": 1.0,
+        "strict_atomic_eligible": false,
+        "incremental_entry_time_s": 2.0,
+        "conditional_bound_s": 2.276595744680851
+      },
+      {
+        "dt_s": 2.0,
+        "strict_atomic_eligible": true,
+        "incremental_entry_time_s": 2.0,
+        "conditional_bound_s": 3.276595744680851
+      }
+    ],
+    "assumptions": "strict spare storage F0>ell*m; positive fixed count cap and w; h*w<=L; no competing flows; no unused quota accumulation; completion bound only for crossing phase"
+  },
+  "A_cases": 20,
+  "A_pulse_cases": 8,
+  "B_mesh_cases": 3,
+  "native_receipt_cases": 14,
+  "tests": {
+    "headless": 19,
+    "native_akm_feature": 308,
+    "ignored": 2,
+    "full_ci": "NOT_RUN"
+  },
+  "watchdog": {
+    "AD1": "Q1/Q2 closure, dispersion, supply and service timing; historic sources",
+    "AD2": "same source geometry/calendar, separate model and diagnostic dt identity, physical owner and wire checks",
+    "ALM1": "zero new exact reference ticks or old guard changes; time fraction not measured",
+    "ALM2": "one D05 attempt and finite diagnoses, last remaining attempt targeted"
+  },
+  "review": {
+    "verdict": "CAUTION_RESEARCH_ONLY",
+    "P1": [
+      "A combined selective/residual and original both fail finest day mean gate",
+      "D whole bus atomic quota starvation at dt<=1; dt2 success diagnostic only",
+      "B projected source lacks current calendar bridge and peak receiving/store convergence"
+    ],
+    "P2": [
+      "Native sparse path not zero heap; whole-engine journey history not bounded",
+      "Fixed-step conditional mean characteristic, not stochastic first passage; explicit bus-first priority not all-class FIFO",
+      "No native subagent; direct review and independent arithmetic and wire validation; no full CI"
+    ]
+  },
+  "V03": {
+    "original_plan": "1.1.55 byte-identical",
+    "original_day_accepted": "0/9",
+    "original_8h_refinement": "0/3",
+    "original_exact_frontier_s": 25750,
+    "AKM_A_prior_frontier_s": 26160,
+    "not_claimed": "release selection or V03 acceptance"
+  },
+  "files_sha256": {
+    "S01_contract.json": "7527f87587b4705781809047ea187cfc8fe26f8008a28f15a86ccdfc8ea6c3fd",
+    "S01_history.txt": "7dba85b743ffd2903e6f2eb258184d038c3b6c80786fb7ccfb72c4950b8973c6",
+    "S02_oracle.json": "a3c23e909080d3ae568721ab50d42d4ac2e5e619936a23da97a1d26397a53e86",
+    "S03_green.log": "b275af390bd20a0d9fed19a28c0705e57b9b2326b945053b13658aaca5372efd",
+    "S03_red.log": "65a7f568dce32510f09be7ea276c8ba5936bdd9204fc158ec3649000d2c181cf",
+    "S03_regression.log": "4c62eba1158876c23ae8299f5c8f74b3e43efb999ea5be0f95e1480ec7b64996",
+    "S04_A_results.json": "833495d5cab642f5806a494d2c0b86a52f013fc3eb5c706aeeccbdaa8f52acdb",
+    "S04_build.log": "c6ab58181d0523c7eb43fa860bcadaada6f7c69a921098cb915346288cdaa5bc",
+    "S04_run.log": "afc3b6f58b2e6408e8bfebc48bd2e55fe14e11e2651ec9d7729351fc745bd729",
+    "S05_B_mesh1200.json": "1ef2742320df8bcfaf6d21f36d3d4508805c28eb6a8cc49c50c8454130ef0237",
+    "S05_B_mesh1200.log": "972f45e2b0c56c0031a4f86b215b3c64d4964e9e1b2d1e12658b95f26caed1f1",
+    "S05_B_mesh300.json": "743d5df5aa2d2e7e05d192caa4a5937abdbc842fd31f260ee136c622fffaa131",
+    "S05_B_mesh300.log": "767e8732f3b684959ab09e7d17cabeae58ea55406410d7eda3eeceb7d7dbdbd6",
+    "S05_B_mesh600.json": "c2dc567e609a0f9b5a457d6798198a92accceaa4067cabdbd470295c2c60ba60",
+    "S05_B_mesh600.log": "412550b39ba136526d953bcdeed7feca638cec755b7d34fde69ab9a208da9993",
+    "S05_exit_codes.txt": "ecdbb98ea9d3c219fe5323c96cd2984e874059b2bce0ef68d184801687e520e1",
+    "S05_input_hashes.txt": "d8877aa052402e1f788dee1d73ebb4c5d56d1ab8cdb4c3144f769a1663d8100a",
+    "S06_distance.log": "675c6266a15840b17400acde8f140bd254dcf5e76e14392a4320f69262a85d60",
+    "S06_green.log": "4e5d75df996f61f1eb13124c477e6bf8ccd8bbdb7b865425183d629c4a7b7822",
+    "S06_red.log": "6bf554b78ee20bede09c3b34fd4559597167a0edf46c171b9085fd02106e6714",
+    "S06_transport.log": "0fcd4da92c00c621f7ad7e1347b8c907e5537830e98fd970b6bcaeac04e3d075",
+    "S07_build.log": "41584b104560811665a3190221d30a88db1dca02bf328c5120ecbaff7ca784d2",
+    "S07_checkpoint_hashes.txt": "0dc64e8d037f7488f4250b03e83db7bcd51a35a3afec4e5fa93b526972caa697",
+    "S07_exit_codes.txt": "a415a1aa9a67eeb4f721d9a1f5ea3839a2d59f25b68a2be25d9828019255b3ab",
+    "S07_hybrid120.json": "8d486a621230511d2c08ac18f0a20a0eca68f790e26bdf325d0523b0095fc93a",
+    "S07_hybrid120.log": "8d0ba1135caa183df0bb23cba3bfc7cdc427e3d08e49817be682c98e155ede76",
+    "S07_hybrid360.json": "4748c2f2b849e1dd3be9f46a64a4b2472f1a756b4d90ba0b55a42746ca439432",
+    "S07_hybrid360.log": "2352c1ea16340603e8d91f76162dd03970083851f97ac16df706c3cb31c02228",
+    "S07_hybrid360_direct.json": "b233acdbd059d1248a7fcca87472577550564d299171d1e07129737bd3079d31",
+    "S07_hybrid360_direct.log": "563ffd2aef3dede90dc9450f4a5cb6a087943370b19132cb20238f452fe48502",
+    "S07_hybrid360_recover.json": "4f98a91ecc0cb3f719266fdd13394532c4aa4ed61a570f90d442f6419dac712c",
+    "S07_hybrid360_recover.log": "e256e38ee5469172fd1b2ed899de428ccebe80a6bce2bd6e73f77f0179c489da",
+    "S07_input_hashes.txt": "c00ec060360e80f1964585df0f04e5fe73d1ca98862d14f23865c6d9ed031ffa",
+    "S07_mixed360.json": "49502589ddf91ffb39253ffd2e7dac7004e2a9c991db137985cc95f1c51b5c41",
+    "S07_mixed360.log": "91a2a16947a52be2c78ff8a2a500026eb9de9d3ffb5c67a64d55a57f717d2b39",
+    "S07_negative_control.txt": "2f05f14341445c32b72947bdddbfc46f7524f32869c8820d059b55184aef060f",
+    "S07_wrong_wire.log": "e7580adda29a4a281296931293ad0b4ad8d5c6e973377473b639c35c68b79fe8",
+    "S08_diagnostic_contract.json": "3c75697799ad548ee5f6bbb98bd84c1c99a0228909ab2b33eaf4646c9a9f1862",
+    "S08_exit_codes.txt": "b6fcde1bfee08b71ea5892d52398dc9b61b00450844a1dc1eba6e81212cc59ce",
+    "S08_hybrid_city25380.json": "ef72088173be63b85fa8f09ed864ea0586bf98dacdaafc741a5feb71a8599fdc",
+    "S08_hybrid_city25380.log": "0fabe870996da260c76945547875c886e07f39d1954d9bfc15f5f28eba51741a",
+    "S08_hybrid_city25380_recover.json": "15a889b7bf4216e662d2442557f24489d2f4b75414daaa19d970c6b7475d01e2",
+    "S08_hybrid_city25380_recover.log": "5384523974b2af846f2a4fc1ec52eb15c6937c5f0e23481e413d862b30842d3d",
+    "S08_hybrid_half.json": "d45ed4bbae0a864503468285cca9b706da3ad01601e393d8376dd3848c80392a",
+    "S08_hybrid_half.log": "aa9761d157c18f076e98901be15a4603e7252d50c65669f5c6cebaf0d52997bc",
+    "S08_hybrid_two.json": "c06ded0c98f1942387e3a67b66a35653d4050b7cb968a4352e5f9995c86c7898",
+    "S08_hybrid_two.log": "765e9b79b191c8a6d38fb3c23a605a19e615aa333978a150fd299fbd1e70d16a",
+    "S08_inputs.txt": "6c6179647b227522b379c93e1db37d01268ab8ba4b396a098fe17cd7ab0424d6",
+    "S08_mixed_half.json": "6c421a675e895566b7cd46c39337ef49ae028f19c72d8abb312dbc28b8a7836b",
+    "S08_mixed_half.log": "93659f0ffcd83e9321be2c50db7e2f1731568f4f177adf8d1c74fd9f7cb36b21",
+    "S08_mixed_two.json": "6bc20dea867923b638643350c573ca242a7b52a1e697a43c197187b4eaa9b050",
+    "S08_mixed_two.log": "761113ab95372bb9f18206b746c103b4fef6b851f6ba00dd5bb88b59eb3c75c4",
+    "S09_active_wire_negative.txt": "f17004cc4552c3c27cea1f13f785c1d3ca332392b0cff63ff4e013e4a66bd95b",
+    "S09_audit.json": "f784f1b3bb2a685c88a02db05b23040683a8b37b310589d50b652cbdb7a58c87",
+    "S09_bad_track.log": "98036ef02b6efa37d9f2d131cda93929f23f3ad581dda3d3a248caac77f3a9e7",
+    "S09_checkpoint_hashes.txt": "2996e48ca6933bc9ef7720e12f34583f0749ead858cfa4603d1aee2b4209599a",
+    "S09_headless_tests.log": "b73b76e9f13e876d62e07d8161c8de5919c227dd220822c821c063bf011f947a",
+    "S09_hybrid_active36.json": "52cd99f344342906c441d68beccecfdc4ab9d67159f850f795c05976393e7914",
+    "S09_hybrid_active36.log": "284c0065dc70f746d9d74573aeb51189eb2b5b2d3aca8bc27d166df1cb9708d3",
+    "S09_hybrid_active36_recover.json": "8b31ddd181b740e7eb20e2781c4d8b53f5da1fdb94220a6a88bf425289effd13",
+    "S09_hybrid_active36_recover.log": "70ff5b6db78268554c212d3a02c0770d557e89632b10b0a6d44a302f8fa365f9",
+    "S09_hybrid_two_resume360.json": "b41500bb4545a6cbc44e50fc464c8bc423323aa0e6161711dce366f6468fcdc6",
+    "S09_hybrid_two_resume360.log": "55e4f9e5b0b8d5b5b1b5bb5e7bb086a8aa4da024afd75f4d67d064a78d1c987a",
+    "S09_native_tests.log": "4d232b73f02d5a9dbd66d3cc13eb6b05422541f587049dffeb0526515aca79ad",
+    "S10_DAG_next.json": "14bc8c0daab5f1a6745b9822d39be8f020ec60ac8f0f87e18da658856f0d527f",
+    "S10_DAG_render.json": "14bc8c0daab5f1a6745b9822d39be8f020ec60ac8f0f87e18da658856f0d527f",
+    "S10_DAG_validate.json": "14bc8c0daab5f1a6745b9822d39be8f020ec60ac8f0f87e18da658856f0d527f",
+    "S10_V1_validate.json": "cabc71c360f58f5e1df585603cb4d609e0af9b101ec4024b1ecd3e1426fafcca",
+    "S10_source_verify.log": "adc7bd1190a61a3061ca457cbbd0afce15325b7ea720b3d7a5b3e539d0b09277",
+    "S10_tracked_rust_sources.sha256": "e22991d34df19b53abbbe0e62e29adbc05bf1ab4bd6ebc9274d65c68f5dd6370"
+  }
+}

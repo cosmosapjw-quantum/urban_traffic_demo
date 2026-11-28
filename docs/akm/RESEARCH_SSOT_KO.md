@@ -113,6 +113,18 @@ D04 VERIFIED_SCOPED: exact geometric/negative-binomial residence law, 16 actual 
 
 Evidence: [theory and execution notes](../research/AKM_OBSERVABLES_OWNERS_20261128.md); `artifacts/akm_observables_owners_20261128/S09_audit.json`, `S10_RESEARCH_RECEIPT.json`. Original PLAN v1.1.55 byte-identical. Native code research feature only, Caution for research use, not ready for product/release.
 
+## 6.2. 2026-11-28 D05 first attempt: closure refinement and service interface
+
+D05 remains READY with attempts_used=1/2. All S01–S10 research steps performed; this does not make the physical convergence gate pass. A comparison uses 20 actual synthetic cases including 6 full-day runs (5/2.5/1.25s, two policies), 12 overload runs and 2 fixed-offer controls, plus 8 pulse cases. One-pass residual allocation and velocity-selected flux separately satisfy local feasibility/realizability; the combined A variant fails the day mean refinement gate more strongly than baseline (9.271% vs 2.531% finest adjacent gap), so retain its kernel as scoped research but reject it as current resolution solution. B same projected archive AM horizon 28800 at mesh1200/600/300: mean gap .0179%, sampled completion/incomplete gap .0647% at finest adjacent comparison; peak storage and receiving gaps .03009/.23057 remain significant. B is preferred projected fixed-route comparison, not original-calendar bridge or converged network congestion.
+
+One optional D fallback family: whole scheduled-bus characteristic with deterministic same-link bus order, no all-class FIFO claim. Actual same-manifest fixture at dt1: both buses blocked on metre quota, 16 persons complete (mixed 18). Distinct diagnostic dt.5 and dt2: 16 and 20 persons respectively, both buses complete at dt2, arrivals46/76s. The strict atomic method is inconsistent as dt->0 under fixed positive supply; do not change quota, schedule or step solely to obtain a pass. Active-track checkpoint at t36 and actual split replay to360 bit-identical with direct dt2; corrupted track and wrong model rejected. Original-city 25320->25380 no-bus compatibility control and independent recovery match previous A owner ledger, not new science frontier or city bus validation. Earlier 26160s A state remains valid for its own identity. Interface partial reservation law with strict slack derived and independently checked in 512 rational cases, not integrated. This is the selected next constructive mechanism of the same D family, not a new fourth candidate.
+
+**Next final D05 attempt**: implement bounded interface crossing state (upstream remainder, receiving reservation, whole logical bus, causal finite-distance progress) with no credit borrowed from future; validate actual same fixture h=.5/1/2, partial entry/exit recovery, count/metre/birth/parent ledger, competing merge and strict slack negative case. For A compare actual joint spatial/temporal refinement and factorial selective/residual ablation at matched geometry; for B use one finite predeclared finer congestion window with matched release/arrival and receiving observations rather than re-running identical archive. If no candidate has physical improvement within remaining attempt, reject/redirect or terminal stop according to D05/D11 dependency rules. Do not rerun guard chase or automatically begin D07. No full-day original V03 credit.
+
+**AD1** Q1/Q2 physical flux/residence, congestion peaks, timed transfer and counterexample. Historical source blob IDs in S01. **AD2** original inputs, no changed cap/timetable, distinct identity, actual conservation and replay; diagnostic dt changes explicit. **ALM1** zero new exact reference ticks, bounded historical-source compatibility control only. **ALM2** one D05 attempt consumed; physical failure preserved and remaining attempt targeted. All original V1 PLAN v1.1.55 bytes unchanged. No native subagent available; independent numerical and wire checks instead; no full CI or main merge.
+
+Evidence: [theory and implementation report](../research/AKM_D05_TRANSPORT_20261128.md); `artifacts/akm_d05_transport_20261128/S09_audit.json`, `S10_RESEARCH_RECEIPT.json`. Release verdict CAUTION_RESEARCH_ONLY.
+
 ## 7. 유한 DAG: 정의와 종료
 
 D00–D03은 이번 재정초의 실측 범위에 대해 VERIFIED_SCOPED. D04–D10은 유한 science/implementation 실험. D11은 성공뿐 아니라 실패가 담긴 terminal evidence로 decision. 후보가 없다는 근거 있는 decision 자체는 D11 VERIFIED_SCOPED로 기록하며, D12는 STOPPED reason으로 종료해 D13을 활성화한다. D12는 candidate가 선택되고 사용자 승인으로 release candidate contract가 명시된 경우에만 기존 V03 전체 수용시험; 기존 3×3/3 matched refinement와 외부 limits 변경 없음. D13은 결과·통합심사 및 사용자 결정 기록으로 닫는다. 선택되지 않거나 실패한 dependency 때문에 실행할 수 없는 노드는 정확한 terminal reason과 evidence로 STOPPED/BLOCKED_TERMINAL (환경이 재개되면 새 승인된 계획) 처리. 종료까지 진행하기 위한 terminal dependency는 성공 dependency와 다르다. D11이 실행된 뒤 후보를 재생성하거나 D05로 역행하는 edge가 없다. 모든 노드는 최대 시도 횟수(실행된 차별 가설 단위, 하위 반복 횟수는 사전 기록)를 소비한다. D00–D03 각 1회 이미 소비. D04–D13 합 20회 이하의 추가 시도, global max 24회. 한 시도에 사용할 finite run matrix를 먼저 고정하고, resource failure 후 동일 run blind repeat는 최대 1회이며 같은 시도 예산에서 소모한다. V03 9+3 실행은 D12의 명시된 하나의 캠페인으로 취급(실패 시 예산 내 한 후보의 추가 캠페인만, 승인 없는 재시작 금지). 사용자가 새 연구 범위를 요청하면 버전을 변경하며 기존 종료 결과를 덮어쓰지 않는다.
@@ -216,12 +228,15 @@ D00–D03은 이번 재정초의 실측 범위에 대해 VERIFIED_SCOPED. D04–
       ],
       "requires_terminal": [],
       "status": "READY",
-      "attempts_used": 0,
+      "attempts_used": 1,
       "max_attempts": 2,
       "question": "Q1,Q2",
       "deliverable": "A: active blocked-turn/residual allocation and dt 5/2.5/1.25 day; B: same archive active mesh1200/600/300 or bounded matched peak windows; optional one ordered hybrid",
       "claim_gate": "matched observable deltas and support/complexity; overload incomplete/curve error distinguished; reject or redirect if refinement does not improve within fixed two attempts",
-      "prior_findings": "D04 geometric residence and sharp third-moment envelope; D06 missed fixed return connection; compare finite propagation/spatial refinement, actual arrival/eligibility curves and journey history growth; no cap escalation"
+      "prior_findings": "D04 geometric residence and sharp third-moment envelope; D06 missed fixed return connection; compare finite propagation/spatial refinement, actual arrival/eligibility curves and journey history growth; no cap escalation",
+      "last_attempt_evidence": "artifacts/akm_d05_transport_20261128/S09_audit.json",
+      "last_attempt_result": "EXECUTED_NEGATIVE_AND_POSITIVE_SCOPED: combined A mean gap 9.271%, original A 2.531%; B projected mean .0179%, unresolved receiving/storage peaks; strict atomic D dt1 fails, dt2 diagnostic passes; retained original gates",
+      "next_action": "FINAL attempt: conservative boundary crossing/reservation state, actual same-fixture h=.5/1/2 and active wire/merge controls; matched spatial-temporal A and B congestion comparison; select/redirect/stop, no further attempt without new scope"
     },
     {
       "id": "D06",
