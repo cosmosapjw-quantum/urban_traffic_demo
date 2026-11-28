@@ -1,0 +1,509 @@
+{
+  "active_road_birth": 30411740.089334216,
+  "active_road_mass": 1175.0132271442128,
+  "advance_s": 180.978216906,
+  "build_s": 4.263829156,
+  "byte_budget": 6442450944,
+  "calendar_legs": 918450,
+  "calendar_totals": [
+    120000.0,
+    58801.0,
+    1000.0
+  ],
+  "checkpoint_bytes": 160986781,
+  "checkpoint_sha256": "ac30e5ad19da7a104a937b10ed42bec22fe7bd490e3731039cb0207b114f3a71",
+  "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+  "class_names": [
+    "car",
+    "freight",
+    "scheduled_bus"
+  ],
+  "class_road_ledger": [
+    [
+      2528.858629392465,
+      1353.845402249175
+    ],
+    [
+      0.0,
+      0.0
+    ],
+    [
+      4.0,
+      3.9999999999999947
+    ]
+  ],
+  "cohort": {
+    "active_fluid": 826992,
+    "ready_fluid": 0,
+    "scope": "one sealed mean-distance batch plus waiting stock; no strict FIFO or calibrated first-passage equivalence",
+    "waiting_mass": 51.17764501582929,
+    "waiting_rows": 55272
+  },
+  "committed_steps": 88,
+  "declared_route_positions": 5867764,
+  "declared_route_tags": 304856,
+  "dynamic_pool_bytes": 5788792895,
+  "executable_sha256": "3fbc74a6adfd5a364d7e391cd994025ad5a0b90f75327f6bb800d6e4b999da68",
+  "failure": "D09 session slice reached; last committed state retained",
+  "init_s": 0.608324984,
+  "initial_ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 729.1924515802706,
+      "completed": 5.31628427804374,
+      "pending": 543.2690419194212,
+      "released": 734.5087358583144,
+      "released_intent_first_moment": 18590416.104574416,
+      "requested": 1277.7777777777355
+    },
+    "vehicles": {
+      "active": 583.0700475194496,
+      "completed": 3.5966191472075977,
+      "pending": 39.444444444440705,
+      "released": 586.6666666666572,
+      "released_intent_first_moment": 14848533.333333086,
+      "requested": 626.1111111110979
+    }
+  },
+  "initial_road_birth": 0.0,
+  "interface": {
+    "enabled": true,
+    "logical_sink_completed_veh": 0.0,
+    "partial_crossings": 0,
+    "peak_crossings_at_owner_tick": 0,
+    "physical_boundary_in_veh": 0.0,
+    "physical_boundary_internal_veh": 0.0,
+    "physical_boundary_sink_veh": 0.0,
+    "sum_fraction": -0.0
+  },
+  "journey_records": [
+    876091,
+    500808,
+    73212,
+    51087
+  ],
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 2347.707003990828,
+      "completed": 1324.8366753008418,
+      "pending": 2494.122987374959,
+      "released": 3672.54367929167,
+      "released_intent_first_moment": 94567999.74176082,
+      "requested": 6166.666666666629
+    },
+    "vehicles": {
+      "active": 1877.8692909088497,
+      "completed": 1055.4640424244037,
+      "pending": 88.33333333335077,
+      "released": 2933.3333333332534,
+      "released_intent_first_moment": 75533333.33333163,
+      "requested": 3021.666666666604
+    }
+  },
+  "manifest_sha256": "2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3",
+  "migration": null,
+  "mode": "resume",
+  "model_identity": "akm-native-reserved-sealed-cohort-clock-v1:native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3",
+  "new_offered_birth": 65036124.07135388,
+  "original_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3",
+  "outlet_birth": 34624383.98203206,
+  "peak_road_rows": 900304,
+  "peak_rss_kib": 1502732,
+  "peak_storage_ratio": 0.23570338202967797,
+  "pilot": {
+    "clock_cell_closure": true,
+    "failure_kind": "SESSION_SLICE",
+    "idle_skipped_s": 0.0,
+    "original_external_wall_s": 7200,
+    "samples": [
+      {
+        "bus_tracks": 0,
+        "crossings": 0,
+        "fluid_tracks": 326256,
+        "journey_records": [
+          876091,
+          39609,
+          62128,
+          3239
+        ],
+        "ledger": {
+          "cargo_kg": {
+            "active": 0.0,
+            "completed": 0.0,
+            "pending": 0.0,
+            "released": 0.0,
+            "released_intent_first_moment": 0.0,
+            "requested": 0.0
+          },
+          "persons": {
+            "active": 729.1924515802706,
+            "completed": 5.31628427804374,
+            "pending": 543.2690419194212,
+            "released": 734.5087358583144,
+            "released_intent_first_moment": 18590416.104574416,
+            "requested": 1277.7777777777355
+          },
+          "vehicles": {
+            "active": 583.0700475194496,
+            "completed": 3.5966191472075977,
+            "pending": 39.444444444440705,
+            "released": 586.6666666666572,
+            "released_intent_first_moment": 14848533.333333086,
+            "requested": 626.1111111110979
+          }
+        },
+        "road_birth": 6055889.650652484,
+        "road_mass": 239.66897760832182,
+        "road_rows": 371733,
+        "time_s": 25430.0,
+        "waiting_rows": 45477
+      },
+      {
+        "bus_tracks": 0,
+        "crossings": 0,
+        "fluid_tracks": 739972,
+        "journey_records": [
+          876091,
+          294625,
+          72750,
+          28965
+        ],
+        "ledger": {
+          "cargo_kg": {
+            "active": 0.0,
+            "completed": 0.0,
+            "pending": 0.0,
+            "released": 0.0,
+            "released_intent_first_moment": 0.0,
+            "requested": 0.0
+          },
+          "persons": {
+            "active": 1775.5363275796562,
+            "completed": 194.2825549494995,
+            "pending": 1363.5144508042224,
+            "released": 1969.8188825291556,
+            "released_intent_first_moment": 50220532.41008134,
+            "requested": 3333.333333333378
+          },
+          "vehicles": {
+            "active": 1420.1327609289347,
+            "completed": 153.20057240441676,
+            "pending": 59.999999999992724,
+            "released": 1573.3333333333514,
+            "released_intent_first_moment": 40112133.33333303,
+            "requested": 1633.3333333333442
+          }
+        },
+        "road_birth": 23083569.69775078,
+        "road_mass": 906.5917709519789,
+        "road_rows": 798002,
+        "time_s": 25800.0,
+        "waiting_rows": 58030
+      },
+      {
+        "bus_tracks": 0,
+        "crossings": 0,
+        "fluid_tracks": 826992,
+        "journey_records": [
+          876091,
+          500808,
+          73212,
+          51087
+        ],
+        "ledger": {
+          "cargo_kg": {
+            "active": 0.0,
+            "completed": 0.0,
+            "pending": 0.0,
+            "released": 0.0,
+            "released_intent_first_moment": 0.0,
+            "requested": 0.0
+          },
+          "persons": {
+            "active": 2347.707003990828,
+            "completed": 1324.8366753008418,
+            "pending": 2494.122987374959,
+            "released": 3672.54367929167,
+            "released_intent_first_moment": 94567999.74176082,
+            "requested": 6166.666666666629
+          },
+          "vehicles": {
+            "active": 1877.8692909088497,
+            "completed": 1055.4640424244037,
+            "pending": 88.33333333335077,
+            "released": 2933.3333333332534,
+            "released_intent_first_moment": 75533333.33333163,
+            "requested": 3021.666666666604
+          }
+        },
+        "road_birth": 30411740.089334216,
+        "road_mass": 1175.0132271442128,
+        "road_rows": 882264,
+        "time_s": 26310.0,
+        "waiting_rows": 55272
+      }
+    ],
+    "scope": "original owner/calendar; finite gated fluid cohorts plus original reserved bus and guarded temporal quotient; no additional service support",
+    "session_slice_s": 180.0
+  },
+  "requested_end_s": 86400.0,
+  "road_exited": 1344.619580409816,
+  "road_initial_rows": 371733,
+  "road_offered": 2279.9638299457324,
+  "road_rows": 882264,
+  "road_rows_guard": 1000000,
+  "road_substeps": 176,
+  "road_transferred": 30425.187858464757,
+  "save_s": 4.219731906,
+  "schedule_identity": "61bf90204d22e3442c565f3f62b8ef4cba7d7be3e74b1d33e6c8bcf96208c920",
+  "schema": "metroflow_akm_native_owners_v1",
+  "scope": "research sparse kinetic transport; original native calendar/journey/service owners; not V03 acceptance",
+  "service_events_last_tick": 17768,
+  "source_checkpoint_sha256": "afc185af7c355375f18ae36044e27f56c82f5d1de54313b116c4538d5e62f7a3",
+  "start_s": 25430.0,
+  "status": "BLOCKED",
+  "support_census": [
+    {
+      "bins": [
+        {
+          "birth_veh_s": 0.0,
+          "mass_veh": 0.0,
+          "rows": 0,
+          "threshold_veh": 1e-15
+        },
+        {
+          "birth_veh_s": 0.0,
+          "mass_veh": 0.0,
+          "rows": 0,
+          "threshold_veh": 1e-12
+        },
+        {
+          "birth_veh_s": 0.0,
+          "mass_veh": 0.0,
+          "rows": 0,
+          "threshold_veh": 1e-9
+        },
+        {
+          "birth_veh_s": 0.025710202330097815,
+          "mass_veh": 1.018888761064822e-6,
+          "rows": 3,
+          "threshold_veh": 1e-6
+        },
+        {
+          "birth_veh_s": 3034401.9566409676,
+          "mass_veh": 117.16500287865028,
+          "rows": 546106,
+          "threshold_veh": 0.001
+        }
+      ],
+      "distinct_tags": 50728,
+      "mass_veh": 1123.8355821283835,
+      "rows": 826992,
+      "storage": "road"
+    },
+    {
+      "bins": [
+        {
+          "birth_veh_s": 0.0,
+          "mass_veh": 0.0,
+          "rows": 0,
+          "threshold_veh": 1e-15
+        },
+        {
+          "birth_veh_s": 0.0,
+          "mass_veh": 0.0,
+          "rows": 0,
+          "threshold_veh": 1e-12
+        },
+        {
+          "birth_veh_s": 0.0,
+          "mass_veh": 0.0,
+          "rows": 0,
+          "threshold_veh": 1e-9
+        },
+        {
+          "birth_veh_s": 0.0,
+          "mass_veh": 0.0,
+          "rows": 0,
+          "threshold_veh": 1e-6
+        },
+        {
+          "birth_veh_s": 0.0,
+          "mass_veh": 0.0,
+          "rows": 0,
+          "threshold_veh": 0.001
+        }
+      ],
+      "distinct_tags": 0,
+      "mass_veh": 0.0,
+      "rows": 0,
+      "storage": "pending"
+    },
+    {
+      "bins": [
+        {
+          "birth_veh_s": 0.0,
+          "mass_veh": 0.0,
+          "rows": 0,
+          "threshold_veh": 1e-15
+        },
+        {
+          "birth_veh_s": 0.0,
+          "mass_veh": 0.0,
+          "rows": 0,
+          "threshold_veh": 1e-12
+        },
+        {
+          "birth_veh_s": 0.0,
+          "mass_veh": 0.0,
+          "rows": 0,
+          "threshold_veh": 1e-9
+        },
+        {
+          "birth_veh_s": 0.0,
+          "mass_veh": 0.0,
+          "rows": 0,
+          "threshold_veh": 1e-6
+        },
+        {
+          "birth_veh_s": 228043.0800482926,
+          "mass_veh": 8.73372889043455,
+          "rows": 40242,
+          "threshold_veh": 0.001
+        }
+      ],
+      "distinct_tags": 40880,
+      "mass_veh": 51.17764501582929,
+      "rows": 55272,
+      "storage": "waiting"
+    }
+  ],
+  "supported": [
+    611070,
+    304368,
+    3012
+  ],
+  "threads": 8,
+  "tick_times_s": [
+    1.424229583,
+    1.180664601,
+    1.273368143,
+    1.361758206,
+    1.425067452,
+    1.4360805540000001,
+    1.509834311,
+    1.5205958000000002,
+    1.624613203,
+    1.71119741,
+    1.5819290019999999,
+    1.6458417,
+    1.778803877,
+    1.6455782669999999,
+    1.936476767,
+    1.871139666,
+    1.680983072,
+    2.15486629,
+    1.784408416,
+    1.822377157,
+    1.984255592,
+    1.728800077,
+    1.728450263,
+    1.791024437,
+    1.820378388,
+    1.836945008,
+    1.757204979,
+    1.821513701,
+    1.80371004,
+    1.810700398,
+    1.853858357,
+    1.876794321,
+    2.026820278,
+    1.9534788779999999,
+    1.960928743,
+    2.088333249,
+    2.063014635,
+    1.971322056,
+    1.921770556,
+    1.985948213,
+    2.036713694,
+    2.01768263,
+    2.112333765,
+    2.134881065,
+    2.032161469,
+    1.979566244,
+    2.027947891,
+    2.159077773,
+    2.227826971,
+    2.220227482,
+    2.407545997,
+    2.2772430359999998,
+    2.295170031,
+    2.302637069,
+    2.3328462549999998,
+    2.313971113,
+    2.322679077,
+    2.272774256,
+    2.2566203959999998,
+    2.342654642,
+    2.452563612,
+    2.363739635,
+    2.437027975,
+    2.331615767,
+    2.4898239540000002,
+    2.526953501,
+    2.566670812,
+    2.598709391,
+    2.413959129,
+    2.470437374,
+    2.296524947,
+    2.21308467,
+    2.195688494,
+    2.4021442889999998,
+    2.445501249,
+    2.4740565070000002,
+    2.438418931,
+    2.283983319,
+    2.1804933699999998,
+    2.246062222,
+    2.332170989,
+    2.15939928,
+    2.256372443,
+    2.43256909,
+    2.39389989,
+    2.39085776,
+    2.468829574,
+    2.3818310240000002
+  ],
+  "time_s": 26310.0,
+  "transport_policy": "akm-native-reserved-sealed-cohort-clock-v1",
+  "unassigned": [
+    119998.3230375,
+    58799.9340965,
+    1.175
+  ],
+  "unsupported_legs": 610820,
+  "user_checkpoint": "/home/cosmosapjw/research_backups/metroflow_akm_d09_final_cohort_20261128/S07_day.bin",
+  "wall_s": 190.238522441,
+  "whole_bus": {
+    "active_tracks": 0,
+    "enabled": true,
+    "exited_veh": 0.0,
+    "moves": 0,
+    "quota_blocks": 0
+  }
+}
