@@ -1,0 +1,76 @@
+{
+  "method": "tracked crates/**/*.rs and src/metroflow/**/*.py physical lines; historical code retained; not runtime ownership",
+  "current": {
+    "rust": {
+      "files": 90,
+      "physical_lines": 40114
+    },
+    "python": {
+      "files": 265,
+      "physical_lines": 96492
+    }
+  },
+  "prior_atlas": {
+    "rust": {
+      "files": 62,
+      "physical_lines": 30590
+    },
+    "python": {
+      "files": 264,
+      "physical_lines": 96408
+    }
+  },
+  "prior_pure_rust": {
+    "rust": {
+      "files": 43,
+      "physical_lines": 24781
+    },
+    "python": {
+      "files": 263,
+      "physical_lines": 96384
+    }
+  },
+  "native_reuse": {
+    "crates/metroflow-rust/src/lagged_growth.rs": {
+      "HEAD": "5e4ac5365a16882b834ec2e5003199ad4ec7f850",
+      "fa343876": "cd04098559ed5f08d08d6eb93548f3c373e90b26",
+      "40a5a1d2": "552b9c6fb0113ce0ae8436796bed5c64c4eb66ef"
+    },
+    "crates/metroflow-rust/src/next_epoch.rs": {
+      "HEAD": "dc59898d83b067a529b48b2876790afa2bb48c57",
+      "fa343876": "dc59898d83b067a529b48b2876790afa2bb48c57",
+      "40a5a1d2": "dc59898d83b067a529b48b2876790afa2bb48c57"
+    },
+    "crates/metroflow-rust/src/atlas_generate.rs": {
+      "HEAD": "3fab7cca2ed55b90e876c5f02037ba5a0a9f7bbb",
+      "fa343876": "3fab7cca2ed55b90e876c5f02037ba5a0a9f7bbb",
+      "40a5a1d2": "3fab7cca2ed55b90e876c5f02037ba5a0a9f7bbb"
+    },
+    "crates/metroflow-rust/src/v1_prepare_city.rs": {
+      "HEAD": "eddeff21e17b17574e714f2f2d6ebe16a700283a",
+      "fa343876": "eddeff21e17b17574e714f2f2d6ebe16a700283a",
+      "40a5a1d2": "eddeff21e17b17574e714f2f2d6ebe16a700283a"
+    },
+    "crates/metroflow-rust/src/phase_runtime.rs": {
+      "HEAD": "a874fff55539bfc24492be6c08731fcbe12a9a1c",
+      "fa343876": null,
+      "40a5a1d2": "ead687f3cdbc9118992cdb3242c2a6fe95dfeb91"
+    },
+    "crates/metroflow-rust/src/causal_routing.rs": {
+      "HEAD": "4055a15a1324a3a53333f3dbcb552d8031b8b230",
+      "fa343876": "4d90992358d00b7e934662a8450acd9ce775a364",
+      "40a5a1d2": "32199abee301c8fda7dc5704004f2ef5045971f4"
+    },
+    "crates/metroflow-rust/src/v1_calendar.rs": {
+      "HEAD": "633e1874189610fea9f4e3ba01653221a8fa05c3",
+      "fa343876": "633e1874189610fea9f4e3ba01653221a8fa05c3",
+      "40a5a1d2": "633e1874189610fea9f4e3ba01653221a8fa05c3"
+    },
+    "crates/metroflow-rust/src/v1_engine.rs": {
+      "HEAD": "871546d97eef74300827fdc67ec73cb497f9d9c5",
+      "fa343876": "ecc36091df53b0b3aa51b9bc5f4f1ebf0d8ff261",
+      "40a5a1d2": "056dd8b4f0288726a3fb007d40faa661609f4bb1"
+    }
+  },
+  "legacy_frontend": "v1 CLI capabilities, historical commands oracle opt-in; eager Python imports; no direct native command dispatch"
+}

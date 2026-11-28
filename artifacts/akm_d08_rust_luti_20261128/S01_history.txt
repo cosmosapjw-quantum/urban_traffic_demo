@@ -1,0 +1,21 @@
+4c07fece15b56a753a073becf86863050bae3494
+e8705114556b628cabb95138033518b897881dde
+f8cc371410ca0e24b0947cda3d6772787efddc7a
+43ae258bf224f336caa0e8bb1729499e134d97ae
+e76ce40b9f0d56c165cad042744ebf7e47cf8c04
+7c78e214c9558bcb1023854e55025f1c554aadee
+8519108e9de74983a1f171d89acccd0d82eb8e1a refs/heads/research/v03-pure-rust-core-20261127
+fa343876097e3485e04502e41f96bdebb4ffc4ad refs/heads/research/v03-rust-atlas-integration-20261127
+84056393b21cfa512cf0a7c6dfcba67d77e97dcc refs/heads/research/v03-rust-final-slices-20261127
+0511a6047b9d9557c77f214fb0887af610927d64 refs/heads/research/v03-rust-only-backend-20261126
+40a5a1d22ca5bbc8825d8bd78c7af288fe6b1396 refs/heads/research/v03-rust-phase-runtime-20261127
+9c74c31076ae25981206f4b5cd681357a7c5f1b681a0f8012816d87630f710e8  docs/akm/RESEARCH_SSOT_KO.md
+80f64cb836782f1557f70eece21a1431e7e9f5aefdc0c208758ccef30b143313  docs/v1/PLAN.json
+9fbce40606093ab85b6d9a37ff99a970dab8c39ab56bfe88a7c9ce926f4f5e53  artifacts/akm_d07_causal_routing_20261128/S09_audit.json
+ crates/metroflow-rust/src/lagged_growth.rs |  19 +-
+ crates/metroflow-rust/src/phase_runtime.rs | 634 +++++++++++++++++++++++++++++
+ 2 files changed, 649 insertions(+), 4 deletions(-)
+{"status": "VALID_RESEARCH_PLAN_NOT_RELEASE", "nodes": 14, "scoped_or_accepted": 8, "terminal": 8, "attempts_used": 9, "attempts_limit": 24, "ready": ["D08", "D09"], "next": ["D08", "D09"]}
+rustc 1.99.0 (b940084d7 2026-09-28)
+cargo 1.99.0 (5f94df478 2026-08-27)
+2026-11-28T17:56:23+09:00
