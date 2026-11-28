@@ -1,0 +1,70 @@
+{
+  "executable_sha256": "3e9737a9bc2ceeedf07811b6ae5c690acecb35a6c2963bf7aa772d49844578b4",
+  "family_failure_bound_under_iid": 0.01,
+  "joint_hoeffding_epsilon": 0.005954022520857681,
+  "rates": {
+    "alpha": 0.2,
+    "nu": 0.3,
+    "target": 1.0,
+    "tau": 2.0
+  },
+  "results": [
+    {
+      "mean_exact": [
+        0.40269517879963423,
+        0.41145450989844534
+      ],
+      "meso_dt_0_005": [
+        0.4026951787996697,
+        0.41145451340781997,
+        0.29008796481679433
+      ],
+      "meso_dt_0_01": [
+        0.40269517879962097,
+        0.4114545239358275,
+        0.2900885382346413
+      ],
+      "micro_means_sigma_u_u2": [
+        0.40203,
+        0.4109194560152824,
+        0.28986100988796554
+      ],
+      "refinement_max_diff": 5.734178469829487e-7,
+      "sample_variance": 0.12100621055606992,
+      "time_s": 10.0,
+      "within_joint_hoeffding_plus_numerical_tolerance": true
+    },
+    {
+      "mean_exact": [
+        0.4,
+        0.4
+      ],
+      "meso_dt_0_005": [
+        0.40000000000030356,
+        0.40000000000033953,
+        0.28000018750004213
+      ],
+      "meso_dt_0_01": [
+        0.3999999999998777,
+        0.3999999999998945,
+        0.2800007499968046
+      ],
+      "micro_means_sigma_u_u2": [
+        0.39964,
+        0.3991830216649355,
+        0.27914832347941165
+      ],
+      "refinement_max_diff": 5.624967624462407e-7,
+      "sample_variance": 0.11980123869386328,
+      "time_s": 200.0,
+      "within_joint_hoeffding_plus_numerical_tolerance": true
+    }
+  ],
+  "samples_per_time": 100000,
+  "schema": "akm_micro_pdmp_v1",
+  "scope": "frozen homogeneous independent driver PDMP; synthetic parameters, not real calibration",
+  "seed": 20261128,
+  "stationary_mean": 0.4,
+  "stationary_variance": 0.12,
+  "wall_s": 0.088598004
+}
