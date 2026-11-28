@@ -1,0 +1,2054 @@
+{
+  "schema": "metroflow_v03_adaptive_rank_research_v1",
+  "scope": "S01-S10: causal marked W1/delay identity, optimal admissible contiguous bin partition, conditional FIFO resident/event bounds; correct invalid right-endpoint M/4 metric. Original25750 exact MFWHOLE4 484208188 B saved, full canonical logical SHA match. Adaptive original25760 recovered, receiving42184118->753683, peak69476343; next25780 blocked junction event_budget20000, no byte exceed. Adaptive delay31980->32820 (840s, 7500s ancestry), aggregate matched fixed1/adaptive4 at32040, local delay lower but more rows, cell/tag comparison successful retry (16.36s), completed legs bitwise equal, local differences measured. Native304, campaign2, headless9, Rust14/15 scoped, B15 partial, day0/9. Final S08 city scatter matched S05 checkpoint bytes.",
+  "baseline_commit": "3ed80b225c0e6a91943c00b3c552ab6461ef8f13",
+  "implementation_head_before_S10": "c99f664aaa7507d39676de20c6ad8f5ffd1f34a2",
+  "final_native_build_sha256": "36110d1515f33cf503bfb43634195ee76f0745b84fb8c8874a3403366667ba22",
+  "tracked_rust_source_manifest_sha256": "45e1326b730512f7f8513844c58c7be192c403c1c1f5415bdcb6a4d45c10e83a",
+  "source_hash_method": "SHA256 of tracked Rust source manifest at S09; actual per-executable hashes in experiment receipts",
+  "stages": [
+    {
+      "commit": "a702bc63e0593791a8aaadbd099b42c4e4754833",
+      "description": "S01 Bind causal adaptive rank research to original scientific contract"
+    },
+    {
+      "commit": "c48961472e9690f9dc429fd65f11bccd7a9d216e",
+      "description": "S02 Derive causal marked transport cost and optimal adaptive partition"
+    },
+    {
+      "commit": "c6f8f2eb084f9aa483458da0599c4a101fab9063",
+      "description": "S03 Implement minimal-bin causal delay partition and correct prefix bound diagnostic"
+    },
+    {
+      "commit": "1ff25f14a570dddeeb9363ba68d3711ddf8b8ca7",
+      "description": "S04 Bind adaptive rank to native engine and explicit identity migration"
+    },
+    {
+      "commit": "df40dfb275b6ec58d4790acc735fb30aaa2e9eb3",
+      "description": "S05 Add explicit MFWHOLE4 dictionary and ordinal reference wire"
+    },
+    {
+      "commit": "ed35aa66b5c47d647f2bcfc0b199f80ff5bf2fb3",
+      "description": "S06 Add native canonical logical digest and exhaustive adaptive rank verification"
+    },
+    {
+      "commit": "25da9cfa4a9161a6d76626825e80eccda3df77e6",
+      "description": "S07 Replace large single-offset rank sorts by stable bounded scatter"
+    },
+    {
+      "commit": "23a29872de87793a95f0db56e631d7b3deba3305",
+      "description": "S08 Verify native semantic campaign binding and warmed rank kernels"
+    },
+    {
+      "commit": "c99f664aaa7507d39676de20c6ad8f5ffd1f34a2",
+      "description": "S09 Verify recovered adaptive city frontiers and exact wire and scatter parity"
+    }
+  ],
+  "S10": "Verify evidence, update plan/readiness/census, commit/push, bundle restore and exact duplicate cleanup",
+  "theory_path": "docs/research/V03_ADAPTIVE_RANK_20261128.md",
+  "readiness": {
+    "nodes_total": 21,
+    "nodes_accepted": 5,
+    "nodes_verified_scoped": 14,
+    "nodes_blocked": 1,
+    "nodes_planned": 1,
+    "direct_dependencies": [
+      {
+        "id": "P01",
+        "status": "VERIFIED_SCOPED"
+      },
+      {
+        "id": "V01",
+        "status": "VERIFIED_SCOPED"
+      },
+      {
+        "id": "V02",
+        "status": "VERIFIED_SCOPED"
+      }
+    ],
+    "direct_scoped_or_accepted": 3,
+    "direct_accepted": 0,
+    "original_cases_prepared": 3,
+    "prior_60s_prefixes_validated": 3,
+    "original_cases_total": 3,
+    "original_full_days_accepted": 0,
+    "original_full_days_required": 9,
+    "original_8h_refinement_completed": 0,
+    "original_8h_refinement_required": 3,
+    "computed_frontier_s": 25750,
+    "independently_recovered_frontier_s": 25750,
+    "research_frontiers": [
+      {
+        "bins": 4,
+        "start_s": 25320,
+        "recovered_s": 25800,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:4",
+        "evidence": "artifacts/v03_causal_rank_20261127/S05_r4_recover25800.json"
+      },
+      {
+        "bins": 1,
+        "start_s": 25320,
+        "recovered_s": 26220,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1",
+        "evidence": "artifacts/v03_causal_rank_20261127/S08_r1_recovered.json"
+      },
+      {
+        "bins": 1,
+        "ready_milli_veh": 500,
+        "start_s": 25800,
+        "ancestral_source_s": 25320,
+        "recovered_s": 27000,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60",
+        "evidence": "artifacts/v03_causal_rank_20261127/S08_ready500_recover27000.json"
+      },
+      {
+        "bins": 1,
+        "receipt_grid_step_s": 10,
+        "receipt_sweep_s": 60,
+        "ancestral_source_s": 25320,
+        "start_s": 27060,
+        "recovered_s": 28020,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10",
+        "evidence": "artifacts/v03_receipt_closure_20261127/S08_grid28020_recover.json"
+      },
+      {
+        "receipt_grid_step_s": 10,
+        "receipt_sweep_s": 60,
+        "observable_schedule": true,
+        "ancestral_source_s": 25320,
+        "start_s": 28020,
+        "recovered_s": 28500,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1",
+        "evidence": "artifacts/v03_observable_buckets_20261127/S09_schedule28500_recovery.json"
+      },
+      {
+        "streaming_receipts": true,
+        "egress_retirement_buckets": true,
+        "ancestral_source_s": 25320,
+        "start_s": 28500,
+        "recovered_s": 29340,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1",
+        "evidence": "artifacts/v03_streaming_observer_20261127/S09_egress29340_recovery.json"
+      },
+      {
+        "entry_source_clock_buckets": true,
+        "ancestral_source_s": 25320,
+        "start_s": 29340,
+        "recovered_s": 29940,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1",
+        "evidence": "artifacts/v03_entry_quotient_20261127/S09_entry29940_recovery.json"
+      },
+      {
+        "delay_calendar": true,
+        "ancestral_source_s": 25320,
+        "start_s": 29940,
+        "recovered_s": 30540,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1:delay-calendar-v1",
+        "evidence": "artifacts/v03_delay_state_20261127/S09_delay30540_recovery.json"
+      },
+      {
+        "delay_calendar": true,
+        "stable_clock_scatter": true,
+        "ancestral_source_s": 25320,
+        "start_s": 30540,
+        "recovered_s": 31140,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1:delay-calendar-v1",
+        "evidence": "artifacts/v03_marked_payload_20261128/S10_delay31140_recovery.json"
+      },
+      {
+        "delay_calendar": true,
+        "stable_clock_scatter": true,
+        "ancestral_source_s": 25320,
+        "start_s": 31140,
+        "recovered_s": 31980,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1:delay-calendar-v1",
+        "evidence": "artifacts/v03_direct_receiving_20261128/S09_delay31980_recovery.json"
+      },
+      {
+        "adaptive_rank": [
+          4,
+          500
+        ],
+        "ancestral_source_s": 25320,
+        "start_s": 31980,
+        "recovered_s": 32820,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1:delay-calendar-v1:causal-adaptive-rank-v1:4:500",
+        "evidence": "artifacts/v03_adaptive_rank_20261128/S07_adaptive32820_recovery.json"
+      },
+      {
+        "adaptive_rank": [
+          4,
+          500
+        ],
+        "ancestral_source_s": 25750,
+        "start_s": 25750,
+        "recovered_s": 25760,
+        "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-adaptive-rank-v1:4:500",
+        "evidence": "artifacts/v03_adaptive_rank_20261128/S08_original_adaptive25760_recovery.json",
+        "next_attempt_s": 25780,
+        "next_failure": "packet junction budget"
+      }
+    ],
+    "definition": "Exact original25750 MFWHOLE3/MFWHOLE4 canonical digest and independent recovery. Previous original25760 blocked unchanged logical cap; distinct adaptive original branch recovered25760 and then junction event cap. Distinct adaptive delay recovered32820. No original 24h/8h acceptance credit.",
+    "current_loop_stages": 10,
+    "original_candidate_logical_rows": 95601045,
+    "original_candidate_record_limit": 94438421,
+    "original_adaptive_recovered_frontier_s": 25760,
+    "adaptive_delay_recovered_frontier_s": 32820
+  },
+  "backend_coverage": {
+    "baseline_rust_core": 5,
+    "denominator": 15,
+    "method": "unweighted, fixed C01 functional inventory; scoped evidence reviewed; not LOC, full-city completeness or release acceptance",
+    "native_host_linked_python_scoped": 0,
+    "original_dag_accepted": 5,
+    "original_dag_scoped_or_accepted": 19,
+    "original_dag_total": 21,
+    "original_v03_direct_dependencies_ready": 3,
+    "original_v03_direct_dependencies_total": 3,
+    "original_v03_full_days": 0,
+    "original_v03_rust_only_city_preparations_verified": 3,
+    "original_v03_total": 9,
+    "partial_functions": 1,
+    "pure_rust_percent": 93.33333333333333,
+    "pure_rust_verified_scoped": 14,
+    "remaining_functions": 1,
+    "rows": [
+      {
+        "baseline": "PYTHON",
+        "component": "city geometry generation and map validation",
+        "evidence": "../v03_rust_atlas_integration_20261127/C06_all8.json",
+        "evidence_sha256": "857d457e5c32a58630e1918c69416806eab30c3551acdedd76a2e32dd205f5f2",
+        "id": "B01",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "activity geometry and finite access-law construction",
+        "evidence": "../v03_pure_rust_core_20261127/C06_oracle.log",
+        "evidence_sha256": "0b533f343de868b64ed7e4f0cd8eada19f1bd3a00ec176032214d89509726f79",
+        "id": "B02",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "factorized demand declarations and inventory",
+        "evidence": "../v03_rust_atlas_integration_20261127/valley_next.engine10.json",
+        "evidence_sha256": "7fc1f9f20b108e9686eb2a91aa8333b6f21a0ebe97534e3bb20c9775d3d354ea",
+        "id": "B03",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "native factorized OD enumeration",
+        "evidence": "../v03_causal_rank_20261127/river_weekday_s17.engine10.json",
+        "evidence_sha256": "f9d331a4accf22e08fc6aa5b09483b9f759234f7a9828dbea905e99f84796dcf",
+        "id": "B04",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "legal graph route search and cache",
+        "evidence": "../v03_pure_rust_core_20261127/C07-c07-2.json",
+        "evidence_sha256": "3cfd20377ae0cf444cf30c049fd9518a1fc8bcad2b524edb06c91d9aba13b077",
+        "id": "B05",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "MIXED",
+        "component": "fleet and freight route preparation",
+        "evidence": "../v03_pure_rust_core_20261127/C06_oracle.log",
+        "evidence_sha256": "0b533f343de868b64ed7e4f0cd8eada19f1bd3a00ec176032214d89509726f79",
+        "id": "B06",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "road kinetic transport and node allocation",
+        "evidence": "../v03_marked_owner_20261127/S03_25740.json",
+        "evidence_sha256": "d74089162965c0387affa5f879bbbe02bd99872f7c844b5c1d94f83265d448c4",
+        "id": "B07",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "service and journey coupling",
+        "evidence": "../v03_marked_owner_20261127/S03_25740.json",
+        "evidence_sha256": "d74089162965c0387affa5f879bbbe02bd99872f7c844b5c1d94f83265d448c4",
+        "id": "B08",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "whole engine orchestration and checkpoint",
+        "evidence": "../v03_marked_owner_20261127/S04_recovery.json",
+        "evidence_sha256": "821fdb4aad9342aef8f21e2838653b49504d3f95f4edca8aee8d2dab5c4f0e00",
+        "id": "B09",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "causal routing adaptation and delayed land-use",
+        "evidence": "../v03_direct_receiving_20261128/S09_b10_evidence.json",
+        "evidence_sha256": "cb9bd6dcf305053c2af5590bea0bf93e379b0cfc9eaf9e1b290a71a0b9968874",
+        "id": "B10",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "access-coupling research preprocessing",
+        "evidence": "../v03_rust_only_backend_20261126/C03_test.log",
+        "evidence_sha256": "41b47ea4c68ff1f201d6a9d71c5c9e736ec68ce0b508c9458023a751dd3509ff",
+        "id": "B11",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "route passage generation and validation",
+        "evidence": "../v03_rust_only_backend_20261126/C04_test.log",
+        "evidence_sha256": "07791a61eaf987cc0e20c00354b3645a8ade3817d68c57a4bb3134fbd9047638",
+        "id": "B12",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "CPP",
+        "component": "multiclass shared-access projection solver",
+        "evidence": "../v03_rust_only_backend_20261126/C09_parity.json",
+        "evidence_sha256": "1015116457d11089f1df668a3ef26e0f7c8cb0d896a33abb35de65ec1b75d377",
+        "id": "B13",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "research execution receipt and metrics",
+        "evidence": "../v03_receipt_closure_20261127/S09_original25380.json",
+        "evidence_sha256": "0732d7ff2b5eafc9e3d8ab67d679ff978d128e34ac058bb01151337df187342e",
+        "id": "B14",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "original V03 campaign runner and acceptance",
+        "evidence": "S09_b15_evidence.json",
+        "evidence_sha256": "6527460eeb5f7346f39faa090f869f94275ea20392c5d421c86262682461ca15",
+        "id": "B15",
+        "status": "PARTIAL"
+      }
+    ],
+    "rust_implemented_percent": 93.33333333333333,
+    "rust_implemented_scoped": 14,
+    "schema": "metroflow_backend_functional_census_v1",
+    "unimplemented_functions": 0,
+    "current_loop": "B15 optional full canonical logical digest equality required when supplied by either run or recovery. Active native fixture360 completed 13.06 vehicle journeys, 20 persons, 100 kg freight; prior River dt10/dt5 prefix. Exact original wire parity and adaptive branch runs; no original acceptance promotion."
+  },
+  "original_frontier": {
+    "computed": 25750,
+    "recovered": 25750,
+    "new_original_tick_committed": false,
+    "canonical_exact_repack": {
+      "execution": "artifacts/v03_adaptive_rank_20261128/S06_repack25750.json",
+      "recovery": "artifacts/v03_adaptive_rank_20261128/S06_repack25750_recovery.json",
+      "start_s": 25750,
+      "recovered_s": 25750,
+      "advance_s": 69.659434455,
+      "wall_s": 138.290987059,
+      "recovery_wall_s": 167.051420276,
+      "peak_rss_bytes": 2391998464,
+      "peak_records": 0,
+      "checkpoint_bytes": 2159987994,
+      "checkpoint_sha256": "3f9ce8a967d39c0110fe521f299100d71d2698b10a419cb2dfc0f47c443e54e0",
+      "manifest_sha256": "2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3",
+      "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3",
+      "executable_sha256": "e1bea5b7ffb2388c908c97f4878cd819b10090f1975a66ff0777d6258afb3992",
+      "road_records": {
+        "cell_packets": 1393733,
+        "cell_parts": 79793302,
+        "mixed_parts": 0,
+        "pending_packets": 0,
+        "pending_parts": 0,
+        "retained_storage_bytes": 1030363492,
+        "uniform_parts": 79793302
+      },
+      "journey_records": {
+        "dynamic_bytes": 418410584,
+        "egress": 8012687,
+        "enter": 2322797,
+        "history": 3153839,
+        "history_bytes": 76495928,
+        "internal": 72502,
+        "nonempty_histories": 20297,
+        "stage_bytes": [
+          76348704,
+          263182272,
+          2383680
+        ]
+      },
+      "guards": {
+        "exceedances": 0,
+        "maximum_required_bytes": 4233976865,
+        "maximum_ratio": 0.6571997057956954,
+        "site_count": 6
+      },
+      "rank_counters": {},
+      "ledger": {
+        "cargo_kg": {
+          "active": 0.0,
+          "completed": 0.0,
+          "pending": 0.0,
+          "released": 0.0,
+          "released_intent_first_moment": 0.0,
+          "requested": 0.0
+        },
+        "persons": {
+          "active": 1672.502809326112,
+          "completed": 130.38226959891634,
+          "pending": 1252.6704766304547,
+          "released": 1802.8850789250282,
+          "released_intent_first_moment": 45919482.96021985,
+          "requested": 3055.555555555483
+        },
+        "vehicles": {
+          "active": 1337.7059649434718,
+          "completed": 102.29403505655051,
+          "pending": 57.222222222158734,
+          "released": 1440.0000000000223,
+          "released_intent_first_moment": 36676800.000000395,
+          "requested": 1497.222222222181
+        }
+      },
+      "source_bytes": 2644196182,
+      "bytes_saved": 484208188,
+      "logical_sha256": "ee99a686782d37785e585d7f6ce04b2b84326639268b7d37d01c0e1711d6564e",
+      "logical_bytes": 7756210098,
+      "source_recovery": "artifacts/v03_adaptive_rank_20261128/S09_digest_source.json",
+      "v4_recovery": "artifacts/v03_adaptive_rank_20261128/S09_digest_v4.json",
+      "source_decode_s": 35.581883292,
+      "v4_decode_s": 20.479028824,
+      "source_decode_envelopes": {
+        "compact_owner_bytes": 1446456320,
+        "compact_validation_scratch_bytes": 91346816,
+        "dictionary_owner_bytes": 1030363492,
+        "dictionary_validation_scratch_bytes": 91346816,
+        "historical_legacy_owner_estimate_bytes": 1030405540,
+        "historical_legacy_validation_scratch_bytes": 1321343040
+      },
+      "v4_decode_envelopes": {
+        "compact_owner_bytes": 1446456320,
+        "compact_validation_scratch_bytes": 91346816,
+        "dictionary_owner_bytes": 1030363492,
+        "dictionary_validation_scratch_bytes": 91346816,
+        "historical_legacy_owner_estimate_bytes": 1030405540,
+        "historical_legacy_validation_scratch_bytes": 1321343040
+      }
+    },
+    "prior_blocker": {
+      "receipt": "artifacts/v03_direct_receiving_20261128/S09_original25760.json",
+      "logical_count": 95601045,
+      "record_limit": 94438421,
+      "byte_guard_exceedances": 0,
+      "rerun_this_loop": false
+    },
+    "environment_contract": "artifacts/v03_adaptive_rank_20261128/S01_original_env.txt"
+  },
+  "adaptive_original": {
+    "migration": {
+      "address_space_limit_bytes": 8589934592,
+      "checkpoint_bytes": 2159988024,
+      "checkpoint_sha256": "09377033d4675379e28d2b01bbf0a07bb386696faa2b0467160caa24dd0afbbe",
+      "executable_sha256": "e1bea5b7ffb2388c908c97f4878cd819b10090f1975a66ff0777d6258afb3992",
+      "ledger": {
+        "cargo_kg": {
+          "active": 0.0,
+          "completed": 0.0,
+          "pending": 0.0,
+          "released": 0.0,
+          "released_intent_first_moment": 0.0,
+          "requested": 0.0
+        },
+        "persons": {
+          "active": 1672.502809326112,
+          "completed": 130.38226959891634,
+          "pending": 1252.6704766304547,
+          "released": 1802.8850789250282,
+          "released_intent_first_moment": 45919482.96021985,
+          "requested": 3055.555555555483
+        },
+        "vehicles": {
+          "active": 1337.7059649434718,
+          "completed": 102.29403505655051,
+          "pending": 57.222222222158734,
+          "released": 1440.0000000000223,
+          "released_intent_first_moment": 36676800.000000395,
+          "requested": 1497.222222222181
+        }
+      },
+      "manifest_sha256": "fd98b49fbe11a447d9c1d7320244906cc7a18d157a795624ac8019699b27af4b",
+      "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-adaptive-rank-v1:4:500",
+      "peak_rss_bytes": 2491367424,
+      "python_runtime_dependency": "none",
+      "research_rank_adaptive": [
+        4,
+        500
+      ],
+      "schema": "metroflow_adaptive_rank_migration_v1",
+      "scope": "same initial owners; future causal transport delay-constrained rank remap; not original V03 acceptance",
+      "source_checkpoint_sha256": "3f9ce8a967d39c0110fe521f299100d71d2698b10a419cb2dfc0f47c443e54e0",
+      "source_manifest_sha256": "2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3",
+      "source_native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3",
+      "status": "EXECUTED_FOR_REVIEW",
+      "time_s": 25750.0,
+      "wall_s": 109.943156146
+    },
+    "attempts": [
+      {
+        "status": "RECOVERED",
+        "execution": "artifacts/v03_adaptive_rank_20261128/S08_original_adaptive25760.json",
+        "recovery": "artifacts/v03_adaptive_rank_20261128/S08_original_adaptive25760_recovery.json",
+        "start_s": 25750,
+        "recovered_s": 25760,
+        "advance_s": 98.574868508,
+        "wall_s": 141.890430192,
+        "recovery_wall_s": 26.532435102,
+        "peak_rss_bytes": 3926667264,
+        "peak_records": 69476343,
+        "checkpoint_bytes": 2124077102,
+        "checkpoint_sha256": "65017b6f31149ac355609b45bab53510608359568a9f88a6d40729cf52ec183d",
+        "manifest_sha256": "fd98b49fbe11a447d9c1d7320244906cc7a18d157a795624ac8019699b27af4b",
+        "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-adaptive-rank-v1:4:500",
+        "executable_sha256": "e1bea5b7ffb2388c908c97f4878cd819b10090f1975a66ff0777d6258afb3992",
+        "road_records": {
+          "cell_packets": 907618,
+          "cell_parts": 54172278,
+          "mixed_parts": 0,
+          "pending_packets": 0,
+          "pending_parts": 0,
+          "retained_storage_bytes": 705582334,
+          "uniform_parts": 54172278
+        },
+        "journey_records": {
+          "dynamic_bytes": 471530496,
+          "egress": 9317329,
+          "enter": 2323726,
+          "history": 3590452,
+          "history_bytes": 86515232,
+          "internal": 72558,
+          "nonempty_histories": 20939,
+          "stage_bytes": [
+            76378720,
+            306250816,
+            2385728
+          ]
+        },
+        "guards": {
+          "exceedances": 0,
+          "maximum_required_bytes": 6150413035,
+          "maximum_ratio": 0.9546697504507998,
+          "site_count": 26
+        },
+        "rank_counters": {
+          "rank.adaptive_bins": [
+            1085,
+            1328,
+            2
+          ],
+          "rank.adaptive_cells": [
+            1085,
+            1085,
+            1
+          ],
+          "rank.adaptive_delay_budget_milliveh_s_ceil": [
+            1085,
+            1655366,
+            15081
+          ],
+          "rank.adaptive_fine_bins_limit": [
+            1085,
+            4340,
+            4
+          ],
+          "rank.cells": [
+            1085,
+            1085,
+            1
+          ],
+          "rank.in_rows": [
+            1085,
+            42184118,
+            2534204
+          ],
+          "rank.local_causal_prefix_upper_milliveh_ceil": [
+            1085,
+            308080,
+            3017
+          ],
+          "rank.local_delay_milliveh_s_ceil": [
+            1085,
+            634117,
+            14171
+          ],
+          "rank.out_packets": [
+            1085,
+            1328,
+            2
+          ],
+          "rank.out_rows": [
+            1085,
+            753683,
+            6298
+          ],
+          "rank.sparse_exact_point_cells": [
+            1085,
+            128,
+            1
+          ],
+          "rank.workspace_reserved_bytes": [
+            1,
+            40547264,
+            40547264
+          ]
+        },
+        "ledger": {
+          "cargo_kg": {
+            "active": 0.0,
+            "completed": 0.0,
+            "pending": 0.0,
+            "released": 0.0,
+            "released_intent_first_moment": 0.0,
+            "requested": 0.0
+          },
+          "persons": {
+            "active": 1697.4750358621113,
+            "completed": 138.79680378372348,
+            "pending": 1274.839271465316,
+            "released": 1836.271839645835,
+            "released_intent_first_moment": 46779025.114977755,
+            "requested": 3111.111111111151
+          },
+          "vehicles": {
+            "active": 1357.6837400995478,
+            "completed": 108.98292656707902,
+            "pending": 57.777777777764186,
+            "released": 1466.6666666666267,
+            "released_intent_first_moment": 37363333.33333251,
+            "requested": 1524.444444444391
+          }
+        }
+      },
+      {
+        "status": "BLOCKED",
+        "execution": "artifacts/v03_adaptive_rank_20261128/S08_original_adaptive25780.json",
+        "recovered_s": 25760,
+        "time_s": 25760.0,
+        "failure": {
+          "kind": "Resource",
+          "message": "packet junction budget"
+        },
+        "peak_records": 0,
+        "peak_rss_bytes": 2608373760,
+        "guards": {
+          "exceedances": 0,
+          "maximum_required_bytes": 4392454494,
+          "maximum_ratio": 0.6817986713722348,
+          "site_count": 14
+        }
+      }
+    ],
+    "recovered": 25760,
+    "new_blocker": {
+      "status": "BLOCKED_WORK_EVENT_COUNT",
+      "attempt_s": 25780,
+      "start_s": 25760,
+      "recovered_s": 25760,
+      "guard_source": "crates/metroflow-rust/src/v1_road.rs:4711-4718",
+      "junction_iterations_limit": 20000,
+      "first_rejected_iteration": 20001,
+      "byte_guards_exceeded": 0,
+      "checkpoint_sha256": "65017b6f31149ac355609b45bab53510608359568a9f88a6d40729cf52ec183d",
+      "failure": {
+        "kind": "Resource",
+        "message": "packet junction budget"
+      },
+      "all_junction_transfer_calls": 64791,
+      "note": "transfer calls are total across junctions, not per-junction iterations. Failed junction id, head count and retirement/future/exhaustion counts not recorded; cannot distinguish genuine event count from non-progress by this receipt alone. No cap change.",
+      "next_measurement": "Per-junction ready-head count, retired heads, new-ready events, receiving/free-space exhaustion, clock steps and sub-ulp progress. Prove structural bound and batch only identical-rate causal spans with exact order/observables; do not remove guard.",
+      "all_junction_transfer_head_rows": 8091968
+    }
+  },
+  "runs": [
+    {
+      "execution": "artifacts/v03_adaptive_rank_20261128/S07_adaptive32040.json",
+      "recovery": "artifacts/v03_adaptive_rank_20261128/S07_adaptive32040_recovery.json",
+      "start_s": 31980,
+      "recovered_s": 32040,
+      "advance_s": 30.958877108,
+      "wall_s": 74.459199395,
+      "recovery_wall_s": 8.341927368,
+      "peak_rss_bytes": 2212114432,
+      "peak_records": 9863344,
+      "checkpoint_bytes": 883642976,
+      "checkpoint_sha256": "ecbcbb4734f05f092f048759ab5fc8617e4c37118c4111bf2706b96aa4060218",
+      "manifest_sha256": "433d2036f8efe0238f7e84df569624933a7598eb7ce69719e48a50220d0d41e1",
+      "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1:delay-calendar-v1:causal-adaptive-rank-v1:4:500",
+      "executable_sha256": "035e3559f36d4b33a7f3b98464790cba0c02e19c1588ac42c672902855104f3e",
+      "road_records": {
+        "cell_packets": 3105,
+        "cell_parts": 6118780,
+        "mixed_parts": 0,
+        "pending_packets": 0,
+        "pending_parts": 0,
+        "retained_storage_bytes": 116542704,
+        "uniform_parts": 6118780
+      },
+      "journey_records": {
+        "dynamic_bytes": 159789872,
+        "egress": 1742788,
+        "enter": 1752182,
+        "history": 102460,
+        "history_bytes": 40164320,
+        "internal": 146424,
+        "nonempty_histories": 102460,
+        "stage_bytes": [
+          57559568,
+          57252864,
+          4813120
+        ]
+      },
+      "guards": {
+        "exceedances": 0,
+        "maximum_required_bytes": 1822068001,
+        "maximum_ratio": 0.28282217696929973,
+        "site_count": 24
+      },
+      "rank_counters": {
+        "rank.adaptive_bins": [
+          6508,
+          7649,
+          2
+        ],
+        "rank.adaptive_cells": [
+          6508,
+          6508,
+          1
+        ],
+        "rank.adaptive_delay_budget_milliveh_s_ceil": [
+          6508,
+          18356252,
+          27399
+        ],
+        "rank.adaptive_fine_bins_limit": [
+          6508,
+          26032,
+          4
+        ],
+        "rank.cells": [
+          6508,
+          6508,
+          1
+        ],
+        "rank.in_rows": [
+          6508,
+          31197680,
+          81612
+        ],
+        "rank.local_causal_prefix_upper_milliveh_ceil": [
+          6508,
+          3557688,
+          5456
+        ],
+        "rank.local_delay_milliveh_s_ceil": [
+          6508,
+          9338639,
+          26064
+        ],
+        "rank.out_packets": [
+          6508,
+          7649,
+          2
+        ],
+        "rank.out_rows": [
+          6508,
+          12837374,
+          28408
+        ],
+        "rank.sparse_exact_point_cells": [
+          6508,
+          768,
+          1
+        ],
+        "rank.workspace_reserved_bytes": [
+          6,
+          7370048,
+          1305792
+        ]
+      },
+      "ledger": {
+        "cargo_kg": {
+          "active": 0.0,
+          "completed": 0.0,
+          "pending": 0.0,
+          "released": 0.0,
+          "released_intent_first_moment": 0.0,
+          "requested": 0.0
+        },
+        "persons": {
+          "active": 3302.98252887982,
+          "completed": 22196.155971657066,
+          "pending": 17000.861499462662,
+          "released": 25499.138500536887,
+          "released_intent_first_moment": 734510613.8636501,
+          "requested": 42499.99999999955
+        },
+        "vehicles": {
+          "active": 2642.0156327484146,
+          "completed": 17724.65103391742,
+          "pending": 458.33333333376504,
+          "released": 20366.666666665835,
+          "released_intent_first_moment": 586668166.6666592,
+          "requested": 20824.9999999996
+        }
+      }
+    },
+    {
+      "execution": "artifacts/v03_adaptive_rank_20261128/S07_adaptive32220.json",
+      "recovery": "artifacts/v03_adaptive_rank_20261128/S07_adaptive32220_recovery.json",
+      "start_s": 32040,
+      "recovered_s": 32220,
+      "advance_s": 94.693905222,
+      "wall_s": 130.57398781,
+      "recovery_wall_s": 7.989986475,
+      "peak_rss_bytes": 2650865664,
+      "peak_records": 9864976,
+      "checkpoint_bytes": 883013040,
+      "checkpoint_sha256": "aee2bf6582a66b95d39801f14a8235f21b0af30eb5632d465b102705809c8d6f",
+      "manifest_sha256": "433d2036f8efe0238f7e84df569624933a7598eb7ce69719e48a50220d0d41e1",
+      "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1:delay-calendar-v1:causal-adaptive-rank-v1:4:500",
+      "executable_sha256": "035e3559f36d4b33a7f3b98464790cba0c02e19c1588ac42c672902855104f3e",
+      "road_records": {
+        "cell_packets": 3106,
+        "cell_parts": 6118014,
+        "mixed_parts": 0,
+        "pending_packets": 0,
+        "pending_parts": 0,
+        "retained_storage_bytes": 116447776,
+        "uniform_parts": 6118014
+      },
+      "journey_records": {
+        "dynamic_bytes": 159789872,
+        "egress": 1742778,
+        "enter": 1752182,
+        "history": 102460,
+        "history_bytes": 40164320,
+        "internal": 146424,
+        "nonempty_histories": 102460,
+        "stage_bytes": [
+          57559568,
+          57252864,
+          4813120
+        ]
+      },
+      "guards": {
+        "exceedances": 0,
+        "maximum_required_bytes": 1874461249,
+        "maximum_ratio": 0.2909546794059376,
+        "site_count": 24
+      },
+      "rank_counters": {
+        "rank.adaptive_bins": [
+          19524,
+          22947,
+          2
+        ],
+        "rank.adaptive_cells": [
+          19524,
+          19524,
+          1
+        ],
+        "rank.adaptive_delay_budget_milliveh_s_ceil": [
+          19524,
+          55067247,
+          27401
+        ],
+        "rank.adaptive_fine_bins_limit": [
+          19524,
+          78096,
+          4
+        ],
+        "rank.cells": [
+          19524,
+          19524,
+          1
+        ],
+        "rank.in_rows": [
+          19524,
+          96172172,
+          81612
+        ],
+        "rank.local_causal_prefix_upper_milliveh_ceil": [
+          19524,
+          10671252,
+          5458
+        ],
+        "rank.local_delay_milliveh_s_ceil": [
+          19524,
+          28005067,
+          26068
+        ],
+        "rank.out_packets": [
+          19524,
+          22947,
+          2
+        ],
+        "rank.out_rows": [
+          19524,
+          38503916,
+          28020
+        ],
+        "rank.sparse_exact_point_cells": [
+          19524,
+          2304,
+          1
+        ],
+        "rank.workspace_reserved_bytes": [
+          18,
+          23011776,
+          1305792
+        ]
+      },
+      "ledger": {
+        "cargo_kg": {
+          "active": 0.0,
+          "completed": 0.0,
+          "pending": 0.0,
+          "released": 0.0,
+          "released_intent_first_moment": 0.0,
+          "requested": 0.0
+        },
+        "persons": {
+          "active": 3302.9259209272786,
+          "completed": 22947.414695828083,
+          "pending": 17499.659383243634,
+          "released": 26250.340616755362,
+          "released_intent_first_moment": 758639225.8365825,
+          "requested": 43749.999999998996
+        },
+        "vehicles": {
+          "active": 2641.970346388356,
+          "completed": 18324.696320279523,
+          "pending": 470.83333333289556,
+          "released": 20966.66666666788,
+          "released_intent_first_moment": 605940166.666684,
+          "requested": 21437.500000000775
+        }
+      }
+    },
+    {
+      "execution": "artifacts/v03_adaptive_rank_20261128/S07_adaptive32820.json",
+      "recovery": "artifacts/v03_adaptive_rank_20261128/S07_adaptive32820_recovery.json",
+      "start_s": 32220,
+      "recovered_s": 32820,
+      "advance_s": 231.964055951,
+      "wall_s": 258.481061803,
+      "recovery_wall_s": 6.9538484149999995,
+      "peak_rss_bytes": 2691567616,
+      "peak_records": 9871946,
+      "checkpoint_bytes": 450008296,
+      "checkpoint_sha256": "51de369c47d69c20782a6786f03a5062c04d8e736b090211657e282c324c2c75",
+      "manifest_sha256": "433d2036f8efe0238f7e84df569624933a7598eb7ce69719e48a50220d0d41e1",
+      "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1:delay-calendar-v1:causal-adaptive-rank-v1:4:500",
+      "executable_sha256": "035e3559f36d4b33a7f3b98464790cba0c02e19c1588ac42c672902855104f3e",
+      "road_records": {
+        "cell_packets": 1887,
+        "cell_parts": 3491739,
+        "mixed_parts": 0,
+        "pending_packets": 0,
+        "pending_parts": 0,
+        "retained_storage_bytes": 78503456,
+        "uniform_parts": 3491739
+      },
+      "journey_records": {
+        "dynamic_bytes": 93544480,
+        "egress": 1578124,
+        "enter": 42310,
+        "history": 102460,
+        "history_bytes": 40164320,
+        "internal": 4126,
+        "nonempty_histories": 102460,
+        "stage_bytes": [
+          1392480,
+          51851664,
+          136016
+        ]
+      },
+      "guards": {
+        "exceedances": 0,
+        "maximum_required_bytes": 1873583185,
+        "maximum_ratio": 0.2908183859350781,
+        "site_count": 24
+      },
+      "rank_counters": {
+        "rank.adaptive_bins": [
+          57803,
+          65684,
+          2
+        ],
+        "rank.adaptive_cells": [
+          57803,
+          57803,
+          1
+        ],
+        "rank.adaptive_delay_budget_milliveh_s_ceil": [
+          57803,
+          160089976,
+          28312
+        ],
+        "rank.adaptive_fine_bins_limit": [
+          57803,
+          231212,
+          4
+        ],
+        "rank.cells": [
+          57803,
+          57803,
+          1
+        ],
+        "rank.in_rows": [
+          57803,
+          266284520,
+          97818
+        ],
+        "rank.local_causal_prefix_upper_milliveh_ceil": [
+          57803,
+          31263761,
+          5663
+        ],
+        "rank.local_delay_milliveh_s_ceil": [
+          57803,
+          71301402,
+          27578
+        ],
+        "rank.out_packets": [
+          57803,
+          65684,
+          2
+        ],
+        "rank.out_rows": [
+          57803,
+          112563380,
+          28020
+        ],
+        "rank.sparse_exact_point_cells": [
+          57803,
+          4615,
+          1
+        ],
+        "rank.workspace_reserved_bytes": [
+          60,
+          72167168,
+          1565088
+        ]
+      },
+      "ledger": {
+        "cargo_kg": {
+          "active": 0.0,
+          "completed": 0.0,
+          "pending": 70.00000000000003,
+          "released": 0.0,
+          "released_intent_first_moment": 0.0,
+          "requested": 70.00000000000003
+        },
+        "persons": {
+          "active": 1643.942740570612,
+          "completed": 25399.333443303683,
+          "pending": 17956.723816123696,
+          "released": 27043.276183874295,
+          "released_intent_first_moment": 784255009.3323929,
+          "requested": 44999.99999999799
+        },
+        "vehicles": {
+          "active": 1315.1539034102389,
+          "completed": 20284.84609658999,
+          "pending": 450.069999999374,
+          "released": 21600.00000000023,
+          "released_intent_first_moment": 626400000.0000108,
+          "requested": 22050.069999999603
+        }
+      }
+    }
+  ],
+  "matched_comparison": {
+    "fixed": {
+      "execution": "artifacts/v03_adaptive_rank_20261128/S07_fixed32040.json",
+      "recovery": "artifacts/v03_adaptive_rank_20261128/S07_fixed32040_recovery.json",
+      "start_s": 31980,
+      "recovered_s": 32040,
+      "advance_s": 25.664561408,
+      "wall_s": 57.066547469,
+      "recovery_wall_s": 8.025719516,
+      "peak_rss_bytes": 1997598720,
+      "peak_records": 9351750,
+      "checkpoint_bytes": 831546370,
+      "checkpoint_sha256": "4e513d717298adf5798ff1b085f490403606ee1a24e67f464167abbcda3e7458",
+      "manifest_sha256": "70a055a27b4833adf6569203113690455bdc5759263e607b87d8766850d2f232",
+      "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1:delay-calendar-v1",
+      "executable_sha256": "9640ce189a4397ad8ae8bb5f7fdf084404b4ca0a26af2a6a0127b839ddf997c6",
+      "road_records": {
+        "cell_packets": 2925,
+        "cell_parts": 5607838,
+        "mixed_parts": 0,
+        "pending_packets": 0,
+        "pending_parts": 0,
+        "retained_storage_bytes": 106716640,
+        "uniform_parts": 5607838
+      },
+      "journey_records": {
+        "dynamic_bytes": 159789872,
+        "egress": 1742788,
+        "enter": 1752182,
+        "history": 102460,
+        "history_bytes": 40164320,
+        "internal": 146424,
+        "nonempty_histories": 102460,
+        "stage_bytes": [
+          57559568,
+          57252864,
+          4813120
+        ]
+      },
+      "guards": {
+        "exceedances": 0,
+        "maximum_required_bytes": 1822067969,
+        "maximum_ratio": 0.28282217200224596,
+        "site_count": 24
+      },
+      "rank_counters": {
+        "rank.cells": [
+          6508,
+          6508,
+          1
+        ],
+        "rank.in_rows": [
+          6508,
+          30202706,
+          75708
+        ],
+        "rank.local_delay_milliveh_s_ceil": [
+          6508,
+          13666448,
+          38545
+        ],
+        "rank.local_generic_prefix_bound_milliveh_ceil": [
+          6508,
+          921216,
+          1370
+        ],
+        "rank.out_packets": [
+          6508,
+          6508,
+          1
+        ],
+        "rank.out_rows": [
+          6508,
+          11711812,
+          14382
+        ],
+        "rank.sparse_exact_point_cells": [
+          6508,
+          768,
+          1
+        ],
+        "rank.workspace_reserved_bytes": [
+          6,
+          7267968,
+          1211328
+        ]
+      },
+      "ledger": {
+        "cargo_kg": {
+          "active": 0.0,
+          "completed": 0.0,
+          "pending": 0.0,
+          "released": 0.0,
+          "released_intent_first_moment": 0.0,
+          "requested": 0.0
+        },
+        "persons": {
+          "active": 3302.98252887982,
+          "completed": 22196.155971657066,
+          "pending": 17000.861499462662,
+          "released": 25499.138500536887,
+          "released_intent_first_moment": 734510613.8636501,
+          "requested": 42499.99999999955
+        },
+        "vehicles": {
+          "active": 2642.0156327484146,
+          "completed": 17724.65103391742,
+          "pending": 458.33333333376504,
+          "released": 20366.666666665835,
+          "released_intent_first_moment": 586668166.6666592,
+          "requested": 20824.9999999996
+        }
+      }
+    },
+    "adaptive": {
+      "execution": "artifacts/v03_adaptive_rank_20261128/S07_adaptive32040.json",
+      "recovery": "artifacts/v03_adaptive_rank_20261128/S07_adaptive32040_recovery.json",
+      "start_s": 31980,
+      "recovered_s": 32040,
+      "advance_s": 30.958877108,
+      "wall_s": 74.459199395,
+      "recovery_wall_s": 8.341927368,
+      "peak_rss_bytes": 2212114432,
+      "peak_records": 9863344,
+      "checkpoint_bytes": 883642976,
+      "checkpoint_sha256": "ecbcbb4734f05f092f048759ab5fc8617e4c37118c4111bf2706b96aa4060218",
+      "manifest_sha256": "433d2036f8efe0238f7e84df569624933a7598eb7ce69719e48a50220d0d41e1",
+      "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1:delay-calendar-v1:causal-adaptive-rank-v1:4:500",
+      "executable_sha256": "035e3559f36d4b33a7f3b98464790cba0c02e19c1588ac42c672902855104f3e",
+      "road_records": {
+        "cell_packets": 3105,
+        "cell_parts": 6118780,
+        "mixed_parts": 0,
+        "pending_packets": 0,
+        "pending_parts": 0,
+        "retained_storage_bytes": 116542704,
+        "uniform_parts": 6118780
+      },
+      "journey_records": {
+        "dynamic_bytes": 159789872,
+        "egress": 1742788,
+        "enter": 1752182,
+        "history": 102460,
+        "history_bytes": 40164320,
+        "internal": 146424,
+        "nonempty_histories": 102460,
+        "stage_bytes": [
+          57559568,
+          57252864,
+          4813120
+        ]
+      },
+      "guards": {
+        "exceedances": 0,
+        "maximum_required_bytes": 1822068001,
+        "maximum_ratio": 0.28282217696929973,
+        "site_count": 24
+      },
+      "rank_counters": {
+        "rank.adaptive_bins": [
+          6508,
+          7649,
+          2
+        ],
+        "rank.adaptive_cells": [
+          6508,
+          6508,
+          1
+        ],
+        "rank.adaptive_delay_budget_milliveh_s_ceil": [
+          6508,
+          18356252,
+          27399
+        ],
+        "rank.adaptive_fine_bins_limit": [
+          6508,
+          26032,
+          4
+        ],
+        "rank.cells": [
+          6508,
+          6508,
+          1
+        ],
+        "rank.in_rows": [
+          6508,
+          31197680,
+          81612
+        ],
+        "rank.local_causal_prefix_upper_milliveh_ceil": [
+          6508,
+          3557688,
+          5456
+        ],
+        "rank.local_delay_milliveh_s_ceil": [
+          6508,
+          9338639,
+          26064
+        ],
+        "rank.out_packets": [
+          6508,
+          7649,
+          2
+        ],
+        "rank.out_rows": [
+          6508,
+          12837374,
+          28408
+        ],
+        "rank.sparse_exact_point_cells": [
+          6508,
+          768,
+          1
+        ],
+        "rank.workspace_reserved_bytes": [
+          6,
+          7370048,
+          1305792
+        ]
+      },
+      "ledger": {
+        "cargo_kg": {
+          "active": 0.0,
+          "completed": 0.0,
+          "pending": 0.0,
+          "released": 0.0,
+          "released_intent_first_moment": 0.0,
+          "requested": 0.0
+        },
+        "persons": {
+          "active": 3302.98252887982,
+          "completed": 22196.155971657066,
+          "pending": 17000.861499462662,
+          "released": 25499.138500536887,
+          "released_intent_first_moment": 734510613.8636501,
+          "requested": 42499.99999999955
+        },
+        "vehicles": {
+          "active": 2642.0156327484146,
+          "completed": 17724.65103391742,
+          "pending": 458.33333333376504,
+          "released": 20366.666666665835,
+          "released_intent_first_moment": 586668166.6666592,
+          "requested": 20824.9999999996
+        }
+      }
+    },
+    "road_total_difference": [
+      0.0,
+      0.018317493068025215,
+      0.0,
+      586.4882985949516,
+      0.0,
+      -0.136469533899799,
+      0.0
+    ],
+    "road_class_ledger_difference": [
+      [
+        0.0,
+        0.01831749271514127,
+        0.0,
+        -0.27048047207063064,
+        -0.13646918232552707
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "aggregate_journey_ledger_equal": true,
+    "cell_tag_comparison_status": "EXECUTED_FOR_REVIEW_AFTER_INITIAL_TIMEOUT",
+    "cell_tag_comparison_scope": "Actual loaded 1586 cells, 304856 tags, 918450 legs and final-tick outlet; measured differences, not proof of parity",
+    "fixed_model_rank_prefix_counter_obsolete": true,
+    "retry_receipt": "artifacts/v03_adaptive_rank_20261128/S09_compare32040_retry.json",
+    "retry_result": {
+      "address_space_limit_bytes": 8589934592,
+      "candidate_checkpoint_sha256": "ecbcbb4734f05f092f048759ab5fc8617e4c37118c4111bf2706b96aa4060218",
+      "candidate_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1:delay-calendar-v1:causal-adaptive-rank-v1:4:500",
+      "candidate_manifest_sha256": "433d2036f8efe0238f7e84df569624933a7598eb7ce69719e48a50220d0d41e1",
+      "cells": {
+        "active_veh": {
+          "bit_different_entries": 94,
+          "entries": 1586,
+          "l1": 0.02001977808141987,
+          "linf": 0.016289406934166806,
+          "reference_l1": 1736.4375043689265,
+          "relative_l1": 1.1529224651650021e-05
+        },
+        "cumulative_entry_veh": {
+          "bit_different_entries": 41,
+          "entries": 1586,
+          "l1": 0.02067052928183627,
+          "linf": 0.016291425691406403,
+          "reference_l1": 345836.6271862688,
+          "relative_l1": 5.976963588273446e-08
+        },
+        "cumulative_exit_veh": {
+          "bit_different_entries": 128,
+          "entries": 1586,
+          "l1": 0.0011647212640593096,
+          "linf": 0.0004660945291306007,
+          "reference_l1": 344100.1896818999,
+          "relative_l1": 3.3848317989479313e-09
+        },
+        "distance_veh_m": {
+          "bit_different_entries": 321,
+          "entries": 1586,
+          "l1": 0.3065876464340107,
+          "linf": 0.0790689923305763,
+          "reference_l1": 66621097.15152593,
+          "relative_l1": 4.601960333026254e-09
+        },
+        "occupied_lane_m": {
+          "bit_different_entries": 93,
+          "entries": 1586,
+          "l1": 0.10009889040703825,
+          "linf": 0.08144703467083225,
+          "reference_l1": 8682.187521844631,
+          "relative_l1": 1.1529224651642986e-05
+        },
+        "speed_m_s": {
+          "bit_different_entries": 445,
+          "entries": 1586,
+          "l1": 0.06293547517356846,
+          "linf": 0.029905847501831673,
+          "reference_l1": 8683.444399428477,
+          "relative_l1": 7.247754724808362e-06
+        }
+      },
+      "executable_sha256": "36110d1515f33cf503bfb43634195ee76f0745b84fb8c8874a3403366667ba22",
+      "journey_legs": {
+        "completed_persons": {
+          "bit_different_entries": 0,
+          "entries": 918450,
+          "l1": 0.0,
+          "linf": 0.0,
+          "reference_l1": 22196.155971656797,
+          "relative_l1": 0.0
+        },
+        "completed_veh": {
+          "bit_different_entries": 0,
+          "entries": 918450,
+          "l1": 0.0,
+          "linf": 0.0,
+          "reference_l1": 17724.651033917587,
+          "relative_l1": 0.0
+        },
+        "since_completion_person_s": {
+          "bit_different_entries": 2698,
+          "entries": 918450,
+          "l1": 3.0352147795120743e-07,
+          "linf": 2.190063241869211e-09,
+          "reference_l1": 63693689.24035186,
+          "relative_l1": 4.765330467918907e-15
+        },
+        "since_completion_veh_s": {
+          "bit_different_entries": 2698,
+          "entries": 918450,
+          "l1": 2.4285552724379045e-07,
+          "linf": 1.7535057850182056e-09,
+          "reference_l1": 50851873.26825512,
+          "relative_l1": 4.7757439723542274e-15
+        }
+      },
+      "last_tick_outlet": {
+        "birth_to_exit_veh_s": {
+          "bit_different_entries": 62222,
+          "entries": 304856,
+          "l1": 15.265647344430205,
+          "linf": 1.013943144968465,
+          "reference_l1": 22425.963503267212,
+          "relative_l1": 0.0006807131092586578
+        },
+        "outlet_veh": {
+          "bit_different_entries": 14767,
+          "entries": 304856,
+          "l1": 0.025269906193602233,
+          "linf": 0.0016352411966637003,
+          "reference_l1": 33.058303020685884,
+          "relative_l1": 0.0007644042157212322
+        }
+      },
+      "peak_rss_bytes": 815951872,
+      "reference_checkpoint_sha256": "4e513d717298adf5798ff1b085f490403606ee1a24e67f464167abbcda3e7458",
+      "reference_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1:delay-calendar-v1",
+      "reference_manifest_sha256": "70a055a27b4833adf6569203113690455bdc5759263e607b87d8766850d2f232",
+      "road_tags": {
+        "active_veh": {
+          "bit_different_entries": 8353,
+          "entries": 304856,
+          "l1": 0.027087796728125415,
+          "linf": 0.0016352411966637,
+          "reference_l1": 1736.4375043689265,
+          "relative_l1": 1.559963814417262e-05
+        },
+        "birth_veh_s": {
+          "bit_different_entries": 8347,
+          "entries": 304856,
+          "l1": 852.043836618468,
+          "linf": 52.10533587022479,
+          "reference_l1": 54793820.052863225,
+          "relative_l1": 1.5549998810019908e-05
+        },
+        "entry_clock_veh_s": {
+          "bit_different_entries": 94497,
+          "entries": 304856,
+          "l1": 2754.378979795559,
+          "linf": 52.36043098226787,
+          "reference_l1": 55616584.612150885,
+          "relative_l1": 4.9524417923242876e-05
+        },
+        "route_offset_veh": {
+          "bit_different_entries": 63998,
+          "entries": 304856,
+          "l1": 0.9687396375250562,
+          "linf": 0.024783830539906404,
+          "reference_l1": 19155.34120345392,
+          "relative_l1": 5.057282077284959e-05
+        }
+      },
+      "schema": "metroflow_rank_state_compare_v1",
+      "scope": "strict loaded snapshots same physical declaration/time/tag registry; numerical observable differences, not global error theorem or release acceptance",
+      "status": "EXECUTED_FOR_REVIEW",
+      "tag_order_sha256": "1afae786b6800f1e8705b0a64cedd6b4d018fa440176937d9ad919c758a25eb8",
+      "time_s": 32040.0,
+      "wall_s": 16.357255667
+    }
+  },
+  "final_scatter_city": {
+    "execution": "artifacts/v03_adaptive_rank_20261128/S09_scatter25760.json",
+    "recovery": "artifacts/v03_adaptive_rank_20261128/S09_scatter25760_recovery.json",
+    "start_s": 25750,
+    "recovered_s": 25760,
+    "advance_s": 58.988636341,
+    "wall_s": 85.144960638,
+    "recovery_wall_s": 21.566141104,
+    "peak_rss_bytes": 3927420928,
+    "peak_records": 69476343,
+    "checkpoint_bytes": 2124077102,
+    "checkpoint_sha256": "65017b6f31149ac355609b45bab53510608359568a9f88a6d40729cf52ec183d",
+    "manifest_sha256": "fd98b49fbe11a447d9c1d7320244906cc7a18d157a795624ac8019699b27af4b",
+    "native_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-adaptive-rank-v1:4:500",
+    "executable_sha256": "36110d1515f33cf503bfb43634195ee76f0745b84fb8c8874a3403366667ba22",
+    "road_records": {
+      "cell_packets": 907618,
+      "cell_parts": 54172278,
+      "mixed_parts": 0,
+      "pending_packets": 0,
+      "pending_parts": 0,
+      "retained_storage_bytes": 705582334,
+      "uniform_parts": 54172278
+    },
+    "journey_records": {
+      "dynamic_bytes": 471530496,
+      "egress": 9317329,
+      "enter": 2323726,
+      "history": 3590452,
+      "history_bytes": 86515232,
+      "internal": 72558,
+      "nonempty_histories": 20939,
+      "stage_bytes": [
+        76378720,
+        306250816,
+        2385728
+      ]
+    },
+    "guards": {
+      "exceedances": 0,
+      "maximum_required_bytes": 6150413035,
+      "maximum_ratio": 0.9546697504507998,
+      "site_count": 26
+    },
+    "rank_counters": {
+      "rank.adaptive_bins": [
+        1085,
+        1328,
+        2
+      ],
+      "rank.adaptive_cells": [
+        1085,
+        1085,
+        1
+      ],
+      "rank.adaptive_delay_budget_milliveh_s_ceil": [
+        1085,
+        1655366,
+        15081
+      ],
+      "rank.adaptive_fine_bins_limit": [
+        1085,
+        4340,
+        4
+      ],
+      "rank.cells": [
+        1085,
+        1085,
+        1
+      ],
+      "rank.comparator_sort_rows": [
+        1069,
+        21065346,
+        583988
+      ],
+      "rank.in_rows": [
+        1085,
+        42184118,
+        2534204
+      ],
+      "rank.local_causal_prefix_upper_milliveh_ceil": [
+        1085,
+        308080,
+        3017
+      ],
+      "rank.local_delay_milliveh_s_ceil": [
+        1085,
+        634117,
+        14171
+      ],
+      "rank.out_packets": [
+        1085,
+        1328,
+        2
+      ],
+      "rank.out_rows": [
+        1085,
+        753683,
+        6298
+      ],
+      "rank.scatter_workspace_bytes": [
+        1,
+        3658272,
+        3658272
+      ],
+      "rank.sparse_exact_point_cells": [
+        1085,
+        128,
+        1
+      ],
+      "rank.stable_scatter_cells": [
+        16,
+        16,
+        1
+      ],
+      "rank.stable_scatter_rows": [
+        16,
+        21118772,
+        2534204
+      ],
+      "rank.workspace_reserved_bytes": [
+        1,
+        44205536,
+        44205536
+      ]
+    },
+    "ledger": {
+      "cargo_kg": {
+        "active": 0.0,
+        "completed": 0.0,
+        "pending": 0.0,
+        "released": 0.0,
+        "released_intent_first_moment": 0.0,
+        "requested": 0.0
+      },
+      "persons": {
+        "active": 1697.4750358621113,
+        "completed": 138.79680378372348,
+        "pending": 1274.839271465316,
+        "released": 1836.271839645835,
+        "released_intent_first_moment": 46779025.114977755,
+        "requested": 3111.111111111151
+      },
+      "vehicles": {
+        "active": 1357.6837400995478,
+        "completed": 108.98292656707902,
+        "pending": 57.777777777764186,
+        "released": 1466.6666666666267,
+        "released_intent_first_moment": 37363333.33333251,
+        "requested": 1524.444444444391
+      }
+    },
+    "matches_s05_checkpoint_bytes": true
+  },
+  "native_b15": {
+    "status": "PARTIAL",
+    "scope": "Native B15 runner now validates optional full logical digest on both execution and independent recovery; actual active fixture360 and exact original25750 wire parity. Prior frozen River20s dt10/dt5 prefix verified. Full-day/refinement unaccepted.",
+    "execution": "artifacts/v03_adaptive_rank_20261128/S09_fixture_execution.json",
+    "recovery": "artifacts/v03_adaptive_rank_20261128/S09_fixture_recovery.json",
+    "canonical_logical_sha256": "2294fe0bcbb2e8011b86fd9f9352589268561ea36cb1c8c8d9791a24b569cdcc",
+    "ledger": {
+      "cargo_kg": {
+        "active": 0.0,
+        "completed": 100.0,
+        "pending": 0.0,
+        "released": 100.0,
+        "released_intent_first_moment": 750.0,
+        "requested": 100.0
+      },
+      "persons": {
+        "active": 0.0,
+        "completed": 20.0,
+        "pending": 0.0,
+        "released": 20.0,
+        "released_intent_first_moment": 500.00000000000006,
+        "requested": 20.0
+      },
+      "vehicles": {
+        "active": 0.0,
+        "completed": 13.06,
+        "pending": 0.0,
+        "released": 13.06,
+        "released_intent_first_moment": 324.75000000000006,
+        "requested": 13.06
+      }
+    },
+    "prior_evidence": "artifacts/v03_direct_receiving_20261128/S09_b15_evidence.json",
+    "prior_evidence_sha256": "43bb8e262363dec424558e979df59a4b77b4f0c948d72a253a76239926b3d0eb",
+    "native_cli_sha256": "36110d1515f33cf503bfb43634195ee76f0745b84fb8c8874a3403366667ba22",
+    "original_full_days_accepted": 0,
+    "original_8h_refinement_completed": 0
+  },
+  "allocation_probes": [
+    {
+      "iterations_per_kernel": 1000000,
+      "journey_fsum": {
+        "allocation_calls": 0,
+        "last_value": 3.5,
+        "reallocation_calls": 0,
+        "wall_s": 0.055855348
+      },
+      "link_step": {
+        "allocation_calls": 0,
+        "final_counts": {
+          "admitted": 1000000.0,
+          "departed": 999997.0,
+          "on_link": 3.0,
+          "pending": 0.0,
+          "requested": 1000000.0,
+          "residence_veh_s": 2999994.0
+        },
+        "reallocation_calls": 0,
+        "wall_s": 0.013070852
+      },
+      "scope": "single process, initialized ring, tested six-term finite cancellation input; other inputs may spill; no full-engine zero heap claim"
+    },
+    {
+      "allocation_calls": 0,
+      "iterations": 100000,
+      "kernel": "marked_fifo_diverge_step",
+      "metrics": {
+        "age_identity_residual": [
+          -5.820766091346741e-11,
+          -1.4551915228366852e-11
+        ],
+        "blocked_mixed_ticks": 14285,
+        "completed_elapsed_veh_s": [
+          248561.39999965587,
+          82853.80000013339
+        ],
+        "exited": {
+          "birth": [
+            2999790003.6,
+            999930001.2
+          ],
+          "mass": [
+            59997.599999901235,
+            19999.200000037694
+          ]
+        },
+        "max_birth_residual": 2.3178290575742722e-07,
+        "max_mass_residual": 7.275513524973576e-12,
+        "on_link": {
+          "birth": [
+            239996.4,
+            79998.8
+          ],
+          "mass": [
+            2.4,
+            0.8
+          ]
+        },
+        "peak_pending_veh": 0.0,
+        "peak_queue_rows": [
+          1,
+          3,
+          3,
+          3
+        ],
+        "pending": {
+          "birth": [
+            0.0,
+            0.0
+          ],
+          "mass": [
+            0.0,
+            0.0
+          ]
+        },
+        "requested": {
+          "birth": [
+            3000030000.0,
+            1000010000.0
+          ],
+          "mass": [
+            59999.99999990123,
+            20000.000000037697
+          ]
+        },
+        "reserved_queue_payload_bytes": 36000160,
+        "residence_veh_s": [
+          248564.99999965585,
+          82855.00000013338
+        ],
+        "time_s": 100000.0
+      },
+      "reallocation_calls": 0,
+      "scope": "preallocated marked network; 2 classes, unequal footprints, intermittent receiving restriction; no full V03 zero heap claim",
+      "wall_s": 0.018598331
+    },
+    {
+      "allocation_calls": 0,
+      "checksum": 2594073418108802610,
+      "iterations": 1000000,
+      "kernel": "packed_reference_and_event_random_access",
+      "reallocation_calls": 0,
+      "scope": "initialized exact packed ranks and event pages; encoding allocates per sealed page",
+      "sealed_saved_bytes": [
+        671744,
+        1459552
+      ],
+      "wall_s": 0.02873081
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        1.0,
+        3.0
+      ],
+      "iterations": 1000000,
+      "kernel": "rank_positive_mass_birth_accumulation",
+      "reallocation_calls": 0,
+      "scope": "actual compensated per-mark accumulator; excludes sort and packet output allocations",
+      "wall_s": 0.020067714
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        0.5,
+        4.75,
+        0.5,
+        10.375
+      ],
+      "iterations": 1000000,
+      "kernel": "warmed_receipt_grid_bucket",
+      "reallocation_calls": 0,
+      "scope": "actual warmed bucket insertion and inline positive mass/moment sums; output history and source visitor excluded",
+      "wall_s": 0.0382124
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        13.875,
+        1.0
+      ],
+      "iterations": 1000000,
+      "kernel": "transactional_receipt_accumulator",
+      "reallocation_calls": 0,
+      "scope": "actual fixed inline positive completion measure; excludes transaction scratch initialization, Arc history replacement and output",
+      "wall_s": 0.038174659
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        2.0,
+        1.0
+      ],
+      "iterations": 1000000,
+      "kernel": "warmed_egress_retirement_buckets",
+      "reallocation_calls": 0,
+      "scope": "actual warmed per-leg outlet law product projection from four products into two retirement buckets; stage output append excluded",
+      "wall_s": 0.188151144
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        2.0,
+        2.0,
+        2.0
+      ],
+      "iterations": 1000000,
+      "kernel": "warmed_entry_access_projection",
+      "reallocation_calls": 0,
+      "scope": "actual preallocated per-proposal access projection, four law products to two consumption ticks; excludes initialization, queue output and periodic sweep",
+      "wall_s": 0.326835875
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        1.5,
+        5.0,
+        15.5
+      ],
+      "iterations": 1000000,
+      "kernel": "protected_delay_calendar_cell",
+      "reallocation_calls": 0,
+      "scope": "actual inline positive mass/birth/ready moment reduction and observer checks; partition output and tail sort excluded",
+      "wall_s": 0.150226989
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        224,
+        6
+      ],
+      "iterations": 100000,
+      "kernel": "bit_pair_dictionary_plan_lookup",
+      "reallocation_calls": 0,
+      "scope": "actual fixed stack plan of 32 input rows and 4 bit-distinct pairs; output dictionary Vecs excluded",
+      "wall_s": 0.009437717
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        2,
+        1
+      ],
+      "iterations": 100000,
+      "kernel": "adaptive_causal_rank_partition",
+      "reallocation_calls": 0,
+      "scope": "actual grid, positive histogram, minimal-bin DP; no output packet or ordinal allocation included",
+      "wall_s": 0.057936435
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        1024,
+        523776
+      ],
+      "iterations": 10000,
+      "kernel": "warmed_stable_rank_scatter",
+      "reallocation_calls": 0,
+      "scope": "actual stable tag scatter over 1024 rows/17 tags, initialized ordinal/tag workspace; output packet allocation excluded",
+      "wall_s": 0.029193702
+    },
+    {
+      "allocation_calls": 0,
+      "answer": [
+        224,
+        32
+      ],
+      "iterations": 100000,
+      "kernel": "direct_dictionary_ordinal_reuse",
+      "reallocation_calls": 0,
+      "scope": "fixed stack first occurrence plan, full matching and mismatch rejection; new output Vec/Arc allocation excluded",
+      "wall_s": 0.022670736
+    },
+    {
+      "allocation_calls": 0,
+      "checksum": [
+        3,
+        13799029258263199744
+      ],
+      "iterations": 1000000,
+      "kernel": "outlet_group_and_stack_wire",
+      "reallocation_calls": 0,
+      "scope": "actual fixed-slice grouped outlet and stack word writer; no allocation for tested small fsum; full histories may spill",
+      "wall_s": 0.062604763
+    }
+  ],
+  "rational_oracle": {
+    "status": "PASS",
+    "seed": 20261128,
+    "cases": 512,
+    "block_cost_identities": 10202,
+    "partitions_examined": 24928,
+    "cdf_integral_intervals": 9634,
+    "sharp_atom_counterexample": "mass 1 at left mapped to right: prefix supremum 1, not 1/4",
+    "scope": "exact Fraction local transport, fixed fine grid partition; not global nonlinear network stability"
+  },
+  "validation": {
+    "native_lib_pass": 304,
+    "native_lib_ignored": 2,
+    "campaign_bin_pass": 2,
+    "headless_pass": 9,
+    "native_release_bins": "PASS",
+    "full_repository_ci": "NOT_RUN",
+    "native_subagent": "NOT_RUN_NO_TOOL",
+    "source_diff_check": "PASS_CODE_DOCS_ONLY_CAPTURED_LOGS_TRAILING_BLANK_LINES",
+    "checkpoint_binding": "on-disk SHA, manifest, executable, identity, ledger and selected full logical digest checked",
+    "red_green": "S03 and S05 red/green; other stages post-change tests"
+  },
+  "limits": {
+    "address_space_bytes": 8589934592,
+    "accounting_bytes": 6442450944,
+    "original_wall_s_per_case": 7200,
+    "full_day_cases_completed": 0,
+    "full_day_cases_required": 9,
+    "junction_event_cap": 20000
+  },
+  "full_day_acceptance": "BLOCKED_ORIGINAL_LOGICAL_RECORD_CAP_ADAPTIVE_JUNCTION_EVENT_CAP_AND_ACCEPTANCE_0_OF_9",
+  "limitations": [
+    "Original25760 not retried this round; exact record multiplicity unchanged. Adaptive original identity changes physics and crosses one tick, then junction event count block.",
+    "Theta=0.5 and four bins chosen for research, not user-approved accuracy tolerance; local binary64 budget tolerance not directed-rounding guarantee; no network FIFO equivalence.",
+    "Long adaptive branch uses S04, original-adaptive S05; final S08 exact digest and fixture, per-binary binding preserved.",
+    "Initial per-cell/tag compare timeout200s; successful final-native retry measured differences. Host contention timing not isolated benchmark.",
+    "Junction cap cause path identified, exact failing junction and progress cause unresolved.",
+    "B15 acceptance partial, no full CI/main merge or native independent subagents; Python oracle retained."
+  ],
+  "next_action": "V03: preserve original 6GiB accounting/8GiB AS/7200s and frozen matrix; original exact25750 recovered using exact MFWHOLE4, original25760 prior logical cap unchanged. Separate adaptive4/500 original branch crossed25760 but next tick rejected by static.event_budget=20000 per-junction loop, no byte guard exceeded. Instrument the failing junction id, head readiness/retirement, monotone quota exhaustion, and binary64 clock progress; test conditional event-count bound and exact same-rate span batching with marks, moments and deterministic ordering. No cap relaxation. Derive/measure positive service curve or identify gridlock, bound pending and journey histories separately. Validate adaptive model under active city 10s/5s refinement, multiple theta, longer matched per-cell/tag and evening return; do not substitute for original acceptance. Extend B15 actual 3x3 full day and three 8h refinement runs; B10 city-wide endogenous graph policy remains beyond scoped single ready-head review. Full CI/main integration separate.",
+  "evidence_files": {
+    "artifacts/v03_adaptive_rank_20261128/S01_identity.txt": "4fa9bf6c1fc866e2592a8d80670da45d5430d6043e4b1fded2c05c74853a3776",
+    "artifacts/v03_adaptive_rank_20261128/S01_original_env.txt": "7431b370c091b96dff167d048a3ca812757ecc22c912c20d9e8f53f61ed2a4e7",
+    "artifacts/v03_adaptive_rank_20261128/S01_readiness.json": "15328fcb789b87b8f43f951aea245e2b6afc50366bbdc93577fdecd1cc245aef",
+    "artifacts/v03_adaptive_rank_20261128/S02_cas.txt": "ac3ba7397f5d2b5cd20460633acb69954948f3eed0ea8fcf99ffcfc9a2c9a860",
+    "artifacts/v03_adaptive_rank_20261128/S03_green.log": "799f7e3800e783ab4209503f081c169881f7f050761fb6777eeb2279f10a39f1",
+    "artifacts/v03_adaptive_rank_20261128/S03_red.log": "bde6a67965e73a08b288c8f4d11e0db34d6cc2dc12fa9930ce7cc67b7e6976ed",
+    "artifacts/v03_adaptive_rank_20261128/S04_binary.sha256": "5c07609f0905d1e14c3668873f2eb308f9fc3875b0e8f823ff40b82550c0e98a",
+    "artifacts/v03_adaptive_rank_20261128/S04_build.log": "f22dc6e3fa200a3f59c56d91222f908fc78d70f4adfe4fc948030100684240b1",
+    "artifacts/v03_adaptive_rank_20261128/S04_test.log": "406ca2fc42eacaf297b65e8e5ccab24e167044a97aa92a754a22580d13e374f0",
+    "artifacts/v03_adaptive_rank_20261128/S05_binary.sha256": "e53d251452ae257c1ca0a9dd09933a6a46687a256209ebe25a27ab97f0382132",
+    "artifacts/v03_adaptive_rank_20261128/S05_build.log": "61da2d7ab2a833c0df493a25ad6babdaca2626fd72a8bbdd47cff9586bd1a008",
+    "artifacts/v03_adaptive_rank_20261128/S05_green.log": "28e1c33cddce372f01d0e392d6b7c72f3b9a043b0ccef384ff1a30403462e92f",
+    "artifacts/v03_adaptive_rank_20261128/S05_red.log": "88f97806b3aeff3d7255c35da0c5d9251c46b422abd7929d473f54e4cac5dc86",
+    "artifacts/v03_adaptive_rank_20261128/S06_digest_test.log": "4b0c14bc6dea0cdf4c8ccfc6d289fd881b4473619ef81586bcd181f1c9d8869a",
+    "artifacts/v03_adaptive_rank_20261128/S06_dp_test.log": "10ea6e68a06faa53d4f769da11d38caeedc7ebdee7542f56c91168e7d050d971",
+    "artifacts/v03_adaptive_rank_20261128/S06_rational_oracle.json": "6805a563f46f1c3000512e813285b74284fdbb21c826e715232665b9dfe0d9e6",
+    "artifacts/v03_adaptive_rank_20261128/S06_repack25750.json": "efc4e3f66d8553becf17663bb8dde0a380f24dcee94591d753c12001e9bd502b",
+    "artifacts/v03_adaptive_rank_20261128/S06_repack25750_recovery.json": "1334da28c952413c5cee64d9a8636caf96b2713f5bf40458932e94281ce16ec4",
+    "artifacts/v03_adaptive_rank_20261128/S06_wire_env.txt": "3cef46e99acab64a9ede77a1e334c2e414df17fa04751e46a760d7ba96ed592d",
+    "artifacts/v03_adaptive_rank_20261128/S07_adaptive32040.json": "c7349bb4526bbcc951ad3ebb47f4b4e348aac7ba211c0c7c34487dacc00cbbdd",
+    "artifacts/v03_adaptive_rank_20261128/S07_adaptive32040_recovery.json": "b2c7488fcb1f98a5a50ab3bf24e0b5c247fb1154d0d513d508c1dd997ca71c5e",
+    "artifacts/v03_adaptive_rank_20261128/S07_adaptive32220.json": "14377ca863e86dd7bdf7ce21e1f78cf562c8233b2b940727b1e80ebccea0407c",
+    "artifacts/v03_adaptive_rank_20261128/S07_adaptive32220_recovery.json": "f4590a21111e9643cfaf74c16ca7cd146a4724b561d2e4d4f71163157a63a590",
+    "artifacts/v03_adaptive_rank_20261128/S07_adaptive32820.json": "3f467204f89ebc162432658c1e2b52830a855dca3953024f97531827f43c858a",
+    "artifacts/v03_adaptive_rank_20261128/S07_adaptive32820_recovery.json": "502ba352dd1b492672dc9713f6d2c2473715a745d6d5e89211495d2521417d42",
+    "artifacts/v03_adaptive_rank_20261128/S07_adaptive_migration31980.json": "93395cd40bd8678353851b3cc0be7984fd423301b7f501a0971ececb8a9dcfc3",
+    "artifacts/v03_adaptive_rank_20261128/S07_fixed32040.json": "5661c28ba9fac4d5958a32fd395561408420391ac90def424205929ec7ebf987",
+    "artifacts/v03_adaptive_rank_20261128/S07_fixed32040_recovery.json": "1d815636896d433c0e04d2bfd18596ace368d2338334a2e796ca463caebe8040",
+    "artifacts/v03_adaptive_rank_20261128/S07_scatter_test.log": "2b43a15dd8f301cfa561bae5ca92ab93b3119c5516b96aa1cd2c91ec1832e529",
+    "artifacts/v03_adaptive_rank_20261128/S08_binaries.sha256": "9f225e70ea419e4fbdaab409ea99f4a77c5c35d0bd3013948c9f12e3031a62c2",
+    "artifacts/v03_adaptive_rank_20261128/S08_build.log": "9dc3bb67377517f43879cbf4940c8e4269f15265ac2700dada192f5200621780",
+    "artifacts/v03_adaptive_rank_20261128/S08_campaign.log": "f953a76cb9fbc8b11737d5f25d707614684954b2402545d15b68f3a128cf8cdd",
+    "artifacts/v03_adaptive_rank_20261128/S08_cargo_tree.txt": "c51bd39f3fff95c6419c9f565e63ef491ada928cedbb51e7ff8ddd02d328f111",
+    "artifacts/v03_adaptive_rank_20261128/S08_headless.log": "0f1804d0eeb521f71d2907533696e50e4ef3430eb182a87df63b697ae97f2cc7",
+    "artifacts/v03_adaptive_rank_20261128/S08_ldd.txt": "852351cbb1c9c9aedf377971f8b03056a708ff331cd8b3d8c75e52f373394268",
+    "artifacts/v03_adaptive_rank_20261128/S08_native.log": "5e3c667935ab10b66476ccd1b7f6ddaf3f2ad60374e0edde3a1e548e7cbb9a0a",
+    "artifacts/v03_adaptive_rank_20261128/S08_original_adaptive25760.json": "52c692ba0908666c650ead538ea612bc60140c241d8a8431d54b84c19ee9b8eb",
+    "artifacts/v03_adaptive_rank_20261128/S08_original_adaptive25760_recovery.json": "82b98a280a8ee9341cac552479c1b7f1bb5e16859cdcb5f16a57138d38a57f44",
+    "artifacts/v03_adaptive_rank_20261128/S08_original_adaptive25780.json": "9ac287c78ab7086a40941aa8963de6f7bb42033a7b8506ecab8727ff76d732ba",
+    "artifacts/v03_adaptive_rank_20261128/S08_original_adaptive_migration25750.json": "e8df6f4bae99f36b20ced177f9b0c46eeecd8d8757ad83913da43e199ed8a9d4",
+    "artifacts/v03_adaptive_rank_20261128/S08_zero_alloc.jsonl": "0278dbefea5d48fa1b225680447164c9d1f8f3837ca7ded7ab811e355d471b13",
+    "artifacts/v03_adaptive_rank_20261128/S09_b15_evidence.json": "6527460eeb5f7346f39faa090f869f94275ea20392c5d421c86262682461ca15",
+    "artifacts/v03_adaptive_rank_20261128/S09_canonical_parity.txt": "82a7962c1ce4ec6d28dea5580fc6d7a755fbb45c10615abccccc60db76047eb4",
+    "artifacts/v03_adaptive_rank_20261128/S09_compare32040_retry.json": "e4f50be1072791b7216d8976bdc9f7219de0b48646d324de15d1c5d58cc77376",
+    "artifacts/v03_adaptive_rank_20261128/S09_compare32040_status.json": "2c479697289008634472fe22d484d0046c0cd9bf4f6efc019a4a78273d66710e",
+    "artifacts/v03_adaptive_rank_20261128/S09_digest_source.json": "dc4701d3463431287eca811114e1651c9d5387b2aefaf69e686e05c4a6e2ab02",
+    "artifacts/v03_adaptive_rank_20261128/S09_digest_v4.json": "621be9ffc43de72854d0a0021df5bddbe519765eaf4dbb2d3bcc7a43c80393c0",
+    "artifacts/v03_adaptive_rank_20261128/S09_fixture_execution.json": "331044423ef64584b7bb6f0a7876eb1f46e4155579f579c0b4da7c86c188457a",
+    "artifacts/v03_adaptive_rank_20261128/S09_fixture_recovery.json": "b0e7b2e6abd0d3f8c0c873310f113e6e4e65adf2a71cfd5d4efdeece0942808e",
+    "artifacts/v03_adaptive_rank_20261128/S09_junction_blocker.json": "9c83351743f538d307f14d4f960c55788a8039edbf0a57a7d3501cefc07cf14d",
+    "artifacts/v03_adaptive_rank_20261128/S09_progressive_summary.json": "f39b36dfa49b2702d14f850c47fa86e635333d8cfad7a327cc5ef50058f70b75",
+    "artifacts/v03_adaptive_rank_20261128/S09_scatter25760.json": "f122b60918ee846960f3342cb93174e34fa683b21b1b7221e33e6259d543cfd8",
+    "artifacts/v03_adaptive_rank_20261128/S09_scatter25760_recovery.json": "a9822a8ea1404a8692e76f9c105d2840923e1c32f64c84d2ca6903f4013e6c0d",
+    "artifacts/v03_adaptive_rank_20261128/S09_tracked_rust_sources.sha256": "45e1326b730512f7f8513844c58c7be192c403c1c1f5415bdcb6a4d45c10e83a",
+    "artifacts/v03_adaptive_rank_20261128/S10_backend_coverage.json": "1a12a7d24089648c16501206b9250c758e2a9b38526460fd0d9e9e8da65c93dc",
+    "artifacts/v03_adaptive_rank_20261128/S10_readiness.json": "00b2b0eb4cf0349678507774e5e575745934c3a1fe50c30c0cd4875f7c62db8c"
+  }
+}

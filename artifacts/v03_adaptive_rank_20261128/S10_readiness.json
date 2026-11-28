@@ -1,0 +1,150 @@
+{
+  "nodes_total": 21,
+  "nodes_accepted": 5,
+  "nodes_verified_scoped": 14,
+  "nodes_blocked": 1,
+  "nodes_planned": 1,
+  "direct_dependencies": [
+    {
+      "id": "P01",
+      "status": "VERIFIED_SCOPED"
+    },
+    {
+      "id": "V01",
+      "status": "VERIFIED_SCOPED"
+    },
+    {
+      "id": "V02",
+      "status": "VERIFIED_SCOPED"
+    }
+  ],
+  "direct_scoped_or_accepted": 3,
+  "direct_accepted": 0,
+  "original_cases_prepared": 3,
+  "prior_60s_prefixes_validated": 3,
+  "original_cases_total": 3,
+  "original_full_days_accepted": 0,
+  "original_full_days_required": 9,
+  "original_8h_refinement_completed": 0,
+  "original_8h_refinement_required": 3,
+  "computed_frontier_s": 25750,
+  "independently_recovered_frontier_s": 25750,
+  "research_frontiers": [
+    {
+      "bins": 4,
+      "start_s": 25320,
+      "recovered_s": 25800,
+      "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:4",
+      "evidence": "artifacts/v03_causal_rank_20261127/S05_r4_recover25800.json"
+    },
+    {
+      "bins": 1,
+      "start_s": 25320,
+      "recovered_s": 26220,
+      "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1",
+      "evidence": "artifacts/v03_causal_rank_20261127/S08_r1_recovered.json"
+    },
+    {
+      "bins": 1,
+      "ready_milli_veh": 500,
+      "start_s": 25800,
+      "ancestral_source_s": 25320,
+      "recovered_s": 27000,
+      "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60",
+      "evidence": "artifacts/v03_causal_rank_20261127/S08_ready500_recover27000.json"
+    },
+    {
+      "bins": 1,
+      "receipt_grid_step_s": 10,
+      "receipt_sweep_s": 60,
+      "ancestral_source_s": 25320,
+      "start_s": 27060,
+      "recovered_s": 28020,
+      "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10",
+      "evidence": "artifacts/v03_receipt_closure_20261127/S08_grid28020_recover.json"
+    },
+    {
+      "receipt_grid_step_s": 10,
+      "receipt_sweep_s": 60,
+      "observable_schedule": true,
+      "ancestral_source_s": 25320,
+      "start_s": 28020,
+      "recovered_s": 28500,
+      "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1",
+      "evidence": "artifacts/v03_observable_buckets_20261127/S09_schedule28500_recovery.json"
+    },
+    {
+      "streaming_receipts": true,
+      "egress_retirement_buckets": true,
+      "ancestral_source_s": 25320,
+      "start_s": 28500,
+      "recovered_s": 29340,
+      "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1",
+      "evidence": "artifacts/v03_streaming_observer_20261127/S09_egress29340_recovery.json"
+    },
+    {
+      "entry_source_clock_buckets": true,
+      "ancestral_source_s": 25320,
+      "start_s": 29340,
+      "recovered_s": 29940,
+      "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1",
+      "evidence": "artifacts/v03_entry_quotient_20261127/S09_entry29940_recovery.json"
+    },
+    {
+      "delay_calendar": true,
+      "ancestral_source_s": 25320,
+      "start_s": 29940,
+      "recovered_s": 30540,
+      "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1:delay-calendar-v1",
+      "evidence": "artifacts/v03_delay_state_20261127/S09_delay30540_recovery.json"
+    },
+    {
+      "delay_calendar": true,
+      "stable_clock_scatter": true,
+      "ancestral_source_s": 25320,
+      "start_s": 30540,
+      "recovered_s": 31140,
+      "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1:delay-calendar-v1",
+      "evidence": "artifacts/v03_marked_payload_20261128/S10_delay31140_recovery.json"
+    },
+    {
+      "delay_calendar": true,
+      "stable_clock_scatter": true,
+      "ancestral_source_s": 25320,
+      "start_s": 31140,
+      "recovered_s": 31980,
+      "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1:delay-calendar-v1",
+      "evidence": "artifacts/v03_direct_receiving_20261128/S09_delay31980_recovery.json"
+    },
+    {
+      "adaptive_rank": [
+        4,
+        500
+      ],
+      "ancestral_source_s": 25320,
+      "start_s": 31980,
+      "recovered_s": 32820,
+      "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-rank-v1:1:ready-rank-v1:500:60:mature-receipt-v1:60:group-outlets-v1:receipt-grid-v1:10:receipt-schedule-v1:receipt-stream-v1:egress-bucket-v1:entry-bucket-v1:delay-calendar-v1:causal-adaptive-rank-v1:4:500",
+      "evidence": "artifacts/v03_adaptive_rank_20261128/S07_adaptive32820_recovery.json"
+    },
+    {
+      "adaptive_rank": [
+        4,
+        500
+      ],
+      "ancestral_source_s": 25750,
+      "start_s": 25750,
+      "recovered_s": 25760,
+      "identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:causal-adaptive-rank-v1:4:500",
+      "evidence": "artifacts/v03_adaptive_rank_20261128/S08_original_adaptive25760_recovery.json",
+      "next_attempt_s": 25780,
+      "next_failure": "packet junction budget"
+    }
+  ],
+  "definition": "Exact original25750 MFWHOLE3/MFWHOLE4 canonical digest and independent recovery. Previous original25760 blocked unchanged logical cap; distinct adaptive original branch recovered25760 and then junction event cap. Distinct adaptive delay recovered32820. No original 24h/8h acceptance credit.",
+  "current_loop_stages": 10,
+  "original_candidate_logical_rows": 95601045,
+  "original_candidate_record_limit": 94438421,
+  "original_adaptive_recovered_frontier_s": 25760,
+  "adaptive_delay_recovered_frontier_s": 32820
+}
