@@ -135,6 +135,14 @@ User architecture instruction (2026-11-28): retain Rust backend / Python fronten
 
 Evidence: [D05 final theory/implementation report](../research/AKM_D05_FINAL_INTERFACE_20261128.md); `artifacts/akm_d05_final_20261128/S09_audit.json`, `S10_RESEARCH_RECEIPT.json`. Verdict CAUTION_RESEARCH_ONLY.
 
+## 6.4. 2026-11-28 D07 attempt 1: causal path choice and graph intervention
+
+D07 VERIFIED_SCOPED, attempts_used=1/2. Fixed-set path-size logit TV sensitivity <= epsilon/(2Theta), conditional regret bound and one-medium-step linear Schur threshold lambda*g<1 derived, 2048 logit/1620 root cases independently checked. Rust bounded synthetic reserved-cohort lab reuses D05 interface increment, positive kinetic mean distance, existing Information/Routing. K=3 exhausts lab candidates; separate existing router K4/K8 legal turn tests. Graph installation changes actual physical support at t300, removal rejected at540 while live commitments use link, accepted after drain at1800 in all six bypass runs. Same owner/birth/prefix and current quotas; physical suffix changes only at ready and unreserved boundary; no future data, actual completed link passage windows and separate observed no-entry signals. 40s latency,80s age,20s medium, blackout420..540 leads prior fallback500..560. All nine finite matched 1800s cases complete all 300/150/75 fixed births. Source-only no-bypass vs installed bypass vs ready reroute means 145.1167/120.5667/84.4033 (gap2),77.2467/69.6267/69.0667(gap4),67.6667/64.56/50.36(gap8). 115/13/6 actual changes (111/13/6 distinct owners). Reroute-vs-bypass gap2 harms128 despite improving mean, gap4 harms33 improves14, gap8 bypass-only harms2 with max+107s. Not a Pareto improvement, Braess proof or induced-demand experiment. Policy enabled from t0, not just after installation. Actual independent 440s partial checkpoint replay and resume byte identity; selected malformed/future controls rejected. Original native calendar and scheduled bus owners not coupled in this lab; no 100k scalability or physical convergence claim. D05 limitations unchanged. New D07 wire AKMD07LAB1, not AKMFULL3 or production. Read-only Python receipt adapter extended; all physical/routing logic Rust. D07 closes scoped question; no identical repeat.
+
+**AD1** Q3 infrastructure intervention, lagged information, distributional effects, historic source IDs and actual passage journals. **AD2** same source births and physical coefficients except explicit graph/policy, owner/prefix and quotas preserved, graph identities/replay, finite mean characteristic cohort approximation disclosed. **ALM1** zero new original exact ticks/guard changes, no time-fraction measurement. **ALM2** one bounded attempt; D08/D09 ready separately, no auto execution. Original V1 PLAN v1.1.55 byte-identical. D08 next recommended: reuse lagged growth/phase law for at least two slow epochs, paired frozen/endogenous demands with population/activity source ledger, use D07 accessibility only within its valid scope; no same-tick feedback. D09 separate one-original-city pilot with existing external limits; D07 small lab does not establish integration. Full CI/main merge not run. Independent native subagent unavailable; direct execution and independent artifact/oracle audit. Verdict CAUTION_RESEARCH_ONLY.
+
+Evidence: [D07 report](../research/AKM_D07_CAUSAL_ROUTING_20261128.md); `artifacts/akm_d07_causal_routing_20261128/S09_audit.json`, `S10_RESEARCH_RECEIPT.json`.
+
 ## 7. 유한 DAG: 정의와 종료
 
 D00–D03은 이번 재정초의 실측 범위에 대해 VERIFIED_SCOPED. D04–D10은 유한 science/implementation 실험. D11은 성공뿐 아니라 실패가 담긴 terminal evidence로 decision. 후보가 없다는 근거 있는 decision 자체는 D11 VERIFIED_SCOPED로 기록하며, D12는 STOPPED reason으로 종료해 D13을 활성화한다. D12는 candidate가 선택되고 사용자 승인으로 release candidate contract가 명시된 경우에만 기존 V03 전체 수용시험; 기존 3×3/3 matched refinement와 외부 limits 변경 없음. D13은 결과·통합심사 및 사용자 결정 기록으로 닫는다. 선택되지 않거나 실패한 dependency 때문에 실행할 수 없는 노드는 정확한 terminal reason과 evidence로 STOPPED/BLOCKED_TERMINAL (환경이 재개되면 새 승인된 계획) 처리. 종료까지 진행하기 위한 terminal dependency는 성공 dependency와 다르다. D11이 실행된 뒤 후보를 재생성하거나 D05로 역행하는 edge가 없다. 모든 노드는 최대 시도 횟수(실행된 차별 가설 단위, 하위 반복 횟수는 사전 기록)를 소비한다. D00–D03 각 1회 이미 소비. D04–D13 합 20회 이하의 추가 시도, global max 24회. 한 시도에 사용할 finite run matrix를 먼저 고정하고, resource failure 후 동일 run blind repeat는 최대 1회이며 같은 시도 예산에서 소모한다. V03 9+3 실행은 D12의 명시된 하나의 캠페인으로 취급(실패 시 예산 내 한 후보의 추가 캠페인만, 승인 없는 재시작 금지). 사용자가 새 연구 범위를 요청하면 버전을 변경하며 기존 종료 결과를 덮어쓰지 않는다.
@@ -275,13 +283,16 @@ D00–D03은 이번 재정초의 실측 범위에 대해 VERIFIED_SCOPED. D04–
         "D05"
       ],
       "requires_terminal": [],
-      "status": "READY",
-      "attempts_used": 0,
+      "status": "VERIFIED_SCOPED",
+      "attempts_used": 1,
       "max_attempts": 2,
       "question": "Q3",
       "deliverable": "K legal path candidates, medium information delay/expiry, source-only and ready-boundary reroute, graph transaction, paired bridge/bypass experiment",
       "claim_gate": "same demand/topology except intervention; no future info/illegal path, reroute conserves committed journey owner; nontrivial flow/queue/route response, compare negative cases",
-      "prior_findings": "D05 terminal scoped selection: D AKMFULL3 service interface; A global day refinement unvalidated, B projected comparator only. Rust backend/Python frontend. Proceed causal legal route/graph and paired intervention research, no production acceptance."
+      "prior_findings": "D05 terminal scoped selection: D AKMFULL3 service interface; A global day refinement unvalidated, B projected comparator only. Rust backend/Python frontend. Proceed causal legal route/graph and paired intervention research, no production acceptance.",
+      "evidence": "artifacts/akm_d07_causal_routing_20261128/S09_audit.json",
+      "scope": "bounded synthetic actual causal ready suffix, installed graph and matched interventions; original calendar/whole-city integration, convergence and demand elasticity not verified",
+      "last_attempt_result": "D07_VERIFIED_SCOPED_SYNTHETIC_NOT_RELEASE"
     },
     {
       "id": "D08",
@@ -291,12 +302,13 @@ D00–D03은 이번 재정초의 실측 범위에 대해 VERIFIED_SCOPED. D04–
         "D07"
       ],
       "requires_terminal": [],
-      "status": "PLANNED",
+      "status": "READY",
       "attempts_used": 0,
       "max_attempts": 2,
       "question": "Q4",
       "deliverable": "port verified growth/phase laws to selected candidate; two slow epochs with paired frozen vs endogenous demand",
-      "claim_gate": "source population/activity ledger and lagged update; no same-tick feedback, observed accessibility/land-use/demand differences; no calibration claim"
+      "claim_gate": "source population/activity ledger and lagged update; no same-tick feedback, observed accessibility/land-use/demand differences; no calibration claim",
+      "prior_findings": "D07 finite causal routing lab completed; original owner bridge D06 and reserved-service D05 remain scoped, A/B convergence limitations preserved. No original full-city or release acceptance. Rust backend/Python frontend."
     },
     {
       "id": "D09",
@@ -307,12 +319,13 @@ D00–D03은 이번 재정초의 실측 범위에 대해 VERIFIED_SCOPED. D04–
         "D07"
       ],
       "requires_terminal": [],
-      "status": "PLANNED",
+      "status": "READY",
       "attempts_used": 0,
       "max_attempts": 2,
       "question": "Q1,Q2,Q3,Q5",
       "deliverable": "one original 100k city shared transport, AM/PM and 24h candidate run, full physical observables, actual restart",
-      "claim_gate": "all declared demand, 24h, peakRSS≤8GiB/wall≤7200s as pilot, byte/semantic replay within model; record full active/pending; no original campaign credit"
+      "claim_gate": "all declared demand, 24h, peakRSS≤8GiB/wall≤7200s as pilot, byte/semantic replay within model; record full active/pending; no original campaign credit",
+      "prior_findings": "D07 finite causal routing lab completed; original owner bridge D06 and reserved-service D05 remain scoped, A/B convergence limitations preserved. No original full-city or release acceptance. Rust backend/Python frontend."
     },
     {
       "id": "D10",

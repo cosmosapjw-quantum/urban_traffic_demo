@@ -1,0 +1,455 @@
+{
+  "schema": "akm_d07_research_v1",
+  "status": "VERIFIED_SCOPED_NOT_RELEASE",
+  "baseline": "926cd15615101372f0bd965289e3d7cb04923b45",
+  "ssot_version": "1.0.0",
+  "stages": 10,
+  "commits_before_S10": [
+    "d6b1640b7502911bdef9c3b5e10d2a6503fde903 S01 Preregister D07 causal routing and paired infrastructure intervention",
+    "c3bc1f4c62dadebf9595fb2d2ce22217d4511ff6 S02 Derive fixed-choice sensitivity and delayed route response stability bounds",
+    "4f334503a95c7eac598b479465291aff733906f4 S03 Implement installed graph transaction with immutable live commitment ownership",
+    "5bae4426b606f5d3443ff79ce5258611aedde4bd S04 Integrate D05 reserved interface and positive characteristic into finite network",
+    "ea2b0ec87ae79eb4d3b21b44049c1b7527f803a0 S05 Couple actual completed link reports, delayed legal choices and ready-boundary suffix",
+    "9c05e0f673ee710df9b1ae5aee71caa5b7d0813f S06 Execute matched dynamic bridge bypass and ready-reroute experiment matrix",
+    "0e14e335e27331bc8550b64264beb18b37ceb133 S07 Verify actual partial-state replay and reject incompatible/future checkpoint controls",
+    "9d40920136cb4a8a8214186846d55b53793e6a7d S08 Expose causal graph and reroute receipts through read-only Python frontend",
+    "822fa2d15b1b61bc9ba1c51db61983f39cbf1938 S09 Independently verify causal route and physical passage journals and paired distributional effects"
+  ],
+  "dag": {
+    "status": "VALID_RESEARCH_PLAN_NOT_RELEASE",
+    "nodes": 14,
+    "scoped_or_accepted": 8,
+    "terminal": 8,
+    "attempts_used": 9,
+    "attempts_limit": 24,
+    "ready": [
+      "D08",
+      "D09"
+    ],
+    "next": [
+      "D08",
+      "D09"
+    ]
+  },
+  "D07_attempts_used": 1,
+  "D07_attempts_limit": 2,
+  "original_plan_sha256": "80f64cb836782f1557f70eece21a1431e7e9f5aefdc0c208758ccef30b143313",
+  "ssot_sha256": "9c74c31076ae25981206f4b5cd681357a7c5f1b681a0f8012816d87630f710e8",
+  "audit_sha256": "9fbce40606093ab85b6d9a37ff99a970dab8c39ab56bfe88a7c9ce926f4f5e53",
+  "source_manifest_sha256": "2abcfe1e6b8938aaaaaaa41f051316f890b82c7c3541742a29485147b5e4f3b5",
+  "matrix": [
+    {
+      "name": "S06_2_baseline",
+      "demand": 300,
+      "mean_s": 145.11666666666667,
+      "stock_veh_s": 43535.0,
+      "peak_storage": 0.9934036707056696,
+      "peak_ready": 44,
+      "blocked_steps": 14269,
+      "reroutes": 0,
+      "rerouted_owners": 0,
+      "hard_reroutes": 0,
+      "initial_branches": {
+        "bridge": 173,
+        "long": 127
+      },
+      "final_branches": {
+        "bridge": 173,
+        "long": 127
+      },
+      "delivered_cost_count": 213,
+      "closure_reports": 3,
+      "live_bypass_at_rejection": 0,
+      "wall_s": 0.185295442,
+      "peak_rss_kib": 10772
+    },
+    {
+      "name": "S06_2_bypass",
+      "demand": 300,
+      "mean_s": 120.56666666666666,
+      "stock_veh_s": 36170.0,
+      "peak_storage": 0.9924955438853159,
+      "peak_ready": 44,
+      "blocked_steps": 11571,
+      "reroutes": 0,
+      "rerouted_owners": 0,
+      "hard_reroutes": 0,
+      "initial_branches": {
+        "bridge": 138,
+        "bypass": 89,
+        "long": 73
+      },
+      "final_branches": {
+        "bridge": 138,
+        "bypass": 89,
+        "long": 73
+      },
+      "delivered_cost_count": 205,
+      "closure_reports": 3,
+      "live_bypass_at_rejection": 63,
+      "wall_s": 0.177950922,
+      "peak_rss_kib": 11072
+    },
+    {
+      "name": "S06_2_reroute",
+      "demand": 300,
+      "mean_s": 84.40333333333334,
+      "stock_veh_s": 25321.0,
+      "peak_storage": 0.765447742708379,
+      "peak_ready": 29,
+      "blocked_steps": 8200,
+      "reroutes": 115,
+      "rerouted_owners": 111,
+      "hard_reroutes": 12,
+      "initial_branches": {
+        "bridge": 141,
+        "bypass": 90,
+        "long": 69
+      },
+      "final_branches": {
+        "bridge": 113,
+        "bypass": 171,
+        "long": 16
+      },
+      "delivered_cost_count": 149,
+      "closure_reports": 3,
+      "live_bypass_at_rejection": 18,
+      "wall_s": 0.177206919,
+      "peak_rss_kib": 11092
+    },
+    {
+      "name": "S06_4_baseline",
+      "demand": 150,
+      "mean_s": 77.24666666666667,
+      "stock_veh_s": 11587.0,
+      "peak_storage": 0.7622222222222222,
+      "peak_ready": 29,
+      "blocked_steps": 3997,
+      "reroutes": 0,
+      "rerouted_owners": 0,
+      "hard_reroutes": 0,
+      "initial_branches": {
+        "bridge": 82,
+        "long": 68
+      },
+      "final_branches": {
+        "bridge": 82,
+        "long": 68
+      },
+      "delivered_cost_count": 165,
+      "closure_reports": 3,
+      "live_bypass_at_rejection": 0,
+      "wall_s": 0.095557222,
+      "peak_rss_kib": 9316
+    },
+    {
+      "name": "S06_4_bypass",
+      "demand": 150,
+      "mean_s": 69.62666666666667,
+      "stock_veh_s": 10444.0,
+      "peak_storage": 0.7622222222222222,
+      "peak_ready": 29,
+      "blocked_steps": 3388,
+      "reroutes": 0,
+      "rerouted_owners": 0,
+      "hard_reroutes": 0,
+      "initial_branches": {
+        "bridge": 64,
+        "bypass": 43,
+        "long": 43
+      },
+      "final_branches": {
+        "bridge": 64,
+        "bypass": 43,
+        "long": 43
+      },
+      "delivered_cost_count": 176,
+      "closure_reports": 3,
+      "live_bypass_at_rejection": 17,
+      "wall_s": 0.087962748,
+      "peak_rss_kib": 9936
+    },
+    {
+      "name": "S06_4_reroute",
+      "demand": 150,
+      "mean_s": 69.06666666666666,
+      "stock_veh_s": 10360.0,
+      "peak_storage": 0.7622222222222222,
+      "peak_ready": 29,
+      "blocked_steps": 3440,
+      "reroutes": 13,
+      "rerouted_owners": 13,
+      "hard_reroutes": 2,
+      "initial_branches": {
+        "bridge": 64,
+        "bypass": 43,
+        "long": 43
+      },
+      "final_branches": {
+        "bridge": 61,
+        "bypass": 56,
+        "long": 33
+      },
+      "delivered_cost_count": 171,
+      "closure_reports": 3,
+      "live_bypass_at_rejection": 21,
+      "wall_s": 0.094200066,
+      "peak_rss_kib": 9444
+    },
+    {
+      "name": "S06_8_baseline",
+      "demand": 75,
+      "mean_s": 67.66666666666667,
+      "stock_veh_s": 5075.0,
+      "peak_storage": 0.36925925925925923,
+      "peak_ready": 14,
+      "blocked_steps": 1438,
+      "reroutes": 0,
+      "rerouted_owners": 0,
+      "hard_reroutes": 0,
+      "initial_branches": {
+        "bridge": 41,
+        "long": 34
+      },
+      "final_branches": {
+        "bridge": 41,
+        "long": 34
+      },
+      "delivered_cost_count": 161,
+      "closure_reports": 2,
+      "live_bypass_at_rejection": 0,
+      "wall_s": 0.054820201,
+      "peak_rss_kib": 8168
+    },
+    {
+      "name": "S06_8_bypass",
+      "demand": 75,
+      "mean_s": 64.56,
+      "stock_veh_s": 4842.0,
+      "peak_storage": 0.3907407407407408,
+      "peak_ready": 15,
+      "blocked_steps": 1469,
+      "reroutes": 0,
+      "rerouted_owners": 0,
+      "hard_reroutes": 0,
+      "initial_branches": {
+        "bridge": 37,
+        "bypass": 19,
+        "long": 19
+      },
+      "final_branches": {
+        "bridge": 37,
+        "bypass": 19,
+        "long": 19
+      },
+      "delivered_cost_count": 160,
+      "closure_reports": 2,
+      "live_bypass_at_rejection": 2,
+      "wall_s": 0.051018144,
+      "peak_rss_kib": 8892
+    },
+    {
+      "name": "S06_8_reroute",
+      "demand": 75,
+      "mean_s": 50.36,
+      "stock_veh_s": 3777.0,
+      "peak_storage": 0.25,
+      "peak_ready": 5,
+      "blocked_steps": 450,
+      "reroutes": 6,
+      "rerouted_owners": 6,
+      "hard_reroutes": 2,
+      "initial_branches": {
+        "bridge": 37,
+        "bypass": 19,
+        "long": 19
+      },
+      "final_branches": {
+        "bridge": 32,
+        "bypass": 25,
+        "long": 18
+      },
+      "delivered_cost_count": 157,
+      "closure_reports": 2,
+      "live_bypass_at_rejection": 2,
+      "wall_s": 0.052166403,
+      "peak_rss_kib": 9048
+    }
+  ],
+  "paired": [
+    {
+      "gap": 2,
+      "comparison": "bypass_vs_baseline",
+      "better": 150,
+      "worse": 0,
+      "same": 150,
+      "min_delta_s": -131.0,
+      "max_delta_s": 0.0,
+      "mean_delta_s": -24.55
+    },
+    {
+      "gap": 2,
+      "comparison": "reroute_vs_bypass",
+      "better": 153,
+      "worse": 128,
+      "same": 19,
+      "min_delta_s": -121.0,
+      "max_delta_s": 62.0,
+      "mean_delta_s": -36.163333333333334
+    },
+    {
+      "gap": 4,
+      "comparison": "bypass_vs_baseline",
+      "better": 65,
+      "worse": 0,
+      "same": 85,
+      "min_delta_s": -34.0,
+      "max_delta_s": 0.0,
+      "mean_delta_s": -7.62
+    },
+    {
+      "gap": 4,
+      "comparison": "reroute_vs_bypass",
+      "better": 14,
+      "worse": 33,
+      "same": 103,
+      "min_delta_s": -18.0,
+      "max_delta_s": 6.0,
+      "mean_delta_s": -0.56
+    },
+    {
+      "gap": 8,
+      "comparison": "bypass_vs_baseline",
+      "better": 28,
+      "worse": 2,
+      "same": 45,
+      "min_delta_s": -26.0,
+      "max_delta_s": 107.0,
+      "mean_delta_s": -3.1066666666666665
+    },
+    {
+      "gap": 8,
+      "comparison": "reroute_vs_bypass",
+      "better": 19,
+      "worse": 0,
+      "same": 56,
+      "min_delta_s": -98.0,
+      "max_delta_s": 0.0,
+      "mean_delta_s": -14.2
+    }
+  ],
+  "recovery": {
+    "cut_s": 440,
+    "partial_owners": [
+      {
+        "id": 180,
+        "fraction": 0.6000000000000001
+      },
+      {
+        "id": 215,
+        "fraction": 0.9217944412633894
+      }
+    ],
+    "cut_sha256": "2d4568d05ef17c77fa90e56cefe1793e6a27b0335ed288bc8dc3f70378622d71",
+    "final_sha256": "f3089089b53e0a66115fd0890424ee6d1c36da136298c4b2a4ed573859a6fed9"
+  },
+  "limitations": [
+    "actual owner route updates in separate bounded lab, not original NativeJourneyCore integration",
+    "unit logical cohort, no all-class or empirical calibration; report closure is observed affected-ready availability, not completed passage mean",
+    "reroute policy enabled from t0, not only after bypass",
+    "checkpoint byte replay and selected malformed controls; not adversarial wire completeness",
+    "full receipt/history allocations, not no-heap or city scalability"
+  ],
+  "tests": {
+    "headless": 20,
+    "native_akm_feature": 320,
+    "ignored": 2,
+    "python_frontend": 5,
+    "full_ci": "NOT_RUN"
+  },
+  "architecture": {
+    "backend": "Rust native CLI, no Python runtime dependency",
+    "frontend": "Python read-only receipt adapter; no GUI integration claim"
+  },
+  "watchdog": {
+    "AD1": "Q3 actual causal routes and graph intervention, distributional counterexample, historic roots",
+    "AD2": "same births, graph and physical owner identities, distinct lab model and replay",
+    "ALM1": "zero new exact ticks or cap changes, time fraction not measured",
+    "ALM2": "D07 scoped terminal, D08/D09 ready, no auto execution"
+  },
+  "review": {
+    "verdict": "CAUTION_RESEARCH_ONLY",
+    "P1": [
+      "Synthetic single OD and unit cohorts not original native journey/service integration",
+      "No time/spatial convergence, network equilibrium, induced demand or empirical calibration",
+      "Reroute harms some owners, no guarantee of Pareto gain; D05 fluid and service limitations persist"
+    ],
+    "P2": [
+      "Full owner and journal copies allocate; no 100k performance claim",
+      "Selected corrupt controls not full adversarial checkpoint validation",
+      "No native subagent, no full CI or main merge; initial audit unique count corrected"
+    ]
+  },
+  "V03": {
+    "original_plan": "1.1.55 byte-identical",
+    "original_day_accepted": "0/9",
+    "original_8h_refinement": "0/3",
+    "original_exact_frontier_s": 25750,
+    "AKM_A_prior_frontier_s": 26160
+  },
+  "files_sha256": {
+    "S01_contract.json": "8528d8f89e65b06e439e9b05a16060493b9868e2203401c587757082919a5cae",
+    "S01_history.txt": "24add8e1b663fe0d4db48fbe710cd3b75ecd3bf3cc56f58061448ccbeaafb1c2",
+    "S02_oracle.json": "45a830e15c256e8de69ec936e7da92680cb51708d67649c42dabd2cb74f7a8a0",
+    "S03_green.log": "e612c137b977e6be7c55544d81689a3f254129c7ab7e46c8ba1d0245fc57a8c3",
+    "S03_red.log": "2ab5d83647919d7ed48dc6494348d9d6f8ac9312d44e6767c3f4f79a759f871a",
+    "S04_tests.log": "75ee46043b24a297e3b3e781dc880178ae3f81dcf0a6a21f55b6dac27e2ebf81",
+    "S05_tests.log": "4090aeacf4e94a27b6e65f0f3549465cf45be4311c5535ed2f3dc15c8ea34917",
+    "S06_2_baseline.json": "54d21b391fd37fa5d2320954c8d7968672940a386ae50efe0be7733be1e8f80a",
+    "S06_2_baseline.log": "36f2c815a94ab8e1c6760c7bece60da7e9cc5f0edccc2c0bc2fab5cd4af5c40b",
+    "S06_2_bypass.json": "923673a95e40c5e500415d04f3bf63151b330f07d74e476e2cdd04fda4cc26a6",
+    "S06_2_bypass.log": "1f44ca293b3eefa16601fb03e6e460d0a2a1a3322f859b55380899cdb74a2b7b",
+    "S06_2_reroute.json": "e37b6f169871220d6620eec5b707197db688e21381d741c6441e3f0b7bc09e0d",
+    "S06_2_reroute.log": "17b9f3a1d0c1ca2e23cb5d838123be9ca0423d0fadc13e64bd0e17141c04bc39",
+    "S06_4_baseline.json": "8aa0dd628459d5ace0730a425021b11da72aa75043e746ab63fa3f037adf7569",
+    "S06_4_baseline.log": "638ad35d143026868ef87ba59ba818daaa65ac76c073c8b2a0138ddb8acd1b36",
+    "S06_4_bypass.json": "b8962a1887b46ad9a919bc362373db0f9f7b2ea69def4a645f1257617bcc008c",
+    "S06_4_bypass.log": "9f8001c6d954fd87058ea7b4f084b5add957cb61a19bff257a1b6fa62490cc7d",
+    "S06_4_reroute.json": "7918dfd7731d97ee5075627959b5b5427a8a8b9b19e0eaab47e6e3490ac0db78",
+    "S06_4_reroute.log": "dfdb4d2d8780b27103631dec6c4fff24c94a93f4acafa5a611b4b4fce4f7a48b",
+    "S06_8_baseline.json": "8ad4ad8bee4d5ce46168f0c2a865f22bfb234f69b44ce50cbb5cf0209a9e91d7",
+    "S06_8_baseline.log": "de4f7cc580032e730ed770bae7b8b213d8ac741f0c261c71bb2c99f963370e21",
+    "S06_8_bypass.json": "5e47c88a4907306896c840c0821791050f0f84d83d58af7bbdba0089b426fd85",
+    "S06_8_bypass.log": "b8648e270a1adc751a08b0c7b1dc3c11363637b83335414b4b2bebc0afd4e36c",
+    "S06_8_reroute.json": "d98e372e0c940b22594bc0cc2b96d4426b285942b532b24c7f72e6d26398f595",
+    "S06_8_reroute.log": "134205c11c6ce37553022f46a1afee813a80bf046c751015337f184aeecf8b23",
+    "S06_build.log": "041cfa94878a671a0664de4677d4d622235b2e7f886d9cfa4e7744520ebacd9d",
+    "S06_exit_codes.txt": "cc709d68d218c6617beefa5601723c7ebbe1eb364df233a9b1274d43d3c88c86",
+    "S07_bad_cross.log": "9ebb2b4ab4f4d0d037b781b9f4fd50f61cb0f0b35d03a910e69fe3f2a999eaab",
+    "S07_bad_future.log": "d732c986fc5fe8413ffc2520472b755c99bdbb47820c6165f6d11546251b4656",
+    "S07_bad_model.log": "055ac7831bfb236c469d1160119e2fd55fa39fac515e390e88a5ddeb94a389d1",
+    "S07_cut440.json": "9874bbd55cb70ddb96e413298ea6c86a68d16a7f961d108696302b929107d2e4",
+    "S07_cut440.log": "2687cd44fa9303ca1025c075c8faa06e67bac051ff52318b7af5bfd62d78a0cf",
+    "S07_hashes.txt": "b60fd5c8ab20c7e133ff3766c62066530c532bef42fc8cf06523e856193d17b8",
+    "S07_negative_controls.txt": "b58894fb2b7bd414eb5e46e81e159ed138ea586cdebb75b308ac054b28c667c3",
+    "S07_recover440.json": "c2a653fcc3b6874bff272ab3fefe2658f206d7d19896ab049cf4d5397639c13c",
+    "S07_recover440.log": "7c517360860c83235e577dcce2cf66f060f3a99d0356572d840850ca2560759e",
+    "S07_resume1800.json": "052ed811b91e0716a3a1918bc6155a8b1495625000184872487374e6268dce71",
+    "S07_resume1800.log": "bba8d8196a7d3b3995b3ea25d32e78ee2648b5ca3330a16b6db544d1db6fb116",
+    "S08_green.log": "dc73d5669fe02105037ac272969a74c0e92d8e4eda11ab9f36efd14f0fd1c648",
+    "S08_red.log": "ccc273773d63be7513d2aab9970bfbed61a1e6cdfda81a10f99196d285cddc2c",
+    "S09_audit.json": "9fbce40606093ab85b6d9a37ff99a970dab8c39ab56bfe88a7c9ce926f4f5e53",
+    "S09_census_correction.txt": "97966bcb4358caf76380901ddbdd6727cab3d2916224e8755f618cb11c1d9839",
+    "S09_dependencies.txt": "a259c8d8856d0bad86bae3d1e58de18338cb648c62ed6fdb811965042b61fbff",
+    "S09_frontend_tests.log": "7517664b89111669a5d4ca6b5a47ee28eb6f1944b80558fa0be13669e4509513",
+    "S09_headless_tests.log": "d45604351e5c5634b42abf3505f6040ac78b40309bb522e6bb10de996cb6f91c",
+    "S09_ldd.txt": "d807624e4c1dbfbafe465c60aa8e9c26e624430b1451ac647ce11ba234166148",
+    "S09_native_tests.log": "2acd10ad29dfbb9c9feba1668c126d515b0d930b16028f713ec60e8bc764f883",
+    "S10_DAG_next.json": "5689fd7830d95bc99d8acdb1ca52604ccdb1fa191fd272d0b3fca5e7b4b45db2",
+    "S10_DAG_render.json": "5689fd7830d95bc99d8acdb1ca52604ccdb1fa191fd272d0b3fca5e7b4b45db2",
+    "S10_DAG_validate.json": "5689fd7830d95bc99d8acdb1ca52604ccdb1fa191fd272d0b3fca5e7b4b45db2",
+    "S10_V1_validate.json": "cabc71c360f58f5e1df585603cb4d609e0af9b101ec4024b1ecd3e1426fafcca",
+    "S10_source_manifest.sha256": "2abcfe1e6b8938aaaaaaa41f051316f890b82c7c3541742a29485147b5e4f3b5",
+    "S10_source_verify.log": "b5925285043962f3f05bf32e21eb0f166ea441c72c050532b15fe10d576d1914"
+  }
+}

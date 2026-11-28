@@ -1,0 +1,1 @@
+{"status": "VALID_RESEARCH_PLAN_NOT_RELEASE", "nodes": 14, "scoped_or_accepted": 8, "terminal": 8, "attempts_used": 9, "attempts_limit": 24, "ready": ["D08", "D09"], "next": ["D08", "D09"]}
