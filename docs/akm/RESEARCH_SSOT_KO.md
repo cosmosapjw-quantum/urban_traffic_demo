@@ -103,7 +103,15 @@ R/C 20개 단계는 한 번의 제한된 연구 수행의 단계 수이며, 20�
 
 **실험 계약**: 실험 전에 model/closure, 입력 digest, seed, dt/mesh, comparison domain, 단위/관측 정의, 허용오차, wall/RSS 및 실행횟수, 판정과 실패 처리 기록. 기존 V1 허용오차 유지; 연구 노드에는 사전 등록한 판단 기준을 따로 둔다. 예: underloaded T04 의미의 mean max(1s,2%)와 overload 미완료/curve ≤2% demand를 적용 가능한 동일 물리 문제에서만 사용. 과부하 평균 통행시간만으로 그 gate를 대신하지 않음. A의 day gap은 이번 negative evidence로 남기고, D05에서 새로운 finer ladder 및 congestion observables로 검증. 외부 CTM/LTM과 비교는 동일한 flux/가정/실험의 한계에서만. 동일한 run에 대한 재계측과 새 물리 experiment를 구분. Actual wall/RSS, support scaling, native code and semantic provenance. No test count, stage count or forecast of future work as completion.
 
-**다음 작업 선택:** 한 회차 기본 단위는 DAG의 준비된 노드 하나(독립 파일 소유권으로 최대 2개). R1–10/C1–10은 사용자가 선택할 때의 수행 형식이지 무한 재시작 trigger가 아니다. 현재 문서의 D04/D06가 READY. 기존 연구는 reference lane으로만. 정상 완료 시 새 자동 cycle 금지. DAG 수치/성과는 이 문서의 scope 별로 보고하고 original release readiness와 분리한다.
+**다음 작업 선택:** 한 회차 기본 단위는 DAG의 준비된 노드 하나(독립 파일 소유권으로 최대 2개). R1–10/C1–10은 사용자가 선택할 때의 수행 형식이지 무한 재시작 trigger가 아니다. 최초 D04/D06 READY에서 아래 후속 회차를 수행했다. 현재 기계 판독 DAG의 READY 노드만 선택한다. 기존 연구는 reference lane으로만. 정상 완료 시 새 자동 cycle 금지. DAG 수치/성과는 이 문서의 scope 별로 보고하고 original release readiness와 분리한다.
+
+## 6.1. 2026-11-28 후속 S01–S10: D04/D06 first attempts (status update, no policy change)
+
+D04 VERIFIED_SCOPED: exact geometric/negative-binomial residence law, 16 actual free-flow pulses, active relaxation pulse, FIFO AB/BA counterexample, metre supply and positive velocity-selective flux. Sharp third moment uncertainty width <= M/16; 4096 independent rational tests. Prior two-pole response bound reused. No global jam-wave convergence. D06 VERIFIED_SCOPED **input/owner coupling only**: original 918450-leg manifest and native access/service/journey ledger retained; fixture 120/360s and migrated Valley25320→25380→25560→26160s actually run; separate AKMFULL1 identity, independent bit recovery. D06 gate concerns adapter/ownership and explicit discrepancies, not all-demand completion. 610820 inherited unsupported legs remain pending, and missed bus return (2 persons) is a falsifying observation for naive mixing as a transport replacement. No V03 credit. Both nodes consume one attempt each, D05 now READY. Full-day candidate selection and D09/D12 remain unexecuted.
+
+**AD1** Q1/Q2: distinguish temporal/spatial dispersion and kinetic selective flux, actual active slowdown and order counterexample. Q5: original calendar and physical owner bridge, actual morning segment and return connection evidence. Historical roots from 0492364/6524500/3d83db0 bound in S01_history. **AD2** positive mass/birth/route positions and source/return/service ledgers checked; migration intentionally loses rank and within-link distance, separate identity; authored hazard/wave speed, no cross-model bit parity. **ALM1** zero new exact reference ticks and zero old guard changes; only archived exact input load and historical comparison. No precise time-fraction claim for the tool/review effort. **ALM2** one bounded attempt each with preset matrix completed, no guard chase or blind reruns; retain fixture declaration and compiler failures as implementation errors. Next D05 must address actual residence/return effects, support/history growth and two-closure comparison, not repeat native frontier runs. Use the remaining finite DAG, no automatic additional cycle.
+
+Evidence: [theory and execution notes](../research/AKM_OBSERVABLES_OWNERS_20261128.md); `artifacts/akm_observables_owners_20261128/S09_audit.json`, `S10_RESEARCH_RECEIPT.json`. Original PLAN v1.1.55 byte-identical. Native code research feature only, Caution for research use, not ready for product/release.
 
 ## 7. 유한 DAG: 정의와 종료
 
@@ -124,20 +132,229 @@ D00–D03은 이번 재정초의 실측 범위에 대해 VERIFIED_SCOPED. D04–
   "max_reference_work_fraction": 0.15,
   "maximum_total_attempts": 24,
   "nodes": [
-    {"id":"D00","name":"원동기 및 SSOT 재정초","requires":[],"requires_terminal":[],"status":"VERIFIED_SCOPED","attempts_used":1,"max_attempts":1,"question":"Q1-Q5","deliverable":"원천 계보, 이론/코드 맵, finite research contract","claim_gate":"역사 원천/실제 R/C 증거 대조","evidence":"artifacts/active_kinetic_meso_20261128/C10_RESEARCH_RECEIPT.json"},
-    {"id":"D01","name":"미시-kinetic bridge","requires":["D00"],"requires_terminal":[],"status":"VERIFIED_SCOPED","attempts_used":1,"max_attempts":1,"question":"Q1","deliverable":"PDMP generator, positive moment map, local response, micro oracle","claim_gate":"독립 rational/RK4/100k microscopic comparison","evidence":"artifacts/active_kinetic_meso_20261128/R07_micro_pdmp.json"},
-    {"id":"D02","name":"A: bounded kinetic network","requires":["D01"],"requires_terminal":[],"status":"VERIFIED_SCOPED","attempts_used":1,"max_attempts":1,"question":"Q1,Q2,Q5","deliverable":"fixed route-position multiclass kernel, intervention and replay lab","claim_gate":"12 synthetic cases, positivity/birth/mass/storage, bounded slots; refinement gap preserved","evidence":"artifacts/active_kinetic_meso_20261128/C08_lab_results.json"},
-    {"id":"D03","name":"B: projected active city","requires":["D01"],"requires_terminal":[],"status":"VERIFIED_SCOPED","attempts_used":1,"max_attempts":1,"question":"Q1,Q2,Q5","deliverable":"headless archive Valley active/zero 8h/24h comparison","claim_gate":"same archive inputs, historical zero payload parity, projected conservation; not acceptance","evidence":"artifacts/active_kinetic_meso_20261128/C08_city_active86400.json"},
-    {"id":"D04","name":"관측 및 반례의 공동 기준","requires":["D01","D02","D03"],"requires_terminal":[],"status":"READY","attempts_used":0,"max_attempts":2,"question":"Q1,Q2","deliverable":"matched free/overload pulse, dynamic jam/relaxation, merge/blocked turn, two-pole response; CTM/LTM/exact oracle where compatible","claim_gate":"pre-registered observable/tolerance matrix; demonstrate at least one true counterexample and one correct limit; no assumption of full FIFO equivalence"},
-    {"id":"D05","name":"혼합/순서 및 해상도 closure 선택","requires":["D04"],"requires_terminal":[],"status":"PLANNED","attempts_used":0,"max_attempts":2,"question":"Q1,Q2","deliverable":"A: active blocked-turn/residual allocation and dt 5/2.5/1.25 day; B: same archive active mesh1200/600/300 or bounded matched peak windows; optional one ordered hybrid","claim_gate":"matched observable deltas and support/complexity; overload incomplete/curve error distinguished; reject or redirect if refinement does not improve within fixed two attempts"},
-    {"id":"D06","name":"원 도시 선언 및 전체 질량 장부 연결","requires":["D02","D03"],"requires_terminal":[],"status":"READY","attempts_used":0,"max_attempts":2,"question":"Q2,Q5","deliverable":"Rust adapter for current original legal graph/calendar, access/egress, bus passenger/freight, departure/return and all person/veh/cargo demand; support cardinality census","claim_gate":"no demand omission, matched tiny and active city prefix, source/birth/return ledger, actual recovery; compare projected vs original identities"},
-    {"id":"D07","name":"인과적 경로 선택과 인프라 개입","requires":["D04","D05"],"requires_terminal":[],"status":"PLANNED","attempts_used":0,"max_attempts":2,"question":"Q3","deliverable":"K legal path candidates, medium information delay/expiry, source-only and ready-boundary reroute, graph transaction, paired bridge/bypass experiment","claim_gate":"same demand/topology except intervention; no future info/illegal path, reroute conserves committed journey owner; nontrivial flow/queue/route response, compare negative cases"},
-    {"id":"D08","name":"접근성-도시발전 지연 feedback","requires":["D06","D07"],"requires_terminal":[],"status":"PLANNED","attempts_used":0,"max_attempts":2,"question":"Q4","deliverable":"port verified growth/phase laws to selected candidate; two slow epochs with paired frozen vs endogenous demand","claim_gate":"source population/activity ledger and lagged update; no same-tick feedback, observed accessibility/land-use/demand differences; no calibration claim"},
-    {"id":"D09","name":"전체 수요 1개 도시 pilot","requires":["D05","D06","D07"],"requires_terminal":[],"status":"PLANNED","attempts_used":0,"max_attempts":2,"question":"Q1,Q2,Q3,Q5","deliverable":"one original 100k city shared transport, AM/PM and 24h candidate run, full physical observables, actual restart","claim_gate":"all declared demand, 24h, peakRSS≤8GiB/wall≤7200s as pilot, byte/semantic replay within model; record full active/pending; no original campaign credit"},
-    {"id":"D10","name":"독립 지형/요일/해상도 holdout","requires":["D08","D09"],"requires_terminal":[],"status":"PLANNED","attempts_used":0,"max_attempts":2,"question":"Q1-Q5","deliverable":"River/Coastal held-out geometry/weekday/weekend; 10s/5s 8h matched active comparison; lagged experiment repeat","claim_gate":"predeclared original-compatible metrics, no source/schedule change hidden; paired and held-out results plus resource profile, failures retained"},
-    {"id":"D11","name":"유한 후보 선택/중단","requires":["D01","D02","D03"],"requires_terminal":["D04","D05","D06","D07","D08","D09","D10"],"status":"PLANNED","attempts_used":0,"max_attempts":2,"question":"Q1-Q5","deliverable":"Pareto/claim matrix for A/B and optional one fallback, select one or no candidate","claim_gate":"all paths terminal with evidence; no survivor based solely on runtime. If unresolved physical discrepancies, STOPPED/decision report rather than endlessly extend"},
-    {"id":"D12","name":"기존 V03와 승인된 candidate의 수용","requires":["D11"],"requires_terminal":[],"status":"PLANNED","attempts_used":0,"max_attempts":2,"question":"Q5","deliverable":"explicit user-authorized candidate identity/contract, original frozen matrix 3×3 full day and 3 refinements, original resource limits, acceptance review","claim_gate":"unchanged release thresholds, actual evidence; if no approved candidate, terminal nonacceptance and close"},
-    {"id":"D13","name":"연구 종료 및 통합 심사","requires":["D11"],"requires_terminal":["D12"],"status":"PLANNED","attempts_used":0,"max_attempts":2,"question":"Q1-Q5","deliverable":"final evidence/negative results/decision, source-backed comparison, preserve checkpoints; integration/full CI only user-approved","claim_gate":"no open automatic cycle, no final release claim without existing PLAN acceptance; explicitly close or request user decision"}
+    {
+      "id": "D00",
+      "name": "원동기 및 SSOT 재정초",
+      "requires": [],
+      "requires_terminal": [],
+      "status": "VERIFIED_SCOPED",
+      "attempts_used": 1,
+      "max_attempts": 1,
+      "question": "Q1-Q5",
+      "deliverable": "원천 계보, 이론/코드 맵, finite research contract",
+      "claim_gate": "역사 원천/실제 R/C 증거 대조",
+      "evidence": "artifacts/active_kinetic_meso_20261128/C10_RESEARCH_RECEIPT.json"
+    },
+    {
+      "id": "D01",
+      "name": "미시-kinetic bridge",
+      "requires": [
+        "D00"
+      ],
+      "requires_terminal": [],
+      "status": "VERIFIED_SCOPED",
+      "attempts_used": 1,
+      "max_attempts": 1,
+      "question": "Q1",
+      "deliverable": "PDMP generator, positive moment map, local response, micro oracle",
+      "claim_gate": "독립 rational/RK4/100k microscopic comparison",
+      "evidence": "artifacts/active_kinetic_meso_20261128/R07_micro_pdmp.json"
+    },
+    {
+      "id": "D02",
+      "name": "A: bounded kinetic network",
+      "requires": [
+        "D01"
+      ],
+      "requires_terminal": [],
+      "status": "VERIFIED_SCOPED",
+      "attempts_used": 1,
+      "max_attempts": 1,
+      "question": "Q1,Q2,Q5",
+      "deliverable": "fixed route-position multiclass kernel, intervention and replay lab",
+      "claim_gate": "12 synthetic cases, positivity/birth/mass/storage, bounded slots; refinement gap preserved",
+      "evidence": "artifacts/active_kinetic_meso_20261128/C08_lab_results.json"
+    },
+    {
+      "id": "D03",
+      "name": "B: projected active city",
+      "requires": [
+        "D01"
+      ],
+      "requires_terminal": [],
+      "status": "VERIFIED_SCOPED",
+      "attempts_used": 1,
+      "max_attempts": 1,
+      "question": "Q1,Q2,Q5",
+      "deliverable": "headless archive Valley active/zero 8h/24h comparison",
+      "claim_gate": "same archive inputs, historical zero payload parity, projected conservation; not acceptance",
+      "evidence": "artifacts/active_kinetic_meso_20261128/C08_city_active86400.json"
+    },
+    {
+      "id": "D04",
+      "name": "관측 및 반례의 공동 기준",
+      "requires": [
+        "D01",
+        "D02",
+        "D03"
+      ],
+      "requires_terminal": [],
+      "status": "VERIFIED_SCOPED",
+      "attempts_used": 1,
+      "max_attempts": 2,
+      "question": "Q1,Q2",
+      "deliverable": "matched free/overload pulse, dynamic jam/relaxation, merge/blocked turn, two-pole response; CTM/LTM/exact oracle where compatible",
+      "claim_gate": "pre-registered observable/tolerance matrix; demonstrate at least one true counterexample and one correct limit; no assumption of full FIFO equivalence",
+      "evidence": "artifacts/akm_observables_owners_20261128/S09_audit.json",
+      "scope": "shared discriminator matrix, sharp local bound, no full-network equivalence"
+    },
+    {
+      "id": "D05",
+      "name": "혼합/순서 및 해상도 closure 선택",
+      "requires": [
+        "D04"
+      ],
+      "requires_terminal": [],
+      "status": "READY",
+      "attempts_used": 0,
+      "max_attempts": 2,
+      "question": "Q1,Q2",
+      "deliverable": "A: active blocked-turn/residual allocation and dt 5/2.5/1.25 day; B: same archive active mesh1200/600/300 or bounded matched peak windows; optional one ordered hybrid",
+      "claim_gate": "matched observable deltas and support/complexity; overload incomplete/curve error distinguished; reject or redirect if refinement does not improve within fixed two attempts",
+      "prior_findings": "D04 geometric residence and sharp third-moment envelope; D06 missed fixed return connection; compare finite propagation/spatial refinement, actual arrival/eligibility curves and journey history growth; no cap escalation"
+    },
+    {
+      "id": "D06",
+      "name": "원 도시 선언 및 전체 질량 장부 연결",
+      "requires": [
+        "D02",
+        "D03"
+      ],
+      "requires_terminal": [],
+      "status": "VERIFIED_SCOPED",
+      "attempts_used": 1,
+      "max_attempts": 2,
+      "question": "Q2,Q5",
+      "deliverable": "Rust adapter for current original legal graph/calendar, access/egress, bus passenger/freight, departure/return and all person/veh/cargo demand; support cardinality census",
+      "claim_gate": "no demand omission, matched tiny and active city prefix, source/birth/return ledger, actual recovery; compare projected vs original identities",
+      "evidence": "artifacts/akm_observables_owners_20261128/S09_audit.json",
+      "scope": "original input and owner binding, actual fixture/city migration/recovery; missed return and inherited unsupported legs retained; no all-demand completion"
+    },
+    {
+      "id": "D07",
+      "name": "인과적 경로 선택과 인프라 개입",
+      "requires": [
+        "D04",
+        "D05"
+      ],
+      "requires_terminal": [],
+      "status": "PLANNED",
+      "attempts_used": 0,
+      "max_attempts": 2,
+      "question": "Q3",
+      "deliverable": "K legal path candidates, medium information delay/expiry, source-only and ready-boundary reroute, graph transaction, paired bridge/bypass experiment",
+      "claim_gate": "same demand/topology except intervention; no future info/illegal path, reroute conserves committed journey owner; nontrivial flow/queue/route response, compare negative cases"
+    },
+    {
+      "id": "D08",
+      "name": "접근성-도시발전 지연 feedback",
+      "requires": [
+        "D06",
+        "D07"
+      ],
+      "requires_terminal": [],
+      "status": "PLANNED",
+      "attempts_used": 0,
+      "max_attempts": 2,
+      "question": "Q4",
+      "deliverable": "port verified growth/phase laws to selected candidate; two slow epochs with paired frozen vs endogenous demand",
+      "claim_gate": "source population/activity ledger and lagged update; no same-tick feedback, observed accessibility/land-use/demand differences; no calibration claim"
+    },
+    {
+      "id": "D09",
+      "name": "전체 수요 1개 도시 pilot",
+      "requires": [
+        "D05",
+        "D06",
+        "D07"
+      ],
+      "requires_terminal": [],
+      "status": "PLANNED",
+      "attempts_used": 0,
+      "max_attempts": 2,
+      "question": "Q1,Q2,Q3,Q5",
+      "deliverable": "one original 100k city shared transport, AM/PM and 24h candidate run, full physical observables, actual restart",
+      "claim_gate": "all declared demand, 24h, peakRSS≤8GiB/wall≤7200s as pilot, byte/semantic replay within model; record full active/pending; no original campaign credit"
+    },
+    {
+      "id": "D10",
+      "name": "독립 지형/요일/해상도 holdout",
+      "requires": [
+        "D08",
+        "D09"
+      ],
+      "requires_terminal": [],
+      "status": "PLANNED",
+      "attempts_used": 0,
+      "max_attempts": 2,
+      "question": "Q1-Q5",
+      "deliverable": "River/Coastal held-out geometry/weekday/weekend; 10s/5s 8h matched active comparison; lagged experiment repeat",
+      "claim_gate": "predeclared original-compatible metrics, no source/schedule change hidden; paired and held-out results plus resource profile, failures retained"
+    },
+    {
+      "id": "D11",
+      "name": "유한 후보 선택/중단",
+      "requires": [
+        "D01",
+        "D02",
+        "D03"
+      ],
+      "requires_terminal": [
+        "D04",
+        "D05",
+        "D06",
+        "D07",
+        "D08",
+        "D09",
+        "D10"
+      ],
+      "status": "PLANNED",
+      "attempts_used": 0,
+      "max_attempts": 2,
+      "question": "Q1-Q5",
+      "deliverable": "Pareto/claim matrix for A/B and optional one fallback, select one or no candidate",
+      "claim_gate": "all paths terminal with evidence; no survivor based solely on runtime. If unresolved physical discrepancies, STOPPED/decision report rather than endlessly extend"
+    },
+    {
+      "id": "D12",
+      "name": "기존 V03와 승인된 candidate의 수용",
+      "requires": [
+        "D11"
+      ],
+      "requires_terminal": [],
+      "status": "PLANNED",
+      "attempts_used": 0,
+      "max_attempts": 2,
+      "question": "Q5",
+      "deliverable": "explicit user-authorized candidate identity/contract, original frozen matrix 3×3 full day and 3 refinements, original resource limits, acceptance review",
+      "claim_gate": "unchanged release thresholds, actual evidence; if no approved candidate, terminal nonacceptance and close"
+    },
+    {
+      "id": "D13",
+      "name": "연구 종료 및 통합 심사",
+      "requires": [
+        "D11"
+      ],
+      "requires_terminal": [
+        "D12"
+      ],
+      "status": "PLANNED",
+      "attempts_used": 0,
+      "max_attempts": 2,
+      "question": "Q1-Q5",
+      "deliverable": "final evidence/negative results/decision, source-backed comparison, preserve checkpoints; integration/full CI only user-approved",
+      "claim_gate": "no open automatic cycle, no final release claim without existing PLAN acceptance; explicitly close or request user decision"
+    }
   ]
 }
 ```

@@ -1,0 +1,134 @@
+{
+  "schema": "akm_d04_d06_research_v1",
+  "status": "VERIFIED_SCOPED_NOT_RELEASE",
+  "baseline": "c5a57b3aba8e23569838fda27e2a68797c9f0e30",
+  "ssot_version": "1.0.0",
+  "ssot_status_only_update": true,
+  "scope": "10 interleaved stages, D04/D06 first attempts; original V03 unchanged",
+  "commits_before_S10": [
+    "eb23923b7214de148a9077f613134af3749b6629 S01 Lock AKM D04 and D06 bounded experiments against historical scientific intent",
+    "a73b32b99c839b437a7679247f4918622a32874d S02 Derive spatial residence dispersion and sharp positive velocity flux closure",
+    "5711f37adb242141907d5e18e2be52604c3b6f62 S03 Implement realizable velocity-selective flux diagnostic with red-green proof",
+    "90a4e9eb02f89853e25fdb42d4a83ee752286b94 S04 Run ballistic, active pulse, FIFO-order and multiclass supply discriminators",
+    "eeb7ded5798a265c7972678356ff15ecd41de6f2 S05 Add native sparse kinetic support projection with conserved route and birth ownership",
+    "2ba8a2bf6077a6dc156a54229c18eb77b59f17e9 S06 Evolve bounded sparse AKM route-position moments with conservative count and metre supply",
+    "4221505f7b871ff4595078a7f0e7d19c3f50d986 S07 Bind sparse AKM transport to original journey and service transactions and independent checkpoint wire",
+    "891c489270d41f6d9fbc268a5b05dd13103a268d S08 Execute preregistered original-owner AKM fixture and Valley migration horizon ladder",
+    "605fb27f55b5085d672f269a88d0e025d2e76b8b S09 Independently verify sharp moment envelope, owner receipts, missed connection and recovery controls"
+  ],
+  "stages": 10,
+  "dag": {
+    "status": "VALID_RESEARCH_PLAN_NOT_RELEASE",
+    "nodes": 14,
+    "scoped_or_accepted": 6,
+    "terminal": 6,
+    "attempts_used": 6,
+    "attempts_limit": 24,
+    "ready": [
+      "D05"
+    ],
+    "next": [
+      "D05"
+    ]
+  },
+  "original_plan_sha256": "80f64cb836782f1557f70eece21a1431e7e9f5aefdc0c208758ccef30b143313",
+  "ssot_sha256": "443de65b0840ae19f37eb82f79c6abded150ab8b8ec93e00c355d290a8e2f42e",
+  "scientific_receipt": "artifacts/akm_observables_owners_20261128/S09_audit.json",
+  "scientific_receipt_sha256": "0fe1b05e6792e45a578e871e25667e0d484457e15b8be1cc088a40f802912eb4",
+  "D04": {
+    "mean_error_s": 2.660716091895665e-10,
+    "variance_error_s2": 6.626797244280169e-08,
+    "pulse_matrix": 16,
+    "response_reference_max_relative_error": 1.393932858469043e-06,
+    "scope": "aligned free-flow ballistic limit, spatial/temporal pulse dispersion, dense active pulse, node order counterexample, metre supply and prior frozen local response; no network jam-wave convergence claim"
+  },
+  "D06": {
+    "scope": "original input/calendar and existing service/journey owners, positive original city prefix and actual independent recovery; not transport equivalence or all modes implemented",
+    "last_time_s": 26160.0,
+    "recovery_sha256": "3023a851ec4bcac9ae908e8ef6ac41ce01971ff758cb563d82e25b6569177f0c",
+    "remaining": "2-person missed return stays waiting; original unsupported mode/path ownership retained; dense egress and receipt history grow; no claim full day or global speedup"
+  },
+  "tests": {
+    "headless": 17,
+    "native_akm_feature": 306,
+    "ignored": 2,
+    "full_ci": "NOT_RUN"
+  },
+  "watchdog": {
+    "AD1": "Q1,Q2,Q5 actual observables, negative result and bridge",
+    "AD2": "source full calendar/birth/owner identity, separate AKM model, rank/readiness lost, no bit parity across models",
+    "ALM1": "zero exact reference new ticks or old guard changes; time fraction not measured",
+    "ALM2": "one attempt per D04/D06, prescribed matrix completed, no cap changes, D05 next, no additional cycle"
+  },
+  "review": {
+    "verdict": "CAUTION_RESEARCH_ONLY",
+    "P1": [
+      "Finite residence tail and scheduled return missed; 2 persons remain pending",
+      "Inherited unsupported leg population unchanged, not all-mode execution",
+      "Journey history 19.6M records at 26160, long horizon unbounded; road 976004/1M research cap"
+    ],
+    "P2": [
+      "BTreeMap road not zero heap; rough working reserve not allocator proof",
+      "Only outlet event telemetry; nonaligned control boundaries rejected; no fresh original full city run",
+      "Independent agent unavailable; direct review plus independent rational/receipt/fixture decoder checks"
+    ]
+  },
+  "V03": {
+    "original_plan": "1.1.55 byte-identical",
+    "original_day_accepted": "0/9",
+    "original_8h_refinement": "0/3",
+    "original_exact_frontier_s": 25750,
+    "not_claimed": "production selection or V03 acceptance"
+  },
+  "files_sha256": {
+    "S01_contract.json": "9e2949200509497b8e8f9d5ed7b7029d85881c0d5ce329d4d3dfa998f7b0cfa6",
+    "S01_history.txt": "45c03dc8560b5516e73980db9fe67a081454c7f3044b45f07665b9ac59eb822d",
+    "S02_oracle.json": "f76b962426854a461bc572e183dec3ece5626598f6e2747d24fdbc29d7c40dfd",
+    "S03_full_kinetic.log": "dad3354ba335bb29ba9abc3c1527a9332ffb40dfee3454ad6cc8ad3595871e63",
+    "S03_green.log": "ac87da23933c2d03a6268cad8acbe2d9385e15555da314987cdc9d50db9d645e",
+    "S03_red.log": "51ea561c5261b3eba1c9099c3a82bc19ef54be460f760c84e3dd16ccfbca4a85",
+    "S04_build.log": "e1b82ade1c1255fb7ef36eac9a97e328517c6fe5312dc9aa7ca3e9326bd91654",
+    "S04_discriminators.json": "5dcffd9a12d1aaa6bd4e35119a6896ae7a2c923fa5d07c217ce51949fc50d36c",
+    "S05_green.log": "fbbafbe1b077a3a524533ac4dd7bad85a7a1e73f7c092820ab72ac71b0b8abba",
+    "S05_red.log": "a9075befbf74958e6c77813e0fa708ba38607e02dc7ac04bb5022d28b814f14c",
+    "S06_fixture_decl_failure.log": "8a5379af8f07b2f47b774f8e7b3950c1b844b136aa0ede7b2dfff166b35efc85",
+    "S06_tests.log": "0800c187505fa4d0016141f4c591940d233c13ac67df048f3915dda43516621f",
+    "S07_build.log": "4f7009222542d4ef11ca18d24a61929de92722a9d081bdc777daff49ef15bad8",
+    "S07_macro_build_failure.log": "e270ca15e88ccf520d1b8fb77ad3f58af4af19c0f342f322045627eec1445556",
+    "S08_environment.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "S08_exit_codes.txt": "489d8e42d36fd398a9f4d878a4eb42a5ae6da1290aedd45d1687f4bd3af6b587",
+    "S08_fixture120.json": "d5568bf9e31674edf7b4a23e99ff67c336b979007eb8f5dfbcf77e779de2ad52",
+    "S08_fixture120.log": "c6c5db738d20876039d6b0563f5e8fb327283213ab3cf1123ea7f5ac22127c2b",
+    "S08_fixture360.json": "9c22ac6a038b40cdff0ea512b94aba81ae3524eea02085f52762330928856c20",
+    "S08_fixture360.log": "a40b5afc1e9a81bc5366f60769d5f5f5ec590089812082c13fef5a40d41bda8e",
+    "S08_source_hashes.txt": "dca8325eb96b9fa1cbbea154ff641816dcc515df5662c03c2c3358f519c51c90",
+    "S08_valley25380.json": "192acea1a540ad46eb9ce47473b4612b9e548ca52b233e55855ff62f99f35977",
+    "S08_valley25380.log": "6def026d523db896eb8cbad04eeccee00d12187e688e00e3d36af54e0a149267",
+    "S08_valley25560.json": "9460d151f672dd90f871708d8d068eabc40dd49c9e37009ffca72c58a0407df0",
+    "S08_valley25560.log": "cf8e5fc8e6561d7cd9beff5912a61e792df3e1e7af297612cd6493d6d315a047",
+    "S08_valley26160.json": "11c69d46ff11337c6d29946df8d883f069042f7f6b08c8370497c8ff44a5da87",
+    "S08_valley26160.log": "75ff02211261401bc910a47a2a887e7951e94fd41bb14bee3de6fa0f42c3488b",
+    "S09_audit.json": "0fe1b05e6792e45a578e871e25667e0d484457e15b8be1cc088a40f802912eb4",
+    "S09_city_checkpoint_hashes.txt": "1d1748d59bd7c5475faa9a3a0eb3dbc10d85ce53d0e63117c7e4a975903fe3a7",
+    "S09_fixture360_direct.json": "ca7706eee15153517bc79248c0b694553c1b7bccf66d77d774d8efe9fdd432f1",
+    "S09_fixture360_direct.log": "c277a8b7d368b6aaae472884b576bd3ff5f024bd518ce3e332dfcdc8e0623915",
+    "S09_fixture360_recover.json": "a09ee4cc80ae50b275716597594f5ae93693fe8ad6edebc101efcdf8b6510ec5",
+    "S09_fixture360_recover.log": "a300777b22f060c943e301551196a0e75fd42e4a15a228963effe2a4f5b0dafd",
+    "S09_fixture_checkpoint_hashes.txt": "2c1317c3f9db8a9a05fb2493434c100e0021c5cf7a69eef06211d42e2e261913",
+    "S09_headless_tests.log": "95026717a42153e420ac1b7841f960dc54aca2f753b2c783feb6586627d46a1c",
+    "S09_moment_envelope.json": "7f8b827ccf35700f113a17ad869636b0a01807c4c61cbc6b9a66d466f888e097",
+    "S09_native_tests.log": "56eb5116acece6f62a6c26d62b1c0bcece98d88f41d1a1a523202fbe3133fa3f",
+    "S09_negative_wire_controls.txt": "8a628beb199f6088cf6049129a4b41716d1586e6c488e54a97d33e279a4186e9",
+    "S09_reference_hashes.txt": "3683ceb31884327dd825a8b6e3d8d5c261c685acc58fdc913a0d606935b79933",
+    "S09_valley25380_recover.json": "b7509e67a4d325f53c81f380b3c678e506f42a59a5fa6a321ddc4e81144cc16e",
+    "S09_valley25380_recover.log": "25812859ef2f688341e43e1a125f403385f366fb01a53b9691623cb141baf4e5",
+    "S09_valley26160_recover.json": "cb3545afcdf304165ea83352a7bf63cc945e409ec82d1e86ca590e4ce4566869",
+    "S09_valley26160_recover.log": "db5325d24b4a6c33c3cdaa339417199e6c6febd51aa24f925565d218dfe12871",
+    "S09_wrong_identity.log": "12910cd13d2a5d3b9c5cc6f16c849f6cfc322e273e10b785c4f73947f980755d",
+    "S09_wrong_tail.log": "d7cf4b356c1e1cf7aff00084f1380831930bb4f2e353d08bad1776e3d957defc",
+    "S10_DAG_next.json": "47f7e56d880eec3ca462ca2aac2cbf96f65f52e08c72384e8ca52aa1e1adfafc",
+    "S10_DAG_render.json": "47f7e56d880eec3ca462ca2aac2cbf96f65f52e08c72384e8ca52aa1e1adfafc",
+    "S10_DAG_validate.json": "47f7e56d880eec3ca462ca2aac2cbf96f65f52e08c72384e8ca52aa1e1adfafc",
+    "S10_V1_validate.json": "cabc71c360f58f5e1df585603cb4d609e0af9b101ec4024b1ecd3e1426fafcca"
+  }
+}
