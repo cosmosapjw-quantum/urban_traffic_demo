@@ -1,0 +1,261 @@
+{
+  "active_road_birth": 7806454.353732646,
+  "active_road_mass": 308.72301235353655,
+  "advance_s": 16.356727251,
+  "build_s": 3.993185865,
+  "byte_budget": 6442450944,
+  "calendar_legs": 918450,
+  "calendar_totals": [
+    120000.0,
+    58801.0,
+    1000.0
+  ],
+  "checkpoint_bytes": 154927249,
+  "checkpoint_sha256": "6230d04892f4c8f4f3f4f0fca2fc3434ed3572a7217a4b5ef760c94163f22ce9",
+  "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+  "class_names": [
+    "car",
+    "freight",
+    "scheduled_bus"
+  ],
+  "class_road_ledger": [
+    [
+      338.20956084357107,
+      29.48654849002246
+    ],
+    [
+      0.0,
+      0.0
+    ],
+    [
+      4.0,
+      4.0
+    ]
+  ],
+  "committed_steps": 9,
+  "declared_route_positions": 5867764,
+  "declared_route_tags": 304856,
+  "dynamic_pool_bytes": 5789057471,
+  "executable_sha256": "1d530abf7f06515ebb2247fb1fc6ab6d7d4e22628ad87625e724a495b6f3285c",
+  "failure": "AKM state shape/record budget",
+  "init_s": 0.524019371,
+  "initial_ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 564.5309532746429,
+      "completed": 3.043978979526845,
+      "pending": 432.4250677458177,
+      "released": 567.5749322541698,
+      "released_intent_first_moment": 14351132.1620469,
+      "requested": 999.9999999999875
+    },
+    "vehicles": {
+      "active": 451.35560135893,
+      "completed": 1.9777319744083652,
+      "pending": 36.66666666664878,
+      "released": 453.3333333333384,
+      "released_intent_first_moment": 11462533.333333112,
+      "requested": 489.99999999998715
+    }
+  },
+  "initial_road_birth": 1225644.532731572,
+  "interface": {
+    "enabled": true,
+    "logical_sink_completed_veh": 0.0,
+    "partial_crossings": 0,
+    "peak_crossings_at_owner_tick": 0,
+    "physical_boundary_in_veh": 0.0,
+    "physical_boundary_internal_veh": 0.0,
+    "physical_boundary_sink_veh": 0.0,
+    "sum_fraction": -0.0
+  },
+  "journey_records": [
+    876091,
+    651698,
+    65419,
+    26401
+  ],
+  "ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "released_intent_first_moment": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 856.8446480941321,
+      "completed": 11.211130647536704,
+      "pending": 631.9442212583052,
+      "released": 868.0557787416689,
+      "released_intent_first_moment": 21987852.875526123,
+      "requested": 1499.999999999974
+    },
+    "vehicles": {
+      "active": 685.1853309585925,
+      "completed": 8.148002374750899,
+      "pending": 41.66666666667027,
+      "released": 693.3333333333435,
+      "released_intent_first_moment": 17562133.33333368,
+      "requested": 735.0000000000138
+    }
+  },
+  "manifest_sha256": "2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3",
+  "migration": null,
+  "mode": "resume",
+  "model_identity": "akm-native-reserved-interface-clock-v1:native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3:2088b2df7a0bb0503adea24bfcdec196758171d5d52f64f42b03269dcb008bd3",
+  "new_offered_birth": 7320361.011829573,
+  "original_identity": "native-whole-v1:b9ae726dc88fce21a5c51ec590a42c83c7dc8c317e97040b791dfdcbcdf9224d:6442450944:bounded_bytes_v1:retained_capacity_v3",
+  "outlet_birth": 739551.1908283042,
+  "peak_road_rows": 959509,
+  "peak_rss_kib": 1102936,
+  "peak_storage_ratio": 0.06249933287126036,
+  "pilot": {
+    "clock_cell_closure": true,
+    "failure_kind": "Value",
+    "idle_skipped_s": 0.0,
+    "original_external_wall_s": 7200,
+    "samples": [
+      {
+        "bus_tracks": 0,
+        "crossings": 0,
+        "journey_records": [
+          876091,
+          149339,
+          55921,
+          2121
+        ],
+        "ledger": {
+          "cargo_kg": {
+            "active": 0.0,
+            "completed": 0.0,
+            "pending": 0.0,
+            "released": 0.0,
+            "released_intent_first_moment": 0.0,
+            "requested": 0.0
+          },
+          "persons": {
+            "active": 564.5309532746429,
+            "completed": 3.043978979526845,
+            "pending": 432.4250677458177,
+            "released": 567.5749322541698,
+            "released_intent_first_moment": 14351132.1620469,
+            "requested": 999.9999999999875
+          },
+          "vehicles": {
+            "active": 451.35560135893,
+            "completed": 1.9777319744083652,
+            "pending": 36.66666666664878,
+            "released": 453.3333333333384,
+            "released_intent_first_moment": 11462533.333333112,
+            "requested": 489.99999999998715
+          }
+        },
+        "road_birth": 3533671.3750253455,
+        "road_mass": 139.96310448642447,
+        "road_rows": 624850,
+        "time_s": 25380.0
+      },
+      {
+        "bus_tracks": 0,
+        "crossings": 0,
+        "journey_records": [
+          876091,
+          651698,
+          65419,
+          26401
+        ],
+        "ledger": {
+          "cargo_kg": {
+            "active": 0.0,
+            "completed": 0.0,
+            "pending": 0.0,
+            "released": 0.0,
+            "released_intent_first_moment": 0.0,
+            "requested": 0.0
+          },
+          "persons": {
+            "active": 856.8446480941321,
+            "completed": 11.211130647536704,
+            "pending": 631.9442212583052,
+            "released": 868.0557787416689,
+            "released_intent_first_moment": 21987852.875526123,
+            "requested": 1499.999999999974
+          },
+          "vehicles": {
+            "active": 685.1853309585925,
+            "completed": 8.148002374750899,
+            "pending": 41.66666666667027,
+            "released": 693.3333333333435,
+            "released_intent_first_moment": 17562133.33333368,
+            "requested": 735.0000000000138
+          }
+        },
+        "road_birth": 7806454.353732646,
+        "road_mass": 308.72301235353655,
+        "road_rows": 959509,
+        "time_s": 25470.0
+      }
+    ],
+    "scope": "fixed original owner/calendar; same road/interface; guarded temporal quotient, no new support or calibration",
+    "session_slice_s": 180.0
+  },
+  "requested_end_s": 86400.0,
+  "road_exited": 24.30658608133686,
+  "road_initial_rows": 624850,
+  "road_offered": 193.0664939484515,
+  "road_rows": 959509,
+  "road_rows_guard": 1000000,
+  "road_substeps": 18,
+  "road_transferred": 1008.2906089542548,
+  "save_s": 4.434448119,
+  "schedule_identity": "61bf90204d22e3442c565f3f62b8ef4cba7d7be3e74b1d33e6c8bcf96208c920",
+  "schema": "metroflow_akm_native_owners_v1",
+  "scope": "research sparse kinetic transport; original native calendar/journey/service owners; not V03 acceptance",
+  "service_events_last_tick": 89956,
+  "source_checkpoint_sha256": "f388feba42014ee2fc68b5ffda0472d327c7b1d79bd9dfb67a053216b67fe435",
+  "start_s": 25380.0,
+  "status": "BLOCKED",
+  "supported": [
+    611070,
+    304368,
+    3012
+  ],
+  "threads": 4,
+  "tick_times_s": [
+    1.626560133,
+    1.687152164,
+    1.65316058,
+    1.722961557,
+    1.788222644,
+    1.80330963,
+    1.960350837,
+    1.888382672,
+    1.946600844
+  ],
+  "time_s": 25470.0,
+  "transport_policy": "akm-native-reserved-interface-clock-v1",
+  "unassigned": [
+    119998.3230375,
+    58799.9340965,
+    1.175
+  ],
+  "unsupported_legs": 610820,
+  "user_checkpoint": "/home/cosmosapjw/research_backups/metroflow_akm_d09_city_pilot_20261128/S07_resume_day.bin",
+  "wall_s": 25.48538602,
+  "whole_bus": {
+    "active_tracks": 0,
+    "enabled": true,
+    "exited_veh": 0.0,
+    "moves": 0,
+    "quota_blocks": 0
+  }
+}
